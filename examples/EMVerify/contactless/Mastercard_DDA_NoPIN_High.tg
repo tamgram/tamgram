@@ -118,14 +118,14 @@ pred !PIN/2
 
 //=============== PIN ==================//
 process pSet_PIN =
-    [ Fr(~PIN'),
+    [ Fr(~PIN),
       Set_PIN(~PAN, CVM, $CA, $Bank)
     ]
   --[ NEq(CVM, "NoPIN"),
-      SecretPIN(~PIN'),
+      SecretPIN(~PIN),
       Honest($CA), Honest($Bank), Honest(PAN) ]->
-    [ !PIN(PAN, ~PIN'),
-      !Entered_PIN(PAN, ~PIN'),//legitimate cardholder enters the PIN
+    [ !PIN(PAN, ~PIN),
+      !Entered_PIN(PAN, ~PIN),//legitimate cardholder enters the PIN
       !Entered_PIN(PAN, "WrongPIN")//attacker enters a wrong PIN
     ]
 
@@ -153,14 +153,14 @@ process pSet_Records =
     { "Set_Records_NotSDA":
         [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),
           Fr(~privkCard),
-          !AIP(~PAN, AIP'),
+          !AIP(~PAN, AIP),
           !IssuingBank(~PAN, $Bank),
           !LtkBank($Bank, ~privkBank) ]
       --
         let pubkCard = pk(~privkCard) in
-        let cont = <"04", PAN, pubkCard, $Bank, CVM, AIP'> in
+        let cont = <"04", PAN, pubkCard, $Bank, CVM, AIP> in
         let certCard = <cont, sign(cont,~privkBank)> in
-        [ NEq(fst(AIP'), "SDA"),
+        [ NEq(fst(AIP), "SDA"),
           SecretPrivkCard(~privkCard),
           Honest($CA), Honest($Bank), Honest(PAN) ]->
         [ Out(pubkCard),
@@ -181,13 +181,13 @@ process Create_Card =
       In(<auth, CVM>)
     ]
   --
-    let AIP' = <auth, $furtherData> in
-    let SSAD = sign(<"03", ~PAN, ~expDate, AIP'>, ~privkBank) in
+    let AIP = <auth, $furtherData> in
+    let SSAD = sign(<"03", ~PAN, ~expDate, AIP>, ~privkBank) in
     [ Role(~PAN, "Card"),
       SecretPAN(~PAN),
       SecretMK(~MK),
       Honest($CA), Honest($Bank), Honest(~PAN) ]->
-    [ !AIP(~PAN, AIP'),
+    [ !AIP(~PAN, AIP),
       !AID(~PAN, "Mastercard"),
       !Shk(~PAN, ~MK),
       !IssuingBank(~PAN, $Bank),
@@ -198,12 +198,12 @@ process Create_Card =
 process Card =
   "Card_Responds_To_GPO":
     [ In(<"GET_PROCESSING_OPTIONS", PDOL>),
-      !AIP(~PAN, AIP'),
+      !AIP(~PAN, AIP),
       !AID(~PAN, "Mastercard"),
       !ATC(ATC) ]
   --[ OneCard(),
       Once(<PAN, ATC, "Card">) ]->
-    [ Out(<AIP', "AFL">),
+    [ Out(<AIP, "AFL">),
       'PAN := PAN,
       'PDOL := PDOL,
       'ATC := ATC,
@@ -212,10 +212,10 @@ process Card =
   /* Card_Responds_To_ReadRecord_* */
   choice {
     { "Card_Responds_To_ReadRecord_NotDDA":
-        [ !AIP('PAN, AIP'),
+        [ !AIP('PAN, AIP),
           !Records('PAN, records),
           In(<"READ_RECORD", "AFL">) ]
-      --[ NEq(fst(AIP'), "DDA") ]->
+      --[ NEq(fst(AIP), "DDA") ]->
         [ Out(records) ]
     };
     { "Card_Responds_To_ReadRecord_DDA":
@@ -238,15 +238,15 @@ process Card =
   /* Card_Responds_To_GenerateAC_* */
   choice {
     { "Card_Responds_To_GenerateAC_NoCDA":
-        [ !AIP('PAN, AIP'),
+        [ !AIP('PAN, AIP),
           !Shk('PAN, ~MK),
           !IssuingBank('PAN, $Bank),
           In(< "GENERATE_AC", CID, "NoCDA", <"TVR", CVM, "HHMMSS"> as CDOL1 >) ]
       --
         let X = <'PDOL, CDOL1> in
         let IAD = <"IAD", CID> in
-        let AC = MAC(f(~MK, 'ATC), <X, AIP', 'ATC, IAD>) in
-        let transaction = <'PAN, AIP', CVM, X, 'ATC, AC, IAD> in
+        let AC = MAC(f(~MK, 'ATC), <X, AIP, 'ATC, IAD>) in
+        let transaction = <'PAN, AIP, CVM, X, 'ATC, AC, IAD> in
         [
           Running('PAN, "Terminal", <"Card", "Terminal", transaction>),
           Running('PAN, $Bank, <"Card", "Bank", transaction>) ]->
@@ -255,7 +255,7 @@ process Card =
     { "Card_Responds_To_GenerateAC_CDA":
         [ 'PDOL cas <amount, country, currency, date, type, UN>,
           !LtkCard('PAN, ~privkCard),
-          !AIP('PAN, <"CDA", _furtherData> as AIP'),
+          !AIP('PAN, <"CDA", _furtherData> as AIP),
           !Shk('PAN, ~MK),
           !IssuingBank('PAN, $Bank),
           Fr(~nc),
@@ -263,10 +263,10 @@ process Card =
       --
         let X = <'PDOL, CDOL1> in
         let IAD = <"IAD", CID> in
-        let AC = MAC(f(~MK, 'ATC), <X, AIP', 'ATC, IAD>) in
+        let AC = MAC(f(~MK, 'ATC), <X, AIP, 'ATC, IAD>) in
         let T' = h(<X, CID, 'ATC, AC, IAD>) in
         let SDAD = sign(<"05", ~nc, CID, AC, T', UN>, ~privkCard) in
-        let transaction = <'PAN, AIP', CVM, X, 'ATC, AC, IAD> in
+        let transaction = <'PAN, AIP, CVM, X, 'ATC, AC, IAD> in
         [ Running('PAN, "Terminal", <"Card", "Terminal", transaction>),
           Running('PAN, $Bank, <"Card", "Bank", transaction>) ]->
         [ Out(<CID, 'ATC, AC, <~nc, SDAD>, IAD>) ]
@@ -831,10 +831,10 @@ process Bank =
             ]
         };
         { "Bank_Processes_CVM_OnlinePIN":
-            [ 'encPIN cas aenc(PIN', pk(~privBank)),
+            [ 'encPIN cas aenc(PIN, pk(~privBank)),
               'transaction cas <~PAN, AIP, "OnlinePIN", X, ATC, AC, IAD>,
               !LtkBank($Bank, ~privkBank),
-              !PIN(~PAN, PIN'),
+              !PIN(~PAN, PIN),
               !Shk(~PAN, ~MK) ]
           --[ Running($Bank, $Terminal, <"Bank", "Terminal", 'transaction>) ]->
             [
@@ -903,9 +903,9 @@ process Bank_Visa =
         };
         { "Bank_Processes_CVM_OnlinePIN_Visa":
             [ 'transaction cas <~PAN, AIP, "OnlinePIN", PDOL, ATC, AC, IAD>,
-              'encPIN cas aenc(~PIN', pk(~privkBank)),
+              'encPIN cas aenc(~PIN, pk(~privkBank)),
               !LtkBank($Bank, ~privkBank),
-              !PIN(~PAN, ~PIN') ]
+              !PIN(~PAN, ~PIN) ]
           --[ Running($Bank, $Terminal, <"Bank", "Terminal", 'transaction>) ]->
             [ ]
         };
