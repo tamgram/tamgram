@@ -117,7 +117,7 @@ pred !Entered_PIN/2
 pred !PIN/2
 
 //=============== PIN ==================//
-process pSet_PIN =
+process Set_PIN =
     [ Fr(~PIN),
       Set_PIN(~PAN, CVM, $CA, $Bank)
     ]
@@ -212,21 +212,24 @@ process Card =
   /* Card_Responds_To_ReadRecord_* */
   choice {
     { "Card_Responds_To_ReadRecord_NotDDA":
-        [ !AIP('PAN, AIP),
+        [ 'PAN cas ~_,
+          !AIP('PAN, AIP),
           !Records('PAN, records),
           In(<"READ_RECORD", "AFL">) ]
       --[ NEq(fst(AIP), "DDA") ]->
         [ Out(records) ]
     };
     { "Card_Responds_To_ReadRecord_DDA":
-        [ !Records('PAN, records),
+        [ 'PAN cas ~_,
+          !Records('PAN, records),
           !AIP('PAN, <"DDA", _furtherData>),
           In(<"READ_RECORD", "AFL">) ]
       -->
         [ Out(records) ];
 
       "Card_Responds_To_InternalAuthenticate":
-        [ Fr(~nc),
+        [ 'PAN cas ~_,
+          Fr(~nc),
           !LtkCard('PAN, ~privkCard),
           In( <"INTERNAL_AUTHENTICATE", DDOL> ) ]
       -->
@@ -238,7 +241,8 @@ process Card =
   /* Card_Responds_To_GenerateAC_* */
   choice {
     { "Card_Responds_To_GenerateAC_NoCDA":
-        [ !AIP('PAN, AIP),
+        [ 'PAN cas ~_,
+          !AIP('PAN, AIP),
           !Shk('PAN, ~MK),
           !IssuingBank('PAN, $Bank),
           In(< "GENERATE_AC", CID, "NoCDA", <"TVR", CVM, "HHMMSS"> as CDOL1 >) ]
@@ -253,7 +257,8 @@ process Card =
         [ Out(<CID, 'ATC, AC, IAD>) ]
     };
     { "Card_Responds_To_GenerateAC_CDA":
-        [ 'PDOL cas <amount, country, currency, date, type, UN>,
+        [ 'PAN cas ~_,
+          'PDOL cas <amount, country, currency, date, type, UN>,
           !LtkCard('PAN, ~privkCard),
           !AIP('PAN, <"CDA", _furtherData> as AIP),
           !Shk('PAN, ~MK),
@@ -373,6 +378,7 @@ process Card_Visa =
   choice {
     { "Card_Responds_To_ReadRecord_EMV_Visa":
         [ 'AIP cas <"EMV", _furtherData>,
+          'PAN cas ~_,
           !Records_Visa('PAN, ~expDate, $CA, certBank, certCard),
           In(< "READ_RECORD", "AFL" >) ]
       -->
@@ -381,6 +387,7 @@ process Card_Visa =
     { "Card_Responds_To_ReadRecord_DDA_Visa":
         [ 'AIP cas <"DDA", _furtherData>,
           'PDOL cas <TTQ, amount, country, currency, date, type, UN>,
+          'PAN cas ~_,
           !Records_Visa('PAN, ~expDate, $CA, certBank, certCard),
           Fr(~nc),
           !LtkCard('PAN, ~privkCard),
@@ -532,6 +539,7 @@ process Terminal =
     { "Terminal_Processes_CVM_OnlinePIN":
         [ 'CVM cas "OnlinePIN",
           'PDOL cas <$amount, country, currency, date, type, ~UN>,
+          'PAN cas ~_,
           !Entered_PIN('PAN, PIN),
           !Value($amount, "High") ]
       -->
@@ -568,7 +576,9 @@ process Terminal =
         ];
 
       "Terminal_Receives_AC_NoCDA":
-        [ In(<CID, ATC, AC, IAD>),
+        [ 'X cas <PDOL, CDOL1>,
+          'PAN cas ~_,
+          In(<CID, ATC, AC, IAD>),
           Fr(~channelID) ]
       --
         let transaction = <'PAN, 'AIP, 'CVM, 'X, ATC, AC, IAD> in
@@ -596,6 +606,7 @@ process Terminal =
 
       "Terminal_Receives_AC_CDA":
         [ In(<CID, ATC, AC, <nc, SDAD>, IAD>),
+          'PAN cas ~_,
           'X cas <<$amount, country, currency, date, type, ~UN> as PDOL, _>,
           Fr(~channelID) ]
       --
@@ -672,6 +683,7 @@ process Terminal_Visa =
     { "Terminal_Receives_Records_EMV_Visa":
         [ 'AIP cas <"EMV", _>,
           'CID cas "ARQC",
+          'PAN cas ~_,
           In(<'PAN, 'expDate> as records),
           !IssuingBank('PAN, $Bank),
           !CertBank($Bank, <<"02", $Bank, pubkBank, $CA>, sign2>) ]
@@ -683,6 +695,7 @@ process Terminal_Visa =
     { "Terminal_Receives_Records_DDA_Visa":
         [ 'AIP cas <"DDA", _>,
           'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
+          'PAN cas ~_,
           In(<'PAN, 'expDate, $CA,
               <<"02", $Bank, pubkBank, $CA>, sign2>,
               <<"04", 'PAN, pubkCard, $Bank>, sign3>,
@@ -730,6 +743,7 @@ process Terminal_Visa =
     { "Terminal_Processes_CVM_OnlinePIN_Visa":
         [ 'CID cas "ARQC",
           'CTQ cas "OnlinePIN",
+          'PAN cas ~_,
           !Entered_PIN('PAN, PIN),//customer or attacker enters PIN
           !Value($amount, "High") ]
       -->
@@ -740,7 +754,9 @@ process Terminal_Visa =
   };
 
   "Terminal_Sends_AC_Visa":
-    [ Fr(~channelID) ]
+    [ 'PAN cas ~_,
+      Fr(~channelID)
+    ]
   --
     let transaction = <'PAN, 'AIP, 'CVM, 'PDOL, 'ATC, 'AC, 'IAD> in
     [ Running($Terminal, $Bank, <"Terminal", "Bank", transaction>) ]->
@@ -752,8 +768,10 @@ process Terminal_Visa =
   choice {
     { "Terminal_Commits_TC_Visa":
         [ 'CID cas "TC",
-          'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
-          'AIP cas <"DDA", _furtherData>,
+          'PAN cas ~_,
+          'transaction cas <'PAN, <"DDA", _furtherData>, CVM, 
+                            <TTQ, $amount, country, currency, date, type, ~UN> as PDOL,
+                            ATC, AC, IAD>,
           !Value($amount, "Low") ]
       --
         [ TerminalAccepts('transaction),
@@ -763,8 +781,9 @@ process Terminal_Visa =
     };
     { "Terminal_Commits_ARQC_Visa":
         [ 'CID cas "ARQC",
-          'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
-          'AIP cas <"DDA", _furtherData>,
+          'transaction cas <~PAN, <"DDA", _furtherData>, CVM,
+                            <TTQ, $amount, country, currency, date, type, ~UN> as PDOL,
+                            ATC, AC, IAD>,
           !Value($amount, "Low"),
           Recv($Bank, $Terminal, <'channelID, "Visa", "2">, <"ARC", ARPC>) ]
       --[ TerminalAccepts('transaction),
@@ -886,8 +905,9 @@ process Bank_Visa =
       };
 
       "Bank_Commits_Visa":
-        [ 'transaction cas <~PAN, <"DDA", _furtherData> as AIP, CVM,
-           <TTQ, amount, country, currency, date, type, UN> as PDOL, ATC, AC, IAD>,
+        [ 'transaction cas <~PAN, <"DDA", _furtherData>, CVM,
+                            <TTQ, amount, country, currency, date, type, UN> as PDOL,
+                            ATC, AC, IAD>,
           !Value(amount, "Low"),
           !IssuingCA($Bank, $CA) ]
       --[ Commit($Bank, ~PAN, <"Card", "Bank", 'transaction>),

@@ -82,7 +82,7 @@ rule Compromise_Bank_Card_ShK_76:
     [ Out(~MK_75)
     ]
 
-rule pSet_PIN_87:
+rule Set_PIN_87:
     [ Fr(~PIN_84)
     , Set_PIN_81(~PAN_85, CVM_86, $CA, $Bank)
     ]
@@ -153,10 +153,10 @@ rule Create_Card_122:
     , Set_PIN_81(~PAN_117, CVM_119, $CA, $Bank)
     ]
 
-rule Card_163_16to17:
+rule Card_168_16to17:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk17', 'empty_tuple')]
 
-rule Card_163_manyto17tomany_Card_Responds_To_GPO:
+rule Card_168_manyto17tomany_Card_Responds_To_GPO:
     [ StF(~pid, 'tgk17', 'empty_tuple')
     , In(<'GET_PROCESSING_OPTIONS', PDOL_123>)
     , !AIP_92(~PAN_124, AIP_126)
@@ -170,411 +170,411 @@ rule Card_163_manyto17tomany_Card_Responds_To_GPO:
     , Out(<AIP_126, 'AFL'>)
     ]
 
-rule Card_163_17to18to21_Card_Responds_To_ReadRecord_NotDDA:
-    [ StB(~pid, 'tgk17', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , !AIP_92(tgc_PAN_0, AIP_128)
-    , !Records_93(tgc_PAN_0, records_127)
+rule Card_168_17to18to21_Card_Responds_To_ReadRecord_NotDDA:
+    [ StB(~pid, 'tgk17', <tgc_ATC_0, ~u_tgany2_128, tgc_PDOL_0>)
+    , !AIP_92(~u_tgany2_128, AIP_129)
+    , !Records_93(~u_tgany2_128, records_127)
     , In(<'READ_RECORD', 'AFL'>)
     ]
-  --[ NEq_24(fst(AIP_128), 'DDA')
+  --[ NEq_24(fst(AIP_129), 'DDA')
     ]->
-    [ St(~pid, 'tgk21', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
+    [ St(~pid, 'tgk21', <tgc_ATC_0, ~u_tgany2_128, tgc_PDOL_0>)
     , Out(records_127)
     ]
 
-rule Card_163_17to19to20_Card_Responds_To_ReadRecord_DDA:
-    [ StB(~pid, 'tgk17', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , !Records_93(tgc_PAN_0, records_129)
-    , !AIP_92(tgc_PAN_0, <'DDA', u_furtherData_130>)
+rule Card_168_17to19to20_Card_Responds_To_ReadRecord_DDA:
+    [ StB(~pid, 'tgk17', <tgc_ATC_0, ~u_tgany4_131, tgc_PDOL_0>)
+    , !Records_93(~u_tgany4_131, records_130)
+    , !AIP_92(~u_tgany4_131, <'DDA', u_furtherData_132>)
     , In(<'READ_RECORD', 'AFL'>)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk20', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , Out(records_129)
+    [ StF(~pid, 'tgk20', <tgc_ATC_0, ~u_tgany4_131, tgc_PDOL_0>)
+    , Out(records_130)
     ]
 
-rule Card_163_manyto20to21_Card_Responds_To_InternalAuthenticate:
-    [ StF(~pid, 'tgk20', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , Fr(~nc_132)
-    , !LtkCard_70(tgc_PAN_0, ~privkCard_131)
-    , In(<'INTERNAL_AUTHENTICATE', DDOL_133>)
+rule Card_168_manyto20to21_Card_Responds_To_InternalAuthenticate:
+    [ StF(~pid, 'tgk20', <tgc_ATC_0, ~u_tgany3_135, tgc_PDOL_0>)
+    , Fr(~nc_134)
+    , !LtkCard_70(~u_tgany3_135, ~privkCard_133)
+    , In(<'INTERNAL_AUTHENTICATE', DDOL_136>)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk21', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , Out(<~nc_132, sign(<'05', ~nc_132, DDOL_133>, ~privkCard_131)>)
+    [ St(~pid, 'tgk21', <tgc_ATC_0, ~u_tgany3_135, tgc_PDOL_0>)
+    , Out(<~nc_134, sign(<'05', ~nc_134, DDOL_136>, ~privkCard_133)>)
     ]
 
-rule Card_163_21to22_Card_Responds_To_GenerateAC_NoCDA:
-    [ St(~pid, 'tgk21', <tgc_ATC_0, tgc_PAN_0, tgc_PDOL_0>)
-    , !AIP_92(tgc_PAN_0, AIP_137)
-    , !Shk_65(tgc_PAN_0, ~MK_134)
-    , !IssuingBank_64(tgc_PAN_0, $Bank)
-    , In(<'GENERATE_AC', CID_136, 'NoCDA', <'TVR', CVM_135, 'HHMMSS'>>)
+rule Card_168_21to22_Card_Responds_To_GenerateAC_NoCDA:
+    [ St(~pid, 'tgk21', <tgc_ATC_0, ~u_tgany0_137, tgc_PDOL_0>)
+    , !AIP_92(~u_tgany0_137, AIP_141)
+    , !Shk_65(~u_tgany0_137, ~MK_138)
+    , !IssuingBank_64(~u_tgany0_137, $Bank)
+    , In(<'GENERATE_AC', CID_140, 'NoCDA', <'TVR', CVM_139, 'HHMMSS'>>)
     ]
-  --[ Running_90(tgc_PAN_0, 'Terminal', <'Card', 'Terminal', <tgc_PAN_0, AIP_137, CVM_135, <tgc_PDOL_0, <'TVR', CVM_135, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_134, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_135, 'HHMMSS'>>, AIP_137, tgc_ATC_0, <'IAD', CID_136>>), <'IAD', CID_136>>>)
-    , Running_90(tgc_PAN_0, $Bank, <'Card', 'Bank', <tgc_PAN_0, AIP_137, CVM_135, <tgc_PDOL_0, <'TVR', CVM_135, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_134, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_135, 'HHMMSS'>>, AIP_137, tgc_ATC_0, <'IAD', CID_136>>), <'IAD', CID_136>>>)
+  --[ Running_90(~u_tgany0_137, 'Terminal', <'Card', 'Terminal', <~u_tgany0_137, AIP_141, CVM_139, <tgc_PDOL_0, <'TVR', CVM_139, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_138, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_139, 'HHMMSS'>>, AIP_141, tgc_ATC_0, <'IAD', CID_140>>), <'IAD', CID_140>>>)
+    , Running_90(~u_tgany0_137, $Bank, <'Card', 'Bank', <~u_tgany0_137, AIP_141, CVM_139, <tgc_PDOL_0, <'TVR', CVM_139, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_138, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_139, 'HHMMSS'>>, AIP_141, tgc_ATC_0, <'IAD', CID_140>>), <'IAD', CID_140>>>)
     ]->
-    [ Out(<CID_136, tgc_ATC_0, MAC_27(f_26(~MK_134, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_135, 'HHMMSS'>>, AIP_137, tgc_ATC_0, <'IAD', CID_136>>), <'IAD', CID_136>>)
+    [ Out(<CID_140, tgc_ATC_0, MAC_27(f_26(~MK_138, tgc_ATC_0), <<tgc_PDOL_0, <'TVR', CVM_139, 'HHMMSS'>>, AIP_141, tgc_ATC_0, <'IAD', CID_140>>), <'IAD', CID_140>>)
     ]
 
-rule Card_163_21to23_Card_Responds_To_GenerateAC_CDA:
-    [ St(~pid, 'tgk21', <tgc_ATC_0, tgc_PAN_0, <amount_149, country_148, currency_147, date_146, type_143, UN_151>>)
-    , !LtkCard_70(tgc_PAN_0, ~privkCard_144)
-    , !AIP_92(tgc_PAN_0, <'CDA', u_furtherData_150>)
-    , !Shk_65(tgc_PAN_0, ~MK_152)
-    , !IssuingBank_64(tgc_PAN_0, $Bank)
-    , Fr(~nc_145)
-    , In(<'GENERATE_AC', CID_154, 'CDA', <'TVR', CVM_153, 'HHMMSS'>>)
+rule Card_168_21to23_Card_Responds_To_GenerateAC_CDA:
+    [ St(~pid, 'tgk21', <tgc_ATC_0, ~u_tgany1_154, <amount_153, country_152, currency_151, date_150, type_147, UN_156>>)
+    , !LtkCard_70(~u_tgany1_154, ~privkCard_148)
+    , !AIP_92(~u_tgany1_154, <'CDA', u_furtherData_155>)
+    , !Shk_65(~u_tgany1_154, ~MK_157)
+    , !IssuingBank_64(~u_tgany1_154, $Bank)
+    , Fr(~nc_149)
+    , In(<'GENERATE_AC', CID_159, 'CDA', <'TVR', CVM_158, 'HHMMSS'>>)
     ]
-  --[ Running_90(tgc_PAN_0, 'Terminal', <'Card', 'Terminal', <tgc_PAN_0, <'CDA', u_furtherData_150>, CVM_153, <<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_152, tgc_ATC_0), <<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, <'CDA', u_furtherData_150>, tgc_ATC_0, <'IAD', CID_154>>), <'IAD', CID_154>>>)
-    , Running_90(tgc_PAN_0, $Bank, <'Card', 'Bank', <tgc_PAN_0, <'CDA', u_furtherData_150>, CVM_153, <<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_152, tgc_ATC_0), <<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, <'CDA', u_furtherData_150>, tgc_ATC_0, <'IAD', CID_154>>), <'IAD', CID_154>>>)
+  --[ Running_90(~u_tgany1_154, 'Terminal', <'Card', 'Terminal', <~u_tgany1_154, <'CDA', u_furtherData_155>, CVM_158, <<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_157, tgc_ATC_0), <<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, <'CDA', u_furtherData_155>, tgc_ATC_0, <'IAD', CID_159>>), <'IAD', CID_159>>>)
+    , Running_90(~u_tgany1_154, $Bank, <'Card', 'Bank', <~u_tgany1_154, <'CDA', u_furtherData_155>, CVM_158, <<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, tgc_ATC_0, MAC_27(f_26(~MK_157, tgc_ATC_0), <<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, <'CDA', u_furtherData_155>, tgc_ATC_0, <'IAD', CID_159>>), <'IAD', CID_159>>>)
     ]->
-    [ Out(<CID_154, tgc_ATC_0, MAC_27(f_26(~MK_152, tgc_ATC_0), <<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, <'CDA', u_furtherData_150>, tgc_ATC_0, <'IAD', CID_154>>), <~nc_145, sign(<'05', ~nc_145, CID_154, MAC_27(f_26(~MK_152, tgc_ATC_0), <<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, <'CDA', u_furtherData_150>, tgc_ATC_0, <'IAD', CID_154>>), h(<<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, CID_154, tgc_ATC_0, MAC_27(f_26(~MK_152, tgc_ATC_0), <<<amount_149, country_148, currency_147, date_146, type_143, UN_151>, <'TVR', CVM_153, 'HHMMSS'>>, <'CDA', u_furtherData_150>, tgc_ATC_0, <'IAD', CID_154>>), <'IAD', CID_154>>), UN_151>, ~privkCard_144)>, <'IAD', CID_154>>)
+    [ Out(<CID_159, tgc_ATC_0, MAC_27(f_26(~MK_157, tgc_ATC_0), <<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, <'CDA', u_furtherData_155>, tgc_ATC_0, <'IAD', CID_159>>), <~nc_149, sign(<'05', ~nc_149, CID_159, MAC_27(f_26(~MK_157, tgc_ATC_0), <<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, <'CDA', u_furtherData_155>, tgc_ATC_0, <'IAD', CID_159>>), h(<<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, CID_159, tgc_ATC_0, MAC_27(f_26(~MK_157, tgc_ATC_0), <<<amount_153, country_152, currency_151, date_150, type_147, UN_156>, <'TVR', CVM_158, 'HHMMSS'>>, <'CDA', u_furtherData_155>, tgc_ATC_0, <'IAD', CID_159>>), <'IAD', CID_159>>), UN_156>, ~privkCard_148)>, <'IAD', CID_159>>)
     ]
 
-rule Create_Card_Visa_175:
-    [ Fr(~PAN_170)
-    , Fr(~expDate_168)
-    , Fr(~privkCard_166)
-    , Fr(~MK_171)
-    , !LtkBank_54($Bank, ~privkBank_167)
-    , !CertBank_55($Bank, certBank_169)
+rule Create_Card_Visa_180:
+    [ Fr(~PAN_175)
+    , Fr(~expDate_173)
+    , Fr(~privkCard_171)
+    , Fr(~MK_176)
+    , !LtkBank_54($Bank, ~privkBank_172)
+    , !CertBank_55($Bank, certBank_174)
     , !IssuingCA_56($Bank, $CA)
     ]
-  --[ Role_46(~PAN_170, 'Card')
-    , SecretPAN_79(~PAN_170)
-    , SecretMK_80(~MK_171)
-    , SecretPrivkCard_94(~privkCard_166)
+  --[ Role_46(~PAN_175, 'Card')
+    , SecretPAN_79(~PAN_175)
+    , SecretMK_80(~MK_176)
+    , SecretPrivkCard_94(~privkCard_171)
     , Honest_78($CA)
     , Honest_78($Bank)
-    , Honest_78(~PAN_170)
+    , Honest_78(~PAN_175)
     ]->
-    [ !LtkCard_70(~PAN_170, ~privkCard_166)
-    , !AID_88(~PAN_170, 'Visa')
-    , Out(pk(~privkCard_166))
-    , !ExpirationDate_164(~PAN_170, ~expDate_168)
-    , !Shk_65(~PAN_170, ~MK_171)
-    , !IssuingBank_64(~PAN_170, $Bank)
-    , !Records_Visa_165(~PAN_170, ~expDate_168, $CA, certBank_169, <<'04', ~PAN_170, pk(~privkCard_166), $Bank>, sign(<'04', ~PAN_170, pk(~privkCard_166), $Bank>, ~privkBank_167)>)
-    , Set_PIN_81(~PAN_170, 'OnlinePIN', $CA, $Bank)
+    [ !LtkCard_70(~PAN_175, ~privkCard_171)
+    , !AID_88(~PAN_175, 'Visa')
+    , Out(pk(~privkCard_171))
+    , !ExpirationDate_169(~PAN_175, ~expDate_173)
+    , !Shk_65(~PAN_175, ~MK_176)
+    , !IssuingBank_64(~PAN_175, $Bank)
+    , !Records_Visa_170(~PAN_175, ~expDate_173, $CA, certBank_174, <<'04', ~PAN_175, pk(~privkCard_171), $Bank>, sign(<'04', ~PAN_175, pk(~privkCard_171), $Bank>, ~privkBank_172)>)
+    , Set_PIN_81(~PAN_175, 'OnlinePIN', $CA, $Bank)
     ]
 
-rule Card_Visa_235_25tomany:
+rule Card_Visa_242_25tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk25', 'empty_tuple')]
 
-rule Card_Visa_235_25to26to28_Card_Responds_To_GPO_EMV_Visa:
+rule Card_Visa_242_25to26to28_Card_Responds_To_GPO_EMV_Visa:
     [ StB(~pid, 'tgk25', 'empty_tuple')
-    , In(<'GET_PROCESSING_OPTIONS', <<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>>)
-    , !Shk_65(~PAN_184, ~MK_185)
-    , !AID_88(~PAN_184, 'Visa')
-    , !ExpirationDate_164(~PAN_184, ~expDate_177)
-    , !IssuingBank_64(~PAN_184, $Bank)
-    , !ATC_34(ATC_187)
+    , In(<'GET_PROCESSING_OPTIONS', <<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>>)
+    , !Shk_65(~PAN_189, ~MK_190)
+    , !AID_88(~PAN_189, 'Visa')
+    , !ExpirationDate_169(~PAN_189, ~expDate_182)
+    , !IssuingBank_64(~PAN_189, $Bank)
+    , !ATC_34(ATC_192)
     ]
   --[ OneCard_89()
-    , Once_32(<~PAN_184, ATC_187, 'Card'>)
-    , NEq_24(CVM_186, 'CDCVM')
-    , Running_90(~PAN_184, 'Terminal', <'Card', 'Terminal', <~PAN_184, <'EMV', $furtherData>, CVM_186, <<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, ATC_187, MAC_27(f_26(~MK_185, ATC_187), <<<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, <'EMV', $furtherData>, ATC_187, <'IAD', 'ARQC'>>), <'IAD', 'ARQC'>>>)
-    , Running_90(~PAN_184, $Bank, <'Card', 'Bank', <~PAN_184, <'EMV', $furtherData>, CVM_186, <<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, ATC_187, MAC_27(f_26(~MK_185, ATC_187), <<<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, <'EMV', $furtherData>, ATC_187, <'IAD', 'ARQC'>>), <'IAD', 'ARQC'>>>)
+    , Once_32(<~PAN_189, ATC_192, 'Card'>)
+    , NEq_24(CVM_191, 'CDCVM')
+    , Running_90(~PAN_189, 'Terminal', <'Card', 'Terminal', <~PAN_189, <'EMV', $furtherData>, CVM_191, <<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, ATC_192, MAC_27(f_26(~MK_190, ATC_192), <<<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, <'EMV', $furtherData>, ATC_192, <'IAD', 'ARQC'>>), <'IAD', 'ARQC'>>>)
+    , Running_90(~PAN_189, $Bank, <'Card', 'Bank', <~PAN_189, <'EMV', $furtherData>, CVM_191, <<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, ATC_192, MAC_27(f_26(~MK_190, ATC_192), <<<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, <'EMV', $furtherData>, ATC_192, <'IAD', 'ARQC'>>), <'IAD', 'ARQC'>>>)
     ]->
-    [ St(~pid, 'tgk28', <MAC_27(f_26(~MK_185, ATC_187), <<<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, <'EMV', $furtherData>, ATC_187, <'IAD', 'ARQC'>>), <'EMV', $furtherData>, ATC_187, 'ARQC', CVM_186, <'IAD', 'ARQC'>, ~PAN_184, <<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>>)
-    , Out(<<'EMV', $furtherData>, 'AFL', <~PAN_184, ~expDate_177>, <'IAD', 'ARQC'>, MAC_27(f_26(~MK_185, ATC_187), <<<acType_182, CVM_186>, amount_181, country_180, currency_179, date_178, type_176, UN_183>, <'EMV', $furtherData>, ATC_187, <'IAD', 'ARQC'>>), 'ARQC', ATC_187, CVM_186>)
+    [ St(~pid, 'tgk28', <MAC_27(f_26(~MK_190, ATC_192), <<<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, <'EMV', $furtherData>, ATC_192, <'IAD', 'ARQC'>>), <'EMV', $furtherData>, ATC_192, 'ARQC', CVM_191, <'IAD', 'ARQC'>, ~PAN_189, <<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>>)
+    , Out(<<'EMV', $furtherData>, 'AFL', <~PAN_189, ~expDate_182>, <'IAD', 'ARQC'>, MAC_27(f_26(~MK_190, ATC_192), <<<acType_187, CVM_191>, amount_186, country_185, currency_184, date_183, type_181, UN_188>, <'EMV', $furtherData>, ATC_192, <'IAD', 'ARQC'>>), 'ARQC', ATC_192, CVM_191>)
     ]
 
-rule Card_Visa_235_25to27to28_Card_Responds_To_GPO_DDA_Visa:
+rule Card_Visa_242_25to27to28_Card_Responds_To_GPO_DDA_Visa:
     [ StB(~pid, 'tgk25', 'empty_tuple')
-    , In(<'GET_PROCESSING_OPTIONS', <<CID_206, CVM_205>, amount_201, country_200, currency_199, date_198, type_196, UN_202>>)
-    , !Shk_65(~PAN_203, ~MK_204)
-    , !AID_88(~PAN_203, 'Visa')
-    , !ExpirationDate_164(~PAN_203, ~expDate_197)
-    , !ATC_34(ATC_207)
+    , In(<'GET_PROCESSING_OPTIONS', <<CID_211, CVM_210>, amount_206, country_205, currency_204, date_203, type_201, UN_207>>)
+    , !Shk_65(~PAN_208, ~MK_209)
+    , !AID_88(~PAN_208, 'Visa')
+    , !ExpirationDate_169(~PAN_208, ~expDate_202)
+    , !ATC_34(ATC_212)
     ]
   --[ OneCard_89()
-    , Once_32(<~PAN_203, ATC_207, 'Card'>)
-    , NEq_24(CVM_205, 'CDCVM')
+    , Once_32(<~PAN_208, ATC_212, 'Card'>)
+    , NEq_24(CVM_210, 'CDCVM')
     ]->
-    [ St(~pid, 'tgk28', <MAC_27(f_26(~MK_204, ATC_207), <<<CID_206, CVM_205>, amount_201, country_200, currency_199, date_198, type_196, UN_202>, <'DDA', $furtherData>, ATC_207, <'IAD', CID_206>>), <'DDA', $furtherData>, ATC_207, CID_206, CVM_205, <'IAD', CID_206>, ~PAN_203, <<CID_206, CVM_205>, amount_201, country_200, currency_199, date_198, type_196, UN_202>>)
-    , Out(<<'DDA', $furtherData>, 'AFL', <~PAN_203, ~expDate_197>, <'IAD', CID_206>, MAC_27(f_26(~MK_204, ATC_207), <<<CID_206, CVM_205>, amount_201, country_200, currency_199, date_198, type_196, UN_202>, <'DDA', $furtherData>, ATC_207, <'IAD', CID_206>>), CID_206, ATC_207, CVM_205>)
+    [ St(~pid, 'tgk28', <MAC_27(f_26(~MK_209, ATC_212), <<<CID_211, CVM_210>, amount_206, country_205, currency_204, date_203, type_201, UN_207>, <'DDA', $furtherData>, ATC_212, <'IAD', CID_211>>), <'DDA', $furtherData>, ATC_212, CID_211, CVM_210, <'IAD', CID_211>, ~PAN_208, <<CID_211, CVM_210>, amount_206, country_205, currency_204, date_203, type_201, UN_207>>)
+    , Out(<<'DDA', $furtherData>, 'AFL', <~PAN_208, ~expDate_202>, <'IAD', CID_211>, MAC_27(f_26(~MK_209, ATC_212), <<<CID_211, CVM_210>, amount_206, country_205, currency_204, date_203, type_201, UN_207>, <'DDA', $furtherData>, ATC_212, <'IAD', CID_211>>), CID_211, ATC_212, CVM_210>)
     ]
 
-rule Card_Visa_235_28to29_Card_Responds_To_ReadRecord_EMV_Visa:
-    [ St(~pid, 'tgk28', <tgc_AC_0, <'EMV', u_furtherData_217>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0>)
-    , !Records_Visa_165(tgc_PAN_0, ~expDate_214, $CA, certBank_216, certCard_215)
+rule Card_Visa_242_28to29_Card_Responds_To_ReadRecord_EMV_Visa:
+    [ St(~pid, 'tgk28', <tgc_AC_0, <'EMV', u_furtherData_223>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, ~u_tgany5_222, tgc_PDOL_0>)
+    , !Records_Visa_170(~u_tgany5_222, ~expDate_219, $CA, certBank_221, certCard_220)
     , In(<'READ_RECORD', 'AFL'>)
     ]
   --[ 
     ]->
-    [ Out(<tgc_PAN_0, ~expDate_214>)
+    [ Out(<~u_tgany5_222, ~expDate_219>)
     ]
 
-rule Card_Visa_235_28to30_Card_Responds_To_ReadRecord_DDA_Visa:
-    [ St(~pid, 'tgk28', <tgc_AC_0, <'DDA', u_furtherData_229>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, <TTQ_231, amount_228, country_225, currency_224, date_223, type_218, UN_230>>)
-    , !Records_Visa_165(tgc_PAN_0, ~expDate_222, $CA, certBank_227, certCard_226)
-    , Fr(~nc_220)
-    , !LtkCard_70(tgc_PAN_0, ~privkCard_219)
-    , !SDADFormat_35(format_221, tgc_CID_0)
-    , !IssuingBank_64(tgc_PAN_0, $Bank)
+rule Card_Visa_242_28to30_Card_Responds_To_ReadRecord_DDA_Visa:
+    [ St(~pid, 'tgk28', <tgc_AC_0, <'DDA', u_furtherData_236>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, ~u_tgany6_235, <TTQ_238, amount_234, country_231, currency_230, date_229, type_224, UN_237>>)
+    , !Records_Visa_170(~u_tgany6_235, ~expDate_228, $CA, certBank_233, certCard_232)
+    , Fr(~nc_226)
+    , !LtkCard_70(~u_tgany6_235, ~privkCard_225)
+    , !SDADFormat_35(format_227, tgc_CID_0)
+    , !IssuingBank_64(~u_tgany6_235, $Bank)
     , In(<'READ_RECORD', 'AFL'>)
     ]
-  --[ Running_90(tgc_PAN_0, 'Terminal', <'Card', 'Terminal', <tgc_PAN_0, <'DDA', u_furtherData_229>, tgc_CTQ_0, <TTQ_231, amount_228, country_225, currency_224, date_223, type_218, UN_230>, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
-    , Running_90(tgc_PAN_0, $Bank, <'Card', 'Bank', <tgc_PAN_0, <'DDA', u_furtherData_229>, tgc_CTQ_0, <TTQ_231, amount_228, country_225, currency_224, date_223, type_218, UN_230>, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
+  --[ Running_90(~u_tgany6_235, 'Terminal', <'Card', 'Terminal', <~u_tgany6_235, <'DDA', u_furtherData_236>, tgc_CTQ_0, <TTQ_238, amount_234, country_231, currency_230, date_229, type_224, UN_237>, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
+    , Running_90(~u_tgany6_235, $Bank, <'Card', 'Bank', <~u_tgany6_235, <'DDA', u_furtherData_236>, tgc_CTQ_0, <TTQ_238, amount_234, country_231, currency_230, date_229, type_224, UN_237>, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
     ]->
-    [ Out(<tgc_PAN_0, ~expDate_222, $CA, certBank_227, certCard_226, ~nc_220, tgc_CTQ_0, sign(<format_221, tgc_ATC_0, UN_230, amount_228, 'CHF', ~nc_220, tgc_CTQ_0, <'DDA', u_furtherData_229>>, ~privkCard_219)>)
+    [ Out(<~u_tgany6_235, ~expDate_228, $CA, certBank_233, certCard_232, ~nc_226, tgc_CTQ_0, sign(<format_227, tgc_ATC_0, UN_237, amount_234, 'CHF', ~nc_226, tgc_CTQ_0, <'DDA', u_furtherData_236>>, ~privkCard_225)>)
     ]
 
-rule Terminal_370_31to32:
+rule Terminal_384_31to32:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk32', 'empty_tuple')]
 
-rule Terminal_370_manyto32to33_Terminal_Sends_GPO:
+rule Terminal_384_manyto32to33_Terminal_Sends_GPO:
     [ StF(~pid, 'tgk32', 'empty_tuple')
-    , Fr(~UN_242)
-    , !Value_33($amount, value_241)
+    , Fr(~UN_249)
+    , !Value_33($amount, value_248)
     ]
-  --[ OneTerminal_236()
+  --[ OneTerminal_243()
     , Role_46($Terminal, 'Terminal')
     ]->
-    [ StF(~pid, 'tgk33', <<$amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_242>>)
-    , Out(<'GET_PROCESSING_OPTIONS', <$amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_242>>)
+    [ StF(~pid, 'tgk33', <<$amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_249>>)
+    , Out(<'GET_PROCESSING_OPTIONS', <$amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_249>>)
     ]
 
-rule Terminal_370_manyto33tomany_Terminal_Sends_ReadRecord:
+rule Terminal_384_manyto33tomany_Terminal_Sends_ReadRecord:
     [ StF(~pid, 'tgk33', <tgc_PDOL_0>)
-    , In(<AIP_248, 'AFL'>)
+    , In(<AIP_255, 'AFL'>)
     ]
   --[ 
     ]->
-    [ StB(~pid, 'tgk33', <AIP_248, tgc_PDOL_0>)
+    [ StB(~pid, 'tgk33', <AIP_255, tgc_PDOL_0>)
     , Out(<'READ_RECORD', 'AFL'>)
     ]
 
-rule Terminal_370_33to34to39_Terminal_Receives_Records_SDA:
-    [ StB(~pid, 'tgk33', <<'SDA', u_tgany1_254>, tgc_PDOL_0>)
-    , In(<~PAN_256, expDate_253, $CA, <<'02', $Bank, pubkBank_252, $CA>, sign2_249>, SSAD_255, CVM_257>)
+rule Terminal_384_33to34to39_Terminal_Receives_Records_SDA:
+    [ StB(~pid, 'tgk33', <<'SDA', u_tgany13_261>, tgc_PDOL_0>)
+    , In(<~PAN_263, expDate_260, $CA, <<'02', $Bank, pubkBank_259, $CA>, sign2_256>, SSAD_262, CVM_264>)
     , !IssuingCA_56($Bank, $CA)
-    , !CertCA_48($CA, <<'01', $CA, pubkCA_251, $CA>, sign1_250>)
+    , !CertCA_48($CA, <<'01', $CA, pubkCA_258, $CA>, sign1_257>)
     ]
-  --[ Eq_25(verify(sign1_250, <'01', $CA, pubkCA_251, $CA>, pubkCA_251), true)
-    , Eq_25(verify(sign2_249, <'02', $Bank, pubkBank_252, $CA>, pubkCA_251), true)
-    , Eq_25(verify(SSAD_255, <'03', ~PAN_256, expDate_253, <'SDA', u_tgany1_254>>, pubkBank_252), true)
+  --[ Eq_25(verify(sign1_257, <'01', $CA, pubkCA_258, $CA>, pubkCA_258), true)
+    , Eq_25(verify(sign2_256, <'02', $Bank, pubkBank_259, $CA>, pubkCA_258), true)
+    , Eq_25(verify(SSAD_262, <'03', ~PAN_263, expDate_260, <'SDA', u_tgany13_261>>, pubkBank_259), true)
     ]->
-    [ St(~pid, 'tgk39', <<'SDA', u_tgany1_254>, CVM_257, ~PAN_256, tgc_PDOL_0, pubkBank_252, 'Null'>)
+    [ St(~pid, 'tgk39', <<'SDA', u_tgany13_261>, CVM_264, ~PAN_263, tgc_PDOL_0, pubkBank_259, 'Null'>)
     ]
 
-rule Terminal_370_33to35to39_Terminal_Receives_Records_CDA:
-    [ StB(~pid, 'tgk33', <<'CDA', u_tgany2_266>, tgc_PDOL_0>)
-    , In(<~PAN_267, expDate_265, $CA, <<'02', $Bank, pubkBank_264, $CA>, sign2_260>, <<'04', ~PAN_267, pubkCard_262, $Bank, CVM_268, <'CDA', u_tgany2_266>>, sign3_259>, CVM_268>)
+rule Terminal_384_33to35to39_Terminal_Receives_Records_CDA:
+    [ StB(~pid, 'tgk33', <<'CDA', u_tgany14_273>, tgc_PDOL_0>)
+    , In(<~PAN_274, expDate_272, $CA, <<'02', $Bank, pubkBank_271, $CA>, sign2_267>, <<'04', ~PAN_274, pubkCard_269, $Bank, CVM_275, <'CDA', u_tgany14_273>>, sign3_266>, CVM_275>)
     , !IssuingCA_56($Bank, $CA)
-    , !CertCA_48($CA, <<'01', $CA, pubkCA_263, $CA>, sign1_261>)
+    , !CertCA_48($CA, <<'01', $CA, pubkCA_270, $CA>, sign1_268>)
     ]
-  --[ Eq_25(verify(sign1_261, <'01', $CA, pubkCA_263, $CA>, pubkCA_263), true)
-    , Eq_25(verify(sign2_260, <'02', $Bank, pubkBank_264, $CA>, pubkCA_263), true)
-    , Eq_25(verify(sign3_259, <'04', ~PAN_267, pubkCard_262, $Bank, CVM_268, <'CDA', u_tgany2_266>>, pubkBank_264), true)
+  --[ Eq_25(verify(sign1_268, <'01', $CA, pubkCA_270, $CA>, pubkCA_270), true)
+    , Eq_25(verify(sign2_267, <'02', $Bank, pubkBank_271, $CA>, pubkCA_270), true)
+    , Eq_25(verify(sign3_266, <'04', ~PAN_274, pubkCard_269, $Bank, CVM_275, <'CDA', u_tgany14_273>>, pubkBank_271), true)
     ]->
-    [ St(~pid, 'tgk39', <<'CDA', u_tgany2_266>, CVM_268, ~PAN_267, tgc_PDOL_0, pubkBank_264, pubkCard_262>)
+    [ St(~pid, 'tgk39', <<'CDA', u_tgany14_273>, CVM_275, ~PAN_274, tgc_PDOL_0, pubkBank_271, pubkCard_269>)
     ]
 
-rule Terminal_370_33to36to37_Terminal_Receives_Records_DDA:
-    [ StB(~pid, 'tgk33', <<'DDA', u_tgany3_277>, tgc_PDOL_0>)
+rule Terminal_384_33to36to37_Terminal_Receives_Records_DDA:
+    [ StB(~pid, 'tgk33', <<'DDA', u_tgany15_284>, tgc_PDOL_0>)
     , !IssuingCA_56($Bank, $CA)
-    , In(<~PAN_278, expDate_276, $CA, <<'02', $Bank, pubkBank_275, $CA>, sign2_271>, <<'04', ~PAN_278, pubkCard_273, $Bank, CVM_279, <'DDA', u_tgany3_277>>, sign3_270>, CVM_279>)
-    , !CertCA_48($CA, <<'01', $CA, pubkCA_274, $CA>, sign1_272>)
+    , In(<~PAN_285, expDate_283, $CA, <<'02', $Bank, pubkBank_282, $CA>, sign2_278>, <<'04', ~PAN_285, pubkCard_280, $Bank, CVM_286, <'DDA', u_tgany15_284>>, sign3_277>, CVM_286>)
+    , !CertCA_48($CA, <<'01', $CA, pubkCA_281, $CA>, sign1_279>)
     ]
-  --[ Eq_25(verify(sign1_272, <'01', $CA, pubkCA_274, $CA>, pubkCA_274), true)
-    , Eq_25(verify(sign2_271, <'02', $Bank, pubkBank_275, $CA>, pubkCA_274), true)
-    , Eq_25(verify(sign3_270, <'04', ~PAN_278, pubkCard_273, $Bank, CVM_279, <'DDA', u_tgany3_277>>, pubkBank_275), true)
+  --[ Eq_25(verify(sign1_279, <'01', $CA, pubkCA_281, $CA>, pubkCA_281), true)
+    , Eq_25(verify(sign2_278, <'02', $Bank, pubkBank_282, $CA>, pubkCA_281), true)
+    , Eq_25(verify(sign3_277, <'04', ~PAN_285, pubkCard_280, $Bank, CVM_286, <'DDA', u_tgany15_284>>, pubkBank_282), true)
     ]->
-    [ StF(~pid, 'tgk37', <<'DDA', u_tgany3_277>, CVM_279, ~PAN_278, tgc_PDOL_0, pubkBank_275, pubkCard_273>)
+    [ StF(~pid, 'tgk37', <<'DDA', u_tgany15_284>, CVM_286, ~PAN_285, tgc_PDOL_0, pubkBank_282, pubkCard_280>)
     ]
 
-rule Terminal_370_manyto37to38_Terminal_Sends_InternalAuthenticate:
-    [ StF(~pid, 'tgk37', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_284, currency_283, date_282, type_281, ~UN_285>, tgc_pubkBank_0, tgc_pubkCard_0>)
+rule Terminal_384_manyto37to38_Terminal_Sends_InternalAuthenticate:
+    [ StF(~pid, 'tgk37', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_291, currency_290, date_289, type_288, ~UN_292>, tgc_pubkBank_0, tgc_pubkCard_0>)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk38', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_284, currency_283, date_282, type_281, ~UN_285>, tgc_pubkBank_0, tgc_pubkCard_0>)
-    , Out(<'INTERNAL_AUTHENTICATE', ~UN_285>)
+    [ StF(~pid, 'tgk38', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_291, currency_290, date_289, type_288, ~UN_292>, tgc_pubkBank_0, tgc_pubkCard_0>)
+    , Out(<'INTERNAL_AUTHENTICATE', ~UN_292>)
     ]
 
-rule Terminal_370_manyto38to39_Terminal_Receives_InternalAuthenticate_Response:
-    [ StF(~pid, 'tgk38', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_291, currency_290, date_289, type_287, ~UN_292>, tgc_pubkBank_0, tgc_pubkCard_0>)
-    , In(<nc_288, SDAD_293>)
+rule Terminal_384_manyto38to39_Terminal_Receives_InternalAuthenticate_Response:
+    [ StF(~pid, 'tgk38', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_298, currency_297, date_296, type_294, ~UN_299>, tgc_pubkBank_0, tgc_pubkCard_0>)
+    , In(<nc_295, SDAD_300>)
     ]
-  --[ Eq_25(verify(SDAD_293, <'05', nc_288, ~UN_292>, tgc_pubkCard_0), true)
+  --[ Eq_25(verify(SDAD_300, <'05', nc_295, ~UN_299>, tgc_pubkCard_0), true)
     ]->
-    [ St(~pid, 'tgk39', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_291, currency_290, date_289, type_287, ~UN_292>, tgc_pubkBank_0, tgc_pubkCard_0>)
+    [ St(~pid, 'tgk39', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_298, currency_297, date_296, type_294, ~UN_299>, tgc_pubkBank_0, tgc_pubkCard_0>)
     ]
 
-rule Terminal_370_39to40to43_Terminal_Processes_CVM_NoPIN:
-    [ St(~pid, 'tgk39', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_297, currency_296, date_295, type_294, ~UN_298>, tgc_pubkBank_0, tgc_pubkCard_0>)
+rule Terminal_384_39to40to43_Terminal_Processes_CVM_NoPIN:
+    [ St(~pid, 'tgk39', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <$amount, country_304, currency_303, date_302, type_301, ~UN_305>, tgc_pubkBank_0, tgc_pubkCard_0>)
     , !Value_33($amount, 'Low')
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk43', <tgc_AIP_0, 'NoPIN', tgc_PAN_0, <$amount, country_297, currency_296, date_295, type_294, ~UN_298>, 'Null', tgc_pubkCard_0, tgc_CVM_0>)
+    [ St(~pid, 'tgk43', <tgc_AIP_0, 'NoPIN', tgc_PAN_0, <$amount, country_304, currency_303, date_302, type_301, ~UN_305>, 'Null', tgc_pubkCard_0, tgc_CVM_0>)
     ]
 
-rule Terminal_370_39to41to43_Terminal_Processes_CVM_OnlinePIN:
-    [ St(~pid, 'tgk39', <tgc_AIP_0, 'OnlinePIN', tgc_PAN_0, <$amount, country_302, currency_301, date_300, type_299, ~UN_303>, tgc_pubkBank_0, tgc_pubkCard_0>)
-    , !Entered_PIN_82(tgc_PAN_0, PIN_304)
+rule Terminal_384_39to41to43_Terminal_Processes_CVM_OnlinePIN:
+    [ St(~pid, 'tgk39', <tgc_AIP_0, 'OnlinePIN', ~u_tgany12_310, <$amount, country_309, currency_308, date_307, type_306, ~UN_311>, tgc_pubkBank_0, tgc_pubkCard_0>)
+    , !Entered_PIN_82(~u_tgany12_310, PIN_312)
     , !Value_33($amount, '')
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk43', <tgc_AIP_0, 'OnlinePIN', tgc_PAN_0, <$amount, country_302, currency_301, date_300, type_299, ~UN_303>, aenc(PIN_304, tgc_pubkBank_0), tgc_pubkCard_0, 'OnlinePIN'>)
+    [ St(~pid, 'tgk43', <tgc_AIP_0, 'OnlinePIN', ~u_tgany12_310, <$amount, country_309, currency_308, date_307, type_306, ~UN_311>, aenc(PIN_312, tgc_pubkBank_0), tgc_pubkCard_0, 'OnlinePIN'>)
     ]
 
-rule Terminal_370_39to42to43_Terminal_Processes_CVM_ODCVM:
-    [ St(~pid, 'tgk39', <<auth_310, <'ODCVM', furtherData2_306>>, tgc_CVM_0, tgc_PAN_0, <$amount, country_309, currency_308, date_307, type_305, ~UN_311>, tgc_pubkBank_0, tgc_pubkCard_0>)
+rule Terminal_384_39to42to43_Terminal_Processes_CVM_ODCVM:
+    [ St(~pid, 'tgk39', <<auth_318, <'ODCVM', furtherData2_314>>, tgc_CVM_0, tgc_PAN_0, <$amount, country_317, currency_316, date_315, type_313, ~UN_319>, tgc_pubkBank_0, tgc_pubkCard_0>)
     , !Value_33($amount, '')
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk43', <<auth_310, <'ODCVM', furtherData2_306>>, 'ODCVM', tgc_PAN_0, <$amount, country_309, currency_308, date_307, type_305, ~UN_311>, 'Null', tgc_pubkCard_0, tgc_CVM_0>)
+    [ St(~pid, 'tgk43', <<auth_318, <'ODCVM', furtherData2_314>>, 'ODCVM', tgc_PAN_0, <$amount, country_317, currency_316, date_315, type_313, ~UN_319>, 'Null', tgc_pubkCard_0, tgc_CVM_0>)
     ]
 
-rule Terminal_370_43to44to45_Terminal_Sends_GenerateAC_NoCDA:
+rule Terminal_384_43to44to45_Terminal_Sends_GenerateAC_NoCDA:
     [ St(~pid, 'tgk43', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, tgc_PDOL_0, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
-    , In(acType_312)
+    , In(acType_320)
     ]
   --[ NEq_24(fst(tgc_AIP_0), 'CDA')
     ]->
-    [ StF(~pid, 'tgk45', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <tgc_PDOL_0, <'TVR', tgc_CVM_0, 'HHMMSS'>>, acType_312, tgc_encPIN_0, tgc_supportedCVM_0>)
-    , Out(<'GENERATE_AC', acType_312, 'NoCDA', <'TVR', tgc_CVM_0, 'HHMMSS'>>)
+    [ StF(~pid, 'tgk45', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <tgc_PDOL_0, <'TVR', tgc_CVM_0, 'HHMMSS'>>, acType_320, tgc_encPIN_0, tgc_supportedCVM_0>)
+    , Out(<'GENERATE_AC', acType_320, 'NoCDA', <'TVR', tgc_CVM_0, 'HHMMSS'>>)
     ]
 
-rule Terminal_370_manyto45to48_Terminal_Receives_AC_NoCDA:
-    [ StF(~pid, 'tgk45', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, tgc_X_0, tgc_acType_0, tgc_encPIN_0, tgc_supportedCVM_0>)
-    , In(<CID_317, ATC_318, AC_319, IAD_316>)
-    , Fr(~channelID_315)
+rule Terminal_384_manyto45to48_Terminal_Receives_AC_NoCDA:
+    [ StF(~pid, 'tgk45', <tgc_AIP_0, tgc_CVM_0, ~u_tgany9_324, <PDOL_325, CDOL1_328>, tgc_acType_0, tgc_encPIN_0, tgc_supportedCVM_0>)
+    , In(<CID_327, ATC_329, AC_330, IAD_326>)
+    , Fr(~channelID_323)
     ]
-  --[ Compatible_CID_acType_237(CID_317, tgc_acType_0)
-    , Compatible_CID_CVM_238(CID_317, tgc_CVM_0)
-    , Running_90($Terminal, $Bank, <'Terminal', 'Bank', <tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, tgc_X_0, ATC_318, AC_319, IAD_316>>)
+  --[ Compatible_CID_acType_244(CID_327, tgc_acType_0)
+    , Compatible_CID_CVM_245(CID_327, tgc_CVM_0)
+    , Running_90($Terminal, $Bank, <'Terminal', 'Bank', <~u_tgany9_324, tgc_AIP_0, tgc_CVM_0, <PDOL_325, CDOL1_328>, ATC_329, AC_330, IAD_326>>)
     ]->
-    [ St(~pid, 'tgk48', <tgc_AIP_0, CID_317, tgc_PAN_0, ~channelID_315, tgc_supportedCVM_0, <tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, tgc_X_0, ATC_318, AC_319, IAD_316>>)
-    , Send_30($Terminal, $Bank, <~channelID_315, 'Mastercard', '1'>, <<tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, tgc_X_0, ATC_318, AC_319, IAD_316>, tgc_encPIN_0>)
+    [ St(~pid, 'tgk48', <CID_327, ~u_tgany9_324, ~channelID_323, tgc_supportedCVM_0, <~u_tgany9_324, tgc_AIP_0, tgc_CVM_0, <PDOL_325, CDOL1_328>, ATC_329, AC_330, IAD_326>>)
+    , Send_30($Terminal, $Bank, <~channelID_323, 'Mastercard', '1'>, <<~u_tgany9_324, tgc_AIP_0, tgc_CVM_0, <PDOL_325, CDOL1_328>, ATC_329, AC_330, IAD_326>, tgc_encPIN_0>)
     ]
 
-rule Terminal_370_43to46to47_Terminal_Sends_GenerateAC_CDA:
-    [ St(~pid, 'tgk43', <<'CDA', u_furtherData_322>, tgc_CVM_0, tgc_PAN_0, tgc_PDOL_0, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
-    , In(acType_321)
+rule Terminal_384_43to46to47_Terminal_Sends_GenerateAC_CDA:
+    [ St(~pid, 'tgk43', <<'CDA', u_furtherData_333>, tgc_CVM_0, tgc_PAN_0, tgc_PDOL_0, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
+    , In(acType_332)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk47', <<'CDA', u_furtherData_322>, tgc_CVM_0, tgc_PAN_0, <tgc_PDOL_0, <'TVR', tgc_CVM_0, 'HHMMSS'>>, acType_321, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
-    , Out(<'GENERATE_AC', acType_321, 'CDA', <'TVR', tgc_CVM_0, 'HHMMSS'>>)
+    [ StF(~pid, 'tgk47', <<'CDA', u_furtherData_333>, tgc_CVM_0, tgc_PAN_0, <tgc_PDOL_0, <'TVR', tgc_CVM_0, 'HHMMSS'>>, acType_332, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
+    , Out(<'GENERATE_AC', acType_332, 'CDA', <'TVR', tgc_CVM_0, 'HHMMSS'>>)
     ]
 
-rule Terminal_370_manyto47to48_Terminal_Receives_AC_CDA:
-    [ StF(~pid, 'tgk47', <tgc_AIP_0, tgc_CVM_0, tgc_PAN_0, <<$amount, country_329, currency_328, date_327, type_325, ~UN_332>, u_tgany0_331>, tgc_acType_0, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
-    , In(<CID_335, ATC_336, AC_337, <nc_326, SDAD_333>, IAD_334>)
-    , Fr(~channelID_330)
+rule Terminal_384_manyto47to48_Terminal_Receives_AC_CDA:
+    [ StF(~pid, 'tgk47', <tgc_AIP_0, tgc_CVM_0, ~u_tgany10_343, <<$amount, country_340, currency_339, date_338, type_336, ~UN_344>, u_tgany11_342>, tgc_acType_0, tgc_encPIN_0, tgc_pubkCard_0, tgc_supportedCVM_0>)
+    , In(<CID_347, ATC_348, AC_349, <nc_337, SDAD_345>, IAD_346>)
+    , Fr(~channelID_341)
     ]
-  --[ Compatible_CID_acType_237(CID_335, tgc_acType_0)
-    , Compatible_CID_CVM_238(CID_335, tgc_CVM_0)
-    , Eq_25(verify(SDAD_333, <'05', nc_326, CID_335, AC_337, h(<<<$amount, country_329, currency_328, date_327, type_325, ~UN_332>, u_tgany0_331>, CID_335, ATC_336, AC_337, IAD_334>), ~UN_332>, tgc_pubkCard_0), true)
-    , Running_90($Terminal, $Bank, <'Terminal', 'Bank', <tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, <<$amount, country_329, currency_328, date_327, type_325, ~UN_332>, u_tgany0_331>, ATC_336, AC_337, IAD_334>>)
+  --[ Compatible_CID_acType_244(CID_347, tgc_acType_0)
+    , Compatible_CID_CVM_245(CID_347, tgc_CVM_0)
+    , Eq_25(verify(SDAD_345, <'05', nc_337, CID_347, AC_349, h(<<<$amount, country_340, currency_339, date_338, type_336, ~UN_344>, u_tgany11_342>, CID_347, ATC_348, AC_349, IAD_346>), ~UN_344>, tgc_pubkCard_0), true)
+    , Running_90($Terminal, $Bank, <'Terminal', 'Bank', <~u_tgany10_343, tgc_AIP_0, tgc_CVM_0, <<$amount, country_340, currency_339, date_338, type_336, ~UN_344>, u_tgany11_342>, ATC_348, AC_349, IAD_346>>)
     ]->
-    [ St(~pid, 'tgk48', <tgc_AIP_0, CID_335, tgc_PAN_0, ~channelID_330, tgc_supportedCVM_0, <tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, <<$amount, country_329, currency_328, date_327, type_325, ~UN_332>, u_tgany0_331>, ATC_336, AC_337, IAD_334>>)
-    , Send_30($Terminal, $Bank, <~channelID_330, 'Mastercard', '1'>, <<tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, <<$amount, country_329, currency_328, date_327, type_325, ~UN_332>, u_tgany0_331>, ATC_336, AC_337, IAD_334>, tgc_encPIN_0>)
+    [ St(~pid, 'tgk48', <CID_347, ~u_tgany10_343, ~channelID_341, tgc_supportedCVM_0, <~u_tgany10_343, tgc_AIP_0, tgc_CVM_0, <<$amount, country_340, currency_339, date_338, type_336, ~UN_344>, u_tgany11_342>, ATC_348, AC_349, IAD_346>>)
+    , Send_30($Terminal, $Bank, <~channelID_341, 'Mastercard', '1'>, <<~u_tgany10_343, tgc_AIP_0, tgc_CVM_0, <<$amount, country_340, currency_339, date_338, type_336, ~UN_344>, u_tgany11_342>, ATC_348, AC_349, IAD_346>, tgc_encPIN_0>)
     ]
 
-rule Terminal_370_48to49_Terminal_Commits_TC:
-    [ St(~pid, 'tgk48', <<'SDA', u_furtherData_346>, 'TC', tgc_PAN_0, tgc_channelID_0, 'OnlinePIN', <tgc_PAN_0, <'SDA', u_furtherData_346>, CVM_350, <<$amount, country_344, currency_343, date_342, type_341, ~UN_348>, u_CDOL1_347>, ATC_351, AC_352, IAD_349>>)
-    , !Value_33($amount, u_value_345)
+rule Terminal_384_48to49_Terminal_Commits_TC:
+    [ St(~pid, 'tgk48', <'TC', ~u_tgany7_358, tgc_channelID_0, 'OnlinePIN', <~u_tgany7_358, <'SDA', u_furtherData_359>, CVM_363, <<$amount, country_356, currency_355, date_354, type_353, ~UN_361>, u_CDOL1_360>, ATC_364, AC_365, IAD_362>>)
+    , !Value_33($amount, u_value_357)
     ]
-  --[ TerminalAccepts_239(<tgc_PAN_0, <'SDA', u_furtherData_346>, CVM_350, <<$amount, country_344, currency_343, date_342, type_341, ~UN_348>, u_CDOL1_347>, ATC_351, AC_352, IAD_349>)
-    , Commit_240('Terminal', tgc_PAN_0, <'Card', 'Terminal', <tgc_PAN_0, <'SDA', u_furtherData_346>, CVM_350, <<$amount, country_344, currency_343, date_342, type_341, ~UN_348>, u_CDOL1_347>, ATC_351, AC_352, IAD_349>>)
+  --[ TerminalAccepts_246(<~u_tgany7_358, <'SDA', u_furtherData_359>, CVM_363, <<$amount, country_356, currency_355, date_354, type_353, ~UN_361>, u_CDOL1_360>, ATC_364, AC_365, IAD_362>)
+    , Commit_247('Terminal', ~u_tgany7_358, <'Card', 'Terminal', <~u_tgany7_358, <'SDA', u_furtherData_359>, CVM_363, <<$amount, country_356, currency_355, date_354, type_353, ~UN_361>, u_CDOL1_360>, ATC_364, AC_365, IAD_362>>)
     , Honest_78($CA)
     , Honest_78($Bank)
     , Honest_78($Terminal)
-    , Honest_78(tgc_PAN_0)
+    , Honest_78(~u_tgany7_358)
     ]->
     [ 
     ]
 
-rule Terminal_370_48to50_Terminal_Commits_ARQC:
-    [ St(~pid, 'tgk48', <<'SDA', u_furtherData_360>, 'ARQC', tgc_PAN_0, tgc_channelID_0, 'OnlinePIN', <tgc_PAN_0, <'SDA', u_furtherData_360>, CVM_364, <<$amount, country_358, currency_357, date_356, type_355, ~UN_362>, u_CDOL1_361>, ATC_365, AC_367, IAD_363>>)
-    , !Value_33($amount, u_value_359)
-    , Recv_31($Bank, $Terminal, <tgc_channelID_0, 'Mastercard', '2'>, <'ARC', ARPC_366>)
+rule Terminal_384_48to50_Terminal_Commits_ARQC:
+    [ St(~pid, 'tgk48', <'ARQC', ~u_tgany8_373, tgc_channelID_0, 'OnlinePIN', <~u_tgany8_373, <'SDA', u_furtherData_374>, CVM_378, <<$amount, country_371, currency_370, date_369, type_368, ~UN_376>, u_CDOL1_375>, ATC_379, AC_381, IAD_377>>)
+    , !Value_33($amount, u_value_372)
+    , Recv_31($Bank, $Terminal, <tgc_channelID_0, 'Mastercard', '2'>, <'ARC', ARPC_380>)
     ]
-  --[ TerminalAccepts_239(<tgc_PAN_0, <'SDA', u_furtherData_360>, CVM_364, <<$amount, country_358, currency_357, date_356, type_355, ~UN_362>, u_CDOL1_361>, ATC_365, AC_367, IAD_363>)
-    , Commit_240('Terminal', tgc_PAN_0, <'Card', 'Terminal', <tgc_PAN_0, <'SDA', u_furtherData_360>, CVM_364, <<$amount, country_358, currency_357, date_356, type_355, ~UN_362>, u_CDOL1_361>, ATC_365, AC_367, IAD_363>>)
-    , Commit_240($Terminal, $Bank, <'Bank', 'Terminal', <tgc_PAN_0, <'SDA', u_furtherData_360>, CVM_364, <<$amount, country_358, currency_357, date_356, type_355, ~UN_362>, u_CDOL1_361>, ATC_365, AC_367, IAD_363>>)
+  --[ TerminalAccepts_246(<~u_tgany8_373, <'SDA', u_furtherData_374>, CVM_378, <<$amount, country_371, currency_370, date_369, type_368, ~UN_376>, u_CDOL1_375>, ATC_379, AC_381, IAD_377>)
+    , Commit_247('Terminal', ~u_tgany8_373, <'Card', 'Terminal', <~u_tgany8_373, <'SDA', u_furtherData_374>, CVM_378, <<$amount, country_371, currency_370, date_369, type_368, ~UN_376>, u_CDOL1_375>, ATC_379, AC_381, IAD_377>>)
+    , Commit_247($Terminal, $Bank, <'Bank', 'Terminal', <~u_tgany8_373, <'SDA', u_furtherData_374>, CVM_378, <<$amount, country_371, currency_370, date_369, type_368, ~UN_376>, u_CDOL1_375>, ATC_379, AC_381, IAD_377>>)
     , Honest_78($CA)
     , Honest_78($Bank)
     , Honest_78($Terminal)
-    , Honest_78(tgc_PAN_0)
+    , Honest_78(~u_tgany8_373)
     ]->
     [ 
     ]
 
-rule Terminal_Visa_426_51tomany:
+rule Terminal_Visa_444_51tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk51', 'empty_tuple')]
 
-rule Terminal_Visa_426_51to52to54_Terminal_Sends_GPO_Low_Visa:
+rule Terminal_Visa_444_51to52to54_Terminal_Sends_GPO_Low_Visa:
     [ StB(~pid, 'tgk51', 'empty_tuple')
-    , Fr(~UN_371)
+    , Fr(~UN_385)
     , !Value_33($amount, 'Low')
     ]
-  --[ OneTerminal_236()
+  --[ OneTerminal_243()
     , Role_46($Terminal, 'Terminal')
     ]->
-    [ StF(~pid, 'tgk54', <<<'TC', 'NoPIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_371>>)
-    , Out(<'GET_PROCESSING_OPTIONS', <<'TC', 'NoPIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_371>>)
+    [ StF(~pid, 'tgk54', <<<'TC', 'NoPIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_385>>)
+    , Out(<'GET_PROCESSING_OPTIONS', <<'TC', 'NoPIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_385>>)
     ]
 
-rule Terminal_Visa_426_51to53to54_Terminal_Sends_GPO_High_Visa:
+rule Terminal_Visa_444_51to53to54_Terminal_Sends_GPO_High_Visa:
     [ StB(~pid, 'tgk51', 'empty_tuple')
-    , Fr(~UN_378)
+    , Fr(~UN_392)
     , !Value_33($amount, '')
     ]
-  --[ OneTerminal_236()
+  --[ OneTerminal_243()
     , Role_46($Terminal, 'Terminal')
     ]->
-    [ StF(~pid, 'tgk54', <<<'ARQC', 'OnlinePIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_378>>)
-    , Out(<'GET_PROCESSING_OPTIONS', <<'ARQC', 'OnlinePIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_378>>)
+    [ StF(~pid, 'tgk54', <<<'ARQC', 'OnlinePIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_392>>)
+    , Out(<'GET_PROCESSING_OPTIONS', <<'ARQC', 'OnlinePIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_392>>)
     ]
 
-rule Terminal_Visa_426_manyto54tomany_Terminal_Sends_ReadRecord_Visa:
-    [ StF(~pid, 'tgk54', <<<acType_390, CVM_394>, $amount, country_389, currency_388, date_387, type_385, ~UN_391>>)
-    , In(<AIP_398, 'AFL', <~PAN_392, expDate_386>, IAD_393, AC_399, CID_396, ATC_397, CTQ_395>)
+rule Terminal_Visa_444_manyto54tomany_Terminal_Sends_ReadRecord_Visa:
+    [ StF(~pid, 'tgk54', <<<acType_404, CVM_408>, $amount, country_403, currency_402, date_401, type_399, ~UN_405>>)
+    , In(<AIP_412, 'AFL', <~PAN_406, expDate_400>, IAD_407, AC_413, CID_410, ATC_411, CTQ_409>)
     ]
-  --[ Compatible_CID_acType_237(CID_396, acType_390)
+  --[ Compatible_CID_acType_244(CID_410, acType_404)
     ]->
-    [ StB(~pid, 'tgk54', <AC_399, AIP_398, ATC_397, CID_396, CTQ_395, IAD_393, ~PAN_392, <<acType_390, CVM_394>, $amount, country_389, currency_388, date_387, type_385, ~UN_391>, expDate_386>)
+    [ StB(~pid, 'tgk54', <AC_413, AIP_412, ATC_411, CID_410, CTQ_409, IAD_407, ~PAN_406, <<acType_404, CVM_408>, $amount, country_403, currency_402, date_401, type_399, ~UN_405>, expDate_400>)
     , Out(<'READ_RECORD', 'AFL'>)
     ]
 
-rule Terminal_Visa_426_54to55to57_Terminal_Receives_Records_EMV_Visa:
-    [ StB(~pid, 'tgk54', <tgc_AC_0, <'EMV', u_tgany4_402>, tgc_ATC_0, 'ARQC', tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, tgc_expDate_0>)
-    , In(<tgc_PAN_0, tgc_expDate_0>)
-    , !IssuingBank_64(tgc_PAN_0, $Bank)
-    , !CertBank_55($Bank, <<'02', $Bank, pubkBank_401, $CA>, sign2_400>)
+rule Terminal_Visa_444_54to55to57_Terminal_Receives_Records_EMV_Visa:
+    [ StB(~pid, 'tgk54', <tgc_AC_0, <'EMV', u_tgany18_417>, tgc_ATC_0, 'ARQC', tgc_CTQ_0, tgc_IAD_0, ~u_tgany19_416, tgc_PDOL_0, tgc_expDate_0>)
+    , In(<~u_tgany19_416, tgc_expDate_0>)
+    , !IssuingBank_64(~u_tgany19_416, $Bank)
+    , !CertBank_55($Bank, <<'02', $Bank, pubkBank_415, $CA>, sign2_414>)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk57', <tgc_AC_0, <'EMV', u_tgany4_402>, tgc_ATC_0, 'ARQC', tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, pubkBank_401>)
+    [ St(~pid, 'tgk57', <tgc_AC_0, <'EMV', u_tgany18_417>, tgc_ATC_0, 'ARQC', tgc_CTQ_0, tgc_IAD_0, ~u_tgany19_416, tgc_PDOL_0, pubkBank_415>)
     ]
 
-rule Terminal_Visa_426_54to56to57_Terminal_Receives_Records_DDA_Visa:
-    [ StB(~pid, 'tgk54', <tgc_AC_0, <'DDA', u_tgany5_416>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, <TTQ_418, $amount, country_415, currency_414, date_413, type_404, ~UN_417>, tgc_expDate_0>)
-    , In(<tgc_PAN_0, tgc_expDate_0, $CA, <<'02', $Bank, pubkBank_410, $CA>, sign2_406>, <<'04', tgc_PAN_0, pubkCard_408, $Bank>, sign3_405>, nc_411, CTQ_420, SDAD_419>)
+rule Terminal_Visa_444_54to56to57_Terminal_Receives_Records_DDA_Visa:
+    [ StB(~pid, 'tgk54', <tgc_AC_0, <'DDA', u_tgany20_432>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, ~u_tgany21_431, <TTQ_434, $amount, country_430, currency_429, date_428, type_419, ~UN_433>, tgc_expDate_0>)
+    , In(<~u_tgany21_431, tgc_expDate_0, $CA, <<'02', $Bank, pubkBank_425, $CA>, sign2_421>, <<'04', ~u_tgany21_431, pubkCard_423, $Bank>, sign3_420>, nc_426, CTQ_436, SDAD_435>)
     , !IssuingCA_56($Bank, $CA)
-    , !SDADFormat_35(format_412, tgc_CID_0)
-    , !CertCA_48($CA, <<'01', $CA, pubkCA_409, $CA>, sign1_407>)
+    , !SDADFormat_35(format_427, tgc_CID_0)
+    , !CertCA_48($CA, <<'01', $CA, pubkCA_424, $CA>, sign1_422>)
     ]
-  --[ Eq_25(verify(sign1_407, <'01', $CA, pubkCA_409, $CA>, pubkCA_409), true)
-    , Eq_25(verify(sign2_406, <'02', $Bank, pubkBank_410, $CA>, pubkCA_409), true)
-    , Eq_25(verify(sign3_405, <'04', tgc_PAN_0, pubkCard_408, $Bank>, pubkBank_410), true)
-    , Eq_25(verify(SDAD_419, <format_412, tgc_ATC_0, ~UN_417, $amount, 'CHF', nc_411, tgc_CTQ_0, <'DDA', u_tgany5_416>>, pubkCard_408), true)
+  --[ Eq_25(verify(sign1_422, <'01', $CA, pubkCA_424, $CA>, pubkCA_424), true)
+    , Eq_25(verify(sign2_421, <'02', $Bank, pubkBank_425, $CA>, pubkCA_424), true)
+    , Eq_25(verify(sign3_420, <'04', ~u_tgany21_431, pubkCard_423, $Bank>, pubkBank_425), true)
+    , Eq_25(verify(SDAD_435, <format_427, tgc_ATC_0, ~UN_433, $amount, 'CHF', nc_426, tgc_CTQ_0, <'DDA', u_tgany20_432>>, pubkCard_423), true)
     ]->
-    [ St(~pid, 'tgk57', <tgc_AC_0, <'DDA', u_tgany5_416>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, tgc_PAN_0, <TTQ_418, $amount, country_415, currency_414, date_413, type_404, ~UN_417>, pubkBank_410>)
+    [ St(~pid, 'tgk57', <tgc_AC_0, <'DDA', u_tgany20_432>, tgc_ATC_0, tgc_CID_0, tgc_CTQ_0, tgc_IAD_0, ~u_tgany21_431, <TTQ_434, $amount, country_430, currency_429, date_428, type_419, ~UN_433>, pubkBank_425>)
     ]
 
-rule Terminal_Visa_426_57to58to61_Terminal_Processes_CVM_NoPIN_Visa:
+rule Terminal_Visa_444_57to58to61_Terminal_Processes_CVM_NoPIN_Visa:
     [ St(~pid, 'tgk57', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, tgc_CID_0, 'NoPIN', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, tgc_pubkBank_0>)
     , !Value_33($amount, 'Low')
     ]
@@ -583,238 +583,238 @@ rule Terminal_Visa_426_57to58to61_Terminal_Processes_CVM_NoPIN_Visa:
     [ StF(~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'NoPIN', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, 'Null'>)
     ]
 
-rule Terminal_Visa_426_57to59to61_Terminal_Processes_CVM_CDCVM_Visa:
+rule Terminal_Visa_444_57to59to61_Terminal_Processes_CVM_CDCVM_Visa:
   [St(~pid, 'tgk57', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'ARQC', 'CDCVM', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, tgc_pubkBank_0>)]--[]->[StF(
 ~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'CDCVM', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, 'Null'>)]
 
-rule Terminal_Visa_426_57to60to61_Terminal_Processes_CVM_OnlinePIN_Visa:
-    [ St(~pid, 'tgk57', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'ARQC', 'OnlinePIN', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, tgc_pubkBank_0>)
-    , !Entered_PIN_82(tgc_PAN_0, PIN_423)
+rule Terminal_Visa_444_57to60to61_Terminal_Processes_CVM_OnlinePIN_Visa:
+    [ St(~pid, 'tgk57', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'ARQC', 'OnlinePIN', tgc_IAD_0, ~u_tgany17_439, tgc_PDOL_0, tgc_pubkBank_0>)
+    , !Entered_PIN_82(~u_tgany17_439, PIN_440)
     , !Value_33($amount, '')
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'OnlinePIN', tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, aenc(PIN_423, tgc_pubkBank_0)>)
+    [ StF(~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, 'OnlinePIN', tgc_IAD_0, ~u_tgany17_439, tgc_PDOL_0, aenc(PIN_440, tgc_pubkBank_0)>)
     ]
 
-rule Terminal_Visa_426_manyto61_Terminal_Sends_AC_Visa:
-    [ StF(~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, tgc_CVM_0, tgc_IAD_0, tgc_PAN_0, tgc_PDOL_0, tgc_encPIN_0>)
-    , Fr(~channelID_424)
+rule Terminal_Visa_444_manyto61_Terminal_Sends_AC_Visa:
+    [ StF(~pid, 'tgk61', <tgc_AC_0, tgc_AIP_0, tgc_ATC_0, tgc_CVM_0, tgc_IAD_0, ~u_tgany16_442, tgc_PDOL_0, tgc_encPIN_0>)
+    , Fr(~channelID_441)
     ]
-  --[ Running_90($Terminal, $Bank, <'Terminal', 'Bank', <tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, tgc_PDOL_0, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
+  --[ Running_90($Terminal, $Bank, <'Terminal', 'Bank', <~u_tgany16_442, tgc_AIP_0, tgc_CVM_0, tgc_PDOL_0, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>>)
     ]->
-    [ Send_30($Terminal, $Bank, <~channelID_424, 'Visa', '1'>, <<tgc_PAN_0, tgc_AIP_0, tgc_CVM_0, tgc_PDOL_0, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>, tgc_encPIN_0>)
+    [ Send_30($Terminal, $Bank, <~channelID_441, 'Visa', '1'>, <<~u_tgany16_442, tgc_AIP_0, tgc_CVM_0, tgc_PDOL_0, tgc_ATC_0, tgc_AC_0, tgc_IAD_0>, tgc_encPIN_0>)
     ]
 
-rule Bank_486_62tomany:
+rule Bank_504_62tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk62', 'empty_tuple')]
 
-rule Bank_486_62to64tomany_Bank_Receives_AC:
+rule Bank_504_62to64tomany_Bank_Receives_AC:
     [ StB(~pid, 'tgk62', 'empty_tuple')
-    , Recv_31($Terminal, $Bank, <channelID_442, 'Mastercard', '1'>, <<~PAN_444, AIP_449, CVM_447, X_443, ATC_448, MAC_27(f_26(~MK_445, ATC_448), <X_443, AIP_449, ATC_448, IAD_446>), IAD_446>, encPIN_441>)
-    , !Shk_65(~PAN_444, ~MK_445)
-    , !IssuingBank_64(~PAN_444, $Bank)
+    , Recv_31($Terminal, $Bank, <channelID_460, 'Mastercard', '1'>, <<~PAN_462, AIP_467, CVM_465, X_461, ATC_466, MAC_27(f_26(~MK_463, ATC_466), <X_461, AIP_467, ATC_466, IAD_464>), IAD_464>, encPIN_459>)
+    , !Shk_65(~PAN_462, ~MK_463)
+    , !IssuingBank_64(~PAN_462, $Bank)
     ]
-  --[ Once_32(<~PAN_444, ATC_448, 'Bank'>)
+  --[ Once_32(<~PAN_462, ATC_466, 'Bank'>)
     ]->
-    [ StB(~pid, 'tgk64', <MAC_arpc_28(f_26(~MK_445, ATC_448), ((MAC_27(f_26(~MK_445, ATC_448), <X_443, AIP_449, ATC_448, IAD_446>)) XOR (p8_29('ARC')))), channelID_442, encPIN_441, <~PAN_444, AIP_449, CVM_447, X_443, ATC_448, MAC_27(f_26(~MK_445, ATC_448), <X_443, AIP_449, ATC_448, IAD_446>), IAD_446>>)
+    [ StB(~pid, 'tgk64', <MAC_arpc_28(f_26(~MK_463, ATC_466), ((MAC_27(f_26(~MK_463, ATC_466), <X_461, AIP_467, ATC_466, IAD_464>)) XOR (p8_29('ARC')))), channelID_460, encPIN_459, <~PAN_462, AIP_467, CVM_465, X_461, ATC_466, MAC_27(f_26(~MK_463, ATC_466), <X_461, AIP_467, ATC_466, IAD_464>), IAD_464>>)
     ]
 
-rule Bank_486_64to65to67_Bank_Processes_CVM_NotOnlinePIN:
-    [ StB(~pid, 'tgk64', <tgc_ARPC_0, tgc_channelID_0, 'Null', <~PAN_454, AIP_458, CVM_456, X_453, ATC_457, AC_459, IAD_455>>)
+rule Bank_504_64to65to67_Bank_Processes_CVM_NotOnlinePIN:
+    [ StB(~pid, 'tgk64', <tgc_ARPC_0, tgc_channelID_0, 'Null', <~PAN_472, AIP_476, CVM_474, X_471, ATC_475, AC_477, IAD_473>>)
     ]
-  --[ NEq_24(CVM_456, 'OnlinePIN')
-    , Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_454, AIP_458, CVM_456, X_453, ATC_457, AC_459, IAD_455>>)
+  --[ NEq_24(CVM_474, 'OnlinePIN')
+    , Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_472, AIP_476, CVM_474, X_471, ATC_475, AC_477, IAD_473>>)
     ]->
-    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_454, AIP_458, CVM_456, X_453, ATC_457, AC_459, IAD_455>>)
+    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_472, AIP_476, CVM_474, X_471, ATC_475, AC_477, IAD_473>>)
     ]
 
-rule Bank_486_64to66to67_Bank_Processes_CVM_OnlinePIN:
-    [ StB(~pid, 'tgk64', <tgc_ARPC_0, tgc_channelID_0, aenc(PIN_463, pk(~privBank_461)), <~PAN_464, AIP_468, 'OnlinePIN', X_462, ATC_467, AC_469, IAD_466>>)
-    , !LtkBank_54($Bank, ~privkBank_460)
-    , !PIN_83(~PAN_464, PIN_463)
-    , !Shk_65(~PAN_464, ~MK_465)
+rule Bank_504_64to66to67_Bank_Processes_CVM_OnlinePIN:
+    [ StB(~pid, 'tgk64', <tgc_ARPC_0, tgc_channelID_0, aenc(PIN_481, pk(~privBank_479)), <~PAN_482, AIP_486, 'OnlinePIN', X_480, ATC_485, AC_487, IAD_484>>)
+    , !LtkBank_54($Bank, ~privkBank_478)
+    , !PIN_83(~PAN_482, PIN_481)
+    , !Shk_65(~PAN_482, ~MK_483)
     ]
-  --[ Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_464, AIP_468, 'OnlinePIN', X_462, ATC_467, AC_469, IAD_466>>)
+  --[ Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_482, AIP_486, 'OnlinePIN', X_480, ATC_485, AC_487, IAD_484>>)
     ]->
-    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_464, AIP_468, 'OnlinePIN', X_462, ATC_467, AC_469, IAD_466>>)
+    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_482, AIP_486, 'OnlinePIN', X_480, ATC_485, AC_487, IAD_484>>)
     ]
 
-rule Bank_486_62to63_Bank_Receives_AC_Failed:
+rule Bank_504_62to63_Bank_Receives_AC_Failed:
     [ StB(~pid, 'tgk62', 'empty_tuple')
-    , Recv_31($Terminal, $Bank, <channelID_430, 'Mastercard', '1'>, <<~PAN_432, AIP_437, CVM_435, X_431, ATC_436, AC_438, IAD_434>, encPIN_429>)
-    , !Shk_65(~PAN_432, ~MK_433)
+    , Recv_31($Terminal, $Bank, <channelID_448, 'Mastercard', '1'>, <<~PAN_450, AIP_455, CVM_453, X_449, ATC_454, AC_456, IAD_452>, encPIN_447>)
+    , !Shk_65(~PAN_450, ~MK_451)
     ]
-  --[ NEq_24(MAC_27(f_26(~MK_433, ATC_436), <X_431, AIP_437, ATC_436, IAD_434>), AC_438)
-    , BankDeclines_427(<~PAN_432, AIP_437, CVM_435, X_431, ATC_436, AC_438, IAD_434>)
+  --[ NEq_24(MAC_27(f_26(~MK_451, ATC_454), <X_449, AIP_455, ATC_454, IAD_452>), AC_456)
+    , BankDeclines_445(<~PAN_450, AIP_455, CVM_453, X_449, ATC_454, AC_456, IAD_452>)
     ]->
     [ 
     ]
 
-rule Bank_486_manyto67_Bank_Commits:
-    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_482, <'SDA', u_furtherData_479>, CVM_483, <<amount_474, country_473, currency_472, date_471, type_470, UN_481>, u_CDOL1_480>, u_tgany6_478, u_tgany7_477, u_tgany8_476>>)
-    , !Value_33(amount_474, u_value_475)
+rule Bank_504_manyto67_Bank_Commits:
+    [ StF(~pid, 'tgk67', <tgc_ARPC_0, tgc_channelID_0, <~PAN_497, <'SDA', u_furtherData_494>, CVM_499, <<amount_492, country_491, currency_490, date_489, type_488, UN_496>, u_CDOL1_495>, ATC_500, AC_501, IAD_498>>)
+    , !Value_33(amount_492, u_value_493)
     , !IssuingCA_56($Bank, $CA)
     ]
-  --[ Commit_240($Bank, ~PAN_482, <'Card', 'Bank', <~PAN_482, <'SDA', u_furtherData_479>, CVM_483, <<amount_474, country_473, currency_472, date_471, type_470, UN_481>, u_CDOL1_480>, u_tgany6_478, u_tgany7_477, u_tgany8_476>>)
-    , Commit_240($Bank, $Terminal, <'Terminal', 'Bank', <~PAN_482, <'SDA', u_furtherData_479>, CVM_483, <<amount_474, country_473, currency_472, date_471, type_470, UN_481>, u_CDOL1_480>, u_tgany6_478, u_tgany7_477, u_tgany8_476>>)
+  --[ Commit_247($Bank, ~PAN_497, <'Card', 'Bank', <~PAN_497, <'SDA', u_furtherData_494>, CVM_499, <<amount_492, country_491, currency_490, date_489, type_488, UN_496>, u_CDOL1_495>, ATC_500, AC_501, IAD_498>>)
+    , Commit_247($Bank, $Terminal, <'Terminal', 'Bank', <~PAN_497, <'SDA', u_furtherData_494>, CVM_499, <<amount_492, country_491, currency_490, date_489, type_488, UN_496>, u_CDOL1_495>, ATC_500, AC_501, IAD_498>>)
     , Honest_78($CA)
     , Honest_78($Bank)
     , Honest_78($Terminal)
-    , Honest_78(~PAN_482)
+    , Honest_78(~PAN_497)
     ]->
     [ Send_30($Bank, $Terminal, <tgc_channelID_0, 'Mastercard', '2'>, <'ARC', tgc_ARPC_0>)
     ]
 
-rule Bank_Visa_534_68tomany:
+rule Bank_Visa_552_68tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk68', 'empty_tuple')]
 
-rule Bank_Visa_534_68to70tomany_Bank_Receives_AC_Visa:
+rule Bank_Visa_552_68to70tomany_Bank_Receives_AC_Visa:
     [ StB(~pid, 'tgk68', 'empty_tuple')
-    , Recv_31($Terminal, $Bank, <channelID_501, 'Visa', '1'>, <<~PAN_503, AIP_508, CVM_506, PDOL_502, ATC_507, MAC_27(f_26(~MK_504, ATC_507), <PDOL_502, AIP_508, ATC_507, IAD_505>), IAD_505>, encPIN_500>)
-    , !Shk_65(~PAN_503, ~MK_504)
-    , !IssuingBank_64(~PAN_503, $Bank)
+    , Recv_31($Terminal, $Bank, <channelID_519, 'Visa', '1'>, <<~PAN_521, AIP_526, CVM_524, PDOL_520, ATC_525, MAC_27(f_26(~MK_522, ATC_525), <PDOL_520, AIP_526, ATC_525, IAD_523>), IAD_523>, encPIN_518>)
+    , !Shk_65(~PAN_521, ~MK_522)
+    , !IssuingBank_64(~PAN_521, $Bank)
     ]
-  --[ Once_32(<~PAN_503, ATC_507, 'Bank'>)
+  --[ Once_32(<~PAN_521, ATC_525, 'Bank'>)
     ]->
-    [ StB(~pid, 'tgk70', <encPIN_500, <~PAN_503, AIP_508, CVM_506, PDOL_502, ATC_507, MAC_27(f_26(~MK_504, ATC_507), <PDOL_502, AIP_508, ATC_507, IAD_505>), IAD_505>>)
+    [ StB(~pid, 'tgk70', <encPIN_518, <~PAN_521, AIP_526, CVM_524, PDOL_520, ATC_525, MAC_27(f_26(~MK_522, ATC_525), <PDOL_520, AIP_526, ATC_525, IAD_523>), IAD_523>>)
     ]
 
-rule Bank_Visa_534_68to69_Bank_Receives_AC_Failed_Visa:
+rule Bank_Visa_552_68to69_Bank_Receives_AC_Failed_Visa:
     [ StB(~pid, 'tgk68', 'empty_tuple')
-    , Recv_31($Terminal, $Bank, <channelID_489, 'Visa', '1'>, <<~PAN_491, AIP_496, CVM_494, PDOL_490, ATC_495, AC_497, IAD_493>, encPIN_488>)
-    , !Shk_65(~PAN_491, ~MK_492)
+    , Recv_31($Terminal, $Bank, <channelID_507, 'Visa', '1'>, <<~PAN_509, AIP_514, CVM_512, PDOL_508, ATC_513, AC_515, IAD_511>, encPIN_506>)
+    , !Shk_65(~PAN_509, ~MK_510)
     ]
-  --[ NEq_24(MAC_27(f_26(~MK_492, ATC_495), <PDOL_490, AIP_496, ATC_495, IAD_493>), AC_497)
-    , BankDeclines_427(<~PAN_491, AIP_496, CVM_494, PDOL_490, ATC_495, AC_497, IAD_493>)
+  --[ NEq_24(MAC_27(f_26(~MK_510, ATC_513), <PDOL_508, AIP_514, ATC_513, IAD_511>), AC_515)
+    , BankDeclines_445(<~PAN_509, AIP_514, CVM_512, PDOL_508, ATC_513, AC_515, IAD_511>)
     ]->
     [ 
     ]
 
-rule Bank_Visa_534_70to71_Bank_Processes_CVM_NotOnlinePIN_Visa:
-    [ StB(~pid, 'tgk70', <'Null', <~PAN_519, AIP_523, CVM_521, <TTQ_518, amount_516, country_515, currency_514, date_513, type_512, UN_517>, ATC_522, AC_524, IAD_520>>)
+rule Bank_Visa_552_70to71_Bank_Processes_CVM_NotOnlinePIN_Visa:
+    [ StB(~pid, 'tgk70', <'Null', <~PAN_537, AIP_541, CVM_539, <TTQ_536, amount_534, country_533, currency_532, date_531, type_530, UN_535>, ATC_540, AC_542, IAD_538>>)
     ]
-  --[ NEq_24(CVM_521, 'OnlinePIN')
-    , Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_519, AIP_523, CVM_521, <TTQ_518, amount_516, country_515, currency_514, date_513, type_512, UN_517>, ATC_522, AC_524, IAD_520>>)
+  --[ NEq_24(CVM_539, 'OnlinePIN')
+    , Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_537, AIP_541, CVM_539, <TTQ_536, amount_534, country_533, currency_532, date_531, type_530, UN_535>, ATC_540, AC_542, IAD_538>>)
     ]->
     [ 
     ]
 
-rule Bank_Visa_534_70to72_Bank_Processes_CVM_OnlinePIN_Visa:
-    [ StB(~pid, 'tgk70', <aenc(~PIN_527, pk(~privkBank_526)), <~PAN_529, AIP_532, 'OnlinePIN', PDOL_528, ATC_531, AC_533, IAD_530>>)
-    , !LtkBank_54($Bank, ~privkBank_526)
-    , !PIN_83(~PAN_529, ~PIN_527)
+rule Bank_Visa_552_70to72_Bank_Processes_CVM_OnlinePIN_Visa:
+    [ StB(~pid, 'tgk70', <aenc(~PIN_545, pk(~privkBank_544)), <~PAN_547, AIP_550, 'OnlinePIN', PDOL_546, ATC_549, AC_551, IAD_548>>)
+    , !LtkBank_54($Bank, ~privkBank_544)
+    , !PIN_83(~PAN_547, ~PIN_545)
     ]
-  --[ Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_529, AIP_532, 'OnlinePIN', PDOL_528, ATC_531, AC_533, IAD_530>>)
+  --[ Running_90($Bank, $Terminal, <'Bank', 'Terminal', <~PAN_547, AIP_550, 'OnlinePIN', PDOL_546, ATC_549, AC_551, IAD_548>>)
     ]->
     [ 
     ]
 
 restriction equal:
-  "All a_535 b_536 #i_537 .
-     ((Eq_25(a_535, b_536) @ #i_537) ==> (((a_535) = (b_536))))"
+  "All a_553 b_554 #i_555 .
+     ((Eq_25(a_553, b_554) @ #i_555) ==> (((a_553) = (b_554))))"
 
 restriction not_equal:
-  "All a_539 #i_540 .
-     ((NEq_24(a_539, a_539) @ #i_540) ==> (F))"
+  "All a_557 #i_558 .
+     ((NEq_24(a_557, a_557) @ #i_558) ==> (F))"
 
 restriction once:
-  "All a_542 #i_543 #j_544 .
-     ((((Once_32(a_542) @ #i_543) & (Once_32(a_542) @ #j_544))) ==> (#i_543 = #j_544))"
+  "All a_560 #i_561 #j_562 .
+     ((((Once_32(a_560) @ #i_561) & (Once_32(a_560) @ #j_562))) ==> (#i_561 = #j_562))"
 
 restriction unique_role:
-  "All A_546 r1_547 r2_548 #i_549 #j_550 .
-     ((((Role_46(A_546, r1_547) @ #i_549) & (Role_46(A_546, r2_548) @ #j_550))) ==> (((r1_547) = (r2_548))))"
+  "All A_564 r1_565 r2_566 #i_567 #j_568 .
+     ((((Role_46(A_564, r1_565) @ #i_567) & (Role_46(A_564, r2_566) @ #j_568))) ==> (((r1_565) = (r2_566))))"
 
 restriction compatibility:
-  "((All #i_552 .
-       ((Compatible_CID_CVM_238('TC', 'OnlinePIN') @ #i_552) ==> (F))) & (
-   All #i_553 .
-     ((Compatible_CID_acType_237('TC', 'ARQC') @ #i_553) ==> (F))))"
+  "((All #i_570 .
+       ((Compatible_CID_CVM_245('TC', 'OnlinePIN') @ #i_570) ==> (F))) & (
+   All #i_571 .
+     ((Compatible_CID_acType_244('TC', 'ARQC') @ #i_571) ==> (F))))"
 
 lemma executable []:
   exists-trace
-  "Ex Bank_555 PAN_556 t_557 #i_558 #j_559 #k_560 #l_561 .
-     ((((((((((((((((((#i_558 < #j_559) & (Running_90(PAN_556, 'Terminal', <'Card', 'Terminal', t_557>) @ #i_558))) & (Commit_240(
-     'Terminal', PAN_556, <'Card', 'Terminal', t_557>) @ #j_559))) & (#k_560 < #l_561))) & (Running_90(
-     PAN_556, Bank_555, <'Card', 'Bank', t_557>) @ #k_560))) & (Commit_240(
-     Bank_555, PAN_556, <'Card', 'Bank', t_557>) @ #l_561))) & (All #a_562 #b_563 .
+  "Ex Bank_573 PAN_574 t_575 #i_576 #j_577 #k_578 #l_579 .
+     ((((((((((((((((((#i_576 < #j_577) & (Running_90(PAN_574, 'Terminal', <'Card', 'Terminal', t_575>) @ #i_576))) & (Commit_247(
+     'Terminal', PAN_574, <'Card', 'Terminal', t_575>) @ #j_577))) & (#k_578 < #l_579))) & (Running_90(
+     PAN_574, Bank_573, <'Card', 'Bank', t_575>) @ #k_578))) & (Commit_247(
+     Bank_573, PAN_574, <'Card', 'Bank', t_575>) @ #l_579))) & (All #a_580 #b_581 .
                                                                   ((((OneCard_89(
-                                                                  ) @ #a_562) & (OneCard_89(
-                                                                  ) @ #b_563))) ==> (#a_562 = #b_563))))) & (
-     All #a_564 #b_565 .
-       ((((OneTerminal_236() @ #a_564) & (OneTerminal_236() @ #b_565))) ==> (#a_564 = #b_565))))) & (
-     All A_566 B_567 r_568 #a_569 #b_570 .
-       ((((Role_46(A_566, r_568) @ #a_569) & (Role_46(B_567, r_568) @ #b_570))) ==> (((A_566) = (B_567))))))) & (not 
-     Ex A_571 #a_572 .
-       Compromise_63(A_571) @ #a_572))"
+                                                                  ) @ #a_580) & (OneCard_89(
+                                                                  ) @ #b_581))) ==> (#a_580 = #b_581))))) & (
+     All #a_582 #b_583 .
+       ((((OneTerminal_243() @ #a_582) & (OneTerminal_243() @ #b_583))) ==> (#a_582 = #b_583))))) & (
+     All A_584 B_585 r_586 #a_587 #b_588 .
+       ((((Role_46(A_584, r_586) @ #a_587) & (Role_46(B_585, r_586) @ #b_588))) ==> (((A_584) = (B_585))))))) & (not 
+     Ex A_589 #a_590 .
+       Compromise_63(A_589) @ #a_590))"
 
 lemma bank_accepts []:
   all-traces
-  "All t_574 #i_575 .
-     ((TerminalAccepts_239(t_574) @ #i_575) ==> (((not Ex #j_576 .
-                                                         BankDeclines_427(
-                                                         t_574) @ #j_576) | (
-     Ex A_577 #k_578 .
-       ((Honest_78(A_577) @ #i_575) & (Compromise_63(A_577) @ #k_578))))))"
+  "All t_592 #i_593 .
+     ((TerminalAccepts_246(t_592) @ #i_593) ==> (((not Ex #j_594 .
+                                                         BankDeclines_445(
+                                                         t_592) @ #j_594) | (
+     Ex A_595 #k_596 .
+       ((Honest_78(A_595) @ #i_593) & (Compromise_63(A_595) @ #k_596))))))"
 
 lemma auth_to_terminal_minimal []:
   all-traces
-  "All T_580 P_581 r_582 t_583 #i_584 .
-     ((((All #a_585 #b_586 .
-           ((((OneCard_89() @ #a_585) & (OneCard_89() @ #b_586))) ==> (#a_585 = #b_586))) & (Commit_240(
-     T_580, P_581, <r_582, 'Terminal', t_583>) @ #i_584))) ==> (((Ex 
-                                                                  #j_587 .
+  "All T_598 P_599 r_600 t_601 #i_602 .
+     ((((All #a_603 #b_604 .
+           ((((OneCard_89() @ #a_603) & (OneCard_89() @ #b_604))) ==> (#a_603 = #b_604))) & (Commit_247(
+     T_598, P_599, <r_600, 'Terminal', t_601>) @ #i_602))) ==> (((Ex 
+                                                                  #j_605 .
                                                                     Running_90(
-                                                                    P_581, T_580, <r_582, 'Terminal', t_583>) @ #j_587) | (
-     Ex A_588 #k_589 .
-       ((Honest_78(A_588) @ #i_584) & (Compromise_63(A_588) @ #k_589))))))"
+                                                                    P_599, T_598, <r_600, 'Terminal', t_601>) @ #j_605) | (
+     Ex A_606 #k_607 .
+       ((Honest_78(A_606) @ #i_602) & (Compromise_63(A_606) @ #k_607))))))"
 
 lemma auth_to_bank_minimal []:
   all-traces
-  "All B_591 P_592 r_593 t_594 #i_595 .
-     ((((All #a_596 #b_597 .
-           ((((OneCard_89() @ #a_596) & (OneCard_89() @ #b_597))) ==> (#a_596 = #b_597))) & (Commit_240(
-     B_591, P_592, <r_593, 'Bank', t_594>) @ #i_595))) ==> (((Ex #j_598 .
+  "All B_609 P_610 r_611 t_612 #i_613 .
+     ((((All #a_614 #b_615 .
+           ((((OneCard_89() @ #a_614) & (OneCard_89() @ #b_615))) ==> (#a_614 = #b_615))) & (Commit_247(
+     B_609, P_610, <r_611, 'Bank', t_612>) @ #i_613))) ==> (((Ex #j_616 .
                                                                 Running_90(
-                                                                P_592, B_591, <r_593, 'Bank', t_594>) @ #j_598) | (
-     Ex A_599 #k_600 .
-       ((Honest_78(A_599) @ #i_595) & (Compromise_63(A_599) @ #k_600))))))"
+                                                                P_610, B_609, <r_611, 'Bank', t_612>) @ #j_616) | (
+     Ex A_617 #k_618 .
+       ((Honest_78(A_617) @ #i_613) & (Compromise_63(A_617) @ #k_618))))))"
 
 lemma auth_to_bank []:
   all-traces
-  "All B_602 P_603 r_604 t_605 #i_606 .
-     ((Commit_240(B_602, P_603, <r_604, 'Bank', t_605>) @ #i_606) ==> (((((
-     Ex #j_607 .
-       ((Running_90(P_603, B_602, <r_604, 'Bank', t_605>) @ #j_607) & (#j_607 < #i_606))) & (not 
-     Ex B2_608 P2_609 #i2_610 .
-       ((Commit_240(B2_608, P2_609, <r_604, 'Bank', t_605>) @ #i2_610) & (not #i2_610 = #i_606))))) | (
-     Ex A_611 #k_612 .
-       ((Honest_78(A_611) @ #i_606) & (Compromise_63(A_611) @ #k_612))))))"
+  "All B_620 P_621 r_622 t_623 #i_624 .
+     ((Commit_247(B_620, P_621, <r_622, 'Bank', t_623>) @ #i_624) ==> (((((
+     Ex #j_625 .
+       ((Running_90(P_621, B_620, <r_622, 'Bank', t_623>) @ #j_625) & (#j_625 < #i_624))) & (not 
+     Ex B2_626 P2_627 #i2_628 .
+       ((Commit_247(B2_626, P2_627, <r_622, 'Bank', t_623>) @ #i2_628) & (not #i2_628 = #i_624))))) | (
+     Ex A_629 #k_630 .
+       ((Honest_78(A_629) @ #i_624) & (Compromise_63(A_629) @ #k_630))))))"
 
 lemma secrecy_MK []:
   all-traces
-  "All MK_614 #i_615 .
-     ((SecretMK_80(MK_614) @ #i_615) ==> (((not Ex #j_616 .
-                                                  !KU(MK_614) @ #j_616) | (
-     Ex A_617 #k_618 .
-       ((Honest_78(A_617) @ #i_615) & (Compromise_63(A_617) @ #k_618))))))"
+  "All MK_632 #i_633 .
+     ((SecretMK_80(MK_632) @ #i_633) ==> (((not Ex #j_634 .
+                                                  !KU(MK_632) @ #j_634) | (
+     Ex A_635 #k_636 .
+       ((Honest_78(A_635) @ #i_633) & (Compromise_63(A_635) @ #k_636))))))"
 
 lemma secrecy_PIN []:
   all-traces
-  "All PIN_620 #i_621 .
-     ((SecretPIN_77(PIN_620) @ #i_621) ==> (((not Ex #j_622 .
-                                                    !KU(PIN_620) @ #j_622) | (
-     Ex A_623 #k_624 .
-       ((Honest_78(A_623) @ #i_621) & (Compromise_63(A_623) @ #k_624))))))"
+  "All PIN_638 #i_639 .
+     ((SecretPIN_77(PIN_638) @ #i_639) ==> (((not Ex #j_640 .
+                                                    !KU(PIN_638) @ #j_640) | (
+     Ex A_641 #k_642 .
+       ((Honest_78(A_641) @ #i_639) & (Compromise_63(A_641) @ #k_642))))))"
 
 lemma secrecy_PAN []:
   all-traces
-  "All PAN_626 #i_627 .
-     ((SecretPAN_79(PAN_626) @ #i_627) ==> (((not Ex #j_628 .
-                                                    !KU(PAN_626) @ #j_628) | (
-     Ex A_629 #k_630 .
-       ((Honest_78(A_629) @ #i_627) & (Compromise_63(A_629) @ #k_630))))))"
+  "All PAN_644 #i_645 .
+     ((SecretPAN_79(PAN_644) @ #i_645) ==> (((not Ex #j_646 .
+                                                    !KU(PAN_644) @ #j_646) | (
+     Ex A_647 #k_648 .
+       ((Honest_78(A_647) @ #i_645) & (Compromise_63(A_647) @ #k_648))))))"
 
 end
 
