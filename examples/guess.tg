@@ -1,0 +1,59 @@
+builtins := multiset
+
+apred Neq/2
+apred Eq/2
+
+restriction Inequality =
+  All x y #i. Neq(x, y) @ i ==> not(x = y)
+
+restriction Equality =
+  All x y #i. Eq(x,y) @ i ==> x = y
+
+apred RightGuess/1
+
+process GuessingGame =
+  let answer = "F" in
+  
+  // Output some possible answers
+  []-->[Out(<"A", "B", "C", answer>)];
+  
+  // Some persistent states
+  []-->['try_count := "0"];
+  
+  entry_point "start";
+  
+  choice {
+    {
+      /*	We proceed if we receive the right answer
+          from network
+      */
+      [In(x)]--[Eq(x, answer)]
+      -->
+      ['try_count := 'try_count+"1"]
+    };
+    {
+      /* 	Otherwise we count the try and go back to
+          start
+      */
+      [In(x)]--[Neq(x, answer)]
+      -->
+      ['try_count := 'try_count+"1"];
+      goto "start"
+    };
+  };
+  
+  []--[ RightGuess('try_count) ]-->[ ]
+
+lemma at_least_one_guess =
+  All x #i.
+    RightGuess(x)@i ==> not (x = "0")
+
+lemma possibly_2_guesses =
+  exists-trace
+  Ex #i.
+    RightGuess(("0"+"1")+"1")@i
+
+lemma eventually_right_guess =
+  exists-trace
+  Ex x #i.
+    RightGuess(x) @ i

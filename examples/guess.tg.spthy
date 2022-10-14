@@ -1,0 +1,66 @@
+theory guess
+begin
+
+builtins: multiset
+
+restriction Inequality:
+  "All x_18 y_19 #i_20 .
+     ((Neq_16(x_18, y_19) @ #i_20) ==> (not ((x_18) = (y_19))))"
+
+restriction Equality:
+  "All x_22 y_23 #i_24 .
+     ((Eq_17(x_22, y_23) @ #i_24) ==> (((x_22) = (y_23))))"
+
+rule GuessingGame_30_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule GuessingGame_30_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , Out(<'A', 'B', 'C', 'F'>)
+    ]
+
+rule GuessingGame_30_manyto2to3:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[St(~pid, 'tgk3', <'0'>)]
+
+rule GuessingGame_30_3to4to7:
+    [ St(~pid, 'tgk3', <tgc_try_count_0>)
+    , In(x_28)
+    ]
+  --[ Eq_17(x_28, 'F')
+    ]->
+    [ StF(~pid, 'tgk7', <((tgc_try_count_0) + ('1'))>)
+    ]
+
+rule GuessingGame_30_3to5to6:
+    [ St(~pid, 'tgk3', <tgc_try_count_0>)
+    , In(x_29)
+    ]
+  --[ Neq_16(x_29, 'F')
+    ]->
+    [ St(~pid, 'tgk6', <((tgc_try_count_0) + ('1'))>)
+    ]
+
+rule GuessingGame_30_manyto7:
+  [StF(~pid, 'tgk7', <tgc_try_count_0>)]--[RightGuess_26(tgc_try_count_0)]->[]
+
+lemma at_least_one_guess []:
+  all-traces
+  "All x_31 #i_32 .
+     ((RightGuess_26(x_31) @ #i_32) ==> (not ((x_31) = ('0'))))"
+
+lemma possibly_2_guesses []:
+  exists-trace
+  "Ex #i_34 .
+     RightGuess_26((((('0') + ('1'))) + ('1'))) @ #i_34"
+
+lemma eventually_right_guess []:
+  exists-trace
+  "Ex x_36 #i_37 .
+     RightGuess_26(x_36) @ #i_37"
+
+end
+

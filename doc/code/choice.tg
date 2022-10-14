@@ -1,0 +1,44 @@
+builtins := hashing
+
+process A =
+  choice {
+    {
+      [ In("A") ]
+      -->
+      [ Out(h("A")) ]
+    };
+    {
+      choice {
+        {
+          [ In("B")
+          , In(x) ]
+          -->
+          [ Out(h(<"B", x>)) ]
+        };
+        {
+          [ In("C")
+          , In(x) ]
+          -->
+          [ Out(h(<"C", x>)) ]
+        };
+      };
+
+      [ In(x) ]-->[ Out(h(<x, x>)) ]
+    };
+  };
+
+  choice {
+    {
+      [ In("D")
+      , In(x) ]
+      -->
+      [ Out(h(<"D", x>)) ]
+    };
+    {
+      [ In("E")
+      , In(x) ]
+      -->
+      [ Out(h(<"E", x>)) ]
+    };
+  }
+

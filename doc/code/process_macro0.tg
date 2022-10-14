@@ -1,0 +1,15 @@
+builtins := symmetric-encryption
+
+process out_enc(m, k) =
+  []-->[ Out(senc(m, k)) ]
+
+process A =
+  [ Fr(~k) ]-->[ 'k := k ];
+  out_enc("A1", 'k);
+  out_enc("A2", 'k)
+
+process B =
+  [ Fr(~k) ]-->[ 'k := k ];
+  out_enc("B1", 'k);
+  out_enc("B2", 'k)
+
