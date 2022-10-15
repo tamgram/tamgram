@@ -14,3 +14,4 @@ fuzz-logs/
 manual.pdf
 *.out
 bench_*/
+bench-logs/
