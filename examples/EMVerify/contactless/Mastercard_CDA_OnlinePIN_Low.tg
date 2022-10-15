@@ -142,7 +142,7 @@ pred !AIP/2
 pred !Records/2
 apred SecretPrivkCard/1
 
-process pSet_Records =
+process Set_Records =
   choice {
     { "Set_Records_SDA":
         [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),

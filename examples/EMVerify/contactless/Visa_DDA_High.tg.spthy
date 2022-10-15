@@ -97,10 +97,10 @@ rule Set_PIN_87:
     , !Entered_PIN_82(~PAN_85, 'WrongPIN')
     ]
 
-rule pSet_Records_112_12tomany:
+rule Set_Records_112_12tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk12', 'empty_tuple')]
 
-rule pSet_Records_112_12to13_Set_Records_SDA:
+rule Set_Records_112_12to13_Set_Records_SDA:
     [ StB(~pid, 'tgk12', 'empty_tuple')
     , Set_Records_91(~PAN_99, ~expDate_95, $CA, certBank_96, SSAD_98, CVM_100)
     , !AIP_92(~PAN_99, <'SDA', u_furtherData_97>)
@@ -110,7 +110,7 @@ rule pSet_Records_112_12to13_Set_Records_SDA:
     [ !Records_93(~PAN_99, <~PAN_99, ~expDate_95, $CA, certBank_96, SSAD_98, CVM_100>)
     ]
 
-rule pSet_Records_112_12to14_Set_Records_NotSDA:
+rule Set_Records_112_12to14_Set_Records_NotSDA:
     [ StB(~pid, 'tgk12', 'empty_tuple')
     , Set_Records_91(~PAN_106, ~expDate_103, $CA, certBank_104, SSAD_105, CVM_107)
     , Fr(~privkCard_101)
