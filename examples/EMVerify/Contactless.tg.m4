@@ -429,12 +429,14 @@ process Terminal =
     [ OneTerminal(),
       Role($Terminal, "Terminal") ]->
     [ Out(<"GET_PROCESSING_OPTIONS", PDOL>),
-      'PDOL := PDOL
+      'PDOL := PDOL,
+      'Role0 := $Terminal,
     ];
 
   //============== Read Records ====================//
   "Terminal_Sends_ReadRecord":
-    [ In(<AIP, "AFL">) ]
+    [ 'Role0 cas $Terminal,
+      In(<AIP, "AFL">) ]
   -->
     [ Out(<"READ_RECORD", "AFL">),
       'AIP := AIP
@@ -445,7 +447,8 @@ process Terminal =
     //============== Offline Data Authentication ====================//
     //SDA
     { "Terminal_Receives_Records_SDA":
-        [ 'AIP cas <"SDA", _>,
+        [ 'Role0 cas $Terminal,
+          'AIP cas <"SDA", furtherData>,
           In(<~PAN, expDate, $CA,
              <<"02", $Bank, pubkBank, $CA>, sign2>,
              SSAD, CVM>
@@ -460,7 +463,11 @@ process Terminal =
           //verify the SSAD
           Eq( verify(SSAD, <"03", ~PAN, expDate, 'AIP>, pubkBank), true())
         ]->
-        [ 'PAN := PAN,
+        [
+          'Role0 := $Terminal,
+          'PAN := PAN,
+          'Role1 := $Bank,
+          'Role2 := $CA,
           'pubkBank := pubkBank,
           'pubkCard := "Null",
           'CVM := CVM,
@@ -468,7 +475,8 @@ process Terminal =
     };
     //CDA
     { "Terminal_Receives_Records_CDA":
-        [ 'AIP cas <"CDA", _>,
+        [ 'Role0 cas $Terminal,
+          'AIP cas <"CDA", furtherData>,
           In(<~PAN, expDate, $CA,
              <<"02", $Bank, pubkBank, $CA>, sign2>,
              <<"04", ~PAN, pubkCard, $Bank, CVM, 'AIP>, sign3>,
@@ -481,7 +489,10 @@ process Terminal =
           Eq( verify(sign2, <"02", $Bank, pubkBank, $CA>, pubkCA), true()),
           Eq( verify(sign3, <"04", ~PAN, pubkCard, $Bank, CVM, 'AIP>, pubkBank), true())
         ]->
-        [ 'PAN := PAN,
+        [ 'Role0 := $Terminal,
+          'PAN := PAN,
+          'Role1 := $Bank,
+          'Role2 := $CA,
           'pubkBank := pubkBank,
           'pubkCard := pubkCard,
           'CVM := CVM
@@ -489,7 +500,8 @@ process Terminal =
     };
     //DDA
     { "Terminal_Receives_Records_DDA":
-        [ 'AIP cas <"DDA", _>,
+        [ 'Role0 cas $Terminal,
+          'AIP cas <"DDA", furtherData>,
           !IssuingCA($Bank, $CA),
           In(<~PAN, expDate, $CA,
              <<"02", $Bank, pubkBank, $CA>, sign2>,
@@ -502,21 +514,32 @@ process Terminal =
           Eq( verify(sign2, <"02", $Bank, pubkBank, $CA>, pubkCA), true()),
           Eq( verify(sign3, <"04", ~PAN, pubkCard, $Bank, CVM, 'AIP>, pubkBank), true())
         ]->
-        [ 'PAN := PAN,
+        [ 'Role0 := $Terminal,
+          'PAN := PAN,
+          'Role1 := $Bank,
+          'Role2 := $CA,
           'pubkBank := pubkBank,
           'pubkCard := pubkCard,
           'CVM := CVM
         ];
 
       "Terminal_Sends_InternalAuthenticate":
-        [ 'PDOL cas <$amount, country, currency, date, type, ~UN> ]
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'PDOL cas <$amount, country, currency, date, type, ~UN> ]
       -->
         let DDOL = ~UN in
         [ Out( <"INTERNAL_AUTHENTICATE", DDOL> ),
         ];
 
       "Terminal_Receives_InternalAuthenticate_Response":
-        [ 'PDOL cas <$amount, country, currency, date, type, ~UN>,
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'PDOL cas <$amount, country, currency, date, type, ~UN>,
           In(<nc, SDAD>)
         ]
       --[ Eq( verify(SDAD, <"05", nc, ~UN>, 'pubkCard), true()) ]->
@@ -529,7 +552,11 @@ process Terminal =
   choice {
     //No PIN
     { "Terminal_Processes_CVM_NoPIN":
-        [ 'PDOL cas <$amount, country, currency, date, type, ~UN>,
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'PDOL cas <$amount, country, currency, date, type, ~UN>,
           !Value($amount, "Low") ]
       -->
         [ 'CVM := "NoPIN",
@@ -539,9 +566,12 @@ process Terminal =
     };
     //Online PIN
     { "Terminal_Processes_CVM_OnlinePIN":
-        [ 'CVM cas "OnlinePIN",
-          'PDOL cas <$amount, country, currency, date, type, ~UN>,
+        [ 'Role0 cas $Terminal,
           'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'CVM cas "OnlinePIN",
+          'PDOL cas <$amount, country, currency, date, type, ~UN>,
           !Entered_PIN('PAN, PIN),
           !Value($amount, "High") ]
       -->
@@ -552,7 +582,11 @@ process Terminal =
     };
     //On-device CVM
     { "Terminal_Processes_CVM_ODCVM":
-        [ 'PDOL cas <$amount, country, currency, date, type, ~UN>,
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'PDOL cas <$amount, country, currency, date, type, ~UN>,
           'AIP cas <auth, <"ODCVM", furtherData2>>,
           !Value($amount, "High") ]
       -->
@@ -567,7 +601,11 @@ process Terminal =
   /* Terminal_Sends_GenerateAC_* */
   choice {
     { "Terminal_Sends_GenerateAC_NoCDA":
-        [ In(acType) ]
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          In(acType) ]
       --
         let CDOL1 = <"TVR", 'CVM, "HHMMSS"> in
         let X = <'PDOL, CDOL1> in
@@ -578,8 +616,11 @@ process Terminal =
         ];
 
       "Terminal_Receives_AC_NoCDA":
-        [ 'X cas <PDOL, CDOL1>,
+        [ 'Role0 cas $Terminal,
           'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'X cas <PDOL, CDOL1>,
           In(<CID, ATC, AC, IAD>),
           Fr(~channelID) ]
       --
@@ -595,7 +636,11 @@ process Terminal =
             <transaction, 'encPIN>) ]
     };
     { "Terminal_Sends_GenerateAC_CDA":
-        [ In(acType),
+        [ 'Role0 cas $Terminal,
+          'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          In(acType),
           'AIP cas <"CDA", _furtherData>
         ]
       -->
@@ -608,7 +653,10 @@ process Terminal =
 
       "Terminal_Receives_AC_CDA":
         [ In(<CID, ATC, AC, <nc, SDAD>, IAD>),
+          'Role0 cas $Terminal,
           'PAN cas ~_,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
           'X cas <<$amount, country, currency, date, type, ~UN> as PDOL, _>,
           Fr(~channelID) ]
       --
@@ -639,7 +687,10 @@ ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
   choice {
     { "Terminal_Commits_TC":
       [ 'CID cas "TC"
+      , 'Role0 cas $Terminal
       , 'PAN cas ~_
+      , 'Role1 cas $Bank
+      , 'Role2 cas $CA
       , 'supportedCVM cas _supportedCVM
       , 'transaction cas <'PAN, _AIP, CVM,
                           <<$amount, country, currency, date, type, ~UN> as PDOL,
@@ -654,7 +705,10 @@ ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
       ]
     };
     { "Terminal_Commits_ARQC":
-      [ 'CID cas "ARQC"
+      [ 'Role0 cas $Terminal
+      , 'Role1 cas $Bank
+      , 'Role2 cas $CA
+      , 'CID cas "ARQC"
       , 'supportedCVM cas _supportedCVM
       , 'PAN cas ~_
       , 'transaction cas <'PAN, _AIP, CVM,
@@ -691,7 +745,8 @@ process Terminal_Visa =
         [ OneTerminal(),
           Role($Terminal, "Terminal") ]->
         [ Out(<"GET_PROCESSING_OPTIONS", PDOL>),
-          'PDOL := PDOL
+          'PDOL := PDOL,
+          'Role0 := $Terminal,
         ]
     };
     { "Terminal_Sends_GPO_High_Visa":
@@ -707,13 +762,15 @@ process Terminal_Visa =
         [ OneTerminal(),
           Role($Terminal, "Terminal") ]->
         [ Out(<"GET_PROCESSING_OPTIONS", PDOL>),
-          'PDOL := PDOL
+          'PDOL := PDOL,
+          'Role0 := $Terminal,
         ]
     };
   };
 
   "Terminal_Sends_ReadRecord_Visa":
-    [ In(< AIP, "AFL", <~PAN, expDate>, IAD, AC, CID, ATC, CTQ >),
+    [ 'Role0 cas $Terminal,
+      In(< AIP, "AFL", <~PAN, expDate>, IAD, AC, CID, ATC, CTQ >),
       'PDOL cas <<acType, CVM>, $amount, country, currency, date, type, ~UN>
     ]
   --[ Compatible_CID_acType(CID, acType) ]->
@@ -731,7 +788,8 @@ process Terminal_Visa =
   /* Terminal_Receives_Records_*_Visa */
   choice {
     { "Terminal_Receives_Records_EMV_Visa":
-        [ 'AIP cas <"EMV", _>,
+        [ 'Role0 cas $Terminal,
+          'AIP cas <"EMV", _>,
           'CID cas "ARQC",
           'PAN cas ~_,
           In(<'PAN, 'expDate> as records),
@@ -740,10 +798,13 @@ process Terminal_Visa =
       -->
         [ 'pubkBank := pubkBank,
           'nc := "Null",
+          'Role1 := $CA,
+          'Role2 := $Bank,
         ]
     };
     { "Terminal_Receives_Records_DDA_Visa":
-        [ 'AIP cas <"DDA", _>,
+        [ 'Role0 cas $Terminal,
+          'AIP cas <"DDA", _>,
           'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
           'PAN cas ~_,
           In(<'PAN, 'expDate, $CA,
@@ -769,6 +830,8 @@ process Terminal_Visa =
         ]->
         [ 'pubkBank := pubkBank,
           'nc := nc,
+          'Role1 := $CA,
+          'Role2 := $Bank,
         ]
     };
   };
@@ -776,7 +839,12 @@ process Terminal_Visa =
   /* Terminal_Processes_CVM_*_Visa */
   choice {
     { "Terminal_Processes_CVM_NoPIN_Visa":
-        [ 'CTQ cas "NoPIN",
+        [ 'Role0 cas $Terminal,
+          'Role1 cas $CA,
+          'Role2 cas $Bank,
+          'CTQ cas "NoPIN",
+          'PAN cas ~_,
+          'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
           !Value($amount, "Low") ]
       -->
         [ 'CVM := "NoPIN",
@@ -784,7 +852,10 @@ process Terminal_Visa =
         ]
     };
     { "Terminal_Processes_CVM_CDCVM_Visa":
-        [ 'CID cas "ARQC",
+        [ 'Role0 cas $Terminal,
+          'Role1 cas $CA,
+          'Role2 cas $Bank,
+          'CID cas "ARQC",
           'CTQ cas "CDCVM",
         ]
       -->
@@ -793,9 +864,13 @@ process Terminal_Visa =
         ]
     };
     { "Terminal_Processes_CVM_OnlinePIN_Visa":
-        [ 'CID cas "ARQC",
+        [ 'Role0 cas $Terminal,
+          'Role1 cas $CA,
+          'Role2 cas $Bank,
+          'CID cas "ARQC",
           'CTQ cas "OnlinePIN",
           'PAN cas ~_,
+          'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
           !Entered_PIN('PAN, PIN),//customer or attacker enters PIN
           !Value($amount, "High") ]
       -->
@@ -806,7 +881,10 @@ process Terminal_Visa =
   };
 
   "Terminal_Sends_AC_Visa":
-    [ 'PAN cas ~_,
+    [ 'Role0 cas $Terminal,
+      'Role1 cas $CA,
+      'Role2 cas $Bank,
+      'PAN cas ~_,
       Fr(~channelID)
     ]
   --
@@ -814,6 +892,9 @@ process Terminal_Visa =
     [ Running($Terminal, $Bank, <"Terminal", "Bank", transaction>) ]->
     [ 'channelID := channelID,
       'transaction := transaction,
+      'Role0 := $Terminal,
+      'Role1 := $Bank,
+      'Role2 := $CA,
       Send($Terminal, $Bank, <~channelID, "Visa", "1">, <transaction, 'encPIN>) ]dnl
 ifdef([[flVisa]],
 [[;
@@ -825,7 +906,10 @@ ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
   /* Terminal_Commits_*_Visa */
   choice {
     { "Terminal_Commits_TC_Visa":
-        [ 'CID cas "TC",
+        [ 'Role0 cas $Terminal,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'CID cas "TC",
           'PAN cas ~_,
           'transaction cas <'PAN, _AIP, CVM, 
                             <TTQ, $amount, country, currency, date, type, ~UN> as PDOL,
@@ -838,7 +922,10 @@ ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
         [ ]
     };
     { "Terminal_Commits_ARQC_Visa":
-        [ 'CID cas "ARQC",
+        [ 'Role0 cas $Terminal,
+          'Role1 cas $Bank,
+          'Role2 cas $CA,
+          'CID cas "ARQC",
           'transaction cas <~PAN, _AIP, CVM,
                             <TTQ, $amount, country, currency, date, type, ~UN> as PDOL,
                             ATC, AC, IAD>,
@@ -882,7 +969,9 @@ process Bank =
       --
         let ARPC = MAC_arpc(f(~MK, ATC), AC XOR p8("ARC")) in
         [ Once(<~PAN, ATC, "Bank">) ]->
-        [ 'transaction := transaction,
+        [ 'Role0 := $Bank,
+          'Role1 := $Terminal,
+          'transaction := transaction,
           'encPIN := encPIN,
           'channelID := channelID,
           'ARPC := ARPC,
@@ -891,7 +980,9 @@ process Bank =
       /* Bank_Processes_CVM_* */
       choice {
         { "Bank_Processes_CVM_NotOnlinePIN":
-            [ 'transaction cas <~PAN, AIP, CVM, X, ATC, AC, IAD>
+            [ 'Role0 cas $Bank
+            , 'Role1 cas $Terminal
+            , 'transaction cas <~PAN, AIP, CVM, X, ATC, AC, IAD>
             , 'encPIN cas "Null" ]
           --[ NEq(CVM, "OnlinePIN"),
               Running($Bank, $Terminal, <"Bank", "Terminal", 'transaction>) ]->
@@ -899,7 +990,9 @@ process Bank =
             ]
         };
         { "Bank_Processes_CVM_OnlinePIN":
-            [ 'encPIN cas aenc(PIN, pk(~privBank)),
+            [ 'Role0 cas $Bank,
+              'Role1 cas $Terminal,
+              'encPIN cas aenc(PIN, pk(~privBank)),
               'transaction cas <~PAN, AIP, "OnlinePIN", X, ATC, AC, IAD>,
               !LtkBank($Bank, ~privkBank),
               !PIN(~PAN, PIN),
@@ -918,7 +1011,9 @@ ifdef([[flLow]], [[define([[_value]], [["Low"]])]])dnl
 ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
 
       "Bank_Commits":
-        [ 'transaction cas <~PAN, _AIP, CVM,
+        [ 'Role0 cas $Bank
+        , 'Role1 cas $Terminal
+        , 'transaction cas <~PAN, _AIP, CVM,
                             <<amount, country, currency, date, type, UN> as PDOL,
                              _CDOL1> as X,
                             ATC, AC, IAD>
@@ -959,7 +1054,9 @@ process Bank_Visa =
       --
         let ARPC = MAC_arpc(f(~MK, ATC), AC XOR p8("ARC")) in
         [ Once(<~PAN, ATC, "Bank">) ]->
-        [ 'transaction := transaction,
+        [ 'Role0 := $Bank,
+          'Role1 := $Terminal,
+          'transaction := transaction,
           'encPIN := encPIN,
           'channelID := channelID,
           'ARPC := ARPC
@@ -968,7 +1065,9 @@ process Bank_Visa =
       /* Bank_Processes_CVM_*_Visa */
       choice {
         { "Bank_Processes_CVM_NotOnlinePIN_Visa":
-            [ 'transaction cas <~PAN, AIP, CVM,
+            [ 'Role0 cas $Bank
+            , 'Role1 cas $Terminal
+            , 'transaction cas <~PAN, AIP, CVM,
                                 <TTQ, amount, country, currency, date, type, UN> as PDOL,
                                 ATC, AC, IAD>
             , 'encPIN cas "Null" ]
@@ -977,10 +1076,12 @@ process Bank_Visa =
             [ ]
         };
         { "Bank_Processes_CVM_OnlinePIN_Visa":
-            [ 'transaction cas <~PAN, AIP, "OnlinePIN", PDOL, ATC, AC, IAD>,
-              'encPIN cas aenc(~PIN, pk(~privkBank)),
-              !LtkBank($Bank, ~privkBank),
-              !PIN(~PAN, ~PIN) ]
+            [ 'Role0 cas $Bank
+            , 'Role1 cas $Terminal
+            , 'transaction cas <~PAN, AIP, "OnlinePIN", PDOL, ATC, AC, IAD>
+            , 'encPIN cas aenc(~PIN, pk(~privkBank))
+            , !LtkBank($Bank, ~privkBank)
+            , !PIN(~PAN, ~PIN) ]
           --[ Running($Bank, $Terminal, <"Bank", "Terminal", 'transaction>) ]->
             [ ]
         };
@@ -993,7 +1094,9 @@ ifdef([[flLow]], [[define([[_value]], [["Low"]])]])dnl
 ifdef([[flHigh]], [[define([[_value]], [["High"]])]])dnl
 
       "Bank_Commits_Visa":
-        [ 'transaction cas <~PAN, _AIP, CVM,
+        [ 'Role0 cas $Bank,
+          'Role1 cas $Terminal,
+          'transaction cas <~PAN, _AIP, CVM,
                             <TTQ, amount, country, currency, date, type, UN> as PDOL,
                             ATC, AC, IAD>,
           !Value(amount, _value),
