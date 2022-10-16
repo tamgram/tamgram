@@ -2,7 +2,7 @@
 
 CORE=4
 MEMORY=50G
-TIMEOUT=30m
+TIMEOUT=60m
 
 if [[ "$1" == "" ]]; then
   pattern='*'
