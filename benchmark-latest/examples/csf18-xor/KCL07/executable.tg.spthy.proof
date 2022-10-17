@@ -1,0 +1,163 @@
+theory KCL07 begin
+
+// Function signature and definition of the equational theory E
+
+builtins: xor
+functions: fst/1, h/1, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+/* looping facts with injective instances: StF/3 */
+
+rule (modulo E) Setup_23:
+   [ Fr( ~k_21 ), Fr( ~id_22 ) ]
+  --[ OnlyOnce_18( ) ]->
+   [ !Reader_19( ~k_21, ~id_22 ), !Tag_20( ~k_21, ~id_22 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_31_1to2:
+   [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_31_manyto2to3:
+   [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~r1_27 ) ]
+  --[ Challenge_24( ~r1_27, 'Reader' ) ]->
+   [ StF( ~pid, 'tgk3', ~r1_27 ), Out( ~r1_27 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_31_manyto3:
+   [
+   StF( ~pid, 'tgk3', tgc_r1_0 ), !Reader_19( ~k_29, ~id_30 ),
+   In( xoredhash_28 )
+   ]
+  --[
+  Alive_25( ~k_29, 'Tag' ),
+  Eq_26( xoredhash_28, (~id_30⊕h(<tgc_r1_0, ~k_29>)) )
+  ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) tag_37:
+   [ In( r1_34 ), Fr( ~r2_33 ), !Tag_20( ~k_35, ~id_36 ) ]
+  --[ Response_32( ~k_35, 'Tag' ) ]->
+   [ Out( <(~id_36⊕~r2_33), (~r2_33⊕h(<r1_34, ~k_35>))> ) ]
+
+  /*
+  rule (modulo AC) tag_37:
+     [ In( r1_34 ), Fr( ~r2_33 ), !Tag_20( ~k_35, ~id_36 ) ]
+    --[ Response_32( ~k_35, 'Tag' ) ]->
+     [ Out( <z, (~r2_33⊕h(<r1_34, ~k_35>))> ) ]
+    variants (modulo AC)
+    1. ~id_36
+             = ~id_36.17
+       ~r2_33
+             = ~id_36.17
+       z     = zero
+    
+    2. ~id_36
+             = ~id_36.17
+       ~r2_33
+             = ~r2_33.19
+       z     = (~id_36.17⊕~r2_33.19)
+  */
+
+restriction equality:
+  "∀ x_38 y_39 #i_40. (Eq_26( x_38, y_39 ) @ #i_40) ⇒ (x_38 = y_39)"
+  // safety formula
+
+restriction unique:
+  "∀ #i_42 #j_43.
+    ((OnlyOnce_18( ) @ #i_42) ∧ (OnlyOnce_18( ) @ #j_43)) ⇒ (#i_42 = #j_43)"
+  // safety formula
+
+lemma recentalive_tag:
+  all-traces
+  "∀ x_45 #i_46.
+    (Alive_25( x_45, 'Tag' ) @ #i_46) ⇒
+    (∃ y_47 #j_48 #k_49.
+      (((Challenge_24( y_47, 'Reader' ) @ #k_49) ∧
+        (Response_32( x_45, 'Tag' ) @ #j_48)) ∧
+       (#k_49 < #j_48)) ∧
+      (#j_48 < #i_46))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ x_45 #i_46.
+  (Alive_25( x_45, 'Tag' ) @ #i_46)
+ ∧
+  ∀ y_47 #j_48 #k_49.
+   (Challenge_24( y_47, 'Reader' ) @ #k_49) ∧
+   (Response_32( x_45, 'Tag' ) @ #j_48)
+  ⇒
+   ((¬(#k_49 < #j_48)) ∨ (¬(#j_48 < #i_46)))"
+*/
+by sorry
+
+lemma executable:
+  exists-trace
+  "∃ x_51 #i_52 #j_53.
+    ((Alive_25( x_51, 'Tag' ) @ #i_52) ∧
+     (Response_32( x_51, 'Tag' ) @ #j_53)) ∧
+    (¬(∃ #k_54. (Response_32( x_51, 'Tag' ) @ #k_54) ∧ (¬(#j_53 = #k_54))))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ x_51 #i_52 #j_53.
+  (Alive_25( x_51, 'Tag' ) @ #i_52) ∧ (Response_32( x_51, 'Tag' ) @ #j_53)
+ ∧
+  ∀ #k_54. (Response_32( x_51, 'Tag' ) @ #k_54) ⇒ #j_53 = #k_54"
+*/
+simplify
+solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_52 )
+  case reader_31_manyto2to3
+  solve( !Reader_19( ~k_29, ~id_30 ) ▶₁ #i_52 )
+    case Setup_23
+    solve( !Tag_20( ~k_29, ~id_36 ) ▶₂ #j_53 )
+      case Setup_23
+      solve( splitEqs(1) )
+        case split
+        solve( !KU( (~id_30⊕h(<~r1_27, ~k_29>)) ) @ #vk )
+          case coerce
+          solve( !KD( (~id_30⊕h(<~r1_27, ~k_29>)) ) ▶₀ #vk )
+            case tag_37
+            solve( (#vl, 0) ~~> (#vk, 0) )
+              case d_0_fst
+              solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.3 )
+                case Setup_23
+                solve( (#vr.3, 0) ~~> (#vk, 0) )
+                  case d_xor_case_1
+                  solve( (#vr.4, 0) ~~> (#vk, 0) )
+                    case Xor
+                    solve( !KU( (~r2_33⊕h(<~r1_27, ~k_29>)) ) @ #vk.2 )
+                      case coerce
+                      solve( !KD( (~r2_33⊕h(<~r1_27, ~k_29>)) ) ▶₀ #vk.1 )
+                        case tag_37
+                        solve( (#vl.1, 0) ~~> (#vk.1, 0) )
+                          case d_0_snd
+                          solve( (#vr.6, 0) ~~> (#vk.1, 0) )
+                            case Xor
+                            solve( !KU( ~r1_27 ) @ #vk.2 )
+                              case reader_31_manyto2to3
+                              SOLVED // trace found
+                            qed
+                          qed
+                        qed
+                      qed
+                    qed
+                  qed
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+/* All well-formedness checks were successful. */
+
+end
