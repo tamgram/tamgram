@@ -1,0 +1,62 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{a4paper, left=3cm, top=3cm, bottom=3cm, right=3cm}
+
+\usepackage{xcolor}
+\usepackage{tabularray}
+
+\begin{document}
+	\setlength{\parindent}{0pt}
+	
+	\section{EMVerify}
+	
+	\begin{tblr}{
+			hlines,
+			vlines,
+			colspec={c *{4}{p{1cm}} *{4}{p{1cm}} },
+			column{4,5}={yellow}
+		}
+		&
+		\SetCell[c=4]{} executable & & & &
+		\SetCell[c=4]{}bank\_accepts \\
+		Mastercard\_SDA\_OnlinePIN\_Low & verified (27 steps) & 49.1 & verified  (25 steps) & 53.6 & falsified & time & falsified & time \\
+	\end{tblr}
+
+	\begin{tblr}{
+			hlines,
+			vlines,
+			colspec={c *{2}{p{2cm}} *{2}{p{2cm}} },
+			column{3,5}={yellow}
+		}
+	  &
+	  \SetCell[c=2]{} auth\_to\_terminal\_minimal & &
+	  \SetCell[c=2]{} auth\_to\_terminal \\
+	  Mastercard\_SDA\_NoPIN\_Low & 1 & 2 & 3 & 4 \\
+	\end{tblr}
+
+	\begin{tblr}{
+			hlines,
+			vlines,
+			colspec={c *{2}{p{2cm}} *{2}{p{1cm}} },
+			column{3,5}={yellow}
+		}
+		&
+		\SetCell[c=2]{} auth\_to\_bank\_minimal & &
+		\SetCell[c=2]{} auth\_to\_bank \\
+		Mastercard\_SDA\_NoPIN\_Low & 1 & 2 & 3 & 4 \\
+	\end{tblr}
+
+	\begin{tblr}{
+			hlines,
+			vlines,
+			colspec={c*{8}{p{1cm}}}
+		}
+     & \SetCell[c=2]{} secrecy\_MK & & \SetCell[c=2]{} secrecy\_privkCard & & \SetCell[c=2]{} secrecy\_PIN & & \SetCell[c=2]{}  secrecy\_PAN \\
+     Mastercard\_SDA\_NoPIN\_Low & 1 & 2 & 3 & 4 & 5 & 6 \\3	\end{tblr}
+
+\end{document}
