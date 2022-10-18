@@ -5,7 +5,7 @@ contactless:
 	m4 -DflMastercard -DflSDA -DflNoPIN -DflLow Contactless.tg.m4 > contactless/Mastercard_SDA_NoPIN_Low.tg
 	m4 -DflMastercard -DflSDA -DflNoPIN -DflHigh Contactless.tg.m4 > contactless/Mastercard_SDA_NoPIN_High.tg
 	m4 -DflMastercard -DflSDA -DflOnlinePIN -DflLow Contactless.tg.m4 > contactless/Mastercard_SDA_OnlinePIN_Low.tg
-	m4 -DflMastercard -DflSDA -DflOnlinePIN -DHigh Contactless.tg.m4 > contactless/Mastercard_SDA_OnlinePIN_High.tg
+	m4 -DflMastercard -DflSDA -DflOnlinePIN -DflHigh Contactless.tg.m4 > contactless/Mastercard_SDA_OnlinePIN_High.tg
 	# DDA
 	m4 -DflMastercard -DflDDA -DflNoPIN -DflLow Contactless.tg.m4 > contactless/Mastercard_DDA_NoPIN_Low.tg
 	m4 -DflMastercard -DflDDA -DflNoPIN -DflHigh Contactless.tg.m4 > contactless/Mastercard_DDA_NoPIN_High.tg

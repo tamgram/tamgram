@@ -21,12 +21,12 @@ process Terminal_Bank_Network =
     [ Send(S, R, channelID, msg) ]-->[ Recv(S, R, channelID, msg) ]
 
 //=================== Pools ==================//
-//any given amount is always either Low or , thus the usage of Once(...)
+//any given amount is always either Low or High, thus the usage of Once(...)
 process Generate_Amount_Low =
     [ ]--[ Once(<$amount, "Amount">) ]->[ !Value($amount, "Low") ]
 
 process Generate_Amount_High =
-    [ ]--[ Once(<$amount, "Amount">) ]->[ !Value($amount, "") ]
+    [ ]--[ Once(<$amount, "Amount">) ]->[ !Value($amount, "High") ]
 
 //the transaction counter
 process Generate_ATC =
@@ -571,7 +571,7 @@ process Terminal =
           'CVM cas "OnlinePIN",
           'PDOL cas <$amount, country, currency, date, type, ~UN>,
           !Entered_PIN('PAN, PIN),
-          !Value($amount, "") ]
+          !Value($amount, "High") ]
       -->
         [ 'CVM := "OnlinePIN",
           'encPIN := aenc(PIN, 'pubkBank),
@@ -586,7 +586,7 @@ process Terminal =
           'Role2 cas $CA,
           'PDOL cas <$amount, country, currency, date, type, ~UN>,
           'AIP cas <auth, <"ODCVM", furtherData2>>,
-          !Value($amount, "") ]
+          !Value($amount, "High") ]
       -->
         [ 'CVM := "ODCVM",
           'encPIN := "Null",
@@ -685,7 +685,7 @@ process Terminal =
                           <<$amount, country, currency, date, type, ~UN> as PDOL,
                            _CDOL1> as X,
                           ATC, AC, IAD>
-      , !Value($amount, _value) ]
+      , !Value($amount, "High") ]
     --[ TerminalAccepts('transaction)
       , Commit("Terminal", 'PAN, <"Card", "Terminal", 'transaction>)
       , Honest($CA), Honest($Bank), Honest($Terminal), Honest('PAN)
@@ -704,7 +704,7 @@ process Terminal =
                           <<$amount, country, currency, date, type, ~UN> as PDOL,
                            _CDOL1> as X,
                           ATC, AC, IAD>
-      , !Value($amount, _value)
+      , !Value($amount, "High")
       , Recv($Bank, $Terminal, <'channelID, "Mastercard", "2">, <"ARC", ARPC>) ]
     --[ TerminalAccepts('transaction)
       , Commit("Terminal", 'PAN, <"Card", "Terminal", 'transaction>)
@@ -738,7 +738,7 @@ process Terminal_Visa =
     };
     { "Terminal_Sends_GPO_High_Visa":
         [ Fr(~UN),
-          !Value($amount, "") ]
+          !Value($amount, "High") ]
       --
         let date = "YYMMDD" in
         let type = "Purchase" in
@@ -857,7 +857,7 @@ process Terminal_Visa =
           'PAN cas ~_,
           'PDOL cas <TTQ, $amount, country, currency, date, type, ~UN>,
           !Entered_PIN('PAN, PIN),//customer or attacker enters PIN
-          !Value($amount, "") ]
+          !Value($amount, "High") ]
       -->
         [ 'CVM := "OnlinePIN",
           'encPIN := aenc(PIN, 'pubkBank),
@@ -952,7 +952,7 @@ process Bank =
                             <<amount, country, currency, date, type, UN> as PDOL,
                              _CDOL1> as X,
                             ATC, AC, IAD>
-        , !Value(amount, _value)
+        , !Value(amount, "High")
         , !IssuingCA($Bank, $CA)
         ]
       --[ Commit($Bank, ~PAN, <"Card", "Bank", 'transaction>)
@@ -1060,7 +1060,7 @@ lemma executable =
 /////////////////////////////////////////////////////
 //           Security Properties                   //
 /////////////////////////////////////////////////////
-//executable fails for Mastercard  NoPIN, so ignore all following lemmas
+//executable fails for Mastercard High NoPIN, so ignore all following lemmas
 
 
 //============== Bank accepts ===========//
@@ -1084,6 +1084,16 @@ lemma auth_to_terminal_minimal = //non-injective agreement with one card session
 
 
 //auth_to_terminal_minimal fails for Mastercard SDA Low and for Mastercard DDA Low
+
+
+lemma auth_to_terminal = //injective agreement
+  All T' P r t #i.
+    Commit(T', P, <r, "Terminal", t>)@i
+   ==>
+    ((Ex #j. Running(P, T', <r, "Terminal", t>)@j & j < i) &
+      not (Ex T2 P2 #i2. Commit(T2, P2, <r, "Terminal", t>)@i2 & not(#i2 = #i))
+    ) |
+    Ex A #k. Honest(A)@i & Compromise(A)@k
 
 
 
