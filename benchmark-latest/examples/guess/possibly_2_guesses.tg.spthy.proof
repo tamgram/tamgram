@@ -1,0 +1,88 @@
+theory guess begin
+
+// Function signature and definition of the equational theory E
+
+builtins: multiset
+functions: fst/1, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+restriction Inequality:
+  "∀ x_18 y_19 #i_20. (Neq_16( x_18, y_19 ) @ #i_20) ⇒ (¬(x_18 = y_19))"
+  // safety formula
+
+restriction Equality:
+  "∀ x_22 y_23 #i_24. (Eq_17( x_22, y_23 ) @ #i_24) ⇒ (x_22 = y_23)"
+  // safety formula
+
+rule (modulo E) GuessingGame_30_0to1:
+   [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk1', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) GuessingGame_30_manyto1to2:
+   [ StF( ~pid, 'tgk1', 'empty_tuple' ) ]
+  -->
+   [ StF( ~pid, 'tgk2', 'empty_tuple' ), Out( <'A', 'B', 'C', 'F'> ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) GuessingGame_30_manyto2to3:
+   [ StF( ~pid, 'tgk2', 'empty_tuple' ) ] --> [ St( ~pid, 'tgk3', '0' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) GuessingGame_30_3to4to7:
+   [ St( ~pid, 'tgk3', tgc_try_count_0 ), In( x_28 ) ]
+  --[ Eq_17( x_28, 'F' ) ]->
+   [ StF( ~pid, 'tgk7', ('1'+tgc_try_count_0) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) GuessingGame_30_3to5to6:
+   [ St( ~pid, 'tgk3', tgc_try_count_0 ), In( x_29 ) ]
+  --[ Neq_16( x_29, 'F' ) ]->
+   [ St( ~pid, 'tgk6', ('1'+tgc_try_count_0) ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) GuessingGame_30_manyto7:
+   [ StF( ~pid, 'tgk7', tgc_try_count_0 ) ]
+  --[ RightGuess_26( tgc_try_count_0 ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+lemma at_least_one_guess:
+  all-traces
+  "∀ x_31 #i_32. (RightGuess_26( x_31 ) @ #i_32) ⇒ (¬(x_31 = '0'))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ x_31 #i_32. (RightGuess_26( x_31 ) @ #i_32) ∧ x_31 = '0'"
+*/
+by sorry
+
+lemma possibly_2_guesses:
+  exists-trace "∃ #i_34. RightGuess_26( ('0'+'1'+'1') ) @ #i_34"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ #i_34. (RightGuess_26( ('0'+'1'+'1') ) @ #i_34)"
+*/
+simplify
+solve( RightGuess_26( ('0'+'1'+'1') ) @ #i_34 )
+  case GuessingGame_30_manyto7
+  by solve( StF( ~pid, 'tgk7', ('0'+'1'+'1') ) ▶₀ #i_34 )
+qed
+
+lemma eventually_right_guess:
+  exists-trace "∃ x_36 #i_37. RightGuess_26( x_36 ) @ #i_37"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ x_36 #i_37. (RightGuess_26( x_36 ) @ #i_37)"
+*/
+by sorry
+
+/* All well-formedness checks were successful. */
+
+end
