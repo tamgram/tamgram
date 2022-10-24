@@ -15,3 +15,4 @@ manual.pdf
 *.out
 bench_*/
 bench-logs/
+__pycache__/
