@@ -1,971 +1,971 @@
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): falsified - no trace found (47 steps)
+    - summary: {'status': 'falsified', 'step_count': 47}
     - time: 47.597
   - Tamgram version:
-    - summary: executable (exists-trace): falsified - no trace found (48 steps)
+    - summary: {'status': 'falsified', 'step_count': 48}
     - time: 49.2165
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.1947
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 46.5885
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 44.8388
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 51.4477
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 43.6024
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 44.864
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (30 steps)
+    - summary: {'status': 'verified', 'step_count': 30}
     - time: 55.2052
   - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 64.0536
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (2897 steps)
+    - summary: {'status': 'verified', 'step_count': 2897}
     - time: 719.867
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3629 steps)
+    - summary: {'status': 'verified', 'step_count': 3629}
     - time: 947.612
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.54
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.17
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3601.25
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3600.61
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (141 steps)
+    - summary: {'status': 'verified', 'step_count': 141}
     - time: 64.0199
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (147 steps)
+    - summary: {'status': 'verified', 'step_count': 147}
     - time: 67.7983
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (2818 steps)
+    - summary: {'status': 'verified', 'step_count': 2818}
     - time: 623.216
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (612 steps)
+    - summary: {'status': 'verified', 'step_count': 612}
     - time: 173.521
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 44.0592
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 49.8
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 44.5036
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 47.6082
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.4442
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.9044
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (30 steps)
+    - summary: {'status': 'verified', 'step_count': 30}
     - time: 57.7206
   - Tamgram version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 71.4353
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (7145 steps)
+    - summary: {'status': 'verified', 'step_count': 7145}
     - time: 1698.05
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (9331 steps)
+    - summary: {'status': 'verified', 'step_count': 9331}
     - time: 2399.78
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.41
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.25
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3600.6
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3600.83
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (221 steps)
+    - summary: {'status': 'verified', 'step_count': 221}
     - time: 75.6033
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (260 steps)
+    - summary: {'status': 'verified', 'step_count': 260}
     - time: 84.7623
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (3566 steps)
+    - summary: {'status': 'verified', 'step_count': 3566}
     - time: 809.263
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1086 steps)
+    - summary: {'status': 'verified', 'step_count': 1086}
     - time: 295.38
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 45.4198
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 49.4824
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 47.8764
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 50.487
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.1259
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.3217
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 43.4374
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.0261
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (30 steps)
+    - summary: {'status': 'verified', 'step_count': 30}
     - time: 51.5585
   - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 61.2569
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (2905 steps)
+    - summary: {'status': 'verified', 'step_count': 2905}
     - time: 704.285
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3637 steps)
+    - summary: {'status': 'verified', 'step_count': 3637}
     - time: 956.923
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.34
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3601.91
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3601.18
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3600.64
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (141 steps)
+    - summary: {'status': 'verified', 'step_count': 141}
     - time: 63.1696
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (147 steps)
+    - summary: {'status': 'verified', 'step_count': 147}
     - time: 64.8267
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (2818 steps)
+    - summary: {'status': 'verified', 'step_count': 2818}
     - time: 608.279
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (612 steps)
+    - summary: {'status': 'verified', 'step_count': 612}
     - time: 167.425
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 48.1062
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 51.5434
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 47.4847
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 46.1417
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.7952
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 45.453
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.414
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 47.7435
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): falsified - no trace found (49 steps)
+    - summary: {'status': 'falsified', 'step_count': 49}
     - time: 45.6658
   - Tamgram version:
-    - summary: executable (exists-trace): falsified - no trace found (50 steps)
+    - summary: {'status': 'falsified', 'step_count': 50}
     - time: 46.8878
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.098
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 49.7644
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 45.0285
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 49.1084
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.0462
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 48.5065
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 51.8199
   - Tamgram version:
-    - summary: executable (exists-trace): verified (27 steps)
+    - summary: {'status': 'verified', 'step_count': 27}
     - time: 52.8076
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (16 steps)
+    - summary: {'status': 'falsified', 'step_count': 16}
     - time: 342.987
   - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (17 steps)
+    - summary: {'status': 'falsified', 'step_count': 17}
     - time: 597.398
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.83
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 240.218
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (137 steps)
+    - summary: {'status': 'verified', 'step_count': 137}
     - time: 60.728
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (143 steps)
+    - summary: {'status': 'verified', 'step_count': 143}
     - time: 63.868
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (2912 steps)
+    - summary: {'status': 'verified', 'step_count': 2912}
     - time: 491.461
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (666 steps)
+    - summary: {'status': 'verified', 'step_count': 666}
     - time: 159.159
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 43.8783
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 51.2368
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 46.1654
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 50.2091
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.1872
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.0856
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_OnlinePIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 56.0776
   - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 58.6169
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (4865 steps)
+    - summary: {'status': 'verified', 'step_count': 4865}
     - time: 1027.56
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (6371 steps)
+    - summary: {'status': 'verified', 'step_count': 6371}
     - time: 1499.69
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.87
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.77
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3601.28
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3601.57
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (203 steps)
+    - summary: {'status': 'verified', 'step_count': 203}
     - time: 69.8458
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (242 steps)
+    - summary: {'status': 'verified', 'step_count': 242}
     - time: 77.4746
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (3372 steps)
+    - summary: {'status': 'verified', 'step_count': 3372}
     - time: 632.484
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1116 steps)
+    - summary: {'status': 'verified', 'step_count': 1116}
     - time: 265.506
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.6596
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.2217
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 48.3342
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 46.9374
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 47.0761
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.8236
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.1946
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 49.4208
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_OnlinePIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 53.2211
   - Tamgram version:
-    - summary: executable (exists-trace): verified (27 steps)
+    - summary: {'status': 'verified', 'step_count': 27}
     - time: 57.3408
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (16 steps)
+    - summary: {'status': 'falsified', 'step_count': 16}
     - time: 346.477
   - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (17 steps)
+    - summary: {'status': 'falsified', 'step_count': 17}
     - time: 605.486
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.85
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 251.986
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (137 steps)
+    - summary: {'status': 'verified', 'step_count': 137}
     - time: 60.169
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (143 steps)
+    - summary: {'status': 'verified', 'step_count': 143}
     - time: 67.093
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (2912 steps)
+    - summary: {'status': 'verified', 'step_count': 2912}
     - time: 495.213
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (666 steps)
+    - summary: {'status': 'verified', 'step_count': 666}
     - time: 155.138
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 43.8733
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 50.4777
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 47.4409
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 48.6569
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 48.1181
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.8453
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.8481
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 50.0001
 benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_NoPIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): falsified - no trace found (45 steps)
+    - summary: {'status': 'falsified', 'step_count': 45}
     - time: 42.135
   - Tamgram version:
-    - summary: executable (exists-trace): falsified - no trace found (46 steps)
+    - summary: {'status': 'falsified', 'step_count': 46}
     - time: 44.976
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.2819
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.7678
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 41.1252
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 49.8516
 benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (27 steps)
+    - summary: {'status': 'verified', 'step_count': 27}
     - time: 51.9382
   - Tamgram version:
-    - summary: executable (exists-trace): verified (25 steps)
+    - summary: {'status': 'verified', 'step_count': 25}
     - time: 52.9576
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 188.231
   - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (14 steps)
+    - summary: {'status': 'falsified', 'step_count': 14}
     - time: 51.8298
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.85
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (10 steps)
+    - summary: {'status': 'falsified', 'step_count': 10}
     - time: 545.592
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (102 steps)
+    - summary: {'status': 'verified', 'step_count': 102}
     - time: 57.0977
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (108 steps)
+    - summary: {'status': 'verified', 'step_count': 108}
     - time: 62.4904
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1377 steps)
+    - summary: {'status': 'verified', 'step_count': 1377}
     - time: 283.477
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (363 steps)
+    - summary: {'status': 'verified', 'step_count': 363}
     - time: 103.284
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 44.6187
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 48.8257
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 47.7009
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.1477
 benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 53.0354
   - Tamgram version:
-    - summary: executable (exists-trace): verified (26 steps)
+    - summary: {'status': 'verified', 'step_count': 26}
     - time: 53.9955
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (2315 steps)
+    - summary: {'status': 'verified', 'step_count': 2315}
     - time: 505.118
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3047 steps)
+    - summary: {'status': 'verified', 'step_count': 3047}
     - time: 722.216
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.76
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3603.04
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.64
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.66
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (150 steps)
+    - summary: {'status': 'verified', 'step_count': 150}
     - time: 62.621
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (183 steps)
+    - summary: {'status': 'verified', 'step_count': 183}
     - time: 69.9348
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1688 steps)
+    - summary: {'status': 'verified', 'step_count': 1688}
     - time: 354.238
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (585 steps)
+    - summary: {'status': 'verified', 'step_count': 585}
     - time: 153.388
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 47.4736
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 52.4845
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 45.2475
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.0037
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 43.9304
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 45.7848
 benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (27 steps)
+    - summary: {'status': 'verified', 'step_count': 27}
     - time: 49.1476
   - Tamgram version:
-    - summary: executable (exists-trace): verified (25 steps)
+    - summary: {'status': 'verified', 'step_count': 25}
     - time: 53.6339
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 195.739
   - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (14 steps)
+    - summary: {'status': 'falsified', 'step_count': 14}
     - time: 49.822
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.9
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (10 steps)
+    - summary: {'status': 'falsified', 'step_count': 10}
     - time: 542.293
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (102 steps)
+    - summary: {'status': 'verified', 'step_count': 102}
     - time: 54.9948
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (108 steps)
+    - summary: {'status': 'verified', 'step_count': 108}
     - time: 60.0774
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1377 steps)
+    - summary: {'status': 'verified', 'step_count': 1377}
     - time: 282.985
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (363 steps)
+    - summary: {'status': 'verified', 'step_count': 363}
     - time: 98.5852
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 44.0709
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 48.4763
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 46.1362
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 47.3832
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.711
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.8173
 benchmark-latest/examples/EMVerify/contactless/Visa_DDA_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 52.0907
   - Tamgram version:
-    - summary: executable (exists-trace): verified (29 steps)
+    - summary: {'status': 'verified', 'step_count': 29}
     - time: 58.7514
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (5617 steps)
+    - summary: {'status': 'verified', 'step_count': 5617}
     - time: 932.39
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (5657 steps)
+    - summary: {'status': 'verified', 'step_count': 5657}
     - time: 993.597
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.82
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.7
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.58
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.58
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (205 steps)
+    - summary: {'status': 'verified', 'step_count': 205}
     - time: 70.1564
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (205 steps)
+    - summary: {'status': 'verified', 'step_count': 205}
     - time: 73.9254
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (953 steps)
+    - summary: {'status': 'verified', 'step_count': 953}
     - time: 166.929
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (953 steps)
+    - summary: {'status': 'verified', 'step_count': 953}
     - time: 182.532
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 46.3287
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 49.2912
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 44.7068
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 50.5876
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 44.7595
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 50.6658
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 43.6852
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 47.6013
 benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 52.9306
   - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 59.3945
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (17 steps)
+    - summary: {'status': 'falsified', 'step_count': 17}
     - time: 1300.4
   - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (18 steps)
+    - summary: {'status': 'falsified', 'step_count': 18}
     - time: 882.257
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3603.11
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (14 steps)
+    - summary: {'status': 'falsified', 'step_count': 14}
     - time: 943.474
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
+    - summary: {'status': 'verified', 'step_count': 337}
     - time: 84.9374
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
+    - summary: {'status': 'verified', 'step_count': 337}
     - time: 87.6424
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1922 steps)
+    - summary: {'status': 'verified', 'step_count': 1922}
     - time: 305.667
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1922 steps)
+    - summary: {'status': 'verified', 'step_count': 1922}
     - time: 337.158
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 43.6653
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 50.4292
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 46.3854
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 48.2886
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 45.4877
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 49.2136
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.6473
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 48.7766
 benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low_Fix
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 65.5895
   - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
+    - summary: {'status': 'verified', 'step_count': 28}
     - time: 69.7171
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (3710 steps)
+    - summary: {'status': 'verified', 'step_count': 3710}
     - time: 735.2
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3728 steps)
+    - summary: {'status': 'verified', 'step_count': 3728}
     - time: 786.577
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.78
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.93
 - Lemma: auth_to_terminal
   - Tamarin version:
-    - summary: 
+    - summary: None
     - time: 3602.93
   - Tamgram version:
-    - summary: 
+    - summary: None
     - time: 3602.76
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
+    - summary: {'status': 'verified', 'step_count': 310}
     - time: 94.0193
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
+    - summary: {'status': 'verified', 'step_count': 310}
     - time: 101.526
 - Lemma: auth_to_bank
   - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1382 steps)
+    - summary: {'status': 'verified', 'step_count': 1382}
     - time: 283.928
   - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1382 steps)
+    - summary: {'status': 'verified', 'step_count': 1382}
     - time: 309.168
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 58.5688
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 63.2498
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 54.2753
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 61.607
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 59.8588
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 60.5123
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 58.7402
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 59.1299
 benchmark-latest/examples/EMVerify/contactless/Visa_EMV_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (22 steps)
+    - summary: {'status': 'verified', 'step_count': 22}
     - time: 47.9942
   - Tamgram version:
-    - summary: executable (exists-trace): verified (23 steps)
+    - summary: {'status': 'verified', 'step_count': 23}
     - time: 54.0416
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (308 steps)
+    - summary: {'status': 'verified', 'step_count': 308}
     - time: 68.2949
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (356 steps)
+    - summary: {'status': 'verified', 'step_count': 356}
     - time: 72.8867
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 77.7945
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 85.4139
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 54.0847
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 59.969
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 44.0567
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 48.8463
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 44.2057
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 46.1938
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 50.3353
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 47.0897
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 47.2043
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.3986
 benchmark-latest/examples/EMVerify/contactless/Visa_EMV_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (22 steps)
+    - summary: {'status': 'verified', 'step_count': 22}
     - time: 47.2293
   - Tamgram version:
-    - summary: executable (exists-trace): verified (23 steps)
+    - summary: {'status': 'verified', 'step_count': 23}
     - time: 52.884
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (210 steps)
+    - summary: {'status': 'verified', 'step_count': 210}
     - time: 57.8064
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (242 steps)
+    - summary: {'status': 'verified', 'step_count': 242}
     - time: 66.6288
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 76.0276
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 80.2896
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 61.3115
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 66.2063
 - Lemma: secrecy_MK
   - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 43.3214
   - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 46.3749
 - Lemma: secrecy_privkCard
   - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - summary: {'status': 'verified', 'step_count': 13}
     - time: 47.6367
   - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - summary: {'status': 'verified', 'step_count': 14}
     - time: 50.5739
 - Lemma: secrecy_PIN
   - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 44.1904
   - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - summary: {'status': 'verified', 'step_count': 4}
     - time: 48.323
 - Lemma: secrecy_PAN
   - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 43.6778
   - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - summary: {'status': 'falsified', 'step_count': 7}
     - time: 46.7255
 benchmark-latest/examples/Tutorial
 - Lemma: Client_session_key_secrecy
@@ -973,159 +973,159 @@ benchmark-latest/examples/Tutorial
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: Client_session_key_secrecy (all-traces): verified (5 steps)
+    - summary: {'status': 'verified', 'step_count': 5}
     - time: 0.141085
 - Lemma: Client_auth
   - Tamarin version:
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: Client_auth_injective (all-traces): analysis incomplete (1 steps)
+    - summary: None
     - time: 0.151575
 - Lemma: Client_auth_injective
   - Tamarin version:
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: Client_auth_injective (all-traces): verified (15 steps)
+    - summary: {'status': 'verified', 'step_count': 15}
     - time: 0.151807
 - Lemma: Client_session_key_honest_setup
   - Tamarin version:
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: Client_session_key_honest_setup (exists-trace): verified (5 steps)
+    - summary: {'status': 'verified', 'step_count': 5}
     - time: 0.141114
 benchmark-latest/examples/csf18-xor/CH07
 - Lemma: recentalive_tag
   - Tamarin version:
-    - summary: recentalive_tag (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 0.645353
   - Tamgram version:
-    - summary: recentalive_tag (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 2.75223
 - Lemma: recentalive_reader
   - Tamarin version:
-    - summary: recentalive_reader (all-traces): verified (23 steps)
+    - summary: {'status': 'verified', 'step_count': 23}
     - time: 0.341722
   - Tamgram version:
-    - summary: recentalive_reader (all-traces): verified (23 steps)
+    - summary: {'status': 'verified', 'step_count': 23}
     - time: 2.39205
 - Lemma: noninjectiveagreement_tag
   - Tamarin version:
-    - summary: noninjectiveagreement_tag (all-traces): verified (25 steps)
+    - summary: {'status': 'verified', 'step_count': 25}
     - time: 0.330397
   - Tamgram version:
-    - summary: noninjectiveagreement_tag (all-traces): verified (25 steps)
+    - summary: {'status': 'verified', 'step_count': 25}
     - time: 2.35221
 - Lemma: noninjectiveagreement_reader
   - Tamarin version:
-    - summary: noninjectiveagreement_reader (all-traces): verified (15 steps)
+    - summary: {'status': 'verified', 'step_count': 15}
     - time: 0.29081
   - Tamgram version:
-    - summary: noninjectiveagreement_reader (all-traces): verified (15 steps)
+    - summary: {'status': 'verified', 'step_count': 15}
     - time: 2.30174
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 0.431415
   - Tamgram version:
-    - summary: executable (exists-trace): verified (12 steps)
+    - summary: {'status': 'verified', 'step_count': 12}
     - time: 2.4417
 benchmark-latest/examples/csf18-xor/CRxor
 - Lemma: alive
   - Tamarin version:
-    - summary: recentalive_tag (all-traces): analysis incomplete (1 steps)
+    - summary: None
     - time: 0.291618
   - Tamgram version:
-    - summary: recentalive_tag (all-traces): analysis incomplete (1 steps)
+    - summary: None
     - time: 0.361215
 - Lemma: recentalive_tag
   - Tamarin version:
-    - summary: recentalive_tag (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 0.451142
   - Tamgram version:
-    - summary: recentalive_tag (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 0.540437
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (10 steps)
+    - summary: {'status': 'verified', 'step_count': 10}
     - time: 0.471708
   - Tamgram version:
-    - summary: executable (exists-trace): verified (10 steps)
+    - summary: {'status': 'verified', 'step_count': 10}
     - time: 0.471002
 benchmark-latest/examples/csf18-xor/KCL07
 - Lemma: recentalive_tag
   - Tamarin version:
-    - summary: recentalive_tag (all-traces): verified (128 steps)
+    - summary: {'status': 'verified', 'step_count': 128}
     - time: 0.902702
   - Tamgram version:
-    - summary: recentalive_tag (all-traces): verified (128 steps)
+    - summary: {'status': 'verified', 'step_count': 128}
     - time: 0.972557
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (17 steps)
+    - summary: {'status': 'verified', 'step_count': 17}
     - time: 0.412122
   - Tamgram version:
-    - summary: executable (exists-trace): verified (17 steps)
+    - summary: {'status': 'verified', 'step_count': 17}
     - time: 0.422095
 benchmark-latest/examples/csf18-xor/LAK06
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (9 steps)
+    - summary: {'status': 'verified', 'step_count': 9}
     - time: 0.791512
   - Tamgram version:
-    - summary: executable (exists-trace): verified (9 steps)
+    - summary: {'status': 'verified', 'step_count': 9}
     - time: 121.902
 - Lemma: helpingSecrecy
   - Tamarin version:
-    - summary: helpingSecrecy (all-traces): verified (2 steps)
+    - summary: {'status': 'verified', 'step_count': 2}
     - time: 0.159687
   - Tamgram version:
-    - summary: helpingSecrecy (all-traces): verified (2 steps)
+    - summary: {'status': 'verified', 'step_count': 2}
     - time: 123.042
 - Lemma: noninjectiveagreementTAG
   - Tamarin version:
-    - summary: noninjectiveagreementTAG (all-traces): verified (2148 steps)
+    - summary: {'status': 'verified', 'step_count': 2148}
     - time: 9.16761
   - Tamgram version:
-    - summary: noninjectiveagreementTAG (all-traces): verified (2165 steps)
+    - summary: {'status': 'verified', 'step_count': 2165}
     - time: 132.341
 - Lemma: noninjectiveagreementREADER
   - Tamarin version:
-    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 0.540529
   - Tamgram version:
-    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 121.292
 benchmark-latest/examples/csf18-xor/NSLPK3xor
 - Lemma: types
   - Tamarin version:
-    - summary: types (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 0.521002
   - Tamgram version:
-    - summary: types (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 0.611535
 - Lemma: nonce_secrecy
   - Tamarin version:
-    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 1.3015
   - Tamgram version:
-    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
+    - summary: {'status': 'falsified', 'step_count': 11}
     - time: 1.47087
 - Lemma: injective_agree
   - Tamarin version:
-    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 1.23272
   - Tamgram version:
-    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
+    - summary: {'status': 'falsified', 'step_count': 13}
     - time: 1.51111
 - Lemma: session_key_setup_possible
   - Tamarin version:
-    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
+    - summary: {'status': 'verified', 'step_count': 6}
     - time: 0.441489
   - Tamgram version:
-    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
+    - summary: {'status': 'verified', 'step_count': 6}
     - time: 0.49127
 benchmark-latest/examples/guess
 - Lemma: at_least_one_guess
@@ -1133,19 +1133,19 @@ benchmark-latest/examples/guess
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: at_least_one_guess (all-traces): verified (2 steps)
+    - summary: {'status': 'verified', 'step_count': 2}
     - time: 0.111588
 - Lemma: possibly_2_guesses
   - Tamarin version:
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: possibly_2_guesses (exists-trace): falsified - no trace found (3 steps)
+    - summary: {'status': 'falsified', 'step_count': 3}
     - time: 0.110958
 - Lemma: eventually_right_guess
   - Tamarin version:
     - summary: None
     - time: None
   - Tamgram version:
-    - summary: eventually_right_guess (exists-trace): verified (3 steps)
+    - summary: {'status': 'verified', 'step_count': 3}
     - time: 0.111323
