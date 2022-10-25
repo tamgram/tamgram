@@ -1,4 +1,6 @@
-benchmark_dir = "benchmark-latest"
+import os
+import glob
+import re
 
 tg_file_dir = "examples"
 
@@ -7,18 +9,19 @@ def check_dirs():
         print(f"Tamgram file directory {tg_file_dir} not found")
         exit(1)
 
-def tg_files():
+def tg_files(pattern):
     files = glob.glob(tg_file_dir + "/" + "**/**.tg", recursive=True)
     files.sort()
     return files
 
-def benchmark_cases():
-    files = tg_files()
+def benchmark_cases(pattern):
+    files = tg_files(pattern)
     return [x.removesuffix(".tg") for x in files]
 
 def lemmas_of_benchmark_case(name):
     tg_file = name + ".tg"
     lemmas = []
+    p_lemma = re.compile("^\s*lemma")
     with open(tg_file) as file:
         lines = file.readlines()
         for line in lines:
@@ -27,12 +30,36 @@ def lemmas_of_benchmark_case(name):
 
     return lemmas
 
-def summary_of_lemma_tamarin(name, lemma):
-    with open(name + "/" + lemma + ".spthy.summary") as file:
-        line = file.read()
-    return line
+def check_variant(variant):
+    if variant != "tamarin" and variant != "tamgram":
+        raise Exception("Invalid file variant: {variant}")
 
-def time_of_lemma_tamarin(name, lemma):
-    with open(name + "/" + lemma + ".spthy.time") as file:
-        line = file.read()
-    return line
+def summary_of_lemma(basedir, name, lemma, variant):
+    check_variant(variant)
+    if variant == "tamarin":
+        suffix = ".spthy.summary"
+    elif variant == "tamgram":
+        suffix = ".tg.spthy.sumary"
+
+    try:
+        path = f"{basedir}/{name}/{lemma}{suffix}"
+        with open(path) as file:
+            line = file.read().strip()
+        return line
+    except:
+        return None
+
+def time_of_lemma(basedir, name, lemma, variant):
+    check_variant(variant)
+    if variant == "tamarin":
+        suffix = ".spthy.time"
+    elif variant == "tamgram":
+        suffix = ".tg.spthy.time"
+
+    try:
+        path = f"{basedir}/{name}/{lemma}{suffix}"
+        with open(path) as file:
+            line = file.read().strip()
+        return line
+    except:
+        return None
