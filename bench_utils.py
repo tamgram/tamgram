@@ -39,7 +39,7 @@ def summary_of_lemma(basedir, name, lemma, variant):
     if variant == "tamarin":
         suffix = ".spthy.summary"
     elif variant == "tamgram":
-        suffix = ".tg.spthy.sumary"
+        suffix = ".tg.spthy.summary"
 
     try:
         path = f"{basedir}/{name}/{lemma}{suffix}"
