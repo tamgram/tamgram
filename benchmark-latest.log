@@ -1,25 +1,3 @@
-benchmark-latest/examples/guess
-- Lemma: at_least_one_guess
-  - Tamarin version:
-    - summary: missing
-    - time: missing
-  - Tamgram version:
-    - summary: at_least_one_guess (all-traces): verified (2 steps)
-    - time: 0.111588
-- Lemma: possibly_2_guesses
-  - Tamarin version:
-    - summary: missing
-    - time: missing
-  - Tamgram version:
-    - summary: possibly_2_guesses (exists-trace): falsified - no trace found (3 steps)
-    - time: 0.110958
-- Lemma: eventually_right_guess
-  - Tamarin version:
-    - summary: missing
-    - time: missing
-  - Tamgram version:
-    - summary: eventually_right_guess (exists-trace): verified (3 steps)
-    - time: 0.111323
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_High
 - Lemma: executable
   - Tamarin version:
@@ -49,35 +27,6 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_High
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 44.864
-benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_High
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): falsified - no trace found (49 steps)
-    - time: 45.6658
-  - Tamgram version:
-    - summary: executable (exists-trace): falsified - no trace found (50 steps)
-    - time: 46.8878
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 47.098
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 49.7644
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 45.0285
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 49.1084
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.0462
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 48.5065
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
@@ -142,268 +91,6 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_NoPIN_Low
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 46.9044
-benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_OnlinePIN_High
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (29 steps)
-    - time: 56.0776
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 58.6169
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (4865 steps)
-    - time: 1027.56
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (6371 steps)
-    - time: 1499.69
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.87
-  - Tamgram version:
-    - summary: 
-    - time: 3602.77
-- Lemma: auth_to_terminal
-  - Tamarin version:
-    - summary: 
-    - time: 3601.28
-  - Tamgram version:
-    - summary: 
-    - time: 3601.57
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (203 steps)
-    - time: 69.8458
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (242 steps)
-    - time: 77.4746
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (3372 steps)
-    - time: 632.484
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1116 steps)
-    - time: 265.506
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 47.6596
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 47.2217
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 48.3342
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 46.9374
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 47.0761
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 46.8236
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 45.1946
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 49.4208
-benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_Low
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (27 steps)
-    - time: 49.1476
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (25 steps)
-    - time: 53.6339
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (13 steps)
-    - time: 195.739
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (14 steps)
-    - time: 49.822
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.9
-  - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (10 steps)
-    - time: 542.293
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (102 steps)
-    - time: 54.9948
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (108 steps)
-    - time: 60.0774
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1377 steps)
-    - time: 282.985
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (363 steps)
-    - time: 98.5852
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 44.0709
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 48.4763
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 46.1362
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 47.3832
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.711
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.8173
-benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low_Fix
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 65.5895
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 69.7171
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (3710 steps)
-    - time: 735.2
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3728 steps)
-    - time: 786.577
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.78
-  - Tamgram version:
-    - summary: 
-    - time: 3602.93
-- Lemma: auth_to_terminal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.93
-  - Tamgram version:
-    - summary: 
-    - time: 3602.76
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
-    - time: 94.0193
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
-    - time: 101.526
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1382 steps)
-    - time: 283.928
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1382 steps)
-    - time: 309.168
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 58.5688
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 63.2498
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 54.2753
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 61.607
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 59.8588
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 60.5123
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 58.7402
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 59.1299
-benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_High
-- Lemma: executable
-  - Tamarin version:
-    - summary:     - time: 53.0354
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (26 steps)
-    - time: 53.9955
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (2315 steps)
-    - time: 505.118
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3047 steps)
-    - time: 722.216
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.76
-  - Tamgram version:
-    - summary: 
-    - time: 3603.04
-- Lemma: auth_to_terminal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.64
-  - Tamgram version:
-    - summary: 
-    - time: 3602.66
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (150 steps)
-    - time: 62.621
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (183 steps)
-    - time: 69.9348
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1688 steps)
-    - time: 354.238
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (585 steps)
-    - time: 153.388
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 47.4736
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 52.4845
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 45.2475
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 46.0037
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 43.9304
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 45.7848
 benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_High
 - Lemma: executable
   - Tamarin version:
@@ -475,6 +162,106 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_High
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 45.0261
+benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_Low
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (30 steps)
+    - time: 51.5585
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 61.2569
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): verified (2905 steps)
+    - time: 704.285
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): verified (3637 steps)
+    - time: 956.923
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: 
+    - time: 3602.34
+  - Tamgram version:
+    - summary: 
+    - time: 3601.91
+- Lemma: auth_to_terminal
+  - Tamarin version:
+    - summary: 
+    - time: 3601.18
+  - Tamgram version:
+    - summary: 
+    - time: 3600.64
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): verified (141 steps)
+    - time: 63.1696
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): verified (147 steps)
+    - time: 64.8267
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (2818 steps)
+    - time: 608.279
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (612 steps)
+    - time: 167.425
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 48.1062
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 51.5434
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 47.4847
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 46.1417
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 46.7952
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 45.453
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 45.414
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 47.7435
+benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_High
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): falsified - no trace found (49 steps)
+    - time: 45.6658
+  - Tamgram version:
+    - summary: executable (exists-trace): falsified - no trace found (50 steps)
+    - time: 46.8878
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 47.098
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 49.7644
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 45.0285
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 49.1084
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 46.0462
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 48.5065
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
@@ -532,6 +319,77 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_NoPIN_Low
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 46.0856
+benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_OnlinePIN_High
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (29 steps)
+    - time: 56.0776
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 58.6169
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): verified (4865 steps)
+    - time: 1027.56
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): verified (6371 steps)
+    - time: 1499.69
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: 
+    - time: 3602.87
+  - Tamgram version:
+    - summary: 
+    - time: 3602.77
+- Lemma: auth_to_terminal
+  - Tamarin version:
+    - summary: 
+    - time: 3601.28
+  - Tamgram version:
+    - summary: 
+    - time: 3601.57
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): verified (203 steps)
+    - time: 69.8458
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): verified (242 steps)
+    - time: 77.4746
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (3372 steps)
+    - time: 632.484
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (1116 steps)
+    - time: 265.506
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 47.6596
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 47.2217
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 48.3342
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 46.9374
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 47.0761
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 46.8236
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 45.1946
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 49.4208
 benchmark-latest/examples/EMVerify/contactless/Mastercard_DDA_OnlinePIN_Low
 - Lemma: executable
   - Tamarin version:
@@ -618,141 +476,6 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_NoPIN_High
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 49.8516
-benchmark-latest/examples/EMVerify/contactless/Mastercard_CDA_OnlinePIN_Low
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (30 steps)
-    - time: 51.5585
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 61.2569
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (2905 steps)
-    - time: 704.285
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (3637 steps)
-    - time: 956.923
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3602.34
-  - Tamgram version:
-    - summary: 
-    - time: 3601.91
-- Lemma: auth_to_terminal
-  - Tamarin version:
-    - summary: 
-    - time: 3601.18
-  - Tamgram version:
-    - summary: 
-    - time: 3600.64
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (141 steps)
-    - time: 63.1696
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (147 steps)
-    - time: 64.8267
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (2818 steps)
-    - time: 608.279
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (612 steps)
-    - time: 167.425
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 48.1062
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 51.5434
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 47.4847
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 46.1417
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 46.7952
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 45.453
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 45.414
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 47.7435
-benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 52.9306
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (28 steps)
-    - time: 59.3945
-- Lemma: bank_accepts
-  - Tamarin version:
-    - summary: bank_accepts (all-traces): falsified - found trace (17 steps)
-    - time: 1300.4
-  - Tamgram version:
-    - summary: bank_accepts (all-traces): falsified - found trace (18 steps)
-    - time: 882.257
-- Lemma: auth_to_terminal_minimal
-  - Tamarin version:
-    - summary: 
-    - time: 3603.11
-  - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (14 steps)
-    - time: 943.474
-- Lemma: auth_to_bank_minimal
-  - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
-    - time: 84.9374
-  - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
-    - time: 87.6424
-- Lemma: auth_to_bank
-  - Tamarin version:
-    - summary: auth_to_bank (all-traces): verified (1922 steps)
-    - time: 305.667
-  - Tamgram version:
-    - summary: auth_to_bank (all-traces): verified (1922 steps)
-    - time: 337.158
-- Lemma: secrecy_MK
-  - Tamarin version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 43.6653
-  - Tamgram version:
-    - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 50.4292
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 46.3854
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 48.2886
-- Lemma: secrecy_PIN
-  - Tamarin version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 45.4877
-  - Tamgram version:
-    - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 49.2136
-- Lemma: secrecy_PAN
-  - Tamarin version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.6473
-  - Tamgram version:
-    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 48.7766
 benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_NoPIN_Low
 - Lemma: executable
   - Tamarin version:
@@ -803,120 +526,127 @@ benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_NoPIN_Low
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 46.1477
-benchmark-latest/examples/EMVerify/contactless/Visa_EMV_Low
+benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_High
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (22 steps)
-    - time: 47.2293
+    - summary: 
+    - time: 53.0354
   - Tamgram version:
-    - summary: executable (exists-trace): verified (23 steps)
-    - time: 52.884
+    - summary: executable (exists-trace): verified (26 steps)
+    - time: 53.9955
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (210 steps)
-    - time: 57.8064
+    - summary: bank_accepts (all-traces): verified (2315 steps)
+    - time: 505.118
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (242 steps)
-    - time: 66.6288
+    - summary: bank_accepts (all-traces): verified (3047 steps)
+    - time: 722.216
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 76.0276
+    - summary: 
+    - time: 3602.76
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 80.2896
+    - summary: 
+    - time: 3603.04
+- Lemma: auth_to_terminal
+  - Tamarin version:
+    - summary: 
+    - time: 3602.64
+  - Tamgram version:
+    - summary: 
+    - time: 3602.66
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 61.3115
+    - summary: auth_to_bank_minimal (all-traces): verified (150 steps)
+    - time: 62.621
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 66.2063
+    - summary: auth_to_bank_minimal (all-traces): verified (183 steps)
+    - time: 69.9348
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (1688 steps)
+    - time: 354.238
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (585 steps)
+    - time: 153.388
 - Lemma: secrecy_MK
   - Tamarin version:
     - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 43.3214
+    - time: 47.4736
   - Tamgram version:
     - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 46.3749
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 47.6367
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 50.5739
+    - time: 52.4845
 - Lemma: secrecy_PIN
   - Tamarin version:
     - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 44.1904
+    - time: 45.2475
   - Tamgram version:
     - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 48.323
+    - time: 46.0037
 - Lemma: secrecy_PAN
   - Tamarin version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 43.6778
+    - time: 43.9304
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.7255
-benchmark-latest/examples/EMVerify/contactless/Visa_EMV_High
+    - time: 45.7848
+benchmark-latest/examples/EMVerify/contactless/Mastercard_SDA_OnlinePIN_Low
 - Lemma: executable
   - Tamarin version:
-    - summary: executable (exists-trace): verified (22 steps)
-    - time: 47.9942
+    - summary: executable (exists-trace): verified (27 steps)
+    - time: 49.1476
   - Tamgram version:
-    - summary: executable (exists-trace): verified (23 steps)
-    - time: 54.0416
+    - summary: executable (exists-trace): verified (25 steps)
+    - time: 53.6339
 - Lemma: bank_accepts
   - Tamarin version:
-    - summary: bank_accepts (all-traces): verified (308 steps)
-    - time: 68.2949
+    - summary: bank_accepts (all-traces): falsified - found trace (13 steps)
+    - time: 195.739
   - Tamgram version:
-    - summary: bank_accepts (all-traces): verified (356 steps)
-    - time: 72.8867
+    - summary: bank_accepts (all-traces): falsified - found trace (14 steps)
+    - time: 49.822
 - Lemma: auth_to_terminal_minimal
   - Tamarin version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 77.7945
+    - summary: 
+    - time: 3602.9
   - Tamgram version:
-    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 85.4139
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (10 steps)
+    - time: 542.293
 - Lemma: auth_to_bank_minimal
   - Tamarin version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 54.0847
+    - summary: auth_to_bank_minimal (all-traces): verified (102 steps)
+    - time: 54.9948
   - Tamgram version:
-    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
-    - time: 59.969
+    - summary: auth_to_bank_minimal (all-traces): verified (108 steps)
+    - time: 60.0774
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (1377 steps)
+    - time: 282.985
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (363 steps)
+    - time: 98.5852
 - Lemma: secrecy_MK
   - Tamarin version:
     - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 44.0567
+    - time: 44.0709
   - Tamgram version:
     - summary: secrecy_MK (all-traces): verified (12 steps)
-    - time: 48.8463
-- Lemma: secrecy_privkCard
-  - Tamarin version:
-    - summary: secrecy_privkCard (all-traces): verified (13 steps)
-    - time: 44.2057
-  - Tamgram version:
-    - summary: secrecy_privkCard (all-traces): verified (14 steps)
-    - time: 46.1938
+    - time: 48.4763
 - Lemma: secrecy_PIN
   - Tamarin version:
     - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 50.3353
+    - time: 46.1362
   - Tamgram version:
     - summary: secrecy_PIN (all-traces): verified (4 steps)
-    - time: 47.0897
+    - time: 47.3832
 - Lemma: secrecy_PAN
   - Tamarin version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 47.2043
+    - time: 46.711
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
-    - time: 46.3986
+    - time: 46.8173
 benchmark-latest/examples/EMVerify/contactless/Visa_DDA_High
 - Lemma: executable
   - Tamarin version:
@@ -988,64 +718,284 @@ benchmark-latest/examples/EMVerify/contactless/Visa_DDA_High
   - Tamgram version:
     - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
     - time: 47.6013
+benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 52.9306
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 59.3945
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): falsified - found trace (17 steps)
+    - time: 1300.4
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): falsified - found trace (18 steps)
+    - time: 882.257
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: 
+    - time: 3603.11
+  - Tamgram version:
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (14 steps)
+    - time: 943.474
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
+    - time: 84.9374
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): verified (337 steps)
+    - time: 87.6424
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (1922 steps)
+    - time: 305.667
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (1922 steps)
+    - time: 337.158
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 43.6653
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 50.4292
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 46.3854
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 48.2886
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 45.4877
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 49.2136
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 46.6473
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 48.7766
+benchmark-latest/examples/EMVerify/contactless/Visa_DDA_Low_Fix
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 65.5895
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (28 steps)
+    - time: 69.7171
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): verified (3710 steps)
+    - time: 735.2
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): verified (3728 steps)
+    - time: 786.577
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: 
+    - time: 3602.78
+  - Tamgram version:
+    - summary: 
+    - time: 3602.93
+- Lemma: auth_to_terminal
+  - Tamarin version:
+    - summary: 
+    - time: 3602.93
+  - Tamgram version:
+    - summary: 
+    - time: 3602.76
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
+    - time: 94.0193
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): verified (310 steps)
+    - time: 101.526
+- Lemma: auth_to_bank
+  - Tamarin version:
+    - summary: auth_to_bank (all-traces): verified (1382 steps)
+    - time: 283.928
+  - Tamgram version:
+    - summary: auth_to_bank (all-traces): verified (1382 steps)
+    - time: 309.168
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 58.5688
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 63.2498
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 54.2753
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 61.607
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 59.8588
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 60.5123
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 58.7402
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 59.1299
+benchmark-latest/examples/EMVerify/contactless/Visa_EMV_High
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (22 steps)
+    - time: 47.9942
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (23 steps)
+    - time: 54.0416
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): verified (308 steps)
+    - time: 68.2949
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): verified (356 steps)
+    - time: 72.8867
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 77.7945
+  - Tamgram version:
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 85.4139
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 54.0847
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 59.969
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 44.0567
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 48.8463
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 44.2057
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 46.1938
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 50.3353
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 47.0897
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 47.2043
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 46.3986
+benchmark-latest/examples/EMVerify/contactless/Visa_EMV_Low
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (22 steps)
+    - time: 47.2293
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (23 steps)
+    - time: 52.884
+- Lemma: bank_accepts
+  - Tamarin version:
+    - summary: bank_accepts (all-traces): verified (210 steps)
+    - time: 57.8064
+  - Tamgram version:
+    - summary: bank_accepts (all-traces): verified (242 steps)
+    - time: 66.6288
+- Lemma: auth_to_terminal_minimal
+  - Tamarin version:
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 76.0276
+  - Tamgram version:
+    - summary: auth_to_terminal_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 80.2896
+- Lemma: auth_to_bank_minimal
+  - Tamarin version:
+    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 61.3115
+  - Tamgram version:
+    - summary: auth_to_bank_minimal (all-traces): falsified - found trace (11 steps)
+    - time: 66.2063
+- Lemma: secrecy_MK
+  - Tamarin version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 43.3214
+  - Tamgram version:
+    - summary: secrecy_MK (all-traces): verified (12 steps)
+    - time: 46.3749
+- Lemma: secrecy_privkCard
+  - Tamarin version:
+    - summary: secrecy_privkCard (all-traces): verified (13 steps)
+    - time: 47.6367
+  - Tamgram version:
+    - summary: secrecy_privkCard (all-traces): verified (14 steps)
+    - time: 50.5739
+- Lemma: secrecy_PIN
+  - Tamarin version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 44.1904
+  - Tamgram version:
+    - summary: secrecy_PIN (all-traces): verified (4 steps)
+    - time: 48.323
+- Lemma: secrecy_PAN
+  - Tamarin version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 43.6778
+  - Tamgram version:
+    - summary: secrecy_PAN (all-traces): falsified - found trace (7 steps)
+    - time: 46.7255
 benchmark-latest/examples/Tutorial
 - Lemma: Client_session_key_secrecy
   - Tamarin version:
-    - summary: missing
-    - time: missing
+    - summary: None
+    - time: None
   - Tamgram version:
     - summary: Client_session_key_secrecy (all-traces): verified (5 steps)
     - time: 0.141085
 - Lemma: Client_auth
   - Tamarin version:
-    - summary: missing
-    - time: missing
+    - summary: None
+    - time: None
   - Tamgram version:
     - summary: Client_auth_injective (all-traces): analysis incomplete (1 steps)
     - time: 0.151575
 - Lemma: Client_auth_injective
   - Tamarin version:
-    - summary: missing
-    - time: missing
+    - summary: None
+    - time: None
   - Tamgram version:
     - summary: Client_auth_injective (all-traces): verified (15 steps)
     - time: 0.151807
 - Lemma: Client_session_key_honest_setup
   - Tamarin version:
-    - summary: missing
-    - time: missing
+    - summary: None
+    - time: None
   - Tamgram version:
     - summary: Client_session_key_honest_setup (exists-trace): verified (5 steps)
     - time: 0.141114
-benchmark-latest/examples/csf18-xor/NSLPK3xor
-- Lemma: types
-  - Tamarin version:
-    - summary: types (all-traces): falsified - found trace (13 steps)
-    - time: 0.521002
-  - Tamgram version:
-    - summary: types (all-traces): falsified - found trace (13 steps)
-    - time: 0.611535
-- Lemma: nonce_secrecy
-  - Tamarin version:
-    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
-    - time: 1.3015
-  - Tamgram version:
-    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
-    - time: 1.47087
-- Lemma: injective_agree
-  - Tamarin version:
-    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
-    - time: 1.23272
-  - Tamgram version:
-    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
-    - time: 1.51111
-- Lemma: session_key_setup_possible
-  - Tamarin version:
-    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
-    - time: 0.441489
-  - Tamgram version:
-    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
-    - time: 0.49127
 benchmark-latest/examples/csf18-xor/CH07
 - Lemma: recentalive_tag
   - Tamarin version:
@@ -1082,35 +1032,6 @@ benchmark-latest/examples/csf18-xor/CH07
   - Tamgram version:
     - summary: executable (exists-trace): verified (12 steps)
     - time: 2.4417
-benchmark-latest/examples/csf18-xor/LAK06
-- Lemma: executable
-  - Tamarin version:
-    - summary: executable (exists-trace): verified (9 steps)
-    - time: 0.791512
-  - Tamgram version:
-    - summary: executable (exists-trace): verified (9 steps)
-    - time: 121.902
-- Lemma: helpingSecrecy
-  - Tamarin version:
-    - summary: helpingSecrecy (all-traces): verified (2 steps)
-    - time: 0.159687
-  - Tamgram version:
-    - summary: helpingSecrecy (all-traces): verified (2 steps)
-    - time: 123.042
-- Lemma: noninjectiveagreementTAG
-  - Tamarin version:
-    - summary: noninjectiveagreementTAG (all-traces): verified (2148 steps)
-    - time: 9.16761
-  - Tamgram version:
-    - summary: noninjectiveagreementTAG (all-traces): verified (2165 steps)
-    - time: 132.341
-- Lemma: noninjectiveagreementREADER
-  - Tamarin version:
-    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
-    - time: 0.540529
-  - Tamgram version:
-    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
-    - time: 121.292
 benchmark-latest/examples/csf18-xor/CRxor
 - Lemma: alive
   - Tamarin version:
@@ -1148,3 +1069,83 @@ benchmark-latest/examples/csf18-xor/KCL07
   - Tamgram version:
     - summary: executable (exists-trace): verified (17 steps)
     - time: 0.422095
+benchmark-latest/examples/csf18-xor/LAK06
+- Lemma: executable
+  - Tamarin version:
+    - summary: executable (exists-trace): verified (9 steps)
+    - time: 0.791512
+  - Tamgram version:
+    - summary: executable (exists-trace): verified (9 steps)
+    - time: 121.902
+- Lemma: helpingSecrecy
+  - Tamarin version:
+    - summary: helpingSecrecy (all-traces): verified (2 steps)
+    - time: 0.159687
+  - Tamgram version:
+    - summary: helpingSecrecy (all-traces): verified (2 steps)
+    - time: 123.042
+- Lemma: noninjectiveagreementTAG
+  - Tamarin version:
+    - summary: noninjectiveagreementTAG (all-traces): verified (2148 steps)
+    - time: 9.16761
+  - Tamgram version:
+    - summary: noninjectiveagreementTAG (all-traces): verified (2165 steps)
+    - time: 132.341
+- Lemma: noninjectiveagreementREADER
+  - Tamarin version:
+    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
+    - time: 0.540529
+  - Tamgram version:
+    - summary: noninjectiveagreementREADER (all-traces): falsified - found trace (13 steps)
+    - time: 121.292
+benchmark-latest/examples/csf18-xor/NSLPK3xor
+- Lemma: types
+  - Tamarin version:
+    - summary: types (all-traces): falsified - found trace (13 steps)
+    - time: 0.521002
+  - Tamgram version:
+    - summary: types (all-traces): falsified - found trace (13 steps)
+    - time: 0.611535
+- Lemma: nonce_secrecy
+  - Tamarin version:
+    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
+    - time: 1.3015
+  - Tamgram version:
+    - summary: nonce_secrecy (all-traces): falsified - found trace (11 steps)
+    - time: 1.47087
+- Lemma: injective_agree
+  - Tamarin version:
+    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
+    - time: 1.23272
+  - Tamgram version:
+    - summary: injective_agree (all-traces): falsified - found trace (13 steps)
+    - time: 1.51111
+- Lemma: session_key_setup_possible
+  - Tamarin version:
+    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
+    - time: 0.441489
+  - Tamgram version:
+    - summary: session_key_setup_possible (exists-trace): verified (6 steps)
+    - time: 0.49127
+benchmark-latest/examples/guess
+- Lemma: at_least_one_guess
+  - Tamarin version:
+    - summary: None
+    - time: None
+  - Tamgram version:
+    - summary: at_least_one_guess (all-traces): verified (2 steps)
+    - time: 0.111588
+- Lemma: possibly_2_guesses
+  - Tamarin version:
+    - summary: None
+    - time: None
+  - Tamgram version:
+    - summary: possibly_2_guesses (exists-trace): falsified - no trace found (3 steps)
+    - time: 0.110958
+- Lemma: eventually_right_guess
+  - Tamarin version:
+    - summary: None
+    - time: None
+  - Tamgram version:
+    - summary: eventually_right_guess (exists-trace): verified (3 steps)
+    - time: 0.111323
