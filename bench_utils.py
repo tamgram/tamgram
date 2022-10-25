@@ -41,11 +41,23 @@ def summary_of_lemma(basedir, name, lemma, variant):
     elif variant == "tamgram":
         suffix = ".tg.spthy.summary"
 
+    p = re.compile("[A-Za-z-_: ]*\(([a-z-]+)\)[A-Za-z-_: ]*\(([0-9]+) steps\)")
+
     try:
+        summary = {}
         path = f"{basedir}/{name}/{lemma}{suffix}"
         with open(path) as file:
             line = file.read().strip()
-        return line
+        if "verified" in line:
+            summary["status"] = "verified"
+        elif "falsified" in line:
+            summary["status"] = "falsified"
+        else:
+            raise Exception(f"Failed to classify summary {path}")
+
+        summary["step_count"] = int(p.match(line).group(2))
+
+        return summary
     except:
         return None
 
