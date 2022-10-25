@@ -41,7 +41,7 @@ def summary_of_lemma(basedir, name, lemma, variant):
     elif variant == "tamgram":
         suffix = ".tg.spthy.summary"
 
-    p = re.compile("[A-Za-z-_: ]*\(([a-z-]+)\)[A-Za-z-_: ]*\(([0-9]+) steps\)")
+    p = re.compile("[A-Za-z0-9-_: ]*\(([a-z-]+)\)[A-Za-z0-9-_: ]*\(([0-9]+) steps\)")
 
     try:
         summary = {}
