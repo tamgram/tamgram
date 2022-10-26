@@ -15,7 +15,7 @@ def write_time(file, time):
     if time is None or time == "":
         file.write("& -")
     else:
-        file.write("& {0}".format(time))
+        file.write("& {:.1f}".format(time))
 
 def write_table(file, cases, lemmas):
     for case in cases:
@@ -27,26 +27,41 @@ def write_table(file, cases, lemmas):
         file.write("\\\\")
         file.write("\n")
 
-def make_emverify_table0():
-    with open(f"{base_dir}/EMVerify_table0.tex", "w") as file:
+def make_emverify_table(index, lemmas):
+    with open(f"{base_dir}/EMVerify_table{index}.tex", "w") as file:
         file.write("""
             \\begin{tblr}{
                     hlines,
                     vlines,
-                    colspec={c *{4}{p{2cm}} *{4}{p{2cm}} },
+                    colspec={c 
+        """)
+        
+        for _ in lemmas:
+            file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
+            file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
+
+        file.write("""
+                    },
                     column{4-5,8-9}={blue8},
                 }
-                &
-                \SetCell[c=4]{} executable & & & &
-                \SetCell[c=4]{}bank\_accepts & & & \\\\
         """)
+
+        for lemma in lemmas:
+            file.write("& \\SetCell[c=4]{{}} {} & & &".format(lemma.replace("_", "\\_")))
+
+        file.write("\\\\")
+        file.write("\n")
 
         cases = [ x for x in benchmark_cases() if "EMVerify" in x ]
 
-        write_table(file, cases, ["executable", "bank_accepts"])
+        write_table(file, cases, lemmas)
 
         file.write("""
             \end{tblr}
         """)
 
-make_emverify_table0()
+make_emverify_table(0, ["executable", "bank_accepts"])
+make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
+make_emverify_table(2, ["auth_to_bank_minimal", "auth_to_bank"])
+make_emverify_table(3, ["secrecy_MK", "secrecy_privkCard"])
+make_emverify_table(4, ["secrecy_PIN", "secrecy_PAN"])

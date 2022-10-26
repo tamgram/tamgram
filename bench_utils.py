@@ -71,7 +71,7 @@ def time_of_lemma(basedir, name, lemma, variant):
     try:
         path = f"{basedir}/{name}/{lemma}{suffix}"
         with open(path) as file:
-            line = file.read().strip()
-        return line
+            x = float(file.read().strip())
+        return x
     except:
         return None
