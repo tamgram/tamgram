@@ -56,9 +56,7 @@ def make_emverify_table(index, lemmas):
 
         write_table(file, cases, lemmas)
 
-        file.write("""
-            \end{tblr}
-        """)
+        file.write("\end{tblr}")
 
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
