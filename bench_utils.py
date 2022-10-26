@@ -14,7 +14,7 @@ def tg_files(pattern):
     files.sort()
     return files
 
-def benchmark_cases(pattern):
+def benchmark_cases(pattern="**.tg"):
     files = tg_files(pattern)
     return [x.removesuffix(".tg") for x in files]
 
