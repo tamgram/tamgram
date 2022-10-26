@@ -7,7 +7,7 @@ base_dir="benchmark-latest"
 
 def write_summary(file, summary):
     if summary is None:
-        file.write("& \\times")
+        file.write("& $\\times$")
     else:
         file.write("& {0} {1} steps".format(summary["status"], summary["step_count"]))
 
