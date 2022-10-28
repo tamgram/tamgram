@@ -54,7 +54,7 @@ following error message:
 File "FirstExample.tg", line 14, character 12
 14 | builtins := hashng, asymmetric-encryption
                  ^
-Error: unrecognized builtin hashng
+Error: Unrecognized builtin hashng
 ```
 
 ## Modeling a Public Key Infrastructure

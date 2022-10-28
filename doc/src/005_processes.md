@@ -135,7 +135,7 @@ Similar to executing
 a series of statements programming, `A` is first run
 then `B` is run.
 Underneath,Tamgram does this by inserting the state
-facts when appropriate (same as a manual encoding).
+facts when appropriate (similar to a manual encoding).
 
 Following example "chains" two rules together,
 with a key generated in step 1 stored
@@ -247,107 +247,6 @@ process A =
 Compiled result
 
 ```
-theory choice
-begin
-
-builtins: hashing
-
-rule TgStartA_20_0:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk0', 'empty_tuple')]
-
-rule TgRuleA_20_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , In('A')
-    ]
-  --[
-    ]->
-    [ St(~pid, 'tgk1', 'empty_tuple')
-    , Out(h('A'))
-    ]
-
-rule TgRuleA_20_0to2:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , In('B')
-    , In(x_15)
-    ]
-  --[
-    ]->
-    [ St(~pid, 'tgk2', 'empty_tuple')
-    , Out(h(<'B', x_15>))
-    ]
-
-rule TgRuleA_20_0to3:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , In('C')
-    , In(x_16)
-    ]
-  --[
-    ]->
-    [ St(~pid, 'tgk3', 'empty_tuple')
-    , Out(h(<'C', x_16>))
-    ]
-
-rule TgRuleA_20_1to5:
-    [ St(~pid, 'tgk1', 'empty_tuple')
-    , In('D')
-    , In(x_18)
-    ]
-  --[
-    ]->
-    [ Out(h(<'D', x_18>))
-    ]
-
-rule TgRuleA_20_1to6:
-    [ St(~pid, 'tgk1', 'empty_tuple')
-    , In('E')
-    , In(x_19)
-    ]
-  --[
-    ]->
-    [ Out(h(<'E', x_19>))
-    ]
-
-rule TgRuleA_20_2to4:
-    [ St(~pid, 'tgk2', 'empty_tuple')
-    , In(x_17)
-    ]
-  --[
-    ]->
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<x_17, x_17>))
-    ]
-
-rule TgRuleA_20_3to4:
-    [ St(~pid, 'tgk3', 'empty_tuple')
-    , In(x_17)
-    ]
-  --[
-    ]->
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<x_17, x_17>))
-    ]
-
-rule TgRuleA_20_4to5:
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , In('D')
-    , In(x_18)
-    ]
-  --[
-    ]->
-    [ Out(h(<'D', x_18>))
-    ]
-
-rule TgRuleA_20_4to6:
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , In('E')
-    , In(x_19)
-    ]
-  --[
-    ]->
-    [ Out(h(<'E', x_19>))
-    ]
-
-end
 ```
 
 It is perhaps worth noting that with differing depth of the `choice` tree,
@@ -648,60 +547,6 @@ We can see in this case it is a simple
 AST expansion in the following compiled output.
 
 ```
-theory process_macro0
-begin
-
-builtins: symmetric-encryption
-
-rule TgStartA_20_0:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk0', 'empty_tuple')]
-
-rule TgRuleA_20_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , Fr(~k_19)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk1', <~k_19>)
-    ]
-
-rule TgRuleA_20_1to2:
-    [ St(~pid, 'tgk1', <~k_19>)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk2', <~k_19>)
-    , Out(senc('A1', ~k_19))
-    ]
-
-rule TgRuleA_20_2to3:
-  [St(~pid, 'tgk2', <~k_19>)]--[]->[Out(senc('A2', ~k_19))]
-
-rule TgStartB_22_4:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk4', 'empty_tuple')]
-
-rule TgRuleB_22_4to5:
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , Fr(~k_21)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk5', <~k_21>)
-    ]
-
-rule TgRuleB_22_5to6:
-    [ St(~pid, 'tgk5', <~k_21>)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk6', <~k_21>)
-    , Out(senc('B1', ~k_21))
-    ]
-
-rule TgRuleB_22_6to7:
-  [St(~pid, 'tgk6', <~k_21>)]--[]->[Out(senc('B2', ~k_21))]
-
-end
 ```
 
 If we wish to also abstract away nonce increment/refresh,
@@ -736,76 +581,6 @@ this time since we require modification of
 process context.
 
 ```
-theory process_macro1
-begin
-
-builtins: symmetric-encryption
-
-rule TgStartA_22_0:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk0', 'empty_tuple')]
-
-rule TgRuleA_22_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , Fr(~k_21)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk1', <~k_21, ~n_20>)
-    ]
-
-rule TgRuleA_22_1to2:
-    [ St(~pid, 'tgk1', <~k_21, ~n_20>)
-    , Fr(~n_18)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk2', <~k_21, ~n_18>)
-    , Out(senc(<'A1', ~n_20>, ~k_21))
-    ]
-
-rule TgRuleA_22_2to3:
-    [ St(~pid, 'tgk2', <~k_21, ~n_18>)
-    , Fr(~n_18)
-    ]
-  --[ 
-    ]->
-    [ Out(senc(<'A2', ~n_18>, ~k_21))
-    ]
-
-rule TgStartB_25_4:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk4', 'empty_tuple')]
-
-rule TgRuleB_25_4to5:
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , Fr(~k_24)
-    , Fr(~n_23)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk5', <~k_24, ~n_23>)
-    ]
-
-rule TgRuleB_25_5to6:
-    [ St(~pid, 'tgk5', <~k_24, ~n_23>)
-    , Fr(~n_18)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk6', <~k_24, ~n_18>)
-    , Out(senc(<'B1', ~n_23>, ~k_24))
-    ]
-
-rule TgRuleB_25_6to7:
-    [ St(~pid, 'tgk6', <~k_24, ~n_18>)
-    , Fr(~n_18)
-    ]
-  --[ 
-    ]->
-    [ Out(senc(<'B2', ~n_18>, ~k_24))
-    ]
-
-end
 ```
 
 where we see in `TgRuleA_22_1to2` and `TgRuleB_25_5to6`

@@ -1,0 +1,6 @@
+[book]
+authors = ["Daren Ldl"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Tamgram user manual"
