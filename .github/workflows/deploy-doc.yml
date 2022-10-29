@@ -20,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          sudo apt-get install mdbook
+          sudo snap install mdbook
           make manual-html
           mkdir public
           cp -r doc/book/* public/
