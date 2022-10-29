@@ -57,6 +57,10 @@ debug-wpa2:
 compile-wpa2:
 	dune exec src/tamgram.exe -- compile wpa2-tg/wpa2_four_way_handshake.tg wpa2-tg/wpa2_four_way_handshake.spthy -f
 
+.PHONY: manual-html
+manual-html:
+	mdbook build doc/
+
 .PHONY: manual-pdf
 manual-pdf:
 	rm -f manual.pdf
