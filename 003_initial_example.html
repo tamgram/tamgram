@@ -1,0 +1,384 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Chapter 3 - Tamgram user manual</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html" class="active"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html"><strong>5.</strong> Chapter 5</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Tamgram user manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./003_initial_example.html#initial-example" id="initial-example"><h1>Initial example</h1></a>
+<p>This section follows Tamarin's initial example section closely,
+but introduces Tamgram syntax, features, and differences when appropriate.
+The syntax overall leans closer to ML or other programming languges.</p>
+<p>It may be useful to read this with chapter 3 of the original manual
+side by side.</p>
+<p>We start with the same simple protocol that consists of two messages,
+written in the the same so-called Alice-and-Bob notation:</p>
+<pre><code>C -&gt; S : aenc(k, pkS)
+C &lt;- S : h(k)
+</code></pre>
+<p>A Tamgram file ends with <code>.tg</code> extension, and does not start with a <code>theory</code> header,
+instead we immediately start specification of protocol.</p>
+<p>This simplication is in some way to reduce overhead for multi file projects.
+We will revisit how to span your specification across multiple (nested) modules
+and files in a later chapter.</p>
+<p>The following example is stored as <code>doc/code/FirstExample.tg</code>,
+which can be compiled into Tamarin file via</p>
+<pre><code>tamgram compile doc/code/FirstExample.tg output_file
+</code></pre>
+<p>If <code>output_file</code> is <code>-</code>, then Tamgram prints to stdout instead.</p>
+<p>If <code>output_file</code> is a directory, then Tamgram writes to <code>output_file/input_file.tg.spthy</code> instead.</p>
+<a class="header" href="./003_initial_example.html#cryptographic-primitives" id="cryptographic-primitives"><h2>Cryptographic primitives</h2></a>
+<p>Tamgram passes through the same set of builtins as Tamarin.</p>
+<p>The following code from the example tells Tamgram to note
+the relevant builtins when compiling to tamarin file.</p>
+<pre><code>builtins := hashing, asymmetric-encryption
+</code></pre>
+<p>Tamgram then inserts the relevant (reserved) names into the lexical scope.</p>
+<p>The names are also checked statically within Tamgram.
+For instance, if we mistyped <code>hashing</code> as <code>hashng</code>, we would receive the
+following error message:</p>
+<pre><code>File &quot;FirstExample.tg&quot;, line 14, character 12
+14 | builtins := hashng, asymmetric-encryption
+                 ^
+Error: Unrecognized builtin hashng
+</code></pre>
+<a class="header" href="./003_initial_example.html#modeling-a-public-key-infrastructure" id="modeling-a-public-key-infrastructure"><h2>Modeling a Public Key Infrastructure</h2></a>
+<p>In the original manual, we would be writing mutliset rewriting rules immediately.
+However, in Tamgram, most names must be declared first and follow lexical scopes
+(we will discuss the exceptions as they appear).</p>
+<p>We can declare <code>Ltk</code> and <code>Pk</code>, which we intend to as a constructor of persistent multiset terms
+as follows:</p>
+<pre><code>pred !Ltk/2
+pred !Pk/2
+</code></pre>
+<p>which reads predicate <code>Ltk</code> with arity of 2, and the same for <code>Pk</code></p>
+<p>We can now begin to model registration of public keys:</p>
+<pre><code>process Register_pk =
+  [ Fr(~ltk) ]
+  --&gt;
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+</code></pre>
+<p>In Tamgram, all forms of progression are modeled as process - a rule in Tamarin
+becomes a singleton process as shown above.
+For now, it suffices to think of process as a list of rules -
+we apply each rule one after another.
+In other words, we can consider a rule a step in the process.</p>
+<p>A rule has at least two fields, the left (the premise) and
+right (the conclusion).
+The premise picks (or pattern matches)
+the multiset of facts the rule consumes
+from the state of the world (or system),
+the conclusion denotes the resulting
+addition to the state of the system.</p>
+<p>Tamgram uses the same prefixes for specifying the sort (or type) of variables/names.</p>
+<ul>
+<li><code>~x</code> is a shorthand for <code>x : fresh</code></li>
+<li><code>$x</code> is a shorthand for <code>x : pub</code></li>
+<li><code>#i</code> is a shorthand for <code>x : temporal</code></li>
+<li><code>m</code>  is a shorthand for <code>m : bitstring</code>
+(names default to type <code>bitstring</code>)</li>
+</ul>
+<p>String constants are specified using double quotes (<code>&quot;...&quot;</code>) instead
+of single quotes (<code>'...'</code>) as single quotes are used as a prefix for
+another type of names called &quot;cell&quot;, which we will use
+shortly to handle states.</p>
+<p>The explanation of the above rule is then as follows.
+First we generate/pick a fresh name <code>~ltk</code> via use of
+the reserved predicate <code>Fr</code>
+(premise of <code>Fr(...)</code> are handled specifcially by Tamarin),
+and record it as long-term private key of A via <code>!Ltk($A, ~ltk)</code>
+and derive the public key <code>pk(~ltk)</code>
+and record said public key via <code>!Pk($A, pk(~ltk))</code>.</p>
+<p>Same in Tamarin, facts by default
+are &quot;linear&quot;, and a fact is only
+&quot;persistent&quot; when used with the unary operator <code>!</code>.
+The distinction is that linear facts can only be consumed
+by a step/rule from a process
+exactly once, while
+persistent facts can be consumed arbitrary many times.</p>
+<p>It is also worth noting that the <code>~</code> prefix (or <code>: fresh</code> type annotation)
+is not optional for name in <code>Fr(...)</code> in Tamgram.
+If we remove the prefix as follows:</p>
+<pre><code>process Register_pk =
+  [ Fr(ltk) ]
+  ...
+</code></pre>
+<p>the file would fail to type check:</p>
+<pre><code>File &quot;FirstExample.tg&quot;, line 21, character 9
+21 |     [ Fr(ltk) ]
+              ^
+Error: expected type fresh for term ltk : bitstring, got bitstring instead
+</code></pre>
+<p>Next, we model retrieval of public key by adversary.</p>
+<pre><code>process Get_pk =
+  [ !Pk(A, pubkey) ]
+  --&gt;
+  [ Out(pubkey) ]
+</code></pre>
+<p>The process reads a previously stored
+public key record (we can think of a <code>!Pk(..., ...)</code>
+as a global database predicate in that sense),
+and outputs the public key via the reserved fact <code>Out(...)</code>
+which denotes which messages are outputted to the network
+or made known to the adversary.</p>
+<p>Last part of the setup before the main protocol steps
+is the modeling of long-term private key leak.</p>
+<pre><code>apred LtkReveal/1
+
+process Reveal_ltk =
+  [ !Ltk(A, ltk) ]
+--[ LtkReveal(A) ]-&gt;
+  [ Out(ltk) ]
+</code></pre>
+<p>The process reads a long-term private key record
+and simply outputs it to the attacker.</p>
+<p>We notice that it has an extra field in the middle of the arrow (--&gt;),
+the facts in this field are called &quot;action facts&quot;.
+Action facts are facts that label the trace and do not (directly)
+talk about the multiset of facts (the state of the system),
+contrast this to the premise which
+consumes facts,
+and conclusion which adds facts.</p>
+<p>This labelling allows us to talk about &quot;how&quot; the system
+progresses when we state our proof goals, which are called lemmas.</p>
+<a class="header" href="./003_initial_example.html#modeling-the-protocol" id="modeling-the-protocol"><h2>Modeling the protocol</h2></a>
+<p>Now we can revisit the main steps of the protocol</p>
+<pre><code>C -&gt; S : aenc(k, pkS)
+C &lt;- S : h(k)
+</code></pre>
+<p>We can model above parties using two processes</p>
+<pre><code>apred SessKeyC/2
+
+// Start a new process executing the client role, choosing the server
+// non-deterministically.
+process Client =
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)   // lookup public-key of server
+    ]
+  --&gt;
+    [ 'S := $S  // Store server and key for next step of process
+    , 'k := ~k
+    , Out( aenc(~k, pkS) )  // Send the encrypted session key to the server
+    ];
+    [ In( h('k) )       // Receive hashed session key from network
+    ]
+  --[ SessKeyC( 'S, 'k ) ]-&gt; // State that the session key k
+    []                       // was setup with server S
+
+apred AnswerRequest/2
+
+// A server process answering in one-step to a session-key setup request from
+// some client.
+process Serv =
+    [ !Ltk($S, ~ltkS)                             // lookup the private-key
+    , In( request )                               // receive a request
+    ]
+  --[ AnswerRequest($S, adec(request, ~ltkS)) ]-&gt; // Explanation below
+    [ Out( h(adec(request, ~ltkS)) ) ]            // Return the hash of the
+                                                  // decrypted request.
+</code></pre>
+<p>Instead of defining our own state predicate,
+we make use of Tamgram specific feature
+called &quot;cells&quot; here for handling process local states.</p>
+<p>We can think of it as a process local key value table in essence.
+This is similar to SAPIC's global lookup table in a sense,
+and indeed one can replicate a local lookup table in a global
+lookup table by keying with the session (or thread/process) ID,
+but restricting the syntax to only handle local states allows
+for some optimizations which we will discuss in a separate section.</p>
+<p>Same as Tamarin, Tamgram uses C-style comments:
+<code>/*</code> and <code>*/</code> represents block comments,
+and <code>//</code> represents line comments.</p>
+<a class="header" href="./003_initial_example.html#modeling-security-properties" id="modeling-security-properties"><h2>Modeling security properties</h2></a>
+<p>Security properties (in lemmas) are specified over traces
+of action facts of the execution of the collection
+of Tamgram processes.
+The intuition from use of Tamarin carries over
+as the translation is fairly staightforward.</p>
+<p>We refer reader to the section 3
+of the original manual as the lemma
+specification in Tamgram
+is essentially identitcal to Tamarin.</p>
+<pre><code>lemma Client_session_key_secrecy =
+  /* It cannot be that a  */
+    not(
+      Ex S k #i #j.
+        /* client has set up a session key 'k' with a server'S' */
+        SessKeyC(S, k) @ #i
+        /* and the adversary knows 'k' */
+      &amp; K(k) @ #j
+        /* without having performed a long-term key reveal on 'S'. */
+      &amp; not(Ex #r. LtkReveal(S) @ r)
+    )
+
+lemma Client_auth =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==&gt;
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a)
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r &amp; r &lt; i)
+       )
+    )
+
+lemma Client_auth_injective =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==&gt;
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a
+           /* and there is no other client that had the same request */
+           &amp; (All #j. SessKeyC(S, k) @ #j ==&gt; #i = #j)
+       )
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r &amp; r &lt; i)
+       )
+    )
+
+lemma Client_session_key_honest_setup =
+  exists-trace
+  Ex S k #i.
+        SessKeyC(S, k) @ #i
+      &amp; not(Ex #r. LtkReveal(S) @ r)
+</code></pre>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="./002_installation.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="./004_cryptographic_messages.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./002_installation.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./004_cryptographic_messages.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

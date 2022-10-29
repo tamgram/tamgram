@@ -1,0 +1,1024 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Tamgram user manual</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html"><strong>5.</strong> Chapter 5</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Tamgram user manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="print.html#introduction" id="introduction"><h1>Introduction</h1></a>
+<p>Tamgram is a frontend to the Tamarin prover that aims
+to provide a more ergonomic experience to large scale
+specification of protocol.</p>
+<p>Tamgram aims to accomodate the full expressiveness of Tamarin's syntax
+and provide sensible static checks on top of them, which should
+subsume most of of Tamarin's wellformedness check - if Tamgram
+compiles successfully, Tamarin should not report egregious wellformedness
+problems with the compiled output.
+One known exception to this right now is guardedness check of
+lemmas and restrictions - this will be addressed in a later release.</p>
+<p>This manual is aimed at audience with some familiarity with
+Tamarin.</p>
+<p>Please note that the document uses the following pairing of terms
+interchangably:</p>
+<ul>
+<li>&quot;attacker&quot; and &quot;adversary&quot;</li>
+</ul>
+<a class="header" href="print.html#installation" id="installation"><h1>Installation</h1></a>
+<a class="header" href="print.html#recommended" id="recommended"><h2>Recommended</h2></a>
+<p>The recommended route to installation is to use the provided statically linked binary.</p>
+<a class="header" href="print.html#building-via-container" id="building-via-container"><h2>Building via container</h2></a>
+<p>One can build the container image used by <code>podman build .</code> at repo root,
+and use <code>make</code> or <code>make release-static</code> to yield the binary.</p>
+<a class="header" href="print.html#building-from-scratch" id="building-from-scratch"><h2>Building from scratch</h2></a>
+<p>This requires OCaml version &gt;= 4.14 (it may works for older version, but
+we have not tested any),
+and the following command to first install the relevant dependencies</p>
+<pre><code>opam install dune containers fmt menhir utop ocp-indent ansiterminal
+</code></pre>
+<p>followed by</p>
+<pre><code>make
+</code></pre>
+<p>or</p>
+<pre><code>dune build @all
+</code></pre>
+<a class="header" href="print.html#initial-example" id="initial-example"><h1>Initial example</h1></a>
+<p>This section follows Tamarin's initial example section closely,
+but introduces Tamgram syntax, features, and differences when appropriate.
+The syntax overall leans closer to ML or other programming languges.</p>
+<p>It may be useful to read this with chapter 3 of the original manual
+side by side.</p>
+<p>We start with the same simple protocol that consists of two messages,
+written in the the same so-called Alice-and-Bob notation:</p>
+<pre><code>C -&gt; S : aenc(k, pkS)
+C &lt;- S : h(k)
+</code></pre>
+<p>A Tamgram file ends with <code>.tg</code> extension, and does not start with a <code>theory</code> header,
+instead we immediately start specification of protocol.</p>
+<p>This simplication is in some way to reduce overhead for multi file projects.
+We will revisit how to span your specification across multiple (nested) modules
+and files in a later chapter.</p>
+<p>The following example is stored as <code>doc/code/FirstExample.tg</code>,
+which can be compiled into Tamarin file via</p>
+<pre><code>tamgram compile doc/code/FirstExample.tg output_file
+</code></pre>
+<p>If <code>output_file</code> is <code>-</code>, then Tamgram prints to stdout instead.</p>
+<p>If <code>output_file</code> is a directory, then Tamgram writes to <code>output_file/input_file.tg.spthy</code> instead.</p>
+<a class="header" href="print.html#cryptographic-primitives" id="cryptographic-primitives"><h2>Cryptographic primitives</h2></a>
+<p>Tamgram passes through the same set of builtins as Tamarin.</p>
+<p>The following code from the example tells Tamgram to note
+the relevant builtins when compiling to tamarin file.</p>
+<pre><code>builtins := hashing, asymmetric-encryption
+</code></pre>
+<p>Tamgram then inserts the relevant (reserved) names into the lexical scope.</p>
+<p>The names are also checked statically within Tamgram.
+For instance, if we mistyped <code>hashing</code> as <code>hashng</code>, we would receive the
+following error message:</p>
+<pre><code>File &quot;FirstExample.tg&quot;, line 14, character 12
+14 | builtins := hashng, asymmetric-encryption
+                 ^
+Error: Unrecognized builtin hashng
+</code></pre>
+<a class="header" href="print.html#modeling-a-public-key-infrastructure" id="modeling-a-public-key-infrastructure"><h2>Modeling a Public Key Infrastructure</h2></a>
+<p>In the original manual, we would be writing mutliset rewriting rules immediately.
+However, in Tamgram, most names must be declared first and follow lexical scopes
+(we will discuss the exceptions as they appear).</p>
+<p>We can declare <code>Ltk</code> and <code>Pk</code>, which we intend to as a constructor of persistent multiset terms
+as follows:</p>
+<pre><code>pred !Ltk/2
+pred !Pk/2
+</code></pre>
+<p>which reads predicate <code>Ltk</code> with arity of 2, and the same for <code>Pk</code></p>
+<p>We can now begin to model registration of public keys:</p>
+<pre><code>process Register_pk =
+  [ Fr(~ltk) ]
+  --&gt;
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+</code></pre>
+<p>In Tamgram, all forms of progression are modeled as process - a rule in Tamarin
+becomes a singleton process as shown above.
+For now, it suffices to think of process as a list of rules -
+we apply each rule one after another.
+In other words, we can consider a rule a step in the process.</p>
+<p>A rule has at least two fields, the left (the premise) and
+right (the conclusion).
+The premise picks (or pattern matches)
+the multiset of facts the rule consumes
+from the state of the world (or system),
+the conclusion denotes the resulting
+addition to the state of the system.</p>
+<p>Tamgram uses the same prefixes for specifying the sort (or type) of variables/names.</p>
+<ul>
+<li><code>~x</code> is a shorthand for <code>x : fresh</code></li>
+<li><code>$x</code> is a shorthand for <code>x : pub</code></li>
+<li><code>#i</code> is a shorthand for <code>x : temporal</code></li>
+<li><code>m</code>  is a shorthand for <code>m : bitstring</code>
+(names default to type <code>bitstring</code>)</li>
+</ul>
+<p>String constants are specified using double quotes (<code>&quot;...&quot;</code>) instead
+of single quotes (<code>'...'</code>) as single quotes are used as a prefix for
+another type of names called &quot;cell&quot;, which we will use
+shortly to handle states.</p>
+<p>The explanation of the above rule is then as follows.
+First we generate/pick a fresh name <code>~ltk</code> via use of
+the reserved predicate <code>Fr</code>
+(premise of <code>Fr(...)</code> are handled specifcially by Tamarin),
+and record it as long-term private key of A via <code>!Ltk($A, ~ltk)</code>
+and derive the public key <code>pk(~ltk)</code>
+and record said public key via <code>!Pk($A, pk(~ltk))</code>.</p>
+<p>Same in Tamarin, facts by default
+are &quot;linear&quot;, and a fact is only
+&quot;persistent&quot; when used with the unary operator <code>!</code>.
+The distinction is that linear facts can only be consumed
+by a step/rule from a process
+exactly once, while
+persistent facts can be consumed arbitrary many times.</p>
+<p>It is also worth noting that the <code>~</code> prefix (or <code>: fresh</code> type annotation)
+is not optional for name in <code>Fr(...)</code> in Tamgram.
+If we remove the prefix as follows:</p>
+<pre><code>process Register_pk =
+  [ Fr(ltk) ]
+  ...
+</code></pre>
+<p>the file would fail to type check:</p>
+<pre><code>File &quot;FirstExample.tg&quot;, line 21, character 9
+21 |     [ Fr(ltk) ]
+              ^
+Error: expected type fresh for term ltk : bitstring, got bitstring instead
+</code></pre>
+<p>Next, we model retrieval of public key by adversary.</p>
+<pre><code>process Get_pk =
+  [ !Pk(A, pubkey) ]
+  --&gt;
+  [ Out(pubkey) ]
+</code></pre>
+<p>The process reads a previously stored
+public key record (we can think of a <code>!Pk(..., ...)</code>
+as a global database predicate in that sense),
+and outputs the public key via the reserved fact <code>Out(...)</code>
+which denotes which messages are outputted to the network
+or made known to the adversary.</p>
+<p>Last part of the setup before the main protocol steps
+is the modeling of long-term private key leak.</p>
+<pre><code>apred LtkReveal/1
+
+process Reveal_ltk =
+  [ !Ltk(A, ltk) ]
+--[ LtkReveal(A) ]-&gt;
+  [ Out(ltk) ]
+</code></pre>
+<p>The process reads a long-term private key record
+and simply outputs it to the attacker.</p>
+<p>We notice that it has an extra field in the middle of the arrow (--&gt;),
+the facts in this field are called &quot;action facts&quot;.
+Action facts are facts that label the trace and do not (directly)
+talk about the multiset of facts (the state of the system),
+contrast this to the premise which
+consumes facts,
+and conclusion which adds facts.</p>
+<p>This labelling allows us to talk about &quot;how&quot; the system
+progresses when we state our proof goals, which are called lemmas.</p>
+<a class="header" href="print.html#modeling-the-protocol" id="modeling-the-protocol"><h2>Modeling the protocol</h2></a>
+<p>Now we can revisit the main steps of the protocol</p>
+<pre><code>C -&gt; S : aenc(k, pkS)
+C &lt;- S : h(k)
+</code></pre>
+<p>We can model above parties using two processes</p>
+<pre><code>apred SessKeyC/2
+
+// Start a new process executing the client role, choosing the server
+// non-deterministically.
+process Client =
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)   // lookup public-key of server
+    ]
+  --&gt;
+    [ 'S := $S  // Store server and key for next step of process
+    , 'k := ~k
+    , Out( aenc(~k, pkS) )  // Send the encrypted session key to the server
+    ];
+    [ In( h('k) )       // Receive hashed session key from network
+    ]
+  --[ SessKeyC( 'S, 'k ) ]-&gt; // State that the session key k
+    []                       // was setup with server S
+
+apred AnswerRequest/2
+
+// A server process answering in one-step to a session-key setup request from
+// some client.
+process Serv =
+    [ !Ltk($S, ~ltkS)                             // lookup the private-key
+    , In( request )                               // receive a request
+    ]
+  --[ AnswerRequest($S, adec(request, ~ltkS)) ]-&gt; // Explanation below
+    [ Out( h(adec(request, ~ltkS)) ) ]            // Return the hash of the
+                                                  // decrypted request.
+</code></pre>
+<p>Instead of defining our own state predicate,
+we make use of Tamgram specific feature
+called &quot;cells&quot; here for handling process local states.</p>
+<p>We can think of it as a process local key value table in essence.
+This is similar to SAPIC's global lookup table in a sense,
+and indeed one can replicate a local lookup table in a global
+lookup table by keying with the session (or thread/process) ID,
+but restricting the syntax to only handle local states allows
+for some optimizations which we will discuss in a separate section.</p>
+<p>Same as Tamarin, Tamgram uses C-style comments:
+<code>/*</code> and <code>*/</code> represents block comments,
+and <code>//</code> represents line comments.</p>
+<a class="header" href="print.html#modeling-security-properties" id="modeling-security-properties"><h2>Modeling security properties</h2></a>
+<p>Security properties (in lemmas) are specified over traces
+of action facts of the execution of the collection
+of Tamgram processes.
+The intuition from use of Tamarin carries over
+as the translation is fairly staightforward.</p>
+<p>We refer reader to the section 3
+of the original manual as the lemma
+specification in Tamgram
+is essentially identitcal to Tamarin.</p>
+<pre><code>lemma Client_session_key_secrecy =
+  /* It cannot be that a  */
+    not(
+      Ex S k #i #j.
+        /* client has set up a session key 'k' with a server'S' */
+        SessKeyC(S, k) @ #i
+        /* and the adversary knows 'k' */
+      &amp; K(k) @ #j
+        /* without having performed a long-term key reveal on 'S'. */
+      &amp; not(Ex #r. LtkReveal(S) @ r)
+    )
+
+lemma Client_auth =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==&gt;
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a)
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r &amp; r &lt; i)
+       )
+    )
+
+lemma Client_auth_injective =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==&gt;
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a
+           /* and there is no other client that had the same request */
+           &amp; (All #j. SessKeyC(S, k) @ #j ==&gt; #i = #j)
+       )
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r &amp; r &lt; i)
+       )
+    )
+
+lemma Client_session_key_honest_setup =
+  exists-trace
+  Ex S k #i.
+        SessKeyC(S, k) @ #i
+      &amp; not(Ex #r. LtkReveal(S) @ r)
+</code></pre>
+<a class="header" href="print.html#cryptographic-messages" id="cryptographic-messages"><h1>Cryptographic messages</h1></a>
+<p>Tamarin operates in the symbolic model, this means
+cryptographic messages are modeled
+as terms instead of bitstrings.</p>
+<p>Tamgram largely replicates Tamarin with regards
+to construction of messages (or terms):
+a term is (exclusively) one of the following:</p>
+<ul>
+<li>a constant</li>
+<li>a &quot;cell&quot;</li>
+<li><code>f(x0, ..., xn)</code> for some
+n-ary function symbol f to terms <code>x0</code>, ..., <code>xn</code></li>
+</ul>
+<a class="header" href="print.html#constants-and-cells" id="constants-and-cells"><h2>Constants and cells</h2></a>
+<p>We first discuss names which do not
+follow lexical scoping.</p>
+<p>First category is public constants, which
+are referenced by either <code>$A</code> for arbitrary
+identifier <code>A</code>,
+or <code>&quot;str&quot;</code> for arbitrary string <code>str</code>.
+This is exactly the same as Tamarin's public constant
+but we use double quotes instead of single quotes
+as the latter are reserved for cells.
+There is no scoping rules for these terms
+and one may make use of them anywhere
+in the specification.
+In other words, we may consider them
+to always exist in the global scope.</p>
+<p>Second category is cells,
+which are referenced by <code>'c</code> for arbitrary identifier <code>c</code>.
+Syntactically, users may only make use of them in
+processes, as there is no meaningful interpretation
+when referenced in lemmas and so on.</p>
+<p>As mentioned before,
+cells behave as keys to a process-local lookup table.
+One can make use of keys wherever a term is expected inside
+the process (including action facts).</p>
+<p>While these do not follow the lexical scope,
+their &quot;lifetime&quot; is checked by Tamgram to ensure
+the usage of cells must be well defined.
+To do this, Tamgram overapproximates
+the possible traces/executions of a process
+(ignoring restrictions and whether the premise
+of the rule can actually be fulfilled),
+and ensures that all cells are well defined
+(by the <code>:=</code> assignment syntax)
+before use.</p>
+<a class="header" href="print.html#uninterpreted-function-symbols" id="uninterpreted-function-symbols"><h2>Uninterpreted function symbols</h2></a>
+<p>Tamgram recognizes the same builtins as illustrated in the section with our first example.
+Tamgram similarly allows for user specified uninterpreted function symbols:</p>
+<pre><code>fun f/2
+fun hash/1
+</code></pre>
+<p>Additionally Tamgram requires uninterpreted predicate symbols (multiset fact/proposition constructors)
+and uninterpreted action predicate symbols (action fact/proposition constructors) to be declared similarly,
+as we consider this to be necessary to avoid typos which can
+still pass Tamarin's wellformedness checks.</p>
+<pre><code>pred Token/2
+pred !Ltk/2
+
+apred Start/2
+apred Stop/2
+</code></pre>
+<p><code>pred</code> is for predicates, result of which
+can only be used in left (premise) or right (conclusion) side
+of a rule.</p>
+<p><code>apred</code> is for action predicates, result of which
+can only be used in the action field (label) of a rule.</p>
+<p><code>pred !P</code> for some symbol <code>P</code> is for persistent predicates,
+result of which can only be used in left or right side
+of a rule, and must be prefixed with the <code>!</code> unary operator.
+<code>apred !P</code> denotes similar meaning.</p>
+<p>Above symbols are &quot;uninterpreted&quot; by Tamgram as they are compiled
+as is (with name mangling to avoid collision) to Tamarin.</p>
+<p>Interpreted symbols are function macros which are evaluated by Tamgram.</p>
+<a class="header" href="print.html#term-macros" id="term-macros"><h2>Term macros</h2></a>
+<p>The most general form of macro declaration is via the <code>let f(...) : typ = ...</code> syntax:</p>
+<pre><code>let f(x : bitstring, k : bitstring) : bitstring =
+  enc(&lt;x, x&gt;, k)
+</code></pre>
+<p>Alternatively one can make use of the following shorthands:</p>
+<ul>
+<li><code>fun f(...) = ...</code> is shorthand for <code>let f(...) : bitstring = ...</code></li>
+<li><code>pred f(...) = ...</code> is shorthand for <code>let f(...) : prop = ...</code></li>
+<li><code>apred f(...) = ...</code> is shorthand for <code>let f(...) : aprop = ...</code></li>
+</ul>
+<p>Usually the above shorthands suffice, but in
+cases where one needs expansion into a formula
+(making use of quantifier),
+<code>let f(...) : formula = ...</code> is the only way.</p>
+<p>Type checking is straightforward
+as there is no &quot;smart&quot; type inference</p>
+<ul>
+<li>any parameter missing type annotation just defaults to <code>bitstring</code>.</li>
+</ul>
+<p>In addition to module level macros,
+Tamgram also supports local macros which
+can be declared within a term, a rule, or a process as well,
+but these are restricted to the <code>let f(...) : typ = ... in</code> syntax,
+where <code>let f(...) = ... in</code> is the only shorthand that picks <code>bitstring</code> for
+the return type.</p>
+<pre><code>let f(x : bitstring, k : bitstring) : bitstring =
+  let f'(x) = &lt;x, x&gt; in
+  enc(f'(x), k)
+</code></pre>
+<a class="header" href="print.html#restrictions-of-term-macros" id="restrictions-of-term-macros"><h2>Restrictions of term macros</h2></a>
+<p>Cells (or names typed <code>cell</code>) cannot be used within a term macro body,
+and as such term macros cannot treat cells
+differently, such as by using them in assignment syntax (<code>:=</code>).</p>
+<p>In other words, one can pass cells to term macros as if it is
+a typical value,
+but term macros cannot possibly change the content of the cells.</p>
+<p>This is largely to facilitate reading of specification by ensuring
+all term macro invocations are &quot;side-effect free&quot;.</p>
+<p>It is also worth noting that these macros
+are restricted to the syntax space of terms.
+If we wish to make use of process syntax
+(and change cell content),
+we will need to use process macros.</p>
+<p>We will discuss process macros in the process section.</p>
+<a class="header" href="print.html#processes" id="processes"><h1>Processes</h1></a>
+<p>A protocol, or a system, is specified in Tamgram as
+a collection of processes.
+We illustrate the three main constructor syntax of a process here.</p>
+<p>Obviously, all of the following control flow structures
+can obviously be manually crafted as seen in existing case studies,
+i.e. &quot;next step&quot; transitions, non-deterministic choices, loops,
+but adjustment on the states is made very error prone when
+the encoding is done manually.</p>
+<a class="header" href="print.html#rule-or-step" id="rule-or-step"><h2>Rule or step</h2></a>
+<p>The basic building block of a process is a multiset rewriting rule.</p>
+<p>A rule in Tamgram is very similar to a rule in Tamarin, but with
+the addition of cells as seen in the initial example.</p>
+<p>There are three main ways of using cells which we make precise here</p>
+<a class="header" href="print.html#direct-reference-of-cell" id="direct-reference-of-cell"><h3>Direct reference of cell</h3></a>
+<p>As seen in the initial example, we may simply write <code>'c</code> for some cell <code>c</code>
+wherever a term is expected.
+Semantically this substitutes <code>'c</code> by whichever cell-free term
+is indexed <code>'c</code>.</p>
+<a class="header" href="print.html#cell-assignment" id="cell-assignment"><h3>Cell assignment</h3></a>
+<p>Also seen in our initial example, we have the assignment <code>:=</code> syntax,
+where it is syntactically restricted to only accept a single cell on left side,
+and may only appear on the right side of a rule.</p>
+<p>There may be confusion about how it interacts with
+references of the same cell inside a rule, for instance:</p>
+<pre><code>process A =
+  []--&gt;[ 'a := &quot;1&quot; ];
+  []--&gt;[ Out('a), 'a := &quot;2&quot; ]
+</code></pre>
+<p>Is &quot;2&quot; or the old value of <code>'a</code> (&quot;1&quot;) used in <code>Out</code>?</p>
+<p>The semantics we've chosen is that all assignments
+only come into effect starting from following rule,
+i.e. assignments are always &quot;pushed&quot; to the after
+the current rule. Additionally a cell may be assigned at most once in a rule.</p>
+<p>Thus in the above rule, the old value (&quot;1&quot;) is emitted,
+then <code>'a</code> is updated to &quot;2&quot;.</p>
+<p>This overall maintains the intuition of lack of ordering
+during consideration of multisets.</p>
+<a class="header" href="print.html#cell-pattern-matching" id="cell-pattern-matching"><h3>Cell pattern matching</h3></a>
+<p>We observe frequent use of pattern matching within a state fact
+in existing case studies usually in order to access
+inner terms of, for instance, a tuple.
+And sometimes multiple terms in the state fact store
+share some subterms (implying equality).</p>
+<p>To retain this expressive power, we introduce
+the &quot;cell as&quot; syntax, <code>'c cas t</code> for some cell <code>c</code> and
+term <code>t</code>.</p>
+<p>We write a simple example below where we store
+a triple into <code>'x</code> and retrieve the three
+inner terms later.</p>
+<pre><code>builtins := hashing
+
+process A =
+  [ Fr(~k) ]--&gt;[ 'a := &quot;A&quot;, 'b := &quot;B&quot;, 'h := h(&lt;&quot;A&quot;, &quot;B&quot;, k&gt;) ];
+  []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
+  [ 'x cas &lt;a, b, h&gt; ]--&gt;[ Out(a), Out(b), Out(h) ]
+</code></pre>
+<p>One may also use content of other cells
+during pattern matching as long
+as there are no cyclic dependencies.
+One can additionally bind the subterm via the <code>as</code> syntax
+for brevity if needed.</p>
+<pre><code>builtins := hashing
+
+process A =
+  [ Fr(~k) ]--&gt;[ 'a := &quot;A&quot;, 'b := &quot;B&quot;, 'h := h(&lt;&quot;A&quot;, &quot;B&quot;, k&gt;) ];
+  []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
+  [ 'x cas &lt;'a as x, 'b as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
+</code></pre>
+<p>Tamgram tries to statically analyze to some extent (again based
+on overapproximation of process execution),
+and for cases where it is confident a match is not possible,
+compilation yields an error.</p>
+<p>For instance, if we swap the positioning of <code>'a</code> and <code>'b</code>
+in the third step:</p>
+<pre><code>builtins := hashing
+
+process A =
+  [ Fr(~k) ]--&gt;[ 'a := &quot;A&quot;, 'b := &quot;B&quot;, 'h := h(&lt;&quot;A&quot;, &quot;B&quot;, k&gt;) ];
+  []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
+  [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
+</code></pre>
+<p>We get</p>
+<pre><code>File &quot;test.tg&quot;, line 6, character 5
+6 |   [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
+         ^
+Error: cell 'x never matches pattern &lt;'b, 'a, 'h&gt;
+</code></pre>
+<p>This is mainly for ruling out mismatching
+of cell content especially during non-deterministic choices,
+which we will see an example below.</p>
+<a class="header" href="print.html#sequential-composition" id="sequential-composition"><h2>Sequential composition</h2></a>
+<p>We have seen the sequential composition of
+some simple steps above via the <code>;</code> syntax.
+In Tamgram, sequential composition
+also works for two arbitrary proceses <code>A</code>, <code>B</code>
+by <code>A; B</code> syntax.
+Similar to executing
+a series of statements programming, <code>A</code> is first run
+then <code>B</code> is run.
+Underneath,Tamgram does this by inserting the state
+facts when appropriate (similar to a manual encoding).</p>
+<p>Following example &quot;chains&quot; two rules together,
+with a key generated in step 1 stored
+later for use in step 2.</p>
+<pre><code>builtins := hashing
+
+process C =
+  [ Fr(~k), In(x) ]--&gt;[ Out(h(&lt;k, x&gt;)), 'k := k ];
+  [ In(x) ]--&gt;[ Out(h(&lt;x, 'k&gt;)) ]
+</code></pre>
+<a class="header" href="print.html#non-deterministic-choices" id="non-deterministic-choices"><h2>Non-deterministic choices</h2></a>
+<p>Multiple possible flow of execution is
+a basic and necessary primtive in computation,
+and this naturally extends
+to specification of state transitions or in
+some form of programming (e.g. <code>if else, switch</code>).</p>
+<p>Non-deterministic choices can be made deterministic,
+but not the other way around easily,
+as such we focus on composable
+primitive for providing non-deterministic choices.</p>
+<p>In Tamarin, non-deterministic choices can be achieved by specifying
+multiple rules which consume the same state fact
+(or same multiset of facts, more generally speaking),
+similarly to drawing out the multiple branches for a vertex
+in a state transition diagram. For example:</p>
+<pre><code>rule A1:
+    [ Fr(~k) ]--&gt;[ StA1(~k) ]
+
+rule A2a:
+    [ StA1(~k), In(x) ]--&gt;[ Out(h(&lt;~k, x&gt;)) ]
+
+rule A2b:
+    [ StA1(~k), In(x) ]--&gt;[ Out(aenc(x, ~k)) ]
+</code></pre>
+<p><code>A2a</code> and <code>A2b</code> are two possible steps stemming from A1
+with different outputs.</p>
+<p>However, manual specification of choices becomes complicated
+as the system grows
+in size, when we nest multiple layer of choices,
+and when we wish to sequentailly compose another
+segment of computation after any of the choices has
+been executed.</p>
+<p>To illustrate, we write out a simple example in
+Tamgram, and show the corresponding compiled Tamarin rules
+which gives a fairly close depiction of what an
+equivalent manual encoding entails.</p>
+<p>In Tamgram, multiple choices are specified using syntax
+<code>choice { { P1 }; ...; { Pn } }</code> where each
+<code>Pi</code> is a process.</p>
+<pre><code>builtins := hashing
+
+process A =
+  choice {
+    {
+      [ In(&quot;A&quot;) ]
+      --&gt;
+      [ Out(h(&quot;A&quot;)) ]
+    };
+    {
+      choice {
+        {
+          [ In(&quot;B&quot;)
+          , In(x) ]
+          --&gt;
+          [ Out(h(&lt;&quot;B&quot;, x&gt;)) ]
+        };
+        {
+          [ In(&quot;C&quot;)
+          , In(x) ]
+          --&gt;
+          [ Out(h(&lt;&quot;C&quot;, x&gt;)) ]
+        };
+      };
+
+      [ In(x) ]--&gt;[ Out(h(&lt;x, x&gt;)) ]
+    };
+  };
+
+  choice {
+    {
+      [ In(&quot;D&quot;)
+      , In(x) ]
+      --&gt;
+      [ Out(h(&lt;&quot;D&quot;, x&gt;)) ]
+    };
+    {
+      [ In(&quot;E&quot;)
+      , In(x) ]
+      --&gt;
+      [ Out(h(&lt;&quot;E&quot;, x&gt;)) ]
+    };
+  }
+</code></pre>
+<p>Compiled result</p>
+<pre><code></code></pre>
+<p>It is perhaps worth noting that with differing depth of the <code>choice</code> tree,
+manual encoding is especially prone to errors and adjustment of
+the manual encoding is significantly more difficult than relying on Tamgram.</p>
+<a class="header" href="print.html#example-of-impossible-cell-pattern-matching" id="example-of-impossible-cell-pattern-matching"><h3>Example of impossible cell pattern matching</h3></a>
+<p>We first write a working example to serve as reference:</p>
+<pre><code>builtins := hashing, symmetric-encryption
+
+process A =
+  choice {
+    { []--&gt;[ 'x := &quot;a&quot; ] };
+    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
+    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
+    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
+  };
+
+  choice {
+    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+  }
+</code></pre>
+<p>The above code is accepted by Tamgram,
+next we examine some example additions we can make to the second
+choice tree to yield an error.</p>
+<p><strong>A simple impossible direct string literal</strong></p>
+<pre><code>builtins := hashing, symmetric-encryption
+
+process A =
+  choice {
+    { []--&gt;[ 'x := &quot;a&quot; ] };
+    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
+    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
+    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
+  };
+
+  choice {
+    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas &quot;b&quot; ]--&gt;[] };
+  }
+</code></pre>
+<p>yields</p>
+<pre><code>File &quot;test.tg&quot;, line 17, character 9
+17 |     { [ 'x cas &quot;b&quot; ]--&gt;[] };
+              ^
+Error: cell 'x never matches pattern &quot;b&quot;
+</code></pre>
+<p><strong>Impossible shape</strong></p>
+<pre><code>builtins := hashing, symmetric-encryption
+
+process A =
+  choice {
+    { []--&gt;[ 'x := &quot;a&quot; ] };
+    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
+    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
+    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
+  };
+
+  choice {
+    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+    { [ 'x cas senc(h(h(_k)), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+  }
+</code></pre>
+<p>yields</p>
+<pre><code>File &quot;test.tg&quot;, line 17, character 9
+17 |     { [ 'x cas senc(h(h(_k)), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
+              ^
+Error: cell 'x never matches pattern senc(h(h(_k)), _k)
+</code></pre>
+<a class="header" href="print.html#loops" id="loops"><h2>Loops</h2></a>
+<p>One final important primitive are loops (or jumps).
+We note that encoding of a naive case such as
+a process with only one outer loop is straightfoward.
+However, with jumps only occuring in certain choices
+(for instance &quot;breaking&quot; a loop if some condition is met,
+or just a while loop in general),
+encoding the transitions manually
+becomes non-trivial.</p>
+<p>In Tamgram, possible jump points are denoted
+by <code>entry_point &quot;label&quot;</code>,
+jumps to entry points are denoted by <code>goto &quot;label&quot;</code>.
+To reduce complexity of static analysis and facilitate
+more readable Tamgram files, jumps are restricted to
+backwards - entry point must have appeared earlier in
+the process.</p>
+<p>Similarly we write a simple example in Tamgram and show
+the compiled results.</p>
+<pre><code>builtins := multiset
+
+apred Neq/2
+apred Eq/2
+
+restriction Inequality =
+  All x y #i. Neq(x, y) @ i ==&gt; not(x = y)
+
+restriction Equality =
+  All x y #i. Eq(x,y) @ i ==&gt; x = y
+
+apred RightGuess/1
+
+process GuessingGame =
+  let answer = &quot;F&quot; in
+  
+  // Output some possible answers
+  []--&gt;[Out(&lt;&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, answer&gt;)];
+  
+  // Some persistent states
+  []--&gt;['try_count := &quot;0&quot;];
+  
+  entry_point &quot;start&quot;;
+  
+  choice {
+    {
+      /*	We proceed if we receive the right answer
+          from network
+      */
+      [In(x)]--[Eq(x, answer)]
+      --&gt;
+      ['try_count := 'try_count+&quot;1&quot;]
+    };
+    {
+      /* 	Otherwise we count the try and go back to
+          start
+      */
+      [In(x)]--[Neq(x, answer)]
+      --&gt;
+      ['try_count := 'try_count+&quot;1&quot;];
+      goto &quot;start&quot;
+    };
+  };
+  
+  []--[ RightGuess('try_count) ]--&gt;[ ]
+
+lemma at_least_one_guess =
+  All x #i.
+    RightGuess(x)@i ==&gt; not (x = &quot;0&quot;)
+
+lemma possibly_2_guesses =
+  exists-trace
+  Ex #i.
+    RightGuess((&quot;0&quot;+&quot;1&quot;)+&quot;1&quot;)@i
+
+lemma eventually_right_guess =
+  exists-trace
+  Ex x #i.
+    RightGuess(x) @ i
+</code></pre>
+<p>Compiled output</p>
+<pre><code>theory guess
+begin
+
+builtins: multiset
+
+restriction Inequality:
+  &quot;All x_16 y_17 #i_18 .
+     ((Neq_14(x_16, y_17) @ #i_18) ==&gt; (not ((x_16) = (y_17))))&quot;
+
+restriction Equality:
+  &quot;All x_20 y_21 #i_22 .
+     ((Eq_15(x_20, y_21) @ #i_22) ==&gt; (((x_20) = (y_21))))&quot;
+
+rule TgStartGuessingGame_28_0:
+  [Fr(~pid)]--[]-&gt;[St(~pid, 'tgk0', 'empty_tuple')]
+
+rule TgRuleGuessingGame_28_0to1:
+    [ St(~pid, 'tgk0', 'empty_tuple')
+    ]
+  --[ 
+    ]-&gt;
+    [ St(~pid, 'tgk1', 'empty_tuple')
+    , Out(&lt;'A', 'B', 'C', 'F'&gt;)
+    ]
+
+rule TgRuleGuessingGame_28_1to2:
+  [St(~pid, 'tgk1', 'empty_tuple')]--[]-&gt;[St(~pid, 'tgk2', &lt;'0'&gt;)]
+
+rule TgRuleGuessingGame_28_2to3:
+  [St(~pid, 'tgk2', &lt;tgsys44&gt;)]--[]-&gt;[St(~pid, 'tgk3', &lt;tgsys44&gt;)]
+
+rule TgRuleGuessingGame_28_3to4:
+    [ St(~pid, 'tgk3', &lt;tgsys38&gt;)
+    , In(x_26)
+    ]
+  --[ Eq_15(x_26, 'F')
+    ]-&gt;
+    [ St(~pid, 'tgk4', &lt;((tgsys38) + ('1'))&gt;)
+    ]
+
+rule TgRuleGuessingGame_28_3to5:
+    [ St(~pid, 'tgk3', &lt;tgsys42&gt;)
+    , In(x_27)
+    ]
+  --[ Neq_14(x_27, 'F')
+    ]-&gt;
+    [ St(~pid, 'tgk5', &lt;((tgsys42) + ('1'))&gt;)
+    ]
+
+rule TgRuleGuessingGame_28_4to7:
+  [St(~pid, 'tgk4', &lt;((tgsys39) + ('1'))&gt;)]--[RightGuess_24(((tgsys39) + ('1')))]-&gt;[]
+
+rule TgRuleGuessingGame_28_5to6:
+  [St(~pid, 'tgk5', &lt;((tgsys43) + ('1'))&gt;)]--[]-&gt;[St(~pid, 'tgk6', &lt;((tgsys43) + ('1'))&gt;)]
+
+rule TgRuleGuessingGame_28_6to3:
+  [St(~pid, 'tgk6', &lt;tgsys44&gt;)]--[]-&gt;[St(~pid, 'tgk3', &lt;tgsys44&gt;)]
+
+lemma at_least_one_guess []:
+  all-traces
+  &quot;All x_29 #i_30 .
+     ((RightGuess_24(x_29) @ #i_30) ==&gt; (not ((x_29) = ('0'))))&quot;
+
+lemma possibly_2_guesses []:
+  exists-trace
+  &quot;Ex #i_32 .
+     RightGuess_24((((('0') + ('1'))) + ('1'))) @ #i_32&quot;
+
+lemma eventually_right_guess []:
+  exists-trace
+  &quot;Ex x_34 #i_35 .
+     RightGuess_24(x_34) @ #i_35&quot;
+
+end
+</code></pre>
+<a class="header" href="print.html#process-macros" id="process-macros"><h2>Process macros</h2></a>
+<p>Process macros allow access to the process syntax space,
+and allow &quot;subroutine&quot; calls essentially.
+These macros, similar to term macros,
+are hygienic syntactic macros.</p>
+<p>This feature is motivated by
+the use of what is meaningfully process macros
+appear in existing case studies through the use of
+text preprocessor/macro systems such as m4.
+However, those are closer to textual expansion
+where (lexical) scoping needs to be carefully
+curated by use of appropriate prefixes for names.</p>
+<p>For instance we can declare an output encryption macro
+and use it in two separate processes below.</p>
+<pre><code>builtins := symmetric-encryption
+
+process out_enc(m, k) =
+  []--&gt;[ Out(senc(m, k)) ]
+
+process A =
+  [ Fr(~k) ]--&gt;[ 'k := k ];
+  out_enc(&quot;A1&quot;, 'k);
+  out_enc(&quot;A2&quot;, 'k)
+
+process B =
+  [ Fr(~k) ]--&gt;[ 'k := k ];
+  out_enc(&quot;B1&quot;, 'k);
+  out_enc(&quot;B2&quot;, 'k)
+</code></pre>
+<p>We can see in this case it is a simple
+AST expansion in the following compiled output.</p>
+<pre><code></code></pre>
+<p>If we wish to also abstract away nonce increment/refresh,
+we can make use of &quot;cell arguments&quot;, which allow
+us to specify assignments to them,
+similar to &quot;pass by reference&quot;.
+The syntactic requirement is to ensure any non-side effect free
+usage is visible up front - a process
+macro does not modify any process state if it contains
+no cell arguments.</p>
+<pre><code>builtins := symmetric-encryption
+
+process out_enc(m, k, 'n) =
+  [ Fr(~n) ]--&gt;
+  [ Out(senc(&lt;m, 'n&gt;, k)), 'n := n ]
+
+process A =
+  [ Fr(~k), Fr(~n) ]--&gt;[ 'k := k, 'n := n ];
+  out_enc(&quot;A1&quot;, 'k, 'n);
+  out_enc(&quot;A2&quot;, 'k, 'n)
+
+process B =
+  [ Fr(~k), Fr(~n) ]--&gt;[ 'k := k, 'n := n ];
+  out_enc(&quot;B1&quot;, 'k, 'n);
+  out_enc(&quot;B2&quot;, 'k, 'n)
+</code></pre>
+<p>The compiled output becomes slightly more complex
+this time since we require modification of
+process context.</p>
+<pre><code></code></pre>
+<p>where we see in <code>TgRuleA_22_1to2</code> and <code>TgRuleB_25_5to6</code>
+the new nonce replaces the old nonce in the passed context tuple
+correctly.</p>
+<p>Achieving similar results in manual encoding requires
+careful choice of prefixes and naming schemes
+from our observation.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+
+                
+
+            </div>
+
+            
+
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+        <script>
+            $(document).ready(function() {
+                window.print();
+            })
+        </script>
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

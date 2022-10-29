@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Chapter 4 - Tamgram user manual</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html" class="active"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html"><strong>5.</strong> Chapter 5</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Tamgram user manual</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="./004_cryptographic_messages.html#cryptographic-messages" id="cryptographic-messages"><h1>Cryptographic messages</h1></a>
+<p>Tamarin operates in the symbolic model, this means
+cryptographic messages are modeled
+as terms instead of bitstrings.</p>
+<p>Tamgram largely replicates Tamarin with regards
+to construction of messages (or terms):
+a term is (exclusively) one of the following:</p>
+<ul>
+<li>a constant</li>
+<li>a &quot;cell&quot;</li>
+<li><code>f(x0, ..., xn)</code> for some
+n-ary function symbol f to terms <code>x0</code>, ..., <code>xn</code></li>
+</ul>
+<a class="header" href="./004_cryptographic_messages.html#constants-and-cells" id="constants-and-cells"><h2>Constants and cells</h2></a>
+<p>We first discuss names which do not
+follow lexical scoping.</p>
+<p>First category is public constants, which
+are referenced by either <code>$A</code> for arbitrary
+identifier <code>A</code>,
+or <code>&quot;str&quot;</code> for arbitrary string <code>str</code>.
+This is exactly the same as Tamarin's public constant
+but we use double quotes instead of single quotes
+as the latter are reserved for cells.
+There is no scoping rules for these terms
+and one may make use of them anywhere
+in the specification.
+In other words, we may consider them
+to always exist in the global scope.</p>
+<p>Second category is cells,
+which are referenced by <code>'c</code> for arbitrary identifier <code>c</code>.
+Syntactically, users may only make use of them in
+processes, as there is no meaningful interpretation
+when referenced in lemmas and so on.</p>
+<p>As mentioned before,
+cells behave as keys to a process-local lookup table.
+One can make use of keys wherever a term is expected inside
+the process (including action facts).</p>
+<p>While these do not follow the lexical scope,
+their &quot;lifetime&quot; is checked by Tamgram to ensure
+the usage of cells must be well defined.
+To do this, Tamgram overapproximates
+the possible traces/executions of a process
+(ignoring restrictions and whether the premise
+of the rule can actually be fulfilled),
+and ensures that all cells are well defined
+(by the <code>:=</code> assignment syntax)
+before use.</p>
+<a class="header" href="./004_cryptographic_messages.html#uninterpreted-function-symbols" id="uninterpreted-function-symbols"><h2>Uninterpreted function symbols</h2></a>
+<p>Tamgram recognizes the same builtins as illustrated in the section with our first example.
+Tamgram similarly allows for user specified uninterpreted function symbols:</p>
+<pre><code>fun f/2
+fun hash/1
+</code></pre>
+<p>Additionally Tamgram requires uninterpreted predicate symbols (multiset fact/proposition constructors)
+and uninterpreted action predicate symbols (action fact/proposition constructors) to be declared similarly,
+as we consider this to be necessary to avoid typos which can
+still pass Tamarin's wellformedness checks.</p>
+<pre><code>pred Token/2
+pred !Ltk/2
+
+apred Start/2
+apred Stop/2
+</code></pre>
+<p><code>pred</code> is for predicates, result of which
+can only be used in left (premise) or right (conclusion) side
+of a rule.</p>
+<p><code>apred</code> is for action predicates, result of which
+can only be used in the action field (label) of a rule.</p>
+<p><code>pred !P</code> for some symbol <code>P</code> is for persistent predicates,
+result of which can only be used in left or right side
+of a rule, and must be prefixed with the <code>!</code> unary operator.
+<code>apred !P</code> denotes similar meaning.</p>
+<p>Above symbols are &quot;uninterpreted&quot; by Tamgram as they are compiled
+as is (with name mangling to avoid collision) to Tamarin.</p>
+<p>Interpreted symbols are function macros which are evaluated by Tamgram.</p>
+<a class="header" href="./004_cryptographic_messages.html#term-macros" id="term-macros"><h2>Term macros</h2></a>
+<p>The most general form of macro declaration is via the <code>let f(...) : typ = ...</code> syntax:</p>
+<pre><code>let f(x : bitstring, k : bitstring) : bitstring =
+  enc(&lt;x, x&gt;, k)
+</code></pre>
+<p>Alternatively one can make use of the following shorthands:</p>
+<ul>
+<li><code>fun f(...) = ...</code> is shorthand for <code>let f(...) : bitstring = ...</code></li>
+<li><code>pred f(...) = ...</code> is shorthand for <code>let f(...) : prop = ...</code></li>
+<li><code>apred f(...) = ...</code> is shorthand for <code>let f(...) : aprop = ...</code></li>
+</ul>
+<p>Usually the above shorthands suffice, but in
+cases where one needs expansion into a formula
+(making use of quantifier),
+<code>let f(...) : formula = ...</code> is the only way.</p>
+<p>Type checking is straightforward
+as there is no &quot;smart&quot; type inference</p>
+<ul>
+<li>any parameter missing type annotation just defaults to <code>bitstring</code>.</li>
+</ul>
+<p>In addition to module level macros,
+Tamgram also supports local macros which
+can be declared within a term, a rule, or a process as well,
+but these are restricted to the <code>let f(...) : typ = ... in</code> syntax,
+where <code>let f(...) = ... in</code> is the only shorthand that picks <code>bitstring</code> for
+the return type.</p>
+<pre><code>let f(x : bitstring, k : bitstring) : bitstring =
+  let f'(x) = &lt;x, x&gt; in
+  enc(f'(x), k)
+</code></pre>
+<a class="header" href="./004_cryptographic_messages.html#restrictions-of-term-macros" id="restrictions-of-term-macros"><h2>Restrictions of term macros</h2></a>
+<p>Cells (or names typed <code>cell</code>) cannot be used within a term macro body,
+and as such term macros cannot treat cells
+differently, such as by using them in assignment syntax (<code>:=</code>).</p>
+<p>In other words, one can pass cells to term macros as if it is
+a typical value,
+but term macros cannot possibly change the content of the cells.</p>
+<p>This is largely to facilitate reading of specification by ensuring
+all term macro invocations are &quot;side-effect free&quot;.</p>
+<p>It is also worth noting that these macros
+are restricted to the syntax space of terms.
+If we wish to make use of process syntax
+(and change cell content),
+we will need to use process macros.</p>
+<p>We will discuss process macros in the process section.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="./003_initial_example.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="./005_processes.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="./003_initial_example.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="./005_processes.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>
