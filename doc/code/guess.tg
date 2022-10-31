@@ -14,10 +14,10 @@ apred RightGuess/1
 process GuessingGame =
   let answer = "F" in
   
-  // Output some possible answers
+  "Output some possible answers":
   []-->[Out(<"A", "B", "C", answer>)];
   
-  // Some persistent states
+  "Some persistent states":
   []-->['try_count := "0"];
   
   entry_point "start";

@@ -14,7 +14,7 @@ restriction Equality:
 rule GuessingGame_30_0to1:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule GuessingGame_30_manyto1to2:
+rule GuessingGame_30_manyto1to2_Output_some_possible_answers:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     ]
   --[ 
@@ -23,7 +23,7 @@ rule GuessingGame_30_manyto1to2:
     , Out(<'A', 'B', 'C', 'F'>)
     ]
 
-rule GuessingGame_30_manyto2to3:
+rule GuessingGame_30_manyto2to3_Some_persistent_states:
   [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[St(~pid, 'tgk3', <'0'>)]
 
 rule GuessingGame_30_3to4to7:

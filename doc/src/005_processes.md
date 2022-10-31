@@ -14,21 +14,78 @@ the encoding is done manually.
 
 The basic building block of a process is a multiset rewriting rule.
 
+```
+[l0, ...]-->[r0, ...]
+```
+
+or
+
+```
+[l0, ...]--[a0, ...]->[r0, ...]
+```
+
+(Tamgram is relatively liberal with the number of `-` used.)
+
+### Sequential composition of steps
+
+As seen in the initial example,
+we can use `;` to "chain" rules so they execute sequentially.
+
+```
+pred M/1
+
+process A =
+  [ Fr(~k) ]-->[ M(k) ];
+  [ Fr(~m), M(k) ]-->[ Out(enc(m, k)) ]
+```
+
 ### Annotation
+
+It is commonly the case that rules
+are assigned a meaningful name in Tamarin
+case studies to help make the proofs
+readable for purpose of review or debugging.
+Say, instead of just saying `rule Step1`,
+we would more often than not see names like
+`rule Server_received_n1_from_client`.
+
+To support these meta annotations,
+user can attach optional annotation to each rule
+with the `"anno": []-->[]` syntax.
+For instance,
+we can annotate the above example as follows:
+
+```
+pred M/1
+
+process A =
+  "Generate key k":
+    [ Fr(~k) ]-->[ M(k) ];
+  "Output fresh message encrypted"
+    [ Fr(~m), M(k) ]-->[ Out(enc(m, k)) ]
+```
+
+The annotation string is normalized to
+a string with only alphanumerical characters,
+any other characters are converted to underscores.
+(Tamgram is not whitespace sensitive - the extra
+indentation is not mandatory.)
+
+### Main difference of rule compared to Tamarin
 
 A rule in Tamgram is very similar to a rule in Tamarin, but with
 the addition of cells as seen in the initial example.
 
 There are three main ways of using cells which we make precise here
 
-### Direct reference of cell
+#### Direct reference of cell
 
 As seen in the initial example, we may simply write `'c` for some cell `c`
 wherever a term is expected.
 Semantically this substitutes `'c` by whichever cell-free term
 is indexed `'c`.
 
-### Cell assignment
+#### Cell assignment
 
 Also seen in our initial example, we have the assignment `:=` syntax,
 where it is syntactically restricted to only accept a single cell on left side,
@@ -56,7 +113,7 @@ then `'a` is updated to "2".
 This overall maintains the intuition of lack of ordering
 during consideration of multisets.
 
-### Cell pattern matching
+#### Cell pattern matching
 
 We observe frequent use of pattern matching within a state fact
 in existing case studies usually in order to access
@@ -96,7 +153,7 @@ process A =
   [ 'x cas <'a as x, 'b as y, 'h as z> ]-->[ Out(x), Out(y), Out(z) ]
 ```
 
-## Sequential composition
+## Sequential composition of processes
 
 We have seen the sequential composition of
 some simple steps above via the `;` syntax.
@@ -214,108 +271,88 @@ process A =
       [ Out(h(<"E", x>)) ]
     };
   }
+
 ```
 
 Compiled result
 
 ```
+theory choice
+begin
+
+builtins: hashing
+
+rule A_22_0tomany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk0', 'empty_tuple')]
+
+rule A_22_0to1to5:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('A')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , Out(h('A'))
+    ]
+
+rule A_22_0to2to4:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('B')
+    , In(x_17)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(<'B', x_17>))
+    ]
+
+rule A_22_0to3to4:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('C')
+    , In(x_18)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(<'C', x_18>))
+    ]
+
+rule A_22_manyto4to5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , In(x_19)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , Out(h(<x_19, x_19>))
+    ]
+
+rule A_22_5to6:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('D')
+    , In(x_20)
+    ]
+  --[ 
+    ]->
+    [ Out(h(<'D', x_20>))
+    ]
+
+rule A_22_5to7:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('E')
+    , In(x_21)
+    ]
+  --[ 
+    ]->
+    [ Out(h(<'E', x_21>))
+    ]
+
+end
 ```
 
 It is perhaps worth noting that with differing depth of the `choice` tree,
 manual encoding is especially prone to errors and adjustment of
 the manual encoding is significantly more difficult than relying on Tamgram.
-
-### Example of impossible cell pattern matching
-
-We first write a working example to serve as reference:
-
-```
-builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []-->[ 'x := "a" ] };
-    { []-->[ 'x := h("b") ] };
-    { [ Fr(~k) ]-->[ 'x := senc(h(k), k) ] };
-    { []-->[ 'x := h(<"a", "d">) ] };
-  };
-
-  choice {
-    { [ 'x cas "a" ]-->[ Out("Ok") ] };
-    { [ 'x cas h(_) ]-->[ Out("Ok") ] };
-    { [ 'x cas h("b") ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(_, _) ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(h(_k), _k) ]-->[ Out("Ok") ] };
-  }
-```
-
-The above code is accepted by Tamgram,
-next we examine some example additions we can make to the second
-choice tree to yield an error.
-
-**A simple impossible direct string literal**
-
-```
-builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []-->[ 'x := "a" ] };
-    { []-->[ 'x := h("b") ] };
-    { [ Fr(~k) ]-->[ 'x := senc(h(k), k) ] };
-    { []-->[ 'x := h(<"a", "d">) ] };
-  };
-
-  choice {
-    { [ 'x cas "a" ]-->[ Out("Ok") ] };
-    { [ 'x cas h(_) ]-->[ Out("Ok") ] };
-    { [ 'x cas h("b") ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(_, _) ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(h(_k), _k) ]-->[ Out("Ok") ] };
-    { [ 'x cas "b" ]-->[] };
-  }
-```
-
-yields
-
-```
-File "test.tg", line 17, character 9
-17 |     { [ 'x cas "b" ]-->[] };
-              ^
-Error: cell 'x never matches pattern "b"
-```
-
-**Impossible shape**
-
-```
-builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []-->[ 'x := "a" ] };
-    { []-->[ 'x := h("b") ] };
-    { [ Fr(~k) ]-->[ 'x := senc(h(k), k) ] };
-    { []-->[ 'x := h(<"a", "d">) ] };
-  };
-
-  choice {
-    { [ 'x cas "a" ]-->[ Out("Ok") ] };
-    { [ 'x cas h(_) ]-->[ Out("Ok") ] };
-    { [ 'x cas h("b") ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(_, _) ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(h(_k), _k) ]-->[ Out("Ok") ] };
-    { [ 'x cas senc(h(h(_k)), _k) ]-->[ Out("Ok") ] };
-  }
-```
-
-yields
-
-```
-File "test.tg", line 17, character 9
-17 |     { [ 'x cas senc(h(h(_k)), _k) ]-->[ Out("Ok") ] };
-              ^
-Error: cell 'x never matches pattern senc(h(h(_k)), _k)
-```
 
 ## Loops
 
@@ -356,10 +393,10 @@ apred RightGuess/1
 process GuessingGame =
   let answer = "F" in
   
-  // Output some possible answers
+  "Output some possible answers":
   []-->[Out(<"A", "B", "C", answer>)];
   
-  // Some persistent states
+  "Some persistent states":
   []-->['try_count := "0"];
   
   entry_point "start";
@@ -410,74 +447,66 @@ begin
 builtins: multiset
 
 restriction Inequality:
-  "All x_16 y_17 #i_18 .
-     ((Neq_14(x_16, y_17) @ #i_18) ==> (not ((x_16) = (y_17))))"
+  "All x_18 y_19 #i_20 .
+     ((Neq_16(x_18, y_19) @ #i_20) ==> (not ((x_18) = (y_19))))"
 
 restriction Equality:
-  "All x_20 y_21 #i_22 .
-     ((Eq_15(x_20, y_21) @ #i_22) ==> (((x_20) = (y_21))))"
+  "All x_22 y_23 #i_24 .
+     ((Eq_17(x_22, y_23) @ #i_24) ==> (((x_22) = (y_23))))"
 
-rule TgStartGuessingGame_28_0:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk0', 'empty_tuple')]
+rule GuessingGame_30_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule TgRuleGuessingGame_28_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
+rule GuessingGame_30_manyto1to2_Output_some_possible_answers:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk1', 'empty_tuple')
+    [ StF(~pid, 'tgk2', 'empty_tuple')
     , Out(<'A', 'B', 'C', 'F'>)
     ]
 
-rule TgRuleGuessingGame_28_1to2:
-  [St(~pid, 'tgk1', 'empty_tuple')]--[]->[St(~pid, 'tgk2', <'0'>)]
+rule GuessingGame_30_manyto2to3_Some_persistent_states:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[St(~pid, 'tgk3', <'0'>)]
 
-rule TgRuleGuessingGame_28_2to3:
-  [St(~pid, 'tgk2', <tgsys44>)]--[]->[St(~pid, 'tgk3', <tgsys44>)]
-
-rule TgRuleGuessingGame_28_3to4:
-    [ St(~pid, 'tgk3', <tgsys38>)
-    , In(x_26)
+rule GuessingGame_30_3to4to7:
+    [ St(~pid, 'tgk3', <tgc_try_count_0>)
+    , In(x_28)
     ]
-  --[ Eq_15(x_26, 'F')
+  --[ Eq_17(x_28, 'F')
     ]->
-    [ St(~pid, 'tgk4', <((tgsys38) + ('1'))>)
+    [ StF(~pid, 'tgk7', <((tgc_try_count_0) + ('1'))>)
     ]
 
-rule TgRuleGuessingGame_28_3to5:
-    [ St(~pid, 'tgk3', <tgsys42>)
-    , In(x_27)
+rule GuessingGame_30_3to5to6:
+    [ St(~pid, 'tgk3', <tgc_try_count_0>)
+    , In(x_29)
     ]
-  --[ Neq_14(x_27, 'F')
+  --[ Neq_16(x_29, 'F')
     ]->
-    [ St(~pid, 'tgk5', <((tgsys42) + ('1'))>)
+    [ St(~pid, 'tgk6', <((tgc_try_count_0) + ('1'))>)
     ]
 
-rule TgRuleGuessingGame_28_4to7:
-  [St(~pid, 'tgk4', <((tgsys39) + ('1'))>)]--[RightGuess_24(((tgsys39) + ('1')))]->[]
-
-rule TgRuleGuessingGame_28_5to6:
-  [St(~pid, 'tgk5', <((tgsys43) + ('1'))>)]--[]->[St(~pid, 'tgk6', <((tgsys43) + ('1'))>)]
-
-rule TgRuleGuessingGame_28_6to3:
-  [St(~pid, 'tgk6', <tgsys44>)]--[]->[St(~pid, 'tgk3', <tgsys44>)]
+rule GuessingGame_30_manyto7:
+  [StF(~pid, 'tgk7', <tgc_try_count_0>)]--[RightGuess_26(tgc_try_count_0)]->[]
 
 lemma at_least_one_guess []:
   all-traces
-  "All x_29 #i_30 .
-     ((RightGuess_24(x_29) @ #i_30) ==> (not ((x_29) = ('0'))))"
+  "All x_31 #i_32 .
+     ((RightGuess_26(x_31) @ #i_32) ==> (not ((x_31) = ('0'))))"
 
 lemma possibly_2_guesses []:
   exists-trace
-  "Ex #i_32 .
-     RightGuess_24((((('0') + ('1'))) + ('1'))) @ #i_32"
+  "Ex #i_34 .
+     RightGuess_26((((('0') + ('1'))) + ('1'))) @ #i_34"
 
 lemma eventually_right_guess []:
   exists-trace
-  "Ex x_34 #i_35 .
-     RightGuess_24(x_34) @ #i_35"
+  "Ex x_36 #i_37 .
+     RightGuess_26(x_36) @ #i_37"
 
 end
+
 ```
 
 ## Process macros
@@ -519,14 +548,70 @@ We can see in this case it is a simple
 AST expansion in the following compiled output.
 
 ```
+theory process_macro0
+begin
+
+builtins: symmetric-encryption
+
+rule A_22_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_22_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_21)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk2', <~k_21>)
+    ]
+
+rule A_22_manyto2to3:
+    [ StF(~pid, 'tgk2', <tgc_k_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk3', <tgc_k_0>)
+    , Out(senc('A1', tgc_k_0))
+    ]
+
+rule A_22_manyto3:
+  [StF(~pid, 'tgk3', <tgc_k_0>)]--[]->[Out(senc('A2', tgc_k_0))]
+
+rule B_24_4to5:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
+
+rule B_24_manyto5to6:
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Fr(~k_23)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk6', <~k_23>)
+    ]
+
+rule B_24_manyto6to7:
+    [ StF(~pid, 'tgk6', <tgc_k_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk7', <tgc_k_0>)
+    , Out(senc('B1', tgc_k_0))
+    ]
+
+rule B_24_manyto7:
+  [StF(~pid, 'tgk7', <tgc_k_0>)]--[]->[Out(senc('B2', tgc_k_0))]
+
+end
+
 ```
 
 If we wish to also abstract away nonce increment/refresh,
 we can make use of "cell arguments", which allow
 us to specify assignments to them,
 similar to "pass by reference".
-The syntactic requirement is to ensure any non-side effect free
-usage is visible up front - a process
+The syntactic requirement is to ensure any
+usage which may modify process memory
+is visible up front - a process
 macro does not modify any process state if it contains
 no cell arguments.
 
@@ -534,6 +619,7 @@ no cell arguments.
 builtins := symmetric-encryption
 
 process out_enc(m, k, 'n) =
+  "Out enc":
   [ Fr(~n) ]-->
   [ Out(senc(<m, 'n>, k)), 'n := n ]
 
@@ -553,9 +639,81 @@ this time since we require modification of
 process context.
 
 ```
+theory process_macro1
+begin
+
+builtins: symmetric-encryption
+
+rule A_24_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_24_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_23)
+    , Fr(~n_22)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk2', <~k_23, ~n_22>)
+    ]
+
+rule A_24_manyto2to3_Out_enc:
+    [ StF(~pid, 'tgk2', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk3', <tgc_k_0, ~n_20>)
+    , Out(senc(<'A1', tgc_n_0>, tgc_k_0))
+    ]
+
+rule A_24_manyto3_Out_enc:
+    [ StF(~pid, 'tgk3', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]->
+    [ Out(senc(<'A2', tgc_n_0>, tgc_k_0))
+    ]
+
+rule B_27_4to5:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
+
+rule B_27_manyto5to6:
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Fr(~k_26)
+    , Fr(~n_25)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk6', <~k_26, ~n_25>)
+    ]
+
+rule B_27_manyto6to7_Out_enc:
+    [ StF(~pid, 'tgk6', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk7', <tgc_k_0, ~n_20>)
+    , Out(senc(<'B1', tgc_n_0>, tgc_k_0))
+    ]
+
+rule B_27_manyto7_Out_enc:
+    [ StF(~pid, 'tgk7', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]->
+    [ Out(senc(<'B2', tgc_n_0>, tgc_k_0))
+    ]
+
+end
+
 ```
 
-where we see in `TgRuleA_22_1to2` and `TgRuleB_25_5to6`
+where we see in rules `A_24_manyto2to3_Out_enc`
+and `B_27_manyto6to7_Out_enc`,
 the new nonce replaces the old nonce in the passed context tuple
 correctly.
 

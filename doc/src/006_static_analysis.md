@@ -81,4 +81,4 @@ Error: Cell 'st never matches pattern "St3"
 ```
 
 We may add an additional check of unused cell data
-(`'st := "St1"` above for instance).
+(`'st := "St1"` above for instance) in future release.

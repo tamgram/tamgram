@@ -1,6 +1,7 @@
 builtins := symmetric-encryption
 
 process out_enc(m, k, 'n) =
+  "Out enc":
   [ Fr(~n) ]-->
   [ Out(senc(<m, 'n>, k)), 'n := n ]
 

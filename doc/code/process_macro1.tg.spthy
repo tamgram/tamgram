@@ -3,68 +3,68 @@ begin
 
 builtins: symmetric-encryption
 
-rule TgStartA_22_0:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk0', 'empty_tuple')]
+rule A_24_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule TgRuleA_22_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
-    , Fr(~k_21)
+rule A_24_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_23)
+    , Fr(~n_22)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk2', <~k_23, ~n_22>)
+    ]
+
+rule A_24_manyto2to3_Out_enc:
+    [ StF(~pid, 'tgk2', <tgc_k_0, tgc_n_0>)
     , Fr(~n_20)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk1', <~k_21, ~n_20>)
+    [ StF(~pid, 'tgk3', <tgc_k_0, ~n_20>)
+    , Out(senc(<'A1', tgc_n_0>, tgc_k_0))
     ]
 
-rule TgRuleA_22_1to2:
-    [ St(~pid, 'tgk1', <~k_21, ~n_20>)
-    , Fr(~n_18)
+rule A_24_manyto3_Out_enc:
+    [ StF(~pid, 'tgk3', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk2', <~k_21, ~n_18>)
-    , Out(senc(<'A1', ~n_20>, ~k_21))
+    [ Out(senc(<'A2', tgc_n_0>, tgc_k_0))
     ]
 
-rule TgRuleA_22_2to3:
-    [ St(~pid, 'tgk2', <~k_21, ~n_18>)
-    , Fr(~n_18)
+rule B_27_4to5:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
+
+rule B_27_manyto5to6:
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Fr(~k_26)
+    , Fr(~n_25)
     ]
   --[ 
     ]->
-    [ Out(senc(<'A2', ~n_18>, ~k_21))
+    [ StF(~pid, 'tgk6', <~k_26, ~n_25>)
     ]
 
-rule TgStartB_25_4:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk4', 'empty_tuple')]
-
-rule TgRuleB_25_4to5:
-    [ St(~pid, 'tgk4', 'empty_tuple')
-    , Fr(~k_24)
-    , Fr(~n_23)
+rule B_27_manyto6to7_Out_enc:
+    [ StF(~pid, 'tgk6', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk5', <~k_24, ~n_23>)
+    [ StF(~pid, 'tgk7', <tgc_k_0, ~n_20>)
+    , Out(senc(<'B1', tgc_n_0>, tgc_k_0))
     ]
 
-rule TgRuleB_25_5to6:
-    [ St(~pid, 'tgk5', <~k_24, ~n_23>)
-    , Fr(~n_18)
+rule B_27_manyto7_Out_enc:
+    [ StF(~pid, 'tgk7', <tgc_k_0, tgc_n_0>)
+    , Fr(~n_20)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk6', <~k_24, ~n_18>)
-    , Out(senc(<'B1', ~n_23>, ~k_24))
-    ]
-
-rule TgRuleB_25_6to7:
-    [ St(~pid, 'tgk6', <~k_24, ~n_18>)
-    , Fr(~n_18)
-    ]
-  --[ 
-    ]->
-    [ Out(senc(<'B2', ~n_18>, ~k_24))
+    [ Out(senc(<'B2', tgc_n_0>, tgc_k_0))
     ]
 
 end
