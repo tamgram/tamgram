@@ -44,13 +44,9 @@ the process (including action facts).
 While these do not follow the lexical scope,
 their "lifetime" is checked by Tamgram to ensure
 the usage of cells must be well defined.
-To do this, Tamgram overapproximates
-the possible traces/executions of a process
-(ignoring restrictions and whether the premise
-of the rule can actually be fulfilled),
-and ensures that all cells are well defined
-(by the `:=` assignment syntax)
-before use.
+
+See [Chapter 6](006_static_analysis.md) for more
+details.
 
 ## Uninterpreted function symbols
 
