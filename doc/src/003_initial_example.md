@@ -37,14 +37,14 @@ If `output_file` is a directory, then Tamgram writes to `output_file/input_file.
 
 Tamgram passes through the same set of builtins as Tamarin.
 
-The following code from the example tells Tamgram to note
+The following code from the example tells Tamgram to add
 the relevant builtins when compiling to tamarin file.
 
 ```
 builtins := hashing, asymmetric-encryption
 ```
 
-Tamgram then inserts the relevant (reserved) names into the lexical scope.
+Tamgram then inserts the relevant (reserved) names into the lexical environment used by later passes in compilation.
 
 The names are also checked statically within Tamgram.
 For instance, if we mistyped `hashing` as `hashng`, we would receive the
@@ -71,7 +71,8 @@ pred !Ltk/2
 pred !Pk/2
 ```
 
-which reads predicate `Ltk` with arity of 2, and the same for `Pk`
+which reads persistent predicate `Ltk` with arity of 2,
+and the same for `Pk`.
 
 We can now begin to model registration of public keys:
 
@@ -175,7 +176,7 @@ process Reveal_ltk =
 The process reads a long-term private key record
 and simply outputs it to the attacker.
 
-We notice that it has an extra field in the middle of the arrow (-->),
+We notice that it has an extra field in the middle of the arrow (`-->`),
 the facts in this field are called "action facts".
 Action facts are facts that label the trace and do not (directly)
 talk about the multiset of facts (the state of the system),

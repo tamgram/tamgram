@@ -1,7 +1,7 @@
 # Introduction
 
 Tamgram is a frontend to the Tamarin prover that aims
-to provide a more ergonomic experience to large scale
+to provide a more ergonomic experience especially to large scale
 specification of protocol.
 
 Tamgram aims to accomodate the full expressiveness of Tamarin's syntax
