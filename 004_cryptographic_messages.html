@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Chapter 4 - Tamgram user manual</title>
+        <title>Cryptographic messages - Tamgram user manual</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html" class="active"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html"><strong>5.</strong> Chapter 5</a></li></ul>
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Introduction</a></li><li><a href="./002_installation.html"><strong>2.</strong> Installation</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Initial example</a></li><li><a href="./004_cryptographic_messages.html" class="active"><strong>4.</strong> Cryptographic messages</a></li><li><a href="./005_processes.html"><strong>5.</strong> Processes</a></li><li><a href="./006_static_analysis.html"><strong>6.</strong> Static analysis</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -125,14 +125,9 @@ One can make use of keys wherever a term is expected inside
 the process (including action facts).</p>
 <p>While these do not follow the lexical scope,
 their &quot;lifetime&quot; is checked by Tamgram to ensure
-the usage of cells must be well defined.
-To do this, Tamgram overapproximates
-the possible traces/executions of a process
-(ignoring restrictions and whether the premise
-of the rule can actually be fulfilled),
-and ensures that all cells are well defined
-(by the <code>:=</code> assignment syntax)
-before use.</p>
+the usage of cells must be well defined.</p>
+<p>See <a href="006_static_analysis.md">Chapter 6</a> for more
+details.</p>
 <a class="header" href="./004_cryptographic_messages.html#uninterpreted-function-symbols" id="uninterpreted-function-symbols"><h2>Uninterpreted function symbols</h2></a>
 <p>Tamgram recognizes the same builtins as illustrated in the section with our first example.
 Tamgram similarly allows for user specified uninterpreted function symbols:</p>

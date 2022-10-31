@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Installation - Tamgram user manual</title>
+        <title>Static analysis - Tamgram user manual</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Introduction</a></li><li><a href="./002_installation.html" class="active"><strong>2.</strong> Installation</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Initial example</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Cryptographic messages</a></li><li><a href="./005_processes.html"><strong>5.</strong> Processes</a></li><li><a href="./006_static_analysis.html"><strong>6.</strong> Static analysis</a></li></ul>
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Introduction</a></li><li><a href="./002_installation.html"><strong>2.</strong> Installation</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Initial example</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Cryptographic messages</a></li><li><a href="./005_processes.html"><strong>5.</strong> Processes</a></li><li><a href="./006_static_analysis.html" class="active"><strong>6.</strong> Static analysis</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -86,52 +86,92 @@
                 </div>
 
                 <div id="content" class="content">
-                    <a class="header" href="./002_installation.html#installation" id="installation"><h1>Installation</h1></a>
-<a class="header" href="./002_installation.html#recommended" id="recommended"><h2>Recommended</h2></a>
-<p>The recommended route to installation is to use the provided statically linked binary.</p>
-<a class="header" href="./002_installation.html#building-via-container" id="building-via-container"><h2>Building via container</h2></a>
-<p>One can build the container image used by <code>podman build .</code> at repo root,
-and use <code>make</code> or <code>make release-static</code> to yield the binary.</p>
-<a class="header" href="./002_installation.html#building-from-scratch" id="building-from-scratch"><h2>Building from scratch</h2></a>
-<p>This requires OCaml version &gt;= 4.14 (it may work for older version, but
-we have not tested any),
-and the following command to first install the relevant dependencies</p>
-<pre><code>opam install dune containers fmt menhir utop ocp-indent ansiterminal
+                    <a class="header" href="./006_static_analysis.html#static-analysis" id="static-analysis"><h1>Static analysis</h1></a>
+<a class="header" href="./006_static_analysis.html#invalid-cell-reference" id="invalid-cell-reference"><h2>Invalid cell reference</h2></a>
+<p>To rule out invalid cell references,
+Tamgram overapproximates
+the possible traces/executions of a process
+(ignoring restrictions and whether the premise
+of the rule can actually be fulfilled),
+and ensures that all cells are well defined
+(by the <code>:=</code> assignment syntax)
+before use.</p>
+<p>This procedure is sound, but not complete.
+As such there are cases where invalid cell references
+cannot actually occur but Tamgram would still
+rule as invalid.</p>
+<p>We may support user-specified assertion
+of some invalid cell access not being
+possible in a later release,
+and emits the relevant lemma
+for proving said impossibility
+instead of failing compilation altogether.</p>
+<a class="header" href="./006_static_analysis.html#impossible-cell-pattern-matches" id="impossible-cell-pattern-matches"><h2>Impossible cell pattern matches</h2></a>
+<p>Tamgram tries to statically analyze to some extent (again based
+on overapproximation of process execution),
+and for cases where it is confident a match is not possible,
+compilation yields an error.</p>
+<p>For instance, if we swap the positioning of <code>'a</code> and <code>'b</code>
+in the third step:</p>
+<pre><code>builtins := hashing
+
+process A =
+  [ Fr(~k) ]--&gt;[ 'a := &quot;A&quot;, 'b := &quot;B&quot;, 'h := h(&lt;&quot;A&quot;, &quot;B&quot;, k&gt;) ];
+  []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
+  [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
 </code></pre>
-<p>followed by</p>
-<pre><code>make
+<p>We get</p>
+<pre><code>File &quot;test.tg&quot;, line 6, character 5
+6 |   [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
+         ^
+Error: cell 'x never matches pattern &lt;'b, 'a, 'h&gt;
 </code></pre>
-<p>or</p>
-<pre><code>dune build @all
+<p>This is mainly for ruling out mismatching
+of cell content especially during non-deterministic choices.
+A typical pattern would be modelling of a state machine
+via the use of a state label
+that is used to decide the transition to take:</p>
+<pre><code>process A =
+  []--&gt;[ 'st := &quot;St0&quot; ];
+
+  entry_point &quot;main&quot;;
+
+  choice {
+    { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+    { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St2&quot; ] };
+    { [ 'st cas &quot;St2&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+    { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+  };
+
+  goto &quot;main&quot;
 </code></pre>
+<pre><code>File &quot;impossible_pattern0.tg&quot;, line 10, character 9
+10 |     { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+              ^
+Error: Cell 'st never matches pattern &quot;St3&quot;
+</code></pre>
+<p>We may add an additional check of unused cell data
+(<code>'st := &quot;St1&quot;</code> above for instance) in future release.</p>
 
                 </div>
 
                 <!-- Mobile navigation buttons -->
                 
-                    <a rel="prev" href="./001_introduction.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                    <a rel="prev" href="./005_processes.html" class="mobile-nav-chapters previous" title="Previous chapter">
                         <i class="fa fa-angle-left"></i>
                     </a>
                 
 
                 
-                    <a rel="next" href="./003_initial_example.html" class="mobile-nav-chapters next" title="Next chapter">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                
 
             </div>
 
             
-                <a href="./001_introduction.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                <a href="./005_processes.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
                     <i class="fa fa-angle-left"></i>
                 </a>
             
 
-            
-                <a href="./003_initial_example.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
-                    <i class="fa fa-angle-right"></i>
-                </a>
             
 
         </div>

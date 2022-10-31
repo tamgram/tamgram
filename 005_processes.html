@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Chapter 5 - Tamgram user manual</title>
+        <title>Processes - Tamgram user manual</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html" class="active"><strong>5.</strong> Chapter 5</a></li></ul>
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Introduction</a></li><li><a href="./002_installation.html"><strong>2.</strong> Installation</a></li><li><a href="./003_initial_example.html"><strong>3.</strong> Initial example</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Cryptographic messages</a></li><li><a href="./005_processes.html" class="active"><strong>5.</strong> Processes</a></li><li><a href="./006_static_analysis.html"><strong>6.</strong> Static analysis</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -97,15 +97,57 @@ but adjustment on the states is made very error prone when
 the encoding is done manually.</p>
 <a class="header" href="./005_processes.html#rule-or-step" id="rule-or-step"><h2>Rule or step</h2></a>
 <p>The basic building block of a process is a multiset rewriting rule.</p>
+<pre><code>[l0, ...]--&gt;[r0, ...]
+</code></pre>
+<p>or</p>
+<pre><code>[l0, ...]--[a0, ...]-&gt;[r0, ...]
+</code></pre>
+<p>(Tamgram is relatively liberal with the number of <code>-</code> used.)</p>
+<a class="header" href="./005_processes.html#sequential-composition-of-steps" id="sequential-composition-of-steps"><h3>Sequential composition of steps</h3></a>
+<p>As seen in the initial example,
+we can use <code>;</code> to &quot;chain&quot; rules so they execute sequentially.</p>
+<pre><code>pred M/1
+
+process A =
+  [ Fr(~k) ]--&gt;[ M(k) ];
+  [ Fr(~m), M(k) ]--&gt;[ Out(enc(m, k)) ]
+</code></pre>
+<a class="header" href="./005_processes.html#annotation" id="annotation"><h3>Annotation</h3></a>
+<p>It is commonly the case that rules
+are assigned a meaningful name in Tamarin
+case studies to help make the proofs
+readable for purpose of review or debugging.
+Say, instead of just saying <code>rule Step1</code>,
+we would more often than not see names like
+<code>rule Server_received_n1_from_client</code>.</p>
+<p>To support these meta annotations,
+user can attach optional annotation to each rule
+with the <code>&quot;anno&quot;: []--&gt;[]</code> syntax.
+For instance,
+we can annotate the above example as follows:</p>
+<pre><code>pred M/1
+
+process A =
+  &quot;Generate key k&quot;:
+    [ Fr(~k) ]--&gt;[ M(k) ];
+  &quot;Output fresh message encrypted&quot;
+    [ Fr(~m), M(k) ]--&gt;[ Out(enc(m, k)) ]
+</code></pre>
+<p>The annotation string is normalized to
+a string with only alphanumerical characters,
+any other characters are converted to underscores.
+(Tamgram is not whitespace sensitive - the extra
+indentation is not mandatory.)</p>
+<a class="header" href="./005_processes.html#main-difference-of-rule-compared-to-tamarin" id="main-difference-of-rule-compared-to-tamarin"><h3>Main difference of rule compared to Tamarin</h3></a>
 <p>A rule in Tamgram is very similar to a rule in Tamarin, but with
 the addition of cells as seen in the initial example.</p>
 <p>There are three main ways of using cells which we make precise here</p>
-<a class="header" href="./005_processes.html#direct-reference-of-cell" id="direct-reference-of-cell"><h3>Direct reference of cell</h3></a>
+<a class="header" href="./005_processes.html#direct-reference-of-cell" id="direct-reference-of-cell"><h4>Direct reference of cell</h4></a>
 <p>As seen in the initial example, we may simply write <code>'c</code> for some cell <code>c</code>
 wherever a term is expected.
 Semantically this substitutes <code>'c</code> by whichever cell-free term
 is indexed <code>'c</code>.</p>
-<a class="header" href="./005_processes.html#cell-assignment" id="cell-assignment"><h3>Cell assignment</h3></a>
+<a class="header" href="./005_processes.html#cell-assignment" id="cell-assignment"><h4>Cell assignment</h4></a>
 <p>Also seen in our initial example, we have the assignment <code>:=</code> syntax,
 where it is syntactically restricted to only accept a single cell on left side,
 and may only appear on the right side of a rule.</p>
@@ -124,7 +166,7 @@ the current rule. Additionally a cell may be assigned at most once in a rule.</p
 then <code>'a</code> is updated to &quot;2&quot;.</p>
 <p>This overall maintains the intuition of lack of ordering
 during consideration of multisets.</p>
-<a class="header" href="./005_processes.html#cell-pattern-matching" id="cell-pattern-matching"><h3>Cell pattern matching</h3></a>
+<a class="header" href="./005_processes.html#cell-pattern-matching" id="cell-pattern-matching"><h4>Cell pattern matching</h4></a>
 <p>We observe frequent use of pattern matching within a state fact
 in existing case studies usually in order to access
 inner terms of, for instance, a tuple.
@@ -155,29 +197,7 @@ process A =
   []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
   [ 'x cas &lt;'a as x, 'b as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
 </code></pre>
-<p>Tamgram tries to statically analyze to some extent (again based
-on overapproximation of process execution),
-and for cases where it is confident a match is not possible,
-compilation yields an error.</p>
-<p>For instance, if we swap the positioning of <code>'a</code> and <code>'b</code>
-in the third step:</p>
-<pre><code>builtins := hashing
-
-process A =
-  [ Fr(~k) ]--&gt;[ 'a := &quot;A&quot;, 'b := &quot;B&quot;, 'h := h(&lt;&quot;A&quot;, &quot;B&quot;, k&gt;) ];
-  []--&gt;[ 'x := &lt;'a, 'b, 'h&gt; ];
-  [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
-</code></pre>
-<p>We get</p>
-<pre><code>File &quot;test.tg&quot;, line 6, character 5
-6 |   [ 'x cas &lt;'b as x, 'a as y, 'h as z&gt; ]--&gt;[ Out(x), Out(y), Out(z) ]
-         ^
-Error: cell 'x never matches pattern &lt;'b, 'a, 'h&gt;
-</code></pre>
-<p>This is mainly for ruling out mismatching
-of cell content especially during non-deterministic choices,
-which we will see an example below.</p>
-<a class="header" href="./005_processes.html#sequential-composition" id="sequential-composition"><h2>Sequential composition</h2></a>
+<a class="header" href="./005_processes.html#sequential-composition-of-processes" id="sequential-composition-of-processes"><h2>Sequential composition of processes</h2></a>
 <p>We have seen the sequential composition of
 some simple steps above via the <code>;</code> syntax.
 In Tamgram, sequential composition
@@ -279,87 +299,84 @@ process A =
       [ Out(h(&lt;&quot;E&quot;, x&gt;)) ]
     };
   }
+
 </code></pre>
 <p>Compiled result</p>
-<pre><code></code></pre>
+<pre><code>theory choice
+begin
+
+builtins: hashing
+
+rule A_22_0tomany:
+  [Fr(~pid)]--[]-&gt;[StB(~pid, 'tgk0', 'empty_tuple')]
+
+rule A_22_0to1to5:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('A')
+    ]
+  --[ 
+    ]-&gt;
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , Out(h('A'))
+    ]
+
+rule A_22_0to2to4:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('B')
+    , In(x_17)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(&lt;'B', x_17&gt;))
+    ]
+
+rule A_22_0to3to4:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('C')
+    , In(x_18)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(&lt;'C', x_18&gt;))
+    ]
+
+rule A_22_manyto4to5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , In(x_19)
+    ]
+  --[ 
+    ]-&gt;
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , Out(h(&lt;x_19, x_19&gt;))
+    ]
+
+rule A_22_5to6:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('D')
+    , In(x_20)
+    ]
+  --[ 
+    ]-&gt;
+    [ Out(h(&lt;'D', x_20&gt;))
+    ]
+
+rule A_22_5to7:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('E')
+    , In(x_21)
+    ]
+  --[ 
+    ]-&gt;
+    [ Out(h(&lt;'E', x_21&gt;))
+    ]
+
+end
+</code></pre>
 <p>It is perhaps worth noting that with differing depth of the <code>choice</code> tree,
 manual encoding is especially prone to errors and adjustment of
 the manual encoding is significantly more difficult than relying on Tamgram.</p>
-<a class="header" href="./005_processes.html#example-of-impossible-cell-pattern-matching" id="example-of-impossible-cell-pattern-matching"><h3>Example of impossible cell pattern matching</h3></a>
-<p>We first write a working example to serve as reference:</p>
-<pre><code>builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []--&gt;[ 'x := &quot;a&quot; ] };
-    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
-    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
-    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
-  };
-
-  choice {
-    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-  }
-</code></pre>
-<p>The above code is accepted by Tamgram,
-next we examine some example additions we can make to the second
-choice tree to yield an error.</p>
-<p><strong>A simple impossible direct string literal</strong></p>
-<pre><code>builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []--&gt;[ 'x := &quot;a&quot; ] };
-    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
-    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
-    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
-  };
-
-  choice {
-    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas &quot;b&quot; ]--&gt;[] };
-  }
-</code></pre>
-<p>yields</p>
-<pre><code>File &quot;test.tg&quot;, line 17, character 9
-17 |     { [ 'x cas &quot;b&quot; ]--&gt;[] };
-              ^
-Error: cell 'x never matches pattern &quot;b&quot;
-</code></pre>
-<p><strong>Impossible shape</strong></p>
-<pre><code>builtins := hashing, symmetric-encryption
-
-process A =
-  choice {
-    { []--&gt;[ 'x := &quot;a&quot; ] };
-    { []--&gt;[ 'x := h(&quot;b&quot;) ] };
-    { [ Fr(~k) ]--&gt;[ 'x := senc(h(k), k) ] };
-    { []--&gt;[ 'x := h(&lt;&quot;a&quot;, &quot;d&quot;&gt;) ] };
-  };
-
-  choice {
-    { [ 'x cas &quot;a&quot; ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(_) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas h(&quot;b&quot;) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(_, _) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(h(_k), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-    { [ 'x cas senc(h(h(_k)), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-  }
-</code></pre>
-<p>yields</p>
-<pre><code>File &quot;test.tg&quot;, line 17, character 9
-17 |     { [ 'x cas senc(h(h(_k)), _k) ]--&gt;[ Out(&quot;Ok&quot;) ] };
-              ^
-Error: cell 'x never matches pattern senc(h(h(_k)), _k)
-</code></pre>
 <a class="header" href="./005_processes.html#loops" id="loops"><h2>Loops</h2></a>
 <p>One final important primitive are loops (or jumps).
 We note that encoding of a naive case such as
@@ -394,10 +411,10 @@ apred RightGuess/1
 process GuessingGame =
   let answer = &quot;F&quot; in
   
-  // Output some possible answers
+  &quot;Output some possible answers&quot;:
   []--&gt;[Out(&lt;&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, answer&gt;)];
   
-  // Some persistent states
+  &quot;Some persistent states&quot;:
   []--&gt;['try_count := &quot;0&quot;];
   
   entry_point &quot;start&quot;;
@@ -445,74 +462,66 @@ begin
 builtins: multiset
 
 restriction Inequality:
-  &quot;All x_16 y_17 #i_18 .
-     ((Neq_14(x_16, y_17) @ #i_18) ==&gt; (not ((x_16) = (y_17))))&quot;
+  &quot;All x_18 y_19 #i_20 .
+     ((Neq_16(x_18, y_19) @ #i_20) ==&gt; (not ((x_18) = (y_19))))&quot;
 
 restriction Equality:
-  &quot;All x_20 y_21 #i_22 .
-     ((Eq_15(x_20, y_21) @ #i_22) ==&gt; (((x_20) = (y_21))))&quot;
+  &quot;All x_22 y_23 #i_24 .
+     ((Eq_17(x_22, y_23) @ #i_24) ==&gt; (((x_22) = (y_23))))&quot;
 
-rule TgStartGuessingGame_28_0:
-  [Fr(~pid)]--[]-&gt;[St(~pid, 'tgk0', 'empty_tuple')]
+rule GuessingGame_30_0to1:
+  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule TgRuleGuessingGame_28_0to1:
-    [ St(~pid, 'tgk0', 'empty_tuple')
+rule GuessingGame_30_manyto1to2_Output_some_possible_answers:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
     ]
   --[ 
     ]-&gt;
-    [ St(~pid, 'tgk1', 'empty_tuple')
+    [ StF(~pid, 'tgk2', 'empty_tuple')
     , Out(&lt;'A', 'B', 'C', 'F'&gt;)
     ]
 
-rule TgRuleGuessingGame_28_1to2:
-  [St(~pid, 'tgk1', 'empty_tuple')]--[]-&gt;[St(~pid, 'tgk2', &lt;'0'&gt;)]
+rule GuessingGame_30_manyto2to3_Some_persistent_states:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]-&gt;[St(~pid, 'tgk3', &lt;'0'&gt;)]
 
-rule TgRuleGuessingGame_28_2to3:
-  [St(~pid, 'tgk2', &lt;tgsys44&gt;)]--[]-&gt;[St(~pid, 'tgk3', &lt;tgsys44&gt;)]
-
-rule TgRuleGuessingGame_28_3to4:
-    [ St(~pid, 'tgk3', &lt;tgsys38&gt;)
-    , In(x_26)
+rule GuessingGame_30_3to4to7:
+    [ St(~pid, 'tgk3', &lt;tgc_try_count_0&gt;)
+    , In(x_28)
     ]
-  --[ Eq_15(x_26, 'F')
+  --[ Eq_17(x_28, 'F')
     ]-&gt;
-    [ St(~pid, 'tgk4', &lt;((tgsys38) + ('1'))&gt;)
+    [ StF(~pid, 'tgk7', &lt;((tgc_try_count_0) + ('1'))&gt;)
     ]
 
-rule TgRuleGuessingGame_28_3to5:
-    [ St(~pid, 'tgk3', &lt;tgsys42&gt;)
-    , In(x_27)
+rule GuessingGame_30_3to5to6:
+    [ St(~pid, 'tgk3', &lt;tgc_try_count_0&gt;)
+    , In(x_29)
     ]
-  --[ Neq_14(x_27, 'F')
+  --[ Neq_16(x_29, 'F')
     ]-&gt;
-    [ St(~pid, 'tgk5', &lt;((tgsys42) + ('1'))&gt;)
+    [ St(~pid, 'tgk6', &lt;((tgc_try_count_0) + ('1'))&gt;)
     ]
 
-rule TgRuleGuessingGame_28_4to7:
-  [St(~pid, 'tgk4', &lt;((tgsys39) + ('1'))&gt;)]--[RightGuess_24(((tgsys39) + ('1')))]-&gt;[]
-
-rule TgRuleGuessingGame_28_5to6:
-  [St(~pid, 'tgk5', &lt;((tgsys43) + ('1'))&gt;)]--[]-&gt;[St(~pid, 'tgk6', &lt;((tgsys43) + ('1'))&gt;)]
-
-rule TgRuleGuessingGame_28_6to3:
-  [St(~pid, 'tgk6', &lt;tgsys44&gt;)]--[]-&gt;[St(~pid, 'tgk3', &lt;tgsys44&gt;)]
+rule GuessingGame_30_manyto7:
+  [StF(~pid, 'tgk7', &lt;tgc_try_count_0&gt;)]--[RightGuess_26(tgc_try_count_0)]-&gt;[]
 
 lemma at_least_one_guess []:
   all-traces
-  &quot;All x_29 #i_30 .
-     ((RightGuess_24(x_29) @ #i_30) ==&gt; (not ((x_29) = ('0'))))&quot;
+  &quot;All x_31 #i_32 .
+     ((RightGuess_26(x_31) @ #i_32) ==&gt; (not ((x_31) = ('0'))))&quot;
 
 lemma possibly_2_guesses []:
   exists-trace
-  &quot;Ex #i_32 .
-     RightGuess_24((((('0') + ('1'))) + ('1'))) @ #i_32&quot;
+  &quot;Ex #i_34 .
+     RightGuess_26((((('0') + ('1'))) + ('1'))) @ #i_34&quot;
 
 lemma eventually_right_guess []:
   exists-trace
-  &quot;Ex x_34 #i_35 .
-     RightGuess_24(x_34) @ #i_35&quot;
+  &quot;Ex x_36 #i_37 .
+     RightGuess_26(x_36) @ #i_37&quot;
 
 end
+
 </code></pre>
 <a class="header" href="./005_processes.html#process-macros" id="process-macros"><h2>Process macros</h2></a>
 <p>Process macros allow access to the process syntax space,
@@ -545,18 +554,75 @@ process B =
 </code></pre>
 <p>We can see in this case it is a simple
 AST expansion in the following compiled output.</p>
-<pre><code></code></pre>
+<pre><code>theory process_macro0
+begin
+
+builtins: symmetric-encryption
+
+rule A_22_0to1:
+  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_22_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_21)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk2', &lt;~k_21&gt;)
+    ]
+
+rule A_22_manyto2to3:
+    [ StF(~pid, 'tgk2', &lt;tgc_k_0&gt;)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk3', &lt;tgc_k_0&gt;)
+    , Out(senc('A1', tgc_k_0))
+    ]
+
+rule A_22_manyto3:
+  [StF(~pid, 'tgk3', &lt;tgc_k_0&gt;)]--[]-&gt;[Out(senc('A2', tgc_k_0))]
+
+rule B_24_4to5:
+  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk5', 'empty_tuple')]
+
+rule B_24_manyto5to6:
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Fr(~k_23)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk6', &lt;~k_23&gt;)
+    ]
+
+rule B_24_manyto6to7:
+    [ StF(~pid, 'tgk6', &lt;tgc_k_0&gt;)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk7', &lt;tgc_k_0&gt;)
+    , Out(senc('B1', tgc_k_0))
+    ]
+
+rule B_24_manyto7:
+  [StF(~pid, 'tgk7', &lt;tgc_k_0&gt;)]--[]-&gt;[Out(senc('B2', tgc_k_0))]
+
+end
+
+</code></pre>
 <p>If we wish to also abstract away nonce increment/refresh,
 we can make use of &quot;cell arguments&quot;, which allow
 us to specify assignments to them,
 similar to &quot;pass by reference&quot;.
-The syntactic requirement is to ensure any non-side effect free
-usage is visible up front - a process
+The syntactic requirement is to ensure any
+usage which may modify process memory
+is visible up front - a process
 macro does not modify any process state if it contains
 no cell arguments.</p>
 <pre><code>builtins := symmetric-encryption
 
 process out_enc(m, k, 'n) =
+  &quot;Out enc&quot;:
   [ Fr(~n) ]--&gt;
   [ Out(senc(&lt;m, 'n&gt;, k)), 'n := n ]
 
@@ -573,8 +639,80 @@ process B =
 <p>The compiled output becomes slightly more complex
 this time since we require modification of
 process context.</p>
-<pre><code></code></pre>
-<p>where we see in <code>TgRuleA_22_1to2</code> and <code>TgRuleB_25_5to6</code>
+<pre><code>theory process_macro1
+begin
+
+builtins: symmetric-encryption
+
+rule A_24_0to1:
+  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_24_manyto1to2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_23)
+    , Fr(~n_22)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk2', &lt;~k_23, ~n_22&gt;)
+    ]
+
+rule A_24_manyto2to3_Out_enc:
+    [ StF(~pid, 'tgk2', &lt;tgc_k_0, tgc_n_0&gt;)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk3', &lt;tgc_k_0, ~n_20&gt;)
+    , Out(senc(&lt;'A1', tgc_n_0&gt;, tgc_k_0))
+    ]
+
+rule A_24_manyto3_Out_enc:
+    [ StF(~pid, 'tgk3', &lt;tgc_k_0, tgc_n_0&gt;)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]-&gt;
+    [ Out(senc(&lt;'A2', tgc_n_0&gt;, tgc_k_0))
+    ]
+
+rule B_27_4to5:
+  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk5', 'empty_tuple')]
+
+rule B_27_manyto5to6:
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Fr(~k_26)
+    , Fr(~n_25)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk6', &lt;~k_26, ~n_25&gt;)
+    ]
+
+rule B_27_manyto6to7_Out_enc:
+    [ StF(~pid, 'tgk6', &lt;tgc_k_0, tgc_n_0&gt;)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]-&gt;
+    [ StF(~pid, 'tgk7', &lt;tgc_k_0, ~n_20&gt;)
+    , Out(senc(&lt;'B1', tgc_n_0&gt;, tgc_k_0))
+    ]
+
+rule B_27_manyto7_Out_enc:
+    [ StF(~pid, 'tgk7', &lt;tgc_k_0, tgc_n_0&gt;)
+    , Fr(~n_20)
+    ]
+  --[ 
+    ]-&gt;
+    [ Out(senc(&lt;'B2', tgc_n_0&gt;, tgc_k_0))
+    ]
+
+end
+
+</code></pre>
+<p>where we see in rules <code>A_24_manyto2to3_Out_enc</code>
+and <code>B_27_manyto6to7_Out_enc</code>,
 the new nonce replaces the old nonce in the passed context tuple
 correctly.</p>
 <p>Achieving similar results in manual encoding requires
@@ -591,6 +729,10 @@ from our observation.</p>
                 
 
                 
+                    <a rel="next" href="./006_static_analysis.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
 
             </div>
 
@@ -600,6 +742,10 @@ from our observation.</p>
                 </a>
             
 
+            
+                <a href="./006_static_analysis.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
             
 
         </div>

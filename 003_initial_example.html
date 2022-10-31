@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Chapter 3 - Tamgram user manual</title>
+        <title>Initial example - Tamgram user manual</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Chapter 1</a></li><li><a href="./002_installation.html"><strong>2.</strong> Chapter 2</a></li><li><a href="./003_initial_example.html" class="active"><strong>3.</strong> Chapter 3</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Chapter 4</a></li><li><a href="./005_processes.html"><strong>5.</strong> Chapter 5</a></li></ul>
+            <ul class="chapter"><li><a href="./001_introduction.html"><strong>1.</strong> Introduction</a></li><li><a href="./002_installation.html"><strong>2.</strong> Installation</a></li><li><a href="./003_initial_example.html" class="active"><strong>3.</strong> Initial example</a></li><li><a href="./004_cryptographic_messages.html"><strong>4.</strong> Cryptographic messages</a></li><li><a href="./005_processes.html"><strong>5.</strong> Processes</a></li><li><a href="./006_static_analysis.html"><strong>6.</strong> Static analysis</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -110,11 +110,11 @@ which can be compiled into Tamarin file via</p>
 <p>If <code>output_file</code> is a directory, then Tamgram writes to <code>output_file/input_file.tg.spthy</code> instead.</p>
 <a class="header" href="./003_initial_example.html#cryptographic-primitives" id="cryptographic-primitives"><h2>Cryptographic primitives</h2></a>
 <p>Tamgram passes through the same set of builtins as Tamarin.</p>
-<p>The following code from the example tells Tamgram to note
+<p>The following code from the example tells Tamgram to add
 the relevant builtins when compiling to tamarin file.</p>
 <pre><code>builtins := hashing, asymmetric-encryption
 </code></pre>
-<p>Tamgram then inserts the relevant (reserved) names into the lexical scope.</p>
+<p>Tamgram then inserts the relevant (reserved) names into the lexical environment used by later passes in compilation.</p>
 <p>The names are also checked statically within Tamgram.
 For instance, if we mistyped <code>hashing</code> as <code>hashng</code>, we would receive the
 following error message:</p>
@@ -132,7 +132,8 @@ as follows:</p>
 <pre><code>pred !Ltk/2
 pred !Pk/2
 </code></pre>
-<p>which reads predicate <code>Ltk</code> with arity of 2, and the same for <code>Pk</code></p>
+<p>which reads persistent predicate <code>Ltk</code> with arity of 2,
+and the same for <code>Pk</code>.</p>
 <p>We can now begin to model registration of public keys:</p>
 <pre><code>process Register_pk =
   [ Fr(~ltk) ]
@@ -213,7 +214,7 @@ process Reveal_ltk =
 </code></pre>
 <p>The process reads a long-term private key record
 and simply outputs it to the attacker.</p>
-<p>We notice that it has an extra field in the middle of the arrow (--&gt;),
+<p>We notice that it has an extra field in the middle of the arrow (<code>--&gt;</code>),
 the facts in this field are called &quot;action facts&quot;.
 Action facts are facts that label the trace and do not (directly)
 talk about the multiset of facts (the state of the system),
