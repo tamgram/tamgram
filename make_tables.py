@@ -37,8 +37,10 @@ def make_emverify_table(index, lemmas):
         """)
         
         for _ in lemmas:
-            file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
-            file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
+            #file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
+            #file.write("*{1}{p{2cm}} *{1}{p{1.5cm}}")
+            file.write("*{1}{p{1.5cm}} *{1}{p{1cm}}")
+            file.write("*{1}{p{1.5cm}} *{1}{p{1cm}}")
 
         file.write("""
                     },
