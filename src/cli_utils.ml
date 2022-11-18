@@ -21,7 +21,7 @@ let style_arg : Translate_style.t Term.t =
               ("frame-minimal0", `Frame_minimal0);
               ("frame-minimal1", `Frame_minimal1);
               ("persistent0", `Persistent0);
-              ("frame-minimal-reversed-linking0", `Frame_minimal_reversed_linking0);
+              ("frame-minimal-backward0", `Frame_minimal_backward0);
               ("mix0", `Mix0);
             ])
          Params.default_translate_style

@@ -164,8 +164,8 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
                 rule_tr binding spec;
                 end_tr binding spec;
               ]
-            | `Frame_minimal_reversed_linking0 ->
-              Tr_frame_minimal_reversed_linking0.[
+            | `Frame_minimal_backward0 ->
+              Tr_frame_minimal_backward0.[
                 start_tr binding spec;
                 rule_tr binding spec;
               ]

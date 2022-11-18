@@ -3,7 +3,7 @@ type t = [
   | `Frame
   | `Frame_minimal0
   | `Frame_minimal1
-  | `Frame_minimal_reversed_linking0
+  | `Frame_minimal_backward0
   | `Mix0
   | `Persistent0
 ]

@@ -4,7 +4,7 @@ let base =
   let open Tg_ast in
   (match !Params.translate_style with
    | `Frame | `Frame_minimal0 | `Frame_minimal1
-   | `Frame_minimal_reversed_linking0 ->
+   | `Frame_minimal_backward0 ->
      [ D_pred (Binding.make_untagged "St" { arity = 3; options = [] }) ]
    | `Cell_by_cell | `Persistent0 ->
      [ D_pred (Binding.make_untagged "St" { arity = 2; options = [] }) ]
