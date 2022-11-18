@@ -10,7 +10,7 @@ def check_dirs():
         exit(1)
 
 def tg_files(pattern):
-    files = glob.glob(tg_file_dir + "/" + "**/**.tg", recursive=True)
+    files = glob.glob(tg_file_dir + "/" + "**/" + pattern, recursive=True)
     files.sort()
     return files
 

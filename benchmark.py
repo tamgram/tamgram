@@ -36,5 +36,7 @@ elif args.tmonly:
 else:
     config["exts"] = [ ".spthy", ".tg.spthy" ]
 
-for ext in config["exts"]:
-    print(ext)
+cases = benchmark_cases(pattern)
+
+for case in cases:
+    print(case)
