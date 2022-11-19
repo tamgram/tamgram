@@ -1,11 +1,12 @@
 import argparse
 import glob
 import os
+from datetime import datetime
 from bench_utils import *
 
 parser = argparse.ArgumentParser(description='Benchmark.')
 # parser.add_argument('--dir', help='directory to use')
-parser.add_argument('--pat', help='pattern')
+parser.add_argument('--pattern', help='pattern', default="**")
 parser.add_argument('--tgonly', action="store_true")
 parser.add_argument('--tmonly', action="store_true")
 parser.add_argument('--core', help='core count', default=4)
@@ -14,13 +15,9 @@ parser.add_argument('--timeout', help='timeout for Tamarin command', default="60
 
 args = parser.parse_args()
 
-if args.pat is None:
-    pattern = "**.tg"
-else:
-    pattern = args.pat + ".tg"
-
 config = {}
 
+config["pattern"] = args.pattern
 config["core"] = args.core
 config["maxmemory"] = args.maxmemory
 config["timeout"] = args.timeout
@@ -36,7 +33,29 @@ elif args.tmonly:
 else:
     config["exts"] = [ ".spthy", ".tg.spthy" ]
 
-cases = benchmark_cases(pattern)
+cases = benchmark_cases(config["pattern"])
+
+timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
 for case in cases:
-    print(case)
+    dir = f"bench_{timestamp}/{case}"
+    print(dir)
+
+    for ext in config["exts"]:
+        file = case + ext
+        print("Benchmarking file:", file)
+
+        if not os.path.exists(file):
+            print("- File does not exist")
+        else:
+            lemmas = lemmas_of_benchmark_case(case)
+            for lemma in lemmas:
+                print("- Benchmarking lemma:", lemma)
+
+                output = f"{dir}/{lemma}{ext}.proof"
+
+                t0 = datetime.now()
+
+                t1 = datetime.now()
+
+                duration = (t1 - t0).total_seconds()

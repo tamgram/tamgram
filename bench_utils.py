@@ -10,11 +10,11 @@ def check_dirs():
         exit(1)
 
 def tg_files(pattern):
-    files = glob.glob(tg_file_dir + "/" + "**/" + pattern, recursive=True)
+    files = glob.glob(tg_file_dir + "/**/" + pattern + ".tg", recursive=True)
     files.sort()
     return files
 
-def benchmark_cases(pattern="**.tg"):
+def benchmark_cases(pattern="**"):
     files = tg_files(pattern)
     return [x.removesuffix(".tg") for x in files]
 

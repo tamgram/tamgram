@@ -5,14 +5,11 @@ from bench_utils import *
 
 parser = argparse.ArgumentParser(description='Display benchmark.')
 parser.add_argument('--dir', help='directory to use')
-parser.add_argument('--pat', help='pattern')
+parser.add_argument('--pattern', help='pattern', default="**")
 
 args = parser.parse_args()
 
-if args.pat is None:
-    pattern = "**.tg"
-else:
-    pattern = args.pat + ".tg"
+pattern = args.pattern
 
 def get_latest_dir():
     l = [ x for x in glob.iglob(os.getcwd() + "/" + "bench_*") if os.path.isdir(x) ]
