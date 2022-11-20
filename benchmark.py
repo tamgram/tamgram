@@ -56,7 +56,7 @@ for case in cases:
 
                 proof_file_path = f"{dir}/{lemma}{ext}.proof"
                 summary_file_path = f"{dir}/{lemma}{ext}.summary"
-                duration_file_path = f"{dir}/{lemma}{ext}.duration"
+                duration_file_path = f"{dir}/{lemma}{ext}.time"
 
                 t0 = datetime.now()
 
