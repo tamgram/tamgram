@@ -14,5 +14,6 @@ fuzz-logs/
 manual.pdf
 *.out
 bench_*/
+benchmark_*/
 bench-logs/
 __pycache__/
