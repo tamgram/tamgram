@@ -1,7 +1,9 @@
 import argparse
 import glob
 import os
-from datetime import datetime
+import pathlib
+import subprocess
+from datetime import datetime, timedelta
 from bench_utils import *
 
 parser = argparse.ArgumentParser(description='Benchmark.')
@@ -11,7 +13,7 @@ parser.add_argument('--tgonly', action="store_true")
 parser.add_argument('--tmonly', action="store_true")
 parser.add_argument('--core', help='core count', default=4)
 parser.add_argument('--maxmemory', help='maximum memory', default="50G")
-parser.add_argument('--timeout', help='timeout for Tamarin command', default="60m")
+parser.add_argument('--timeout', help='timeout for Tamarin command in minutes', default=60)
 
 args = parser.parse_args()
 
@@ -39,7 +41,7 @@ timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
 for case in cases:
     dir = f"bench_{timestamp}/{case}"
-    print(dir)
+    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
 
     for ext in config["exts"]:
         file = case + ext
@@ -52,10 +54,43 @@ for case in cases:
             for lemma in lemmas:
                 print("- Benchmarking lemma:", lemma)
 
-                output = f"{dir}/{lemma}{ext}.proof"
+                proof_file_path = f"{dir}/{lemma}{ext}.proof"
+                summary_file_path = f"{dir}/{lemma}{ext}.summary"
+                duration_file_path = f"{dir}/{lemma}{ext}.duration"
 
                 t0 = datetime.now()
 
+                args = ["tamarin-prover",
+                        "+RTS",
+                        f'-N{config["core"]}',
+                        f'-M{config["maxmemory"]}',
+                        "-RTS",
+                        f"--prove={lemma}",
+                        f"--output={proof_file_path}",
+                        file
+                       ]
+
+                timeout = timedelta(minutes=config["timeout"]).total_seconds()
+
+                try:
+                    p = subprocess.run(args, timeout=timeout, capture_output=True)
+                    summary_section_reached = False
+                    for line in p.stdout.splitlines():
+                        if "summary" in line.decode("utf-8"):
+                            summary_section_reached = True
+
+                        if summary_section_reached:
+                            if lemma in line.decode("utf-8"):
+                                summary = line.decode("utf-8").strip()
+                except subprocess.TimeoutExpired:
+                    summary = ""
+
                 t1 = datetime.now()
 
+                with open(summary_file_path, "w") as summary_file:
+                    summary_file.write(summary)
+
                 duration = (t1 - t0).total_seconds()
+
+                with open(duration_file_path, "w") as duration_file:
+                    duration_file.write(str(duration))
