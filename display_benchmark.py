@@ -12,7 +12,7 @@ args = parser.parse_args()
 pattern = args.pattern
 
 def get_latest_dir():
-    l = [ x for x in glob.iglob(os.getcwd() + "/" + "bench_*") if os.path.isdir(x) ]
+    l = [ x for x in glob.iglob(os.getcwd() + "/" + "benchmark_*") if os.path.isdir(x) ]
     l.sort()
     if len(l) == 0:
         return None

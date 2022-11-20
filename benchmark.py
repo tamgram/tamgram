@@ -40,7 +40,7 @@ cases = benchmark_cases(config["pattern"])
 timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
 
 for case in cases:
-    dir = f"bench_{timestamp}/{case}"
+    dir = f"benchmark_{timestamp}/{case}"
     pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
 
     for ext in config["exts"]:
