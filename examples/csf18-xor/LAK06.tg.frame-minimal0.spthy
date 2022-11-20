@@ -1,0 +1,91 @@
+theory LAK06
+begin
+
+builtins: xor, hashing
+
+rule setup_26:
+    [ Fr(~k_25)
+    ]
+  --[ OnlyOnce_18('setup')
+    , Create_23(~k_25)
+    ]->
+    [ !Reader_19(~k_25)
+    , !Tag_20(~k_25)
+    ]
+
+rule TgRulereader_30_1to2:
+  [Fr(~pid)]--[]->[St(~pid, 'tgk2', 'empty_tuple')]
+
+rule TgRulereader_30_2to3:
+    [ St(~pid, 'tgk2', 'empty_tuple')
+    , !Reader_19(~k_28)
+    , Fr(~r0_27)
+    ]
+  --[ OnlyOnce_18('initiareader')
+    ]->
+    [ St(~pid, 'tgk3', <~k_28, ~r0_27>)
+    , Out(~r0_27)
+    ]
+
+rule TgEndreader_30_3:
+    [ St(~pid, 'tgk3', <tgc_k_0, tgc_r0_0>)
+    , In(<r1_29, h(((((tgc_r0_0) XOR (r1_29))) XOR (tgc_k_0)))>)
+    ]
+  --[ Commit_21(<'R', 'T', <tgc_k_0, tgc_r0_0, r1_29>>)
+    , Running_24(<'T', 'R', <tgc_k_0, tgc_r0_0, r1_29>>)
+    ]->
+    [ Out(h(((((h(((((tgc_r0_0) XOR (r1_29))) XOR (tgc_k_0)))) XOR (tgc_k_0))) XOR (tgc_r0_0))))
+    ]
+
+rule TgRuletag_34_4to5:
+  [Fr(~pid)]--[]->[St(~pid, 'tgk5', 'empty_tuple')]
+
+rule TgRuletag_34_5to6:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , !Tag_20(~k_33)
+    , Fr(~r1_31)
+    , In(r0_32)
+    ]
+  --[ Running_24(<'R', 'T', <~k_33, r0_32, ~r1_31>>)
+    ]->
+    [ St(~pid, 'tgk6', <~k_33, r0_32, ~r1_31>)
+    , Out(<~r1_31, h(((((r0_32) XOR (~r1_31))) XOR (~k_33)))>)
+    ]
+
+rule TgEndtag_34_6:
+    [ St(~pid, 'tgk6', <tgc_k_0, tgc_r0_0, tgc_r1_0>)
+    , In(h(((((h(((((tgc_r0_0) XOR (tgc_r1_0))) XOR (tgc_k_0)))) XOR (tgc_k_0))) XOR (tgc_r0_0))))
+    ]
+  --[ Commit_21(<'T', 'R', <tgc_k_0, tgc_r0_0, tgc_r1_0>>)
+    , FinTag_22()
+    ]->
+    [ 
+    ]
+
+lemma executable []:
+  exists-trace
+  "((Ex #i_35 .
+       FinTag_22() @ #i_35) & (All x_36 #i1_37 #i2_38 .
+                                 ((((OnlyOnce_18(x_36) @ #i1_37) & (OnlyOnce_18(
+                                 x_36) @ #i2_38))) ==> (#i1_37 = #i2_38))))"
+
+lemma helpingSecrecy [reuse]:
+  all-traces
+  "All k_40 #i_41 .
+     ((Create_23(k_40) @ #i_41) ==> (not Ex #j_42 .
+                                           K(k_40) @ #j_42))"
+
+lemma noninjectiveagreementTAG [use_induction]:
+  all-traces
+  "All t_44 #i_45 .
+     ((Commit_21(<'T', 'R', t_44>) @ #i_45) ==> (Ex #j_46 .
+                                                   Running_24(<'T', 'R', t_44>) @ #j_46))"
+
+lemma noninjectiveagreementREADER [use_induction]:
+  all-traces
+  "All t_48 #i_49 .
+     ((Commit_21(<'R', 'T', t_48>) @ #i_49) ==> (Ex #j_50 .
+                                                   Running_24(<'R', 'T', t_48>) @ #j_50))"
+
+end
+

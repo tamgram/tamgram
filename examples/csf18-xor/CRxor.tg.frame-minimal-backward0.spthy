@@ -1,0 +1,86 @@
+theory CRxor
+begin
+
+builtins: xor, hashing
+
+rule Setup_28:
+    [ Fr(~k_27)
+    ]
+  --[ OnlyOnce_18()
+    ]->
+    [ !InitLTK_19(~k_27)
+    , !RespLTK_20(~k_27)
+    ]
+
+rule TgStartinitiator_33_1:
+  [Fr(~pid)]--[]->[St(~pid, 'tgk1', 'empty_tuple')]
+
+rule TgRuleinitiator_33_1to2:
+    [ St(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~na_29)
+    ]
+  --[ Challenge_25(~na_29)
+    ]->
+    [ St(~pid, 'tgk2', <~na_29>)
+    , Out(~na_29)
+    ]
+
+rule TgRuleinitiator_33_2to3:
+    [ St(~pid, 'tgk2', <tgc_na_0>)
+    , !InitLTK_19(~k_32)
+    , In(<m_31, nb_30>)
+    ]
+  --[ Alive_23(tgc_na_0, ~k_32)
+    , Eq_21(h(((((tgc_na_0) XOR (~k_32))) XOR (nb_30))), m_31)
+    ]->
+    [ 
+    ]
+
+rule responder_37:
+    [ In(na_35)
+    , Fr(~nb_34)
+    , !RespLTK_20(~k_36)
+    ]
+  --[ Response_26(~k_36)
+    , Neq_22(na_35, zero)
+    , NeqForExec_24(na_35, zero)
+    ]->
+    [ Out(<h(((((na_35) XOR (~k_36))) XOR (~nb_34))), ~nb_34>)
+    ]
+
+restriction equality:
+  "All x_38 y_39 #i_40 .
+     ((Eq_21(x_38, y_39) @ #i_40) ==> (((x_38) = (y_39))))"
+
+restriction unique:
+  "All #i_42 #j_43 .
+     ((((OnlyOnce_18() @ #i_42) & (OnlyOnce_18() @ #j_43))) ==> (#i_42 = #j_43))"
+
+restriction inequality:
+  "not Ex x_45 #i_46 .
+         Neq_22(x_45, x_45) @ #i_46"
+
+lemma alive []:
+  all-traces
+  "All x_48 y_49 #i_50 .
+     ((Alive_23(x_48, y_49) @ #i_50) ==> (Ex #j_51 .
+                                            Response_26(y_49) @ #j_51))"
+
+lemma recentalive_tag []:
+  all-traces
+  "All x_53 y_54 #i_55 .
+     ((Alive_23(x_53, y_54) @ #i_55) ==> (Ex #j_56 #k_57 .
+                                            ((((((Challenge_25(x_53) @ #k_57) & (Response_26(
+                                            y_54) @ #j_56))) & (#k_57 < #j_56))) & (#j_56 < #i_55))))"
+
+lemma executable []:
+  exists-trace
+  "Ex x_59 y_60 #i_61 #j_62 .
+     ((((((Alive_23(x_59, y_60) @ #i_61) & (Response_26(y_60) @ #j_62))) & (not 
+     Ex #k_63 .
+       ((Response_26(y_60) @ #k_63) & (not #j_62 = #k_63))))) & (not 
+     Ex #l_64 .
+       NeqForExec_24(x_59, x_59) @ #l_64))"
+
+end
+

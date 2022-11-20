@@ -1,0 +1,90 @@
+theory Tutorial
+begin
+
+builtins: hashing, asymmetric-encryption
+
+rule Register_pk_23:
+    [ Fr(~ltk_22)
+    ]
+  --[ 
+    ]->
+    [ !Ltk_20($A, ~ltk_22)
+    , !Pk_21($A, pk(~ltk_22))
+    ]
+
+rule Get_pk_26:
+  [!Pk_21(A_25, pk)]--[]->[Out(pk)]
+
+rule Reveal_ltk_30:
+  [!Ltk_20(A_29, ltk_28)]--[LtkReveal_27(A_29)]->[Out(ltk_28)]
+
+rule TgRuleClient_34_3to4:
+  [Fr(~pid)]--[]->[St(~pid, 'tgk4', 'empty_tuple')]
+
+rule TgRuleClient_34_4to5:
+    [ St(~pid, 'tgk4', 'empty_tuple')
+    , Fr(~k_33)
+    , !Pk_21($S, pkS_32)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk5', <~k_33, $S>)
+    , Out(aenc(<'1', ~k_33>, pkS_32))
+    ]
+
+rule TgEndClient_34_5:
+    [ St(~pid, 'tgk5', <tgc_k_0, tgc_server_0>)
+    , In(h(tgc_k_0))
+    ]
+  --[ SessKeyC_31(tgc_server_0, tgc_k_0)
+    ]->
+    [ 
+    ]
+
+rule Serv_1_39:
+    [ !Ltk_20($S, ~ltkS_38)
+    , In(request_37)
+    ]
+  --[ Eq_35(fst(adec(request_37, ~ltkS_38)), '1')
+    , AnswerRequest_36($S, snd(adec(request_37, ~ltkS_38)))
+    ]->
+    [ Out(h(snd(adec(request_37, ~ltkS_38))))
+    ]
+
+restriction Equality_Checks_Succeed:
+  "All x_40 y_41 #i_42 .
+     ((Eq_35(x_40, y_41) @ #i_42) ==> (((x_40) = (y_41))))"
+
+lemma Client_session_key_secrecy []:
+  all-traces
+  "not Ex S_44 k_45 #i_46 #j_47 .
+         ((((SessKeyC_31(S_44, k_45) @ #i_46) & (K(k_45) @ #j_47))) & (not 
+         Ex #r_48 .
+           LtkReveal_27(S_44) @ #r_48))"
+
+lemma Client_auth []:
+  all-traces
+  "All S_50 k_51 #i_52 .
+     ((SessKeyC_31(S_50, k_51) @ #i_52) ==> (((Ex #a_53 .
+                                                 AnswerRequest_36(S_50, k_51) @ #a_53) | (
+     Ex #r_54 .
+       ((LtkReveal_27(S_50) @ #r_54) & (#r_54 < #i_52))))))"
+
+lemma Client_auth_injective []:
+  all-traces
+  "All S_56 k_57 #i_58 .
+     ((SessKeyC_31(S_56, k_57) @ #i_58) ==> (((Ex #a_59 .
+                                                 ((AnswerRequest_36(S_56, k_57) @ #a_59) & (
+                                                 All #j_60 .
+                                                   ((SessKeyC_31(S_56, k_57) @ #j_60) ==> (#i_58 = #j_60))))) | (
+     Ex #r_61 .
+       ((LtkReveal_27(S_56) @ #r_61) & (#r_61 < #i_58))))))"
+
+lemma Client_session_key_honest_setup []:
+  exists-trace
+  "Ex S_63 k_64 #i_65 .
+     ((SessKeyC_31(S_63, k_64) @ #i_65) & (not Ex #r_66 .
+                                                 LtkReveal_27(S_63) @ #r_66))"
+
+end
+
