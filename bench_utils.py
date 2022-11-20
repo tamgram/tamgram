@@ -4,6 +4,12 @@ import re
 
 tg_file_dir = "examples"
 
+def rm_f(path):
+    try:
+        os.remove(path)
+    except:
+        pass
+
 def check_dirs():
     if not (os.path.exists(tg_file_dir) and os.path.isdir(tg_file_dir)):
         print(f"Tamgram file directory {tg_file_dir} not found")
