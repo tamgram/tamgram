@@ -16,11 +16,7 @@ config = {}
 
 config["pattern"] = args.pattern
 if args.allstyles:
-    config["additional_styles"] = ["cell-by-cell",
-                                   "frame-minimal0",
-                                   "frame-minimal-backward0",
-                                   "persistent0",
-                                   ]
+    config["additional_styles"] = additional_styles
 else:
     config["additional_styles"] = []
 

@@ -4,6 +4,24 @@ import re
 
 tg_file_dir = "examples"
 
+additional_styles = ["cell-by-cell",
+                     "frame-minimal0",
+                     "frame-minimal-backward0",
+                     "persistent0",
+                     ]
+
+def tg_spthy_extension_of_style(style):
+    if style is None:
+        return ".tg.spthy"
+    else:
+        return f".tg.{style}.spthy"
+
+def tg_spthy_extensions(all_styles=False):
+    if all_styles:
+        return [ tg_spthy_extension_of_style(None) ] + [ tg_spthy_extension_of_style(style) for style in additional_styles ]
+    else:
+        return [ tg_spthy_extension_of_style(None) ]
+
 def rm_f(path):
     try:
         os.remove(path)
@@ -40,12 +58,12 @@ def check_variant(variant):
     if variant != "tamarin" and variant != "tamgram":
         raise Exception("Invalid file variant: {variant}")
 
-def summary_of_lemma(basedir, name, lemma, variant):
+def summary_of_lemma(basedir, name, lemma, variant, style=None):
     check_variant(variant)
     if variant == "tamarin":
         suffix = ".spthy.summary"
     elif variant == "tamgram":
-        suffix = ".tg.spthy.summary"
+        suffix = tg_spthy_extension_of_style(style) + ".summary"
 
     p = re.compile("[A-Za-z0-9-_: ]*\(([a-z-]+)\)[A-Za-z0-9-_: ]*\(([0-9]+) steps\)")
 
@@ -67,12 +85,12 @@ def summary_of_lemma(basedir, name, lemma, variant):
     except:
         return None
 
-def time_of_lemma(basedir, name, lemma, variant):
+def time_of_lemma(basedir, name, lemma, variant, style=None):
     check_variant(variant)
     if variant == "tamarin":
         suffix = ".spthy.time"
     elif variant == "tamgram":
-        suffix = ".tg.spthy.time"
+        suffix = tg_spthy_extension_of_style(style) + ".time"
 
     try:
         path = f"{basedir}/{name}/{lemma}{suffix}"

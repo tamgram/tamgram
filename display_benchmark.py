@@ -6,10 +6,17 @@ from bench_utils import *
 parser = argparse.ArgumentParser(description='Display benchmark.')
 parser.add_argument('--dir', help='directory to use')
 parser.add_argument('--pattern', help='pattern', default="**")
+parser.add_argument('--allstyles', action="store_true")
 
 args = parser.parse_args()
 
-pattern = args.pattern
+config = {}
+
+config["pattern"] = args.pattern
+if args.allstyles:
+    config["additional_styles"] = additional_styles
+else:
+    config["additional_styles"] = []
 
 def get_latest_dir():
     l = [ x for x in glob.iglob(os.getcwd() + "/" + "benchmark_*") if os.path.isdir(x) ]
@@ -39,7 +46,7 @@ tg_file_dir="examples"
 if not (os.path.exists(tg_file_dir) and os.path.isdir(tg_file_dir)):
     print(f"Tamgram file directory {tg_file_dir} not found")
 
-cases = benchmark_cases(pattern)
+cases = benchmark_cases(config["pattern"])
 
 for case in cases:
     print(f"{dir_to_use}/{case}")
@@ -57,3 +64,10 @@ for case in cases:
         time = time_of_lemma(dir_to_use, case, lemma, "tamgram")
         print(f"    - summary: {summary}")
         print(f"    - time: {time}")
+
+        for style in config["additional_styles"]:
+            print(f"  - Tamgram version ({style}):")
+            summary = summary_of_lemma(dir_to_use, case, lemma, "tamgram", style=style)
+            time = time_of_lemma(dir_to_use, case, lemma, "tamgram", style=style)
+            print(f"    - summary: {summary}")
+            print(f"    - time: {time}")

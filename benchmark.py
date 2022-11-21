@@ -9,6 +9,7 @@ from bench_utils import *
 parser = argparse.ArgumentParser(description='Benchmark.')
 # parser.add_argument('--dir', help='directory to use')
 parser.add_argument('--pattern', help='pattern', default="**")
+parser.add_argument('--allstyles', action="store_true")
 parser.add_argument('--tgonly', action="store_true")
 parser.add_argument('--tmonly', action="store_true")
 parser.add_argument('--core', help='core count', default=4)
@@ -29,11 +30,11 @@ if args.tgonly and args.tmonly:
     exit(1)
 
 if args.tgonly:
-    config["exts"] = [ ".tg.spthy" ]
+    config["exts"] = tg_spthy_extensions(args.allstyles)
 elif args.tmonly:
     config["exts"] = [ ".spthy" ]
 else:
-    config["exts"] = [ ".spthy", ".tg.spthy" ]
+    config["exts"] = [ ".spthy" ] + tg_spthy_extensions(args.allstyles)
 
 cases = benchmark_cases(config["pattern"])
 

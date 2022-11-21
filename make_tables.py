@@ -27,6 +27,19 @@ def write_table(file, cases, lemmas):
         file.write("\\\\")
         file.write("\n")
 
+def make_csf18_xor_ch07_table(index, lemmas):
+    with open(f"{base_dir}/CSF18_XOR_CH07_table.tex", "w") as file:
+        file.write("""
+            \\begin{tblr}{
+                    hlines,
+                    vlines,
+                    colspec={c 
+        """)
+
+        styles = [  ]
+
+        for 
+
 def make_emverify_table(index, lemmas):
     with open(f"{base_dir}/EMVerify_table{index}.tex", "w") as file:
         file.write("""
