@@ -1,0 +1,372 @@
+theory LAK06 begin
+
+// Function signature and definition of the equational theory E
+
+builtins: xor
+functions: fst/1, h/1, pair/2, snd/1
+equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
+
+
+
+/* looping facts with injective instances: StF/3 */
+
+rule (modulo E) setup_26:
+   [ Fr( ~k_25 ) ]
+  --[ OnlyOnce_18( 'setup' ), Create_23( ~k_25 ) ]->
+   [ !Reader_19( ~k_25 ), !Tag_20( ~k_25 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_32_1to2:
+   [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_32_manyto2to3_initiatereader:
+   [ StF( ~pid, 'tgk2', 'empty_tuple' ), !Reader_19( ~k_28 ), Fr( ~r0_27 ) ]
+  --[ OnlyOnce_18( 'initiareader' ) ]->
+   [ StF( ~pid, 'tgk3', <~k_28, ~r0_27> ), Out( ~r0_27 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) reader_32_manyto3_acceptreader:
+   [
+   StF( ~pid, 'tgk3', <~u_tgany0_31, ~u_tgany1_30> ),
+   In( <r1_29, h((~u_tgany0_31⊕~u_tgany1_30⊕r1_29))> )
+   ]
+  --[
+  Commit_21( <'R', 'T', ~u_tgany0_31, ~u_tgany1_30, r1_29> ),
+  Running_24( <'T', 'R', ~u_tgany0_31, ~u_tgany1_30, r1_29> )
+  ]->
+   [
+   Out( h((~u_tgany0_31⊕~u_tgany1_30⊕h((~u_tgany0_31⊕~u_tgany1_30⊕r1_29))))
+   )
+   ]
+
+  /*
+  rule (modulo AC) reader_32_manyto3_acceptreader:
+     [ StF( ~pid, 'tgk3', <~u_tgany0_31, ~u_tgany1_30> ), In( <r1_29, h(z)> )
+     ]
+    --[
+    Commit_21( <'R', 'T', ~u_tgany0_31, ~u_tgany1_30, r1_29> ),
+    Running_24( <'T', 'R', ~u_tgany0_31, ~u_tgany1_30, r1_29> )
+    ]->
+     [ Out( h(z.1) ) ]
+    variants (modulo AC)
+    1. ~u_tgany0_31
+             = ~u_tgany0_31.10
+       ~u_tgany1_30
+             = ~u_tgany1_30.11
+       r1_29 = ~u_tgany0_31.10
+       z     = ~u_tgany1_30.11
+       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(~u_tgany1_30.11))
+    
+    2. ~u_tgany0_31
+             = ~u_tgany0_31.10
+       ~u_tgany1_30
+             = ~u_tgany1_30.11
+       r1_29 = ~u_tgany1_30.11
+       z     = ~u_tgany0_31.10
+       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(~u_tgany0_31.10))
+    
+    3. ~u_tgany0_31
+             = ~u_tgany0_31.10
+       ~u_tgany1_30
+             = ~u_tgany1_30.11
+       r1_29 = zero
+       z     = (~u_tgany0_31.10⊕~u_tgany1_30.11)
+       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕
+                h((~u_tgany0_31.10⊕~u_tgany1_30.11)))
+    
+    4. ~u_tgany0_31
+             = ~u_tgany0_31.10
+       ~u_tgany1_30
+             = ~u_tgany1_30.11
+       r1_29 = (~u_tgany0_31.10⊕~u_tgany1_30.11)
+       z     = zero
+       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(zero))
+    
+    5. ~u_tgany0_31
+             = ~u_tgany0_31.11
+       ~u_tgany1_30
+             = ~u_tgany0_31.11
+       r1_29 = r1_29.13
+       z     = r1_29.13
+       z.1   = h(r1_29.13)
+    
+    6. ~u_tgany0_31
+             = ~u_tgany0_31.11
+       ~u_tgany1_30
+             = ~u_tgany1_30.12
+       r1_29 = r1_29.13
+       z     = (~u_tgany0_31.11⊕~u_tgany1_30.12⊕r1_29.13)
+       z.1   = (~u_tgany0_31.11⊕~u_tgany1_30.12⊕
+                h((~u_tgany0_31.11⊕~u_tgany1_30.12⊕r1_29.13)))
+    
+    7. ~u_tgany0_31
+             = ~u_tgany0_31.13
+       ~u_tgany1_30
+             = ~u_tgany1_30.14
+       r1_29 = (~u_tgany0_31.13⊕~u_tgany1_30.14⊕z.17)
+       z     = z.17
+       z.1   = (~u_tgany0_31.13⊕~u_tgany1_30.14⊕h(z.17))
+    
+    8. ~u_tgany0_31
+             = ~u_tgany0_31.26
+       ~u_tgany1_30
+             = ~u_tgany1_30.27
+       r1_29 = (~u_tgany1_30.27⊕x.49)
+       z     = (~u_tgany0_31.26⊕x.49)
+       z.1   = (~u_tgany0_31.26⊕~u_tgany1_30.27⊕h((~u_tgany0_31.26⊕x.49)))
+    
+    9. ~u_tgany0_31
+             = ~u_tgany0_31.27
+       ~u_tgany1_30
+             = ~u_tgany1_30.28
+       r1_29 = (~u_tgany0_31.27⊕x.51)
+       z     = (~u_tgany1_30.28⊕x.51)
+       z.1   = (~u_tgany0_31.27⊕~u_tgany1_30.28⊕h((~u_tgany1_30.28⊕x.51)))
+  */
+
+rule (modulo E) tag_38_4to5:
+   [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk5', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) tag_38_manyto5to6_tag1:
+   [
+   StF( ~pid, 'tgk5', 'empty_tuple' ), !Tag_20( ~k_35 ), Fr( ~r1_33 ),
+   In( r0_34 )
+   ]
+  --[ Running_24( <'R', 'T', ~k_35, r0_34, ~r1_33> ) ]->
+   [
+   StF( ~pid, 'tgk6', <~k_35, r0_34, ~r1_33> ),
+   Out( <~r1_33, h((~k_35⊕~r1_33⊕r0_34))> )
+   ]
+
+  /*
+  rule (modulo AC) tag_38_manyto5to6_tag1:
+     [
+     StF( ~pid, 'tgk5', 'empty_tuple' ), !Tag_20( ~k_35 ), Fr( ~r1_33 ),
+     In( r0_34 )
+     ]
+    --[ Running_24( <'R', 'T', ~k_35, r0_34, ~r1_33> ) ]->
+     [ StF( ~pid, 'tgk6', <~k_35, r0_34, ~r1_33> ), Out( <~r1_33, h(z)> ) ]
+    variants (modulo AC)
+    1. ~k_35 = ~k_35.12
+       ~r1_33
+             = ~r1_33.14
+       r0_34 = ~k_35.12
+       z     = ~r1_33.14
+    
+    2. ~k_35 = ~k_35.12
+       ~r1_33
+             = ~r1_33.14
+       r0_34 = ~r1_33.14
+       z     = ~k_35.12
+    
+    3. ~k_35 = ~k_35.12
+       ~r1_33
+             = ~r1_33.14
+       r0_34 = zero
+       z     = (~k_35.12⊕~r1_33.14)
+    
+    4. ~k_35 = ~k_35.12
+       ~r1_33
+             = ~r1_33.14
+       r0_34 = (~k_35.12⊕~r1_33.14)
+       z     = zero
+    
+    5. ~k_35 = ~k_35.13
+       ~r1_33
+             = ~k_35.13
+       r0_34 = r0_34.16
+       z     = r0_34.16
+    
+    6. ~k_35 = ~k_35.13
+       ~r1_33
+             = ~r1_33.15
+       r0_34 = r0_34.16
+       z     = (~k_35.13⊕~r1_33.15⊕r0_34.16)
+    
+    7. ~k_35 = ~k_35.17
+       ~r1_33
+             = ~r1_33.19
+       r0_34 = (~k_35.17⊕~r1_33.19⊕z.24)
+       z     = z.24
+    
+    8. ~k_35 = ~k_35.51
+       ~r1_33
+             = ~r1_33.53
+       r0_34 = (~r1_33.53⊕x.100)
+       z     = (~k_35.51⊕x.100)
+    
+    9. ~k_35 = ~k_35.53
+       ~r1_33
+             = ~r1_33.55
+       r0_34 = (~k_35.53⊕x.104)
+       z     = (~r1_33.55⊕x.104)
+  */
+
+rule (modulo E) tag_38_manyto6_accepttag:
+   [
+   StF( ~pid, 'tgk6', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
+   In( h((~u_tgany2_37⊕tgc_r0_0⊕h((~u_tgany2_37⊕~u_tgany3_36⊕tgc_r0_0)))) )
+   ]
+  --[
+  Commit_21( <'T', 'R', ~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
+  FinTag_22( )
+  ]->
+   [ ]
+
+  /*
+  rule (modulo AC) tag_38_manyto6_accepttag:
+     [ StF( ~pid, 'tgk6', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ), In( h(z) )
+     ]
+    --[
+    Commit_21( <'T', 'R', ~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
+    FinTag_22( )
+    ]->
+     [ ]
+    variants (modulo AC)
+     1. ~u_tgany2_37
+              = ~u_tgany2_37.8
+        ~u_tgany3_36
+              = ~u_tgany2_37.8
+        tgc_r0_0
+              = zero
+        z     = (~u_tgany2_37.8⊕h(zero))
+    
+     2. ~u_tgany2_37
+              = ~u_tgany2_37.9
+        ~u_tgany3_36
+              = ~u_tgany3_36.10
+        tgc_r0_0
+              = ~u_tgany2_37.9
+        z     = h(~u_tgany3_36.10)
+    
+     3. ~u_tgany2_37
+              = ~u_tgany2_37.9
+        ~u_tgany3_36
+              = ~u_tgany3_36.10
+        tgc_r0_0
+              = ~u_tgany3_36.10
+        z     = (~u_tgany2_37.9⊕~u_tgany3_36.10⊕h(~u_tgany2_37.9))
+    
+     4. ~u_tgany2_37
+              = ~u_tgany2_37.9
+        ~u_tgany3_36
+              = ~u_tgany3_36.10
+        tgc_r0_0
+              = zero
+        z     = (~u_tgany2_37.9⊕h((~u_tgany2_37.9⊕~u_tgany3_36.10)))
+    
+     5. ~u_tgany2_37
+              = ~u_tgany2_37.9
+        ~u_tgany3_36
+              = ~u_tgany3_36.10
+        tgc_r0_0
+              = (~u_tgany2_37.9⊕~u_tgany3_36.10)
+        z     = (~u_tgany3_36.10⊕h(zero))
+    
+     6. ~u_tgany2_37
+              = ~u_tgany2_37.10
+        ~u_tgany3_36
+              = ~u_tgany2_37.10
+        tgc_r0_0
+              = tgc_r0_0.12
+        z     = (~u_tgany2_37.10⊕tgc_r0_0.12⊕h(tgc_r0_0.12))
+    
+     7. ~u_tgany2_37
+              = ~u_tgany2_37.10
+        ~u_tgany3_36
+              = ~u_tgany3_36.11
+        tgc_r0_0
+              = tgc_r0_0.12
+        z     = (~u_tgany2_37.10⊕tgc_r0_0.12⊕
+                 h((~u_tgany2_37.10⊕~u_tgany3_36.11⊕tgc_r0_0.12)))
+    
+     8. ~u_tgany2_37
+              = ~u_tgany2_37.23
+        ~u_tgany3_36
+              = ~u_tgany3_36.24
+        tgc_r0_0
+              = (~u_tgany3_36.24⊕x.43)
+        z     = (~u_tgany2_37.23⊕~u_tgany3_36.24⊕x.43⊕h((~u_tgany2_37.23⊕x.43)))
+    
+     9. ~u_tgany2_37
+              = ~u_tgany2_37.24
+        ~u_tgany3_36
+              = ~u_tgany3_36.25
+        tgc_r0_0
+              = (~u_tgany2_37.24⊕~u_tgany3_36.25⊕x.45)
+        z     = (~u_tgany3_36.25⊕x.45⊕h(x.45))
+    
+    10. ~u_tgany2_37
+              = ~u_tgany2_37.24
+        ~u_tgany3_36
+              = ~u_tgany3_36.25
+        tgc_r0_0
+              = (~u_tgany2_37.24⊕x.45)
+        z     = (x.45⊕h((~u_tgany3_36.25⊕x.45)))
+  */
+
+lemma executable:
+  exists-trace
+  "(∃ #i_39. FinTag_22( ) @ #i_39) ∧
+   (∀ x_40 #i1_41 #i2_42.
+     ((OnlyOnce_18( x_40 ) @ #i1_41) ∧ (OnlyOnce_18( x_40 ) @ #i2_42)) ⇒
+     (#i1_41 = #i2_42))"
+/*
+guarded formula characterizing all satisfying traces:
+"(∃ #i_39. (FinTag_22( ) @ #i_39)) ∧
+ (∀ x_40 #i1_41 #i2_42.
+   (OnlyOnce_18( x_40 ) @ #i1_41) ∧ (OnlyOnce_18( x_40 ) @ #i2_42)
+  ⇒
+   #i1_41 = #i2_42)"
+*/
+by sorry
+
+lemma helpingSecrecy [reuse]:
+  all-traces
+  "∀ k_44 #i_45.
+    (Create_23( k_44 ) @ #i_45) ⇒ (¬(∃ #j_46. K( k_44 ) @ #j_46))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ k_44 #i_45.
+  (Create_23( k_44 ) @ #i_45) ∧ ∃ #j_46. (K( k_44 ) @ #j_46)"
+*/
+simplify
+by solve( !KU( ~k_25 ) @ #vk )
+
+lemma noninjectiveagreementTAG [use_induction]:
+  all-traces
+  "∀ t_48 #i_49.
+    (Commit_21( <'T', 'R', t_48> ) @ #i_49) ⇒
+    (∃ #j_50. Running_24( <'T', 'R', t_48> ) @ #j_50)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ t_48 #i_49.
+  (Commit_21( <'T', 'R', t_48> ) @ #i_49)
+ ∧
+  ∀ #j_50. (Running_24( <'T', 'R', t_48> ) @ #j_50) ⇒ ⊥"
+*/
+by sorry
+
+lemma noninjectiveagreementREADER [use_induction]:
+  all-traces
+  "∀ t_52 #i_53.
+    (Commit_21( <'R', 'T', t_52> ) @ #i_53) ⇒
+    (∃ #j_54. Running_24( <'R', 'T', t_52> ) @ #j_54)"
+/*
+guarded formula characterizing all counter-examples:
+"∃ t_52 #i_53.
+  (Commit_21( <'R', 'T', t_52> ) @ #i_53)
+ ∧
+  ∀ #j_54. (Running_24( <'R', 'T', t_52> ) @ #j_54) ⇒ ⊥"
+*/
+by sorry
+
+/* All well-formedness checks were successful. */
+
+end

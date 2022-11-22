@@ -1,0 +1,283 @@
+theory NSLPK3xor begin
+
+// Function signature and definition of the equational theory E
+
+builtins: xor
+functions: adec/2, aenc/2, fst/1, pair/2, pk/1, snd/1
+equations:
+    adec(aenc(x.1, pk(x.2)), x.2) = x.1,
+    fst(<x.1, x.2>) = x.1,
+    snd(<x.1, x.2>) = x.2
+
+
+
+/* looping facts with injective instances: St/3 */
+
+rule (modulo E) Register_pk_24:
+   [ Fr( ~ltkA_23 ) ]
+  --[ Register_22( $A ) ]->
+   [
+   !Ltk_20( $A, ~ltkA_23 ), !Pk_21( $A, pk(~ltkA_23) ), Out( pk(~ltkA_23) )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Reveal_ltk_28:
+   [ !Ltk_20( A_27, ltkA_26 ) ] --[ RevLtk_25( A_27 ) ]-> [ Out( ltkA_26 ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TgStartI_43_2:
+   [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk2', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TgRuleI_43_2to3:
+   [ St( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~ni_35 ), !Pk_21( $R, pkR_34 ) ]
+  --[ OUT_I_1_32( aenc(<'1', ~ni_35, $I>, pkR_34) ) ]->
+   [
+   St( ~pid, 'tgk3', <$I, $R, ~ni_35> ),
+   Out( aenc(<'1', ~ni_35, $I>, pkR_34) )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TgRuleI_43_3to4:
+   [
+   St( ~pid, 'tgk3', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
+   !Ltk_20( tgc_I_0, ltkI_39 ),
+   In( aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ), !Pk_21( tgc_R_0, pkR_38 )
+   ]
+  --[
+  IN_I_2_nr_33( (tgc_R_0⊕x_37), aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ),
+  Commit_29( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, (tgc_R_0⊕x_37)> ),
+  Running_30( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, (tgc_R_0⊕x_37)> )
+  ]->
+   [
+   Out( aenc(<'3', (tgc_R_0⊕x_37)>, pkR_38) ),
+   Secret_31( tgc_I_0, tgc_R_0, (tgc_R_0⊕x_37) ),
+   Secret_31( tgc_I_0, tgc_R_0, tgc_ni_0 )
+   ]
+
+  /*
+  rule (modulo AC) TgRuleI_43_3to4:
+     [
+     St( ~pid, 'tgk3', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
+     !Ltk_20( tgc_I_0, ltkI_39 ),
+     In( aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ), !Pk_21( tgc_R_0, pkR_38 )
+     ]
+    --[
+    IN_I_2_nr_33( z, aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ),
+    Commit_29( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, z> ),
+    Running_30( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, z> )
+    ]->
+     [
+     Out( aenc(<'3', z>, pkR_38) ), Secret_31( tgc_I_0, tgc_R_0, z ),
+     Secret_31( tgc_I_0, tgc_R_0, tgc_ni_0 )
+     ]
+    variants (modulo AC)
+    1. tgc_R_0
+             = tgc_R_0.13
+       x_37  = tgc_R_0.13
+       z     = zero
+    
+    2. tgc_R_0
+             = tgc_R_0.13
+       x_37  = zero
+       z     = tgc_R_0.13
+    
+    3. tgc_R_0
+             = tgc_R_0.15
+       x_37  = x_37.17
+       z     = (tgc_R_0.15⊕x_37.17)
+    
+    4. tgc_R_0
+             = tgc_R_0.19
+       x_37  = (tgc_R_0.19⊕z.25)
+       z     = z.25
+    
+    5. tgc_R_0
+             = zero
+       x_37  = x_37.13
+       z     = x_37.13
+    
+    6. tgc_R_0
+             = (x.16⊕x.17)
+       x_37  = (x.16⊕x.19)
+       z     = (x.17⊕x.19)
+    
+    7. tgc_R_0
+             = (x_37.17⊕z.21)
+       x_37  = x_37.17
+       z     = z.21
+  */
+
+rule (modulo E) TgStartR_54_5:
+   [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk5', 'empty_tuple' ) ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TgRuleR_54_5to6:
+   [
+   St( ~pid, 'tgk5', 'empty_tuple' ), !Ltk_20( $R, ltkR_49 ),
+   In( aenc(<'1', ni_48, I_50>, pk(ltkR_49)) ), !Pk_21( I_50, pkI_46 ),
+   Fr( ~nr_47 )
+   ]
+  --[
+  IN_R_1_ni_44( ni_48, aenc(<'1', ni_48, I_50>, pk(ltkR_49)) ),
+  OUT_R_1_45( aenc(<'2', ni_48, ($R⊕~nr_47)>, pkI_46) ),
+  Running_30( I_50, $R, <'init', ni_48, ~nr_47> )
+  ]->
+   [
+   St( ~pid, 'tgk6', <I_50, $R, ni_48, ~nr_47> ),
+   Out( aenc(<'2', ni_48, ($R⊕~nr_47)>, pkI_46) )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) TgRuleR_54_6to7:
+   [
+   St( ~pid, 'tgk6', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0> ),
+   !Ltk_20( tgc_R_0, ltkR_53 ), In( aenc(<'3', tgc_nr_0>, pk(ltkR_53)) )
+   ]
+  --[ Commit_29( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0> ) ]->
+   [
+   Secret_31( tgc_R_0, tgc_I_0, tgc_nr_0 ),
+   Secret_31( tgc_R_0, tgc_I_0, tgc_ni_0 )
+   ]
+
+  /* has exactly the trivial AC variant */
+
+rule (modulo E) Secrecy_claim_59:
+   [ Secret_31( A_58, B_57, m_56 ) ]
+  --[ Secret_55( A_58, B_57, m_56 ) ]->
+   [ ]
+
+  /* has exactly the trivial AC variant */
+
+lemma types [sources]:
+  all-traces
+  "(∀ ni_60 m1_61 #i_62.
+     (IN_R_1_ni_44( ni_60, m1_61 ) @ #i_62) ⇒
+     ((∃ #j_63. (!KU( ni_60 ) @ #j_63) ∧ (#j_63 < #i_62)) ∨
+      (∃ #j_64. OUT_I_1_32( m1_61 ) @ #j_64))) ∧
+   (∀ nr_65 m2_66 #i_67.
+     (IN_I_2_nr_33( nr_65, m2_66 ) @ #i_67) ⇒
+     ((∃ #j_68. (!KU( nr_65 ) @ #j_68) ∧ (#j_68 < #i_67)) ∨
+      (∃ #j_69. OUT_R_1_45( m2_66 ) @ #j_69)))"
+/*
+guarded formula characterizing all counter-examples:
+"((∃ ni_60 m1_61 #i_62.
+    (IN_R_1_ni_44( ni_60, m1_61 ) @ #i_62)
+   ∧
+    (∀ #j_63. (!KU( ni_60 ) @ #j_63) ⇒ ¬(#j_63 < #i_62)) ∧
+    (∀ #j_64. (OUT_I_1_32( m1_61 ) @ #j_64) ⇒ ⊥)) ∨
+  (∃ nr_65 m2_66 #i_67.
+    (IN_I_2_nr_33( nr_65, m2_66 ) @ #i_67)
+   ∧
+    (∀ #j_68. (!KU( nr_65 ) @ #j_68) ⇒ ¬(#j_68 < #i_67)) ∧
+    (∀ #j_69. (OUT_R_1_45( m2_66 ) @ #j_69) ⇒ ⊥)))"
+*/
+by sorry
+
+restriction onekeypername:
+  "¬(∃ A_71 #i_72 #j_73.
+      ((Register_22( A_71 ) @ #i_72) ∧ (Register_22( A_71 ) @ #j_73)) ∧
+      (¬(#i_72 = #j_73)))"
+  // safety formula
+
+lemma nonce_secrecy:
+  all-traces
+  "¬(∃ A_75 B_76 s_77 #i_78.
+      (((Secret_55( A_75, B_76, s_77 ) @ #i_78) ∧
+        (∃ #j_79. K( s_77 ) @ #j_79)) ∧
+       (¬(∃ #r_80. RevLtk_25( A_75 ) @ #r_80))) ∧
+      (¬(∃ #r_81. RevLtk_25( B_76 ) @ #r_81)))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ A_75 B_76 s_77 #i_78.
+  (Secret_55( A_75, B_76, s_77 ) @ #i_78)
+ ∧
+  (∃ #j_79. (K( s_77 ) @ #j_79)) ∧
+  (∀ #r_80. (RevLtk_25( A_75 ) @ #r_80) ⇒ ⊥) ∧
+  (∀ #r_81. (RevLtk_25( B_76 ) @ #r_81) ⇒ ⊥)"
+*/
+simplify
+solve( Secret_31( A_75, B_76, s_77 ) ▶₀ #i_78 )
+  case TgRuleR_54_6to7_case_1
+  solve( !KU( ~nr_47 ) @ #vk )
+    case TgRuleI_43_3to4_case_1
+    solve( !KU( ~ltkA_23.2 ) @ #vk.4 )
+      case Reveal_ltk_28
+      solve( !KU( aenc(<'3', ~nr_47>, pk(~ltkA_23)) ) @ #vk.2 )
+        case c_aenc
+        solve( !KU( aenc(<'1', ~ni_35, $A>, pk(~ltkA_23)) ) @ #vk.4 )
+          case c_aenc
+          solve( !KU( ~ni_35 ) @ #vk.12 )
+            case TgRuleI_43_2to3
+            solve( !KU( aenc(<'2', ~ni_35, ($R⊕~nr_47)>, pk(~ltkA_23.2)) ) @ #vk.6 )
+              case TgRuleR_54_5to6
+              solve( !KU( ($R⊕$R.1) ) @ #vk.8 )
+                case c_xor
+                solve( !KU( pk(~ltkA_23) ) @ #vk.10 )
+                  case Register_pk_24
+                  SOLVED // trace found
+                qed
+              qed
+            qed
+          qed
+        qed
+      qed
+    qed
+  qed
+qed
+
+lemma injective_agree:
+  all-traces
+  "∀ actor_83 peer_84 params_85 #i_86.
+    (Commit_29( actor_83, peer_84, params_85 ) @ #i_86) ⇒
+    (((∃ #j_87.
+        ((Running_30( actor_83, peer_84, params_85 ) @ #j_87) ∧
+         (#j_87 < #i_86)) ∧
+        (¬(∃ actor2_88 peer2_89 #i2_90.
+            (Commit_29( actor2_88, peer2_89, params_85 ) @ #i2_90) ∧
+            (¬(#i_86 = #i2_90))))) ∨
+      (∃ #r_91. RevLtk_25( actor_83 ) @ #r_91)) ∨
+     (∃ #r_92. RevLtk_25( peer_84 ) @ #r_92))"
+/*
+guarded formula characterizing all counter-examples:
+"∃ actor_83 peer_84 params_85 #i_86.
+  (Commit_29( actor_83, peer_84, params_85 ) @ #i_86)
+ ∧
+  (∀ #j_87.
+    (Running_30( actor_83, peer_84, params_85 ) @ #j_87)
+   ⇒
+    ((¬(#j_87 < #i_86)) ∨
+     (∃ actor2_88 peer2_89 #i2_90.
+       (Commit_29( actor2_88, peer2_89, params_85 ) @ #i2_90)
+      ∧
+       ¬(#i_86 = #i2_90)))) ∧
+  (∀ #r_91. (RevLtk_25( actor_83 ) @ #r_91) ⇒ ⊥) ∧
+  (∀ #r_92. (RevLtk_25( peer_84 ) @ #r_92) ⇒ ⊥)"
+*/
+by sorry
+
+lemma session_key_setup_possible:
+  exists-trace
+  "∃ A_94 B_95 s_96 #i_97.
+    ((Secret_55( A_94, B_95, s_96 ) @ #i_97) ∧
+     (¬(∃ #r_98. RevLtk_25( A_94 ) @ #r_98))) ∧
+    (¬(∃ #r_99. RevLtk_25( B_95 ) @ #r_99))"
+/*
+guarded formula characterizing all satisfying traces:
+"∃ A_94 B_95 s_96 #i_97.
+  (Secret_55( A_94, B_95, s_96 ) @ #i_97)
+ ∧
+  (∀ #r_98. (RevLtk_25( A_94 ) @ #r_98) ⇒ ⊥) ∧
+  (∀ #r_99. (RevLtk_25( B_95 ) @ #r_99) ⇒ ⊥)"
+*/
+by sorry
+
+/* All well-formedness checks were successful. */
+
+end
