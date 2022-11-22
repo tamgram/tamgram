@@ -4,10 +4,11 @@ import re
 
 tg_file_dir = "examples"
 
-additional_styles = ["cell-by-cell",
+additional_styles = [
                      "frame-minimal0",
                      "frame-minimal-backward0",
-                     "persistent0",
+                     "cell-by-cell",
+                     # "persistent0",
                      ]
 
 def tg_spthy_extension_of_style(style):
