@@ -17,7 +17,7 @@ rule setup_26:
     , !Tag_20(~k_25)
     ]
 
-rule TgRulereader_30_1to2:
+rule TgRulereader_32_1to2:
     [ Fr(~pcellptr_new)
     , Fr(~pid)
     ]
@@ -28,7 +28,7 @@ rule TgRulereader_30_1to2:
     , !Pcell(~pid, ~pcellptr_new, 'r0', 'NULL')
     ]
 
-rule TgRulereader_30_2to3:
+rule TgRulereader_32_2to3:
     [ St(~pid, 'tgk2')
     , Fr(~pcellptr_new)
     , !Pcell(~pid, ~pcellptr_k, 'k', 'NULL')
@@ -46,21 +46,21 @@ rule TgRulereader_30_2to3:
     , Out(~r0_27)
     ]
 
-rule TgEndreader_30_3:
+rule TgEndreader_32_3:
     [ St(~pid, 'tgk3')
-    , !Pcell(~pid, ~pcellptr_k, 'k', tgc_k_0)
-    , !Pcell(~pid, ~pcellptr_r0, 'r0', tgc_r0_0)
-    , In(<r1_29, h(((((tgc_r0_0) XOR (r1_29))) XOR (tgc_k_0)))>)
+    , !Pcell(~pid, ~pcellptr_k, 'k', ~u_tgany0_31)
+    , !Pcell(~pid, ~pcellptr_r0, 'r0', ~u_tgany1_30)
+    , In(<r1_29, h(((((~u_tgany1_30) XOR (r1_29))) XOR (~u_tgany0_31)))>)
     ]
   --[ PcellRead(~pid, ~pcellptr_k, 'k')
     , PcellRead(~pid, ~pcellptr_r0, 'r0')
-    , Commit_21(<'R', 'T', <tgc_k_0, tgc_r0_0, r1_29>>)
-    , Running_24(<'T', 'R', <tgc_k_0, tgc_r0_0, r1_29>>)
+    , Commit_21(<'R', 'T', <~u_tgany0_31, ~u_tgany1_30, r1_29>>)
+    , Running_24(<'T', 'R', <~u_tgany0_31, ~u_tgany1_30, r1_29>>)
     ]->
-    [ Out(h(((((h(((((tgc_r0_0) XOR (r1_29))) XOR (tgc_k_0)))) XOR (tgc_k_0))) XOR (tgc_r0_0))))
+    [ Out(h(((((h(((((~u_tgany1_30) XOR (r1_29))) XOR (~u_tgany0_31)))) XOR (~u_tgany0_31))) XOR (~u_tgany1_30))))
     ]
 
-rule TgRuletag_34_4to5:
+rule TgRuletag_38_4to5:
     [ Fr(~pcellptr_new)
     , Fr(~pid)
     ]
@@ -72,39 +72,39 @@ rule TgRuletag_34_4to5:
     , !Pcell(~pid, ~pcellptr_new, 'r1', 'NULL')
     ]
 
-rule TgRuletag_34_5to6:
+rule TgRuletag_38_5to6:
     [ St(~pid, 'tgk5')
     , Fr(~pcellptr_new)
     , !Pcell(~pid, ~pcellptr_k, 'k', 'NULL')
     , !Pcell(~pid, ~pcellptr_r0, 'r0', 'NULL')
     , !Pcell(~pid, ~pcellptr_r1, 'r1', 'NULL')
-    , !Tag_20(~k_33)
-    , Fr(~r1_31)
-    , In(r0_32)
+    , !Tag_20(~k_35)
+    , Fr(~r1_33)
+    , In(r0_34)
     ]
   --[ PcellFreed(~pid, ~pcellptr_k, 'k')
     , PcellFreed(~pid, ~pcellptr_r0, 'r0')
     , PcellFreed(~pid, ~pcellptr_r1, 'r1')
-    , Running_24(<'R', 'T', <~k_33, r0_32, ~r1_31>>)
+    , Running_24(<'R', 'T', <~k_35, r0_34, ~r1_33>>)
     ]->
     [ St(~pid, 'tgk6')
-    , !Pcell(~pid, ~pcellptr_new, 'k', ~k_33)
-    , !Pcell(~pid, ~pcellptr_new, 'r0', r0_32)
-    , !Pcell(~pid, ~pcellptr_new, 'r1', ~r1_31)
-    , Out(<~r1_31, h(((((r0_32) XOR (~r1_31))) XOR (~k_33)))>)
+    , !Pcell(~pid, ~pcellptr_new, 'k', ~k_35)
+    , !Pcell(~pid, ~pcellptr_new, 'r0', r0_34)
+    , !Pcell(~pid, ~pcellptr_new, 'r1', ~r1_33)
+    , Out(<~r1_33, h(((((r0_34) XOR (~r1_33))) XOR (~k_35)))>)
     ]
 
-rule TgEndtag_34_6:
+rule TgEndtag_38_6:
     [ St(~pid, 'tgk6')
-    , !Pcell(~pid, ~pcellptr_k, 'k', tgc_k_0)
+    , !Pcell(~pid, ~pcellptr_k, 'k', ~u_tgany2_37)
     , !Pcell(~pid, ~pcellptr_r0, 'r0', tgc_r0_0)
-    , !Pcell(~pid, ~pcellptr_r1, 'r1', tgc_r1_0)
-    , In(h(((((h(((((tgc_r0_0) XOR (tgc_r1_0))) XOR (tgc_k_0)))) XOR (tgc_k_0))) XOR (tgc_r0_0))))
+    , !Pcell(~pid, ~pcellptr_r1, 'r1', ~u_tgany3_36)
+    , In(h(((((h(((((tgc_r0_0) XOR (~u_tgany3_36))) XOR (~u_tgany2_37)))) XOR (~u_tgany2_37))) XOR (tgc_r0_0))))
     ]
   --[ PcellRead(~pid, ~pcellptr_k, 'k')
     , PcellRead(~pid, ~pcellptr_r0, 'r0')
     , PcellRead(~pid, ~pcellptr_r1, 'r1')
-    , Commit_21(<'T', 'R', <tgc_k_0, tgc_r0_0, tgc_r1_0>>)
+    , Commit_21(<'T', 'R', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36>>)
     , FinTag_22()
     ]->
     [ 
@@ -112,28 +112,28 @@ rule TgEndtag_34_6:
 
 lemma executable []:
   exists-trace
-  "((Ex #i_35 .
-       FinTag_22() @ #i_35) & (All x_36 #i1_37 #i2_38 .
-                                 ((((OnlyOnce_18(x_36) @ #i1_37) & (OnlyOnce_18(
-                                 x_36) @ #i2_38))) ==> (#i1_37 = #i2_38))))"
+  "((Ex #i_39 .
+       FinTag_22() @ #i_39) & (All x_40 #i1_41 #i2_42 .
+                                 ((((OnlyOnce_18(x_40) @ #i1_41) & (OnlyOnce_18(
+                                 x_40) @ #i2_42))) ==> (#i1_41 = #i2_42))))"
 
 lemma helpingSecrecy [reuse]:
   all-traces
-  "All k_40 #i_41 .
-     ((Create_23(k_40) @ #i_41) ==> (not Ex #j_42 .
-                                           K(k_40) @ #j_42))"
+  "All k_44 #i_45 .
+     ((Create_23(k_44) @ #i_45) ==> (not Ex #j_46 .
+                                           K(k_44) @ #j_46))"
 
 lemma noninjectiveagreementTAG [use_induction]:
   all-traces
-  "All t_44 #i_45 .
-     ((Commit_21(<'T', 'R', t_44>) @ #i_45) ==> (Ex #j_46 .
-                                                   Running_24(<'T', 'R', t_44>) @ #j_46))"
+  "All t_48 #i_49 .
+     ((Commit_21(<'T', 'R', t_48>) @ #i_49) ==> (Ex #j_50 .
+                                                   Running_24(<'T', 'R', t_48>) @ #j_50))"
 
 lemma noninjectiveagreementREADER [use_induction]:
   all-traces
-  "All t_48 #i_49 .
-     ((Commit_21(<'R', 'T', t_48>) @ #i_49) ==> (Ex #j_50 .
-                                                   Running_24(<'R', 'T', t_48>) @ #j_50))"
+  "All t_52 #i_53 .
+     ((Commit_21(<'R', 'T', t_52>) @ #i_53) ==> (Ex #j_54 .
+                                                   Running_24(<'R', 'T', t_52>) @ #j_54))"
 
 end
 

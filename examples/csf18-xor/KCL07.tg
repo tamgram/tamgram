@@ -37,14 +37,17 @@ apred Alive/2
 apred Eq/2
 
 process reader =
+  "reader1":
    [ Fr( ~r1 ) ]
  --[ Challenge( ~r1, "Reader" ) ]->
    [ Out( ~r1 )
    , 'r1 := r1
    ];
+  "reader2":
    [ !Reader( ~k, ~id )
 //   , In( <idr2, hashr2> ) // This is how it should be
    , In( xoredhash )        // This is the only way I can make it work
+   , 'r1 cas ~_
    ]
  --[ Alive( ~k, "Tag" )
 //   , Eq( idr2 XOR hashr2, ~id XOR h(<~r1,~k>) ) // How it should be
@@ -55,6 +58,7 @@ process reader =
 apred Response/2
 
 process tag =
+  "tag1":
    [ In( r1 )
    , Fr( ~r2 )
    , !Tag( ~k, ~id ) ]

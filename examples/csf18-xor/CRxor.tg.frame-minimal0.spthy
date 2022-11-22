@@ -12,10 +12,10 @@ rule Setup_28:
     , !RespLTK_20(~k_27)
     ]
 
-rule TgRuleinitiator_33_1to2:
+rule TgRuleinitiator_34_1to2:
   [Fr(~pid)]--[]->[St(~pid, 'tgk2', 'empty_tuple')]
 
-rule TgRuleinitiator_33_2to3:
+rule TgRuleinitiator_34_2to3:
     [ St(~pid, 'tgk2', 'empty_tuple')
     , Fr(~na_29)
     ]
@@ -25,62 +25,62 @@ rule TgRuleinitiator_33_2to3:
     , Out(~na_29)
     ]
 
-rule TgEndinitiator_33_3:
-    [ St(~pid, 'tgk3', <tgc_na_0>)
+rule TgEndinitiator_34_3:
+    [ St(~pid, 'tgk3', <~u_tgany0_33>)
     , !InitLTK_19(~k_32)
     , In(<m_31, nb_30>)
     ]
-  --[ Alive_23(tgc_na_0, ~k_32)
-    , Eq_21(h(((((tgc_na_0) XOR (~k_32))) XOR (nb_30))), m_31)
+  --[ Alive_23(~u_tgany0_33, ~k_32)
+    , Eq_21(h(((((~u_tgany0_33) XOR (~k_32))) XOR (nb_30))), m_31)
     ]->
     [ 
     ]
 
-rule responder_37:
-    [ In(na_35)
-    , Fr(~nb_34)
-    , !RespLTK_20(~k_36)
+rule responder_38:
+    [ In(na_36)
+    , Fr(~nb_35)
+    , !RespLTK_20(~k_37)
     ]
-  --[ Response_26(~k_36)
-    , Neq_22(na_35, zero)
-    , NeqForExec_24(na_35, zero)
+  --[ Response_26(~k_37)
+    , Neq_22(na_36, zero)
+    , NeqForExec_24(na_36, zero)
     ]->
-    [ Out(<h(((((na_35) XOR (~k_36))) XOR (~nb_34))), ~nb_34>)
+    [ Out(<h(((((na_36) XOR (~k_37))) XOR (~nb_35))), ~nb_35>)
     ]
 
 restriction equality:
-  "All x_38 y_39 #i_40 .
-     ((Eq_21(x_38, y_39) @ #i_40) ==> (((x_38) = (y_39))))"
+  "All x_39 y_40 #i_41 .
+     ((Eq_21(x_39, y_40) @ #i_41) ==> (((x_39) = (y_40))))"
 
 restriction unique:
-  "All #i_42 #j_43 .
-     ((((OnlyOnce_18() @ #i_42) & (OnlyOnce_18() @ #j_43))) ==> (#i_42 = #j_43))"
+  "All #i_43 #j_44 .
+     ((((OnlyOnce_18() @ #i_43) & (OnlyOnce_18() @ #j_44))) ==> (#i_43 = #j_44))"
 
 restriction inequality:
-  "not Ex x_45 #i_46 .
-         Neq_22(x_45, x_45) @ #i_46"
+  "not Ex x_46 #i_47 .
+         Neq_22(x_46, x_46) @ #i_47"
 
 lemma alive []:
   all-traces
-  "All x_48 y_49 #i_50 .
-     ((Alive_23(x_48, y_49) @ #i_50) ==> (Ex #j_51 .
-                                            Response_26(y_49) @ #j_51))"
+  "All x_49 y_50 #i_51 .
+     ((Alive_23(x_49, y_50) @ #i_51) ==> (Ex #j_52 .
+                                            Response_26(y_50) @ #j_52))"
 
 lemma recentalive_tag []:
   all-traces
-  "All x_53 y_54 #i_55 .
-     ((Alive_23(x_53, y_54) @ #i_55) ==> (Ex #j_56 #k_57 .
-                                            ((((((Challenge_25(x_53) @ #k_57) & (Response_26(
-                                            y_54) @ #j_56))) & (#k_57 < #j_56))) & (#j_56 < #i_55))))"
+  "All x_54 y_55 #i_56 .
+     ((Alive_23(x_54, y_55) @ #i_56) ==> (Ex #j_57 #k_58 .
+                                            ((((((Challenge_25(x_54) @ #k_58) & (Response_26(
+                                            y_55) @ #j_57))) & (#k_58 < #j_57))) & (#j_57 < #i_56))))"
 
 lemma executable []:
   exists-trace
-  "Ex x_59 y_60 #i_61 #j_62 .
-     ((((((Alive_23(x_59, y_60) @ #i_61) & (Response_26(y_60) @ #j_62))) & (not 
-     Ex #k_63 .
-       ((Response_26(y_60) @ #k_63) & (not #j_62 = #k_63))))) & (not 
-     Ex #l_64 .
-       NeqForExec_24(x_59, x_59) @ #l_64))"
+  "Ex x_60 y_61 #i_62 #j_63 .
+     ((((((Alive_23(x_60, y_61) @ #i_62) & (Response_26(y_61) @ #j_63))) & (not 
+     Ex #k_64 .
+       ((Response_26(y_61) @ #k_64) & (not #j_63 = #k_64))))) & (not 
+     Ex #l_65 .
+       NeqForExec_24(x_60, x_60) @ #l_65))"
 
 end
 

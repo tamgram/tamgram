@@ -33,20 +33,24 @@ process setup =
   [!Reader(~k), !Tag(~k)]
 
 process reader =
+  "initiatereader":
   [!Reader(~k), Fr(~r0)]
 --[ OnlyOnce("initiareader")]->
   [ Out(~r0), 'k := k, 'r0 := r0 ];
-  [ In(<r1, h('r0 XOR r1 XOR 'k)>) ]
+  "acceptreader":
+  [ In(<r1, h('r0 XOR r1 XOR 'k)>), 'k cas ~_, 'r0 cas ~_ ]
 --[ Commit(<"R","T",<'k,'r0,r1>>)
   , Running(<"T","R",<'k,'r0,r1>>) ]->
   [ Out(h(h('r0 XOR r1 XOR 'k) XOR 'k XOR 'r0)) ]
 
 process tag =
+  "tag1":
   [ !Tag(~k), Fr(~r1), In(r0) ]
   --[ Running(<"R","T",<~k,r0,~r1>>) ]->
   [ Out(<~r1, h(r0 XOR ~r1 XOR ~k)>),
     'k := k, 'r0 := r0, 'r1 := r1 ];
-  [ In(h(h('r0 XOR 'r1 XOR 'k) XOR 'k XOR 'r0)) ]
+  "accepttag":
+  [ In(h(h('r0 XOR 'r1 XOR 'k) XOR 'k XOR 'r0)), 'k cas ~_, 'r1 cas ~_ ]
 --[ Commit(<"T","R",<'k,'r0,'r1>>)
   , FinTag()]->
   [ ]

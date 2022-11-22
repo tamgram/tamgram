@@ -19,7 +19,7 @@ rule Setup_31:
     , !Tag_19(~k_29, ~id_30)
     ]
 
-rule TgRulereader_37_1to2:
+rule TgRulereader_38_1to2:
     [ Fr(~pid)
     ]
   --[ 
@@ -28,7 +28,7 @@ rule TgRulereader_37_1to2:
     , Cell(~pid, 'pid', ~pid)
     ]
 
-rule TgRulereader_37_2to3:
+rule TgRulereader_38_2to3:
     [ St(~pid, 'tgk2')
     , Fr(~r1_32)
     ]
@@ -39,22 +39,22 @@ rule TgRulereader_37_2to3:
     , Out(~r1_32)
     ]
 
-rule TgEndreader_37_3:
+rule TgEndreader_38_3:
     [ St(~pid, 'tgk3')
-    , Cell(~pid, 'r1', tgc_r1_0)
+    , Cell(~pid, 'r1', ~u_tgany0_37)
     , !Reader_18(~k_34, ~id_35)
     , In(<r2_33, lh_27(((rot_26(~id_35, hash_36)) XOR (hash_36)))>)
     ]
   --[ Alive_21(~k_34, 'Tag')
     , Response_22(~k_34, 'Reader')
-    , Eq_23(h(((((tgc_r1_0) XOR (r2_33))) XOR (~k_34))), hash_36)
-    , Running_24(<'T', 'R', <((((~k_34) XOR (tgc_r1_0))) XOR (r2_33))>>)
-    , Commit_25(<'R', 'T', <((((~k_34) XOR (tgc_r1_0))) XOR (r2_33))>>)
+    , Eq_23(h(((((~u_tgany0_37) XOR (r2_33))) XOR (~k_34))), hash_36)
+    , Running_24(<'T', 'R', <((((~k_34) XOR (~u_tgany0_37))) XOR (r2_33))>>)
+    , Commit_25(<'R', 'T', <((((~k_34) XOR (~u_tgany0_37))) XOR (r2_33))>>)
     ]->
     [ Out(rh_28(((rot_26(~id_35, hash_36)) XOR (hash_36))))
     ]
 
-rule TgRuletag_44_4to5:
+rule TgRuletag_47_4to5:
     [ Fr(~pid)
     ]
   --[ 
@@ -63,75 +63,75 @@ rule TgRuletag_44_4to5:
     , Cell(~pid, 'pid', ~pid)
     ]
 
-rule TgRuletag_44_5to6:
+rule TgRuletag_47_5to6:
     [ St(~pid, 'tgk5')
-    , In(r1_39)
-    , Fr(~r2_38)
-    , !Tag_19(~k_40, ~id_41)
+    , In(r1_40)
+    , Fr(~r2_39)
+    , !Tag_19(~k_41, ~id_42)
     ]
-  --[ Response_22(~k_40, 'Tag')
-    , Challenge_20(~r2_38, 'Tag')
-    , Running_24(<'R', 'T', <((((~k_40) XOR (r1_39))) XOR (~r2_38))>>)
+  --[ Response_22(~k_41, 'Tag')
+    , Challenge_20(~r2_39, 'Tag')
+    , Running_24(<'R', 'T', <((((~k_41) XOR (r1_40))) XOR (~r2_39))>>)
     ]->
     [ St(~pid, 'tgk6')
-    , Cell(~pid, 'k', ~k_40)
-    , Cell(~pid, 'r1', r1_39)
-    , Cell(~pid, 'r2', ~r2_38)
-    , Cell(~pid, 'hash', h(((((r1_39) XOR (~r2_38))) XOR (~k_40))))
-    , Out(<~r2_38, lh_27(((rot_26(~id_41, h(((((r1_39) XOR (~r2_38))) XOR (~k_40))))) XOR (h(((((r1_39) XOR (~r2_38))) XOR (~k_40))))))>)
+    , Cell(~pid, 'k', ~k_41)
+    , Cell(~pid, 'r1', r1_40)
+    , Cell(~pid, 'r2', ~r2_39)
+    , Cell(~pid, 'hash', h(((((r1_40) XOR (~r2_39))) XOR (~k_41))))
+    , Out(<~r2_39, lh_27(((rot_26(~id_42, h(((((r1_40) XOR (~r2_39))) XOR (~k_41))))) XOR (h(((((r1_40) XOR (~r2_39))) XOR (~k_41))))))>)
     ]
 
-rule TgEndtag_44_6:
+rule TgEndtag_47_6:
     [ St(~pid, 'tgk6')
     , Cell(~pid, 'hash', tgc_hash_0)
-    , Cell(~pid, 'k', tgc_k_0)
+    , Cell(~pid, 'k', ~u_tgany1_45)
     , Cell(~pid, 'r1', tgc_r1_0)
-    , Cell(~pid, 'r2', tgc_r2_0)
-    , In(rh_28(((rot_26(~u_id_43, tgc_hash_0)) XOR (tgc_hash_0))))
-    , !Tag_19(tgc_k_0, ~u_id_43)
+    , Cell(~pid, 'r2', ~u_tgany2_44)
+    , In(rh_28(((rot_26(~u_id_46, tgc_hash_0)) XOR (tgc_hash_0))))
+    , !Tag_19(~u_tgany1_45, ~u_id_46)
     ]
-  --[ Alive_21(tgc_k_0, 'Reader')
-    , Commit_25(<'T', 'R', <((((tgc_k_0) XOR (tgc_r1_0))) XOR (tgc_r2_0))>>)
+  --[ Alive_21(~u_tgany1_45, 'Reader')
+    , Commit_25(<'T', 'R', <((((~u_tgany1_45) XOR (tgc_r1_0))) XOR (~u_tgany2_44))>>)
     ]->
     [ 
     ]
 
 restriction equality:
-  "All x_45 y_46 #i_47 .
-     ((Eq_23(x_45, y_46) @ #i_47) ==> (((x_45) = (y_46))))"
+  "All x_48 y_49 #i_50 .
+     ((Eq_23(x_48, y_49) @ #i_50) ==> (((x_48) = (y_49))))"
 
 lemma recentalive_tag []:
   all-traces
-  "All x_49 #i_50 .
-     ((Alive_21(x_49, 'Tag') @ #i_50) ==> (Ex y_51 #j_52 #k_53 .
-                                             ((((((Challenge_20(y_51, 'Reader') @ #k_53) & (Response_22(
-                                             x_49, 'Tag') @ #j_52))) & (#k_53 < #j_52))) & (#j_52 < #i_50))))"
+  "All x_52 #i_53 .
+     ((Alive_21(x_52, 'Tag') @ #i_53) ==> (Ex y_54 #j_55 #k_56 .
+                                             ((((((Challenge_20(y_54, 'Reader') @ #k_56) & (Response_22(
+                                             x_52, 'Tag') @ #j_55))) & (#k_56 < #j_55))) & (#j_55 < #i_53))))"
 
 lemma recentalive_reader []:
   all-traces
-  "All x_55 #i_56 .
-     ((Alive_21(x_55, 'Reader') @ #i_56) ==> (Ex y_57 #j_58 #k_59 .
-                                                ((((((Challenge_20(y_57, 'Tag') @ #k_59) & (Response_22(
-                                                x_55, 'Reader') @ #j_58))) & (#k_59 < #j_58))) & (#j_58 < #i_56))))"
+  "All x_58 #i_59 .
+     ((Alive_21(x_58, 'Reader') @ #i_59) ==> (Ex y_60 #j_61 #k_62 .
+                                                ((((((Challenge_20(y_60, 'Tag') @ #k_62) & (Response_22(
+                                                x_58, 'Reader') @ #j_61))) & (#k_62 < #j_61))) & (#j_61 < #i_59))))"
 
 lemma noninjectiveagreement_tag []:
   all-traces
-  "All t_61 #i_62 .
-     ((Commit_25(<'T', 'R', t_61>) @ #i_62) ==> (Ex #j_63 .
-                                                   Running_24(<'T', 'R', t_61>) @ #j_63))"
+  "All t_64 #i_65 .
+     ((Commit_25(<'T', 'R', t_64>) @ #i_65) ==> (Ex #j_66 .
+                                                   Running_24(<'T', 'R', t_64>) @ #j_66))"
 
 lemma noninjectiveagreement_reader []:
   all-traces
-  "All t_65 #i_66 .
-     ((Commit_25(<'R', 'T', t_65>) @ #i_66) ==> (Ex #j_67 .
-                                                   Running_24(<'R', 'T', t_65>) @ #j_67))"
+  "All t_68 #i_69 .
+     ((Commit_25(<'R', 'T', t_68>) @ #i_69) ==> (Ex #j_70 .
+                                                   Running_24(<'R', 'T', t_68>) @ #j_70))"
 
 lemma executable []:
   exists-trace
-  "Ex x_69 #i_70 #j_71 .
-     ((((Alive_21(x_69, 'Reader') @ #i_70) & (Response_22(x_69, 'Tag') @ #j_71))) & (not 
-     Ex #k_72 .
-       ((Response_22(x_69, 'Tag') @ #k_72) & (not #j_71 = #k_72))))"
+  "Ex x_72 #i_73 #j_74 .
+     ((((Alive_21(x_72, 'Reader') @ #i_73) & (Response_22(x_72, 'Tag') @ #j_74))) & (not 
+     Ex #k_75 .
+       ((Response_22(x_72, 'Tag') @ #k_75) & (not #j_74 = #k_75))))"
 
 end
 

@@ -13,10 +13,10 @@ rule Setup_23:
     , !Tag_20(~k_21, ~id_22)
     ]
 
-rule TgRulereader_31_1to2:
+rule TgRulereader_32_1to2:
   [Fr(~pid)]--[]->[St(~pid, 'tgk2', 'empty_tuple')]
 
-rule TgRulereader_31_2to3:
+rule TgRulereader_32_2to3:
     [ St(~pid, 'tgk2', 'empty_tuple')
     , Fr(~r1_27)
     ]
@@ -26,48 +26,48 @@ rule TgRulereader_31_2to3:
     , Out(~r1_27)
     ]
 
-rule TgEndreader_31_3:
-    [ St(~pid, 'tgk3', <tgc_r1_0>)
+rule TgEndreader_32_3:
+    [ St(~pid, 'tgk3', <~u_tgany0_31>)
     , !Reader_19(~k_29, ~id_30)
     , In(xoredhash_28)
     ]
   --[ Alive_25(~k_29, 'Tag')
-    , Eq_26(xoredhash_28, ((~id_30) XOR (h(<tgc_r1_0, ~k_29>))))
+    , Eq_26(xoredhash_28, ((~id_30) XOR (h(<~u_tgany0_31, ~k_29>))))
     ]->
     [ 
     ]
 
-rule tag_37:
-    [ In(r1_34)
-    , Fr(~r2_33)
-    , !Tag_20(~k_35, ~id_36)
+rule tag_38:
+    [ In(r1_35)
+    , Fr(~r2_34)
+    , !Tag_20(~k_36, ~id_37)
     ]
-  --[ Response_32(~k_35, 'Tag')
+  --[ Response_33(~k_36, 'Tag')
     ]->
-    [ Out(<((~id_36) XOR (~r2_33)), ((h(<r1_34, ~k_35>)) XOR (~r2_33))>)
+    [ Out(<((~id_37) XOR (~r2_34)), ((h(<r1_35, ~k_36>)) XOR (~r2_34))>)
     ]
 
 restriction equality:
-  "All x_38 y_39 #i_40 .
-     ((Eq_26(x_38, y_39) @ #i_40) ==> (((x_38) = (y_39))))"
+  "All x_39 y_40 #i_41 .
+     ((Eq_26(x_39, y_40) @ #i_41) ==> (((x_39) = (y_40))))"
 
 restriction unique:
-  "All #i_42 #j_43 .
-     ((((OnlyOnce_18() @ #i_42) & (OnlyOnce_18() @ #j_43))) ==> (#i_42 = #j_43))"
+  "All #i_43 #j_44 .
+     ((((OnlyOnce_18() @ #i_43) & (OnlyOnce_18() @ #j_44))) ==> (#i_43 = #j_44))"
 
 lemma recentalive_tag []:
   all-traces
-  "All x_45 #i_46 .
-     ((Alive_25(x_45, 'Tag') @ #i_46) ==> (Ex y_47 #j_48 #k_49 .
-                                             ((((((Challenge_24(y_47, 'Reader') @ #k_49) & (Response_32(
-                                             x_45, 'Tag') @ #j_48))) & (#k_49 < #j_48))) & (#j_48 < #i_46))))"
+  "All x_46 #i_47 .
+     ((Alive_25(x_46, 'Tag') @ #i_47) ==> (Ex y_48 #j_49 #k_50 .
+                                             ((((((Challenge_24(y_48, 'Reader') @ #k_50) & (Response_33(
+                                             x_46, 'Tag') @ #j_49))) & (#k_50 < #j_49))) & (#j_49 < #i_47))))"
 
 lemma executable []:
   exists-trace
-  "Ex x_51 #i_52 #j_53 .
-     ((((Alive_25(x_51, 'Tag') @ #i_52) & (Response_32(x_51, 'Tag') @ #j_53))) & (not 
-     Ex #k_54 .
-       ((Response_32(x_51, 'Tag') @ #k_54) & (not #j_53 = #k_54))))"
+  "Ex x_52 #i_53 #j_54 .
+     ((((Alive_25(x_52, 'Tag') @ #i_53) & (Response_33(x_52, 'Tag') @ #j_54))) & (not 
+     Ex #k_55 .
+       ((Response_33(x_52, 'Tag') @ #k_55) & (not #j_54 = #k_55))))"
 
 end
 

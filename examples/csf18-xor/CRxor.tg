@@ -26,10 +26,12 @@ process Setup =
   [ !InitLTK(~k), !RespLTK(~k) ]
 
 process initiator =
+  "initiator":
     [ Fr(~na) ]
   --[ Challenge(~na) ]->
     [ Out(~na), 'na := na ];
-    [ !InitLTK(~k), In(<m,nb>) ]
+  "initiator2":
+    [ !InitLTK(~k), In(<m,nb>), 'na cas ~_ ]
   --[ Alive('na, ~k), Eq(h('na XOR ~k XOR nb),m) ]->
     []
 

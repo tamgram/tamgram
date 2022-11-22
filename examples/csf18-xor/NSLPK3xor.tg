@@ -45,6 +45,7 @@ apred OUT_I_1/1
 apred IN_I_2_nr/2
 
 process I =
+  "I_1":
     [ Fr(~ni)
     , !Pk($R, pkR)
     ]
@@ -57,6 +58,7 @@ process I =
     , 'I := $I
     , 'R := $R
     ];
+  "I_2":
     [ !Ltk('I, ltkI)
     , In( aenc(<"2", 'ni, x>, pk(ltkI)) as m2 )
     , !Pk('R, pkR)
@@ -78,6 +80,7 @@ apred IN_R_1_ni/2
 apred OUT_R_1/1
 
 process R =
+  "R_1":
     [ !Ltk($R, ltkR)
     , In( aenc(<"1", ni, I>, pk(ltkR)) as m1 )
     , !Pk(I, pkI)
@@ -95,6 +98,7 @@ process R =
     , 'ni := ni
     , 'nr := nr
     ];
+  "R_2":
     [ !Ltk('R, ltkR)
     , In( aenc(<"3", 'nr>, pk(ltkR)) )
     ]

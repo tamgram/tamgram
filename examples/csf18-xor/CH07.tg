@@ -41,13 +41,16 @@ process Setup =
    ]
 
 process reader =
+  "reader1":
    [ Fr( ~r1 ) ]
  --[ Challenge( ~r1, "Reader" ) ]->
    [ Out( ~r1 )
    , 'r1 := ~r1
    ];
+  "reader2":
    [ !Reader( ~k, ~id )
    , In( <r2, lh(rot(~id,hash) XOR hash)> ) 
+   , 'r1 cas ~_
    ]
  --[ Alive( ~k, "Tag" )
    , Response(~k, "Reader") 
@@ -61,6 +64,7 @@ process reader =
    ]
 
 process tag =
+  "tag1":
    [ In( r1 )
    , Fr( ~r2 )
    , !Tag( ~k, ~id ) ]
@@ -77,8 +81,11 @@ process tag =
    , 'r2 := r2
    , 'hash := hash
    ];
+  "tag2":
    [ In( rh(rot(~_id,'hash) XOR 'hash) )
    , !Tag( 'k, ~_id) 
+   , 'k cas ~_
+   , 'r2 cas ~_
    ]
  --[ Alive( 'k, "Reader" )
    , Commit(<"T","R",<'k XOR 'r1 XOR 'r2>>)
