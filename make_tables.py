@@ -27,8 +27,8 @@ def write_table(file, cases, lemmas):
         file.write("\\\\")
         file.write("\n")
 
-def make_csf18_xor_ch07_table(index, lemmas):
-    with open(f"{base_dir}/CSF18_XOR_CH07_table.tex", "w") as file:
+def make_csf18_xor_table(index, lemmas):
+    with open(f"{base_dir}/CSF18_XOR_table.tex", "w") as file:
         file.write("""
             \\begin{tblr}{
                     hlines,
