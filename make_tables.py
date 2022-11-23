@@ -27,8 +27,8 @@ def write_table(file, cases, lemmas):
         file.write("\\\\")
         file.write("\n")
 
-def make_csf18_xor_table(index, lemmas):
-    with open(f"{base_dir}/CSF18_XOR_table.tex", "w") as file:
+def make_csf18_xor_cho7_styles_table(case, lemmas):
+    with open(f"{base_dir}/CSF18_XOR_{case}_table.tex", "w") as file:
         file.write("""
             \\begin{tblr}{
                     hlines,
@@ -36,9 +36,21 @@ def make_csf18_xor_table(index, lemmas):
                     colspec={c 
         """)
 
-        styles = [  ]
+        versions = [("Original", ".spthy"),
+                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Forward", ".tg.frame-minimal0.spthy"),
+                    ("Backward", ".tg.frame-minimal-backward0.spthy"),
+                    ("Hybrid", ".tg.spthy"),
+                   ]
 
-        for 
+        for _ in versions:
+            file.write("*{1}{p{1.5cm}} *{1}{p{1cm}}")
+
+        file.write("""
+                    },
+                    column{4-5,8-9}={blue8},
+                }
+        """)
 
 def make_emverify_table(index, lemmas):
     with open(f"{base_dir}/EMVerify_table{index}.tex", "w") as file:
