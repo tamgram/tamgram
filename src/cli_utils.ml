@@ -22,7 +22,7 @@ let style_arg : Translate_style.t Term.t =
               ("frame-minimal1", `Frame_minimal1);
               ("persistent0", `Persistent0);
               ("frame-minimal-backward0", `Frame_minimal_backward0);
-              ("mix0", `Mix0);
+              ("frame-minimal-hybrid0", `Frame_minimal_hybrid0);
             ])
          Params.default_translate_style
        & info [ "style" ])

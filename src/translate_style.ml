@@ -4,6 +4,6 @@ type t = [
   | `Frame_minimal0
   | `Frame_minimal1
   | `Frame_minimal_backward0
-  | `Mix0
+  | `Frame_minimal_hybrid0
   | `Persistent0
 ]

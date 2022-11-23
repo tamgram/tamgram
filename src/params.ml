@@ -8,7 +8,7 @@ let analyze_possible_cell_data_shapes = ref true
 
 let use_most_general_cell_data_shape = ref false
 
-let default_translate_style : Translate_style.t = `Mix0
+let default_translate_style : Translate_style.t = `Frame_minimal_hybrid0
 
 let translate_style : Translate_style.t ref = ref default_translate_style
 

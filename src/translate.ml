@@ -169,8 +169,8 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
                 start_tr binding spec;
                 rule_tr binding spec;
               ]
-            | `Mix0 ->
-              Tr_mix0.[
+            | `Frame_minimal_hybrid0 ->
+              Tr_frame_minimal_hybrid0.[
                 start_tr binding spec;
                 rule_tr binding spec;
                 end_tr binding spec;

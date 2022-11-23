@@ -8,7 +8,7 @@ let base =
      [ D_pred (Binding.make_untagged "St" { arity = 3; options = [] }) ]
    | `Cell_by_cell | `Persistent0 ->
      [ D_pred (Binding.make_untagged "St" { arity = 2; options = [] }) ]
-   | `Mix0 ->
+   | `Frame_minimal_hybrid0 ->
      [ D_pred (Binding.make_untagged "St" { arity = 3; options = [] })
      ; D_pred (Binding.make_untagged "StF" { arity = 3; options = [] })
      ; D_pred (Binding.make_untagged "StB" { arity = 3; options = [] })
