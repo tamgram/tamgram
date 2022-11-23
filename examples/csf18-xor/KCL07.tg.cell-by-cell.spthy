@@ -1,0 +1,81 @@
+theory KCL07
+begin
+
+builtins: xor, hashing
+
+rule Setup_23:
+    [ Fr(~k_21)
+    , Fr(~id_22)
+    ]
+  --[ OnlyOnce_18()
+    ]->
+    [ !Reader_19(~k_21, ~id_22)
+    , !Tag_20(~k_21, ~id_22)
+    ]
+
+rule TgRulereader_32_1to2:
+    [ Fr(~pid)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk2')
+    , Cell(~pid, 'pid', ~pid)
+    ]
+
+rule TgRulereader_32_2to3:
+    [ St(~pid, 'tgk2')
+    , Fr(~r1_27)
+    ]
+  --[ Challenge_24(~r1_27, 'Reader')
+    ]->
+    [ St(~pid, 'tgk3')
+    , Cell(~pid, 'r1', ~r1_27)
+    , Out(~r1_27)
+    ]
+
+rule TgEndreader_32_3:
+    [ St(~pid, 'tgk3')
+    , Cell(~pid, 'r1', ~u_tgany0_31)
+    , !Reader_19(~k_29, ~id_30)
+    , In(xoredhash_28)
+    ]
+  --[ Alive_25(~k_29, 'Tag')
+    , Eq_26(xoredhash_28, ((~id_30) XOR (h(<~u_tgany0_31, ~k_29>))))
+    ]->
+    [ 
+    ]
+
+rule tag_38:
+    [ In(r1_35)
+    , Fr(~r2_34)
+    , !Tag_20(~k_36, ~id_37)
+    ]
+  --[ Response_33(~k_36, 'Tag')
+    ]->
+    [ Out(<((~id_37) XOR (~r2_34)), ((h(<r1_35, ~k_36>)) XOR (~r2_34))>)
+    ]
+
+restriction equality:
+  "All x_39 y_40 #i_41 .
+     ((Eq_26(x_39, y_40) @ #i_41) ==> (((x_39) = (y_40))))"
+
+restriction unique:
+  "All #i_43 #j_44 .
+     ((((OnlyOnce_18() @ #i_43) & (OnlyOnce_18() @ #j_44))) ==> (#i_43 = #j_44))"
+
+lemma recentalive_tag []:
+  all-traces
+  "All x_46 #i_47 .
+     ((Alive_25(x_46, 'Tag') @ #i_47) ==> (Ex y_48 #j_49 #k_50 .
+                                             ((((((Challenge_24(y_48, 'Reader') @ #k_50) & (Response_33(
+                                             x_46, 'Tag') @ #j_49))) & (#k_50 < #j_49))) & (#j_49 < #i_47))))"
+
+lemma executable []:
+  exists-trace
+  "Ex x_52 #i_53 #j_54 .
+     ((((Alive_25(x_52, 'Tag') @ #i_53) & (Response_33(x_52, 'Tag') @ #j_54))) & (not 
+     Ex #k_55 .
+       ((Response_33(x_52, 'Tag') @ #k_55) & (not #j_54 = #k_55))))"
+
+end
+

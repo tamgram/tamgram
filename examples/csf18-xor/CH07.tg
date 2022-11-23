@@ -1,0 +1,126 @@
+/* 
+  CH07 RFID protocol model based on 
+  "Attacks on RFID protocols" v1.1 from Aug 6, 2009, by Ton van Deursen and Sasa Radomirovic
+  This model focuses on authentication properties (recent aliveness and 
+  agreement.)
+
+  Reader R, Tag T, shared knowledge k, ID.
+
+  R: knows(k,ID) 
+  T: knows(k,ID) 
+  R: fresh(r1)
+  R -> T: r1
+  T: fresh(r2)
+  T -> R: r2,lh(rot(ID,h(r1⊕r2⊕k))⊕h(r1⊕r2⊕k)) 
+  R -> T: rh(rot(ID,h(r1⊕r2⊕k))⊕h(r1⊕r2⊕k))
+
+*/
+
+builtins := xor, hashing
+
+pred !Reader/2
+pred !Tag/2
+apred Challenge/2
+apred Alive/2
+apred Response/2
+apred Eq/2
+apred Running/1
+apred Commit/1
+
+fun rot/2
+fun lh/1
+fun rh/1
+
+process Setup =
+   [ Fr( ~k )
+   , Fr(~id) 
+   ]
+ --[ ]-> 
+   [ !Reader( k, id )
+   , !Tag( k, id ) 
+   ]
+
+process reader =
+  "reader1":
+   [ Fr( ~r1 ) ]
+ --[ Challenge( ~r1, "Reader" ) ]->
+   [ Out( ~r1 )
+   , 'r1 := ~r1
+   ];
+  "reader2":
+   [ !Reader( ~k, ~id )
+   , In( <r2, lh(rot(~id,hash) XOR hash)> ) 
+   , 'r1 cas ~_
+   ]
+ --[ Alive( ~k, "Tag" )
+   , Response(~k, "Reader") 
+   , Eq( h(('r1 XOR r2 XOR ~k)), hash )
+   , Running(<"T","R",<~k XOR 'r1 XOR r2>>)
+//   , Running(<"T","R",<~k, 'r1, r2>>)
+   , Commit(<"R","T",<~k XOR 'r1 XOR r2>>)
+//   , Commit(<"R","T",<~k, 'r1, r2>>)
+   ]->
+   [ Out( rh(rot(~id,hash) XOR hash) ),
+   ]
+
+process tag =
+  "tag1":
+   [ In( r1 )
+   , Fr( ~r2 )
+   , !Tag( ~k, ~id ) ]
+ --
+   let hash = h((r1 XOR ~r2 XOR ~k)) in 
+   [ Response( ~k, "Tag" )
+   , Challenge(~r2, "Tag") 
+   , Running(<"R","T",<~k XOR r1 XOR ~r2>>)
+//   , Running(<"R","T",<~k, r1, ~r2>>)
+   ]->
+   [ Out( <~r2,lh(rot(~id,hash) XOR hash)>)
+   , 'k := k
+   , 'r1 := r1
+   , 'r2 := r2
+   , 'hash := hash
+   ];
+  "tag2":
+   [ In( rh(rot(~_id,'hash) XOR 'hash) )
+   , !Tag( 'k, ~_id) 
+   , 'k cas ~_
+   , 'r2 cas ~_
+   ]
+ --[ Alive( 'k, "Reader" )
+   , Commit(<"T","R",<'k XOR 'r1 XOR 'r2>>)
+//   , Commit(<"T","R",<'k, 'r1, 'r2>>)
+   ]->
+   [ ]
+
+restriction equality =
+  All x y #i. (Eq( x, y ) @ #i) ==> (x = y)
+
+// There should be an attack on this
+// FINDS ATTACK AUTOMATICALLY - (2017-11-09, 73593dd9747f3320384227ff086f7fca0f75c488: attack automatically
+lemma recentalive_tag =
+  all-traces All x #i. (Alive( x, "Tag" ) @ #i) ==> (Ex y #j #k. Challenge(y, "Reader") @k & Response( x, "Tag" ) @ #j & k < j & j < i)
+
+// FINDS PROOF AUTOMATICALLY (2017-11-09, 73593dd9747f3320384227ff086f7fca0f75c488)
+lemma recentalive_reader =
+  all-traces All x #i. (Alive( x, "Reader" ) @ #i) ==> (Ex y #j #k. Challenge(y, "Tag") @k & Response( x, "Reader" ) @ #j & k < j & j < i)
+
+// Depends on what data t is specified. FINDS PROOF/ATTACK AUTOMATICALLY. 
+lemma noninjectiveagreement_tag =
+  All t #i. 
+    Commit(<"T","R",t>) @i
+    ==> (Ex #j. Running(<"T","R",t>) @j)
+
+
+// Depends on what data t is specified. FINDS PROOF/ATTACK AUTOMATICALLY. 
+lemma noninjectiveagreement_reader =
+  All t #i. 
+    Commit(<"R","T",t>) @i
+    ==> (Ex #j. Running(<"R","T",t>) @j)
+
+// SHOWS CORRECT EXECUTION (2017-11-09, 73593dd9747f3320384227ff086f7fca0f75c488)
+lemma executable =
+  exists-trace Ex x #i #j. (Alive( x, "Reader" ) @ #i) & (Response( x, "Tag" ) @ #j) 
+           // further restriction to automatically get the desired execution
+           & (not Ex #k. Response( x, "Tag" ) @ #k & (not (#j=#k)))
+
