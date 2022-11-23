@@ -32,7 +32,7 @@ rule (modulo E) I_43_2to3:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_43_manyto3to4:
+rule (modulo E) I_43_manyto3to4_I_1:
    [ StF( ~pid, 'tgk3', 'empty_tuple' ), Fr( ~ni_35 ), !Pk_21( $R, pkR_34 )
    ]
   --[ OUT_I_1_32( aenc(<'1', ~ni_35, $I>, pkR_34) ) ]->
@@ -43,7 +43,7 @@ rule (modulo E) I_43_manyto3to4:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_43_manyto4:
+rule (modulo E) I_43_manyto4_I_2:
    [
    StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
    !Ltk_20( tgc_I_0, ltkI_39 ),
@@ -61,7 +61,7 @@ rule (modulo E) I_43_manyto4:
    ]
 
   /*
-  rule (modulo AC) I_43_manyto4:
+  rule (modulo AC) I_43_manyto4_I_2:
      [
      StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
      !Ltk_20( tgc_I_0, ltkI_39 ),
@@ -118,7 +118,7 @@ rule (modulo E) R_54_5to6:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_54_manyto6to7:
+rule (modulo E) R_54_manyto6to7_R_1:
    [
    StF( ~pid, 'tgk6', 'empty_tuple' ), !Ltk_20( $R, ltkR_49 ),
    In( aenc(<'1', ni_48, I_50>, pk(ltkR_49)) ), !Pk_21( I_50, pkI_46 ),
@@ -136,7 +136,7 @@ rule (modulo E) R_54_manyto6to7:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_54_manyto7:
+rule (modulo E) R_54_manyto7_R_2:
    [
    StF( ~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0> ),
    !Ltk_20( tgc_R_0, ltkR_53 ), In( aenc(<'3', tgc_nr_0>, pk(ltkR_53)) )
@@ -201,7 +201,7 @@ induction
              ¬(last(#j_69))) )
       case case_1
       solve( StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ) ▶₀ #i_67 )
-        case I_43_manyto3to4
+        case I_43_manyto3to4_I_1
         solve( !Ltk_20( $I, ltkI_39 ) ▶₁ #i_67 )
           case Register_pk_24
           solve( !Pk_21( $R, pkR_38 ) ▶₃ #i_67 )
@@ -209,7 +209,7 @@ induction
             solve( !KU( aenc(<'2', ~ni_35, x_37>, pk(~ltkA_23)) ) @ #vk )
               case c_aenc
               solve( !KU( ~ni_35 ) @ #vk.5 )
-                case I_43_manyto3to4
+                case I_43_manyto3to4_I_1
                 solve( !KU( ~ltkA_23.1 ) @ #vk.7 )
                   case Reveal_ltk_28
                   solve( !KU( pk(~ltkA_23) ) @ #vk.5 )

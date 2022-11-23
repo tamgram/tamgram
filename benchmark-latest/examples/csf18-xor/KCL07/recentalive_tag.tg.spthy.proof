@@ -17,105 +17,105 @@ rule (modulo E) Setup_23:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_31_1to2:
+rule (modulo E) reader_32_1to2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_31_manyto2to3:
+rule (modulo E) reader_32_manyto2to3_reader1:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~r1_27 ) ]
   --[ Challenge_24( ~r1_27, 'Reader' ) ]->
    [ StF( ~pid, 'tgk3', ~r1_27 ), Out( ~r1_27 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_31_manyto3:
+rule (modulo E) reader_32_manyto3_reader2:
    [
-   StF( ~pid, 'tgk3', tgc_r1_0 ), !Reader_19( ~k_29, ~id_30 ),
+   StF( ~pid, 'tgk3', ~u_tgany0_31 ), !Reader_19( ~k_29, ~id_30 ),
    In( xoredhash_28 )
    ]
   --[
   Alive_25( ~k_29, 'Tag' ),
-  Eq_26( xoredhash_28, (~id_30⊕h(<tgc_r1_0, ~k_29>)) )
+  Eq_26( xoredhash_28, (~id_30⊕h(<~u_tgany0_31, ~k_29>)) )
   ]->
    [ ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) tag_37:
-   [ In( r1_34 ), Fr( ~r2_33 ), !Tag_20( ~k_35, ~id_36 ) ]
-  --[ Response_32( ~k_35, 'Tag' ) ]->
-   [ Out( <(~id_36⊕~r2_33), (~r2_33⊕h(<r1_34, ~k_35>))> ) ]
+rule (modulo E) tag_38:
+   [ In( r1_35 ), Fr( ~r2_34 ), !Tag_20( ~k_36, ~id_37 ) ]
+  --[ Response_33( ~k_36, 'Tag' ) ]->
+   [ Out( <(~id_37⊕~r2_34), (~r2_34⊕h(<r1_35, ~k_36>))> ) ]
 
   /*
-  rule (modulo AC) tag_37:
-     [ In( r1_34 ), Fr( ~r2_33 ), !Tag_20( ~k_35, ~id_36 ) ]
-    --[ Response_32( ~k_35, 'Tag' ) ]->
-     [ Out( <z, (~r2_33⊕h(<r1_34, ~k_35>))> ) ]
+  rule (modulo AC) tag_38:
+     [ In( r1_35 ), Fr( ~r2_34 ), !Tag_20( ~k_36, ~id_37 ) ]
+    --[ Response_33( ~k_36, 'Tag' ) ]->
+     [ Out( <z, (~r2_34⊕h(<r1_35, ~k_36>))> ) ]
     variants (modulo AC)
-    1. ~id_36
-             = ~id_36.17
-       ~r2_33
-             = ~id_36.17
+    1. ~id_37
+             = ~id_37.17
+       ~r2_34
+             = ~id_37.17
        z     = zero
     
-    2. ~id_36
-             = ~id_36.17
-       ~r2_33
-             = ~r2_33.19
-       z     = (~id_36.17⊕~r2_33.19)
+    2. ~id_37
+             = ~id_37.17
+       ~r2_34
+             = ~r2_34.19
+       z     = (~id_37.17⊕~r2_34.19)
   */
 
 restriction equality:
-  "∀ x_38 y_39 #i_40. (Eq_26( x_38, y_39 ) @ #i_40) ⇒ (x_38 = y_39)"
+  "∀ x_39 y_40 #i_41. (Eq_26( x_39, y_40 ) @ #i_41) ⇒ (x_39 = y_40)"
   // safety formula
 
 restriction unique:
-  "∀ #i_42 #j_43.
-    ((OnlyOnce_18( ) @ #i_42) ∧ (OnlyOnce_18( ) @ #j_43)) ⇒ (#i_42 = #j_43)"
+  "∀ #i_43 #j_44.
+    ((OnlyOnce_18( ) @ #i_43) ∧ (OnlyOnce_18( ) @ #j_44)) ⇒ (#i_43 = #j_44)"
   // safety formula
 
 lemma recentalive_tag:
   all-traces
-  "∀ x_45 #i_46.
-    (Alive_25( x_45, 'Tag' ) @ #i_46) ⇒
-    (∃ y_47 #j_48 #k_49.
-      (((Challenge_24( y_47, 'Reader' ) @ #k_49) ∧
-        (Response_32( x_45, 'Tag' ) @ #j_48)) ∧
-       (#k_49 < #j_48)) ∧
-      (#j_48 < #i_46))"
+  "∀ x_46 #i_47.
+    (Alive_25( x_46, 'Tag' ) @ #i_47) ⇒
+    (∃ y_48 #j_49 #k_50.
+      (((Challenge_24( y_48, 'Reader' ) @ #k_50) ∧
+        (Response_33( x_46, 'Tag' ) @ #j_49)) ∧
+       (#k_50 < #j_49)) ∧
+      (#j_49 < #i_47))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_45 #i_46.
-  (Alive_25( x_45, 'Tag' ) @ #i_46)
+"∃ x_46 #i_47.
+  (Alive_25( x_46, 'Tag' ) @ #i_47)
  ∧
-  ∀ y_47 #j_48 #k_49.
-   (Challenge_24( y_47, 'Reader' ) @ #k_49) ∧
-   (Response_32( x_45, 'Tag' ) @ #j_48)
+  ∀ y_48 #j_49 #k_50.
+   (Challenge_24( y_48, 'Reader' ) @ #k_50) ∧
+   (Response_33( x_46, 'Tag' ) @ #j_49)
   ⇒
-   ((¬(#k_49 < #j_48)) ∨ (¬(#j_48 < #i_46)))"
+   ((¬(#k_50 < #j_49)) ∨ (¬(#j_49 < #i_47)))"
 */
 simplify
-solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
-  case reader_31_manyto2to3
-  solve( !Reader_19( ~k_29, ~id_30 ) ▶₁ #i_46 )
+solve( StF( ~pid, 'tgk3', ~u_tgany0_31 ) ▶₀ #i_47 )
+  case reader_32_manyto2to3_reader1
+  solve( !Reader_19( ~k_29, ~id_30 ) ▶₁ #i_47 )
     case Setup_23
-    solve( !KU( (~id_30⊕h(<~r1_27, ~k_29>)) ) @ #vk )
+    solve( !KU( (~id_30⊕h(<~u_tgany0_31, ~k_29>)) ) @ #vk )
       case c_xor
       solve( !KU( ~id_30 ) @ #vk.2 )
-        case tag_37
-        solve( !KU( ~r2_33 ) @ #vk.4 )
-          case tag_37_case_1
+        case tag_38
+        solve( !KU( ~r2_34 ) @ #vk.4 )
+          case tag_38_case_1
           by contradiction /* cyclic */
         next
-          case tag_37_case_2
-          solve( !KU( h(<~r1_27, ~k_29>) ) @ #vk.3 )
+          case tag_38_case_2
+          solve( !KU( h(<~u_tgany0_31, ~k_29>) ) @ #vk.3 )
             case c_h
             by solve( !KU( ~k_29 ) @ #vk.8 )
           next
-            case tag_37
-            solve( !KU( ~r1_27 ) @ #vk.6 )
-              case reader_31_manyto2to3
+            case tag_38
+            solve( !KU( ~u_tgany0_31 ) @ #vk.6 )
+              case reader_32_manyto2to3_reader1
               by contradiction /* cyclic */
             qed
           qed
@@ -123,14 +123,14 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
       qed
     next
       case coerce
-      solve( !KD( (~id_30⊕h(<~r1_27, ~k_29>)) ) ▶₀ #vk )
-        case reader_31_manyto2to3
+      solve( !KD( (~id_30⊕h(<~u_tgany0_31, ~k_29>)) ) ▶₀ #vk )
+        case reader_32_manyto2to3_reader1
         by contradiction /* impossible chain */
       next
-        case tag_37
+        case tag_38
         solve( (#vl, 0) ~~> (#vk, 0) )
           case d_0_fst
-          solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.3 )
+          solve( !Tag_20( ~k_36, ~id_37 ) ▶₂ #vr.3 )
             case Setup_23
             solve( splitEqs(1) )
               case split
@@ -138,52 +138,52 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                 case d_xor_case_1
                 solve( (#vr.5, 0) ~~> (#vk, 0) )
                   case Xor
-                  solve( !KU( (~r2_33⊕h(<~r1_27, ~k_29>)) ) @ #vk.2 )
+                  solve( !KU( (~r2_34⊕h(<~u_tgany0_31, ~k_29>)) ) @ #vk.2 )
                     case c_xor
-                    solve( !KU( ~r2_33 ) @ #vk.4 )
-                      case tag_37_case_1
+                    solve( !KU( ~r2_34 ) @ #vk.4 )
+                      case tag_38_case_1
                       solve( !KU( ~id_30 ) @ #vk.5 )
-                        case tag_37
-                        solve( !KU( ~r2_33.1 ) @ #vk.7 )
-                          case tag_37_case_1
+                        case tag_38
+                        solve( !KU( ~r2_34.1 ) @ #vk.7 )
+                          case tag_38_case_1
                           by contradiction /* cyclic */
                         next
-                          case tag_37_case_2
-                          solve( !KU( h(<~r1_27, ~k_29>) ) @ #vk.6 )
+                          case tag_38_case_2
+                          solve( !KU( h(<~u_tgany0_31, ~k_29>) ) @ #vk.6 )
                             case c_h
                             by solve( !KU( ~k_29 ) @ #vk.11 )
                           next
-                            case tag_37
-                            solve( !KU( ~r1_27 ) @ #vk.9 )
-                              case reader_31_manyto2to3
+                            case tag_38
+                            solve( !KU( ~u_tgany0_31 ) @ #vk.9 )
+                              case reader_32_manyto2to3_reader1
                               by contradiction /* cyclic */
                             qed
                           qed
                         qed
                       qed
                     next
-                      case tag_37_case_2
-                      solve( !KU( h(<~r1_27, ~k_29>) ) @ #vk.4 )
+                      case tag_38_case_2
+                      solve( !KU( h(<~u_tgany0_31, ~k_29>) ) @ #vk.4 )
                         case c_h
                         by solve( !KU( ~k_29 ) @ #vk.8 )
                       next
-                        case tag_37
-                        solve( !KU( ~r1_27 ) @ #vk.6 )
-                          case reader_31_manyto2to3
+                        case tag_38
+                        solve( !KU( ~u_tgany0_31 ) @ #vk.6 )
+                          case reader_32_manyto2to3_reader1
                           by contradiction /* cyclic */
                         qed
                       qed
                     qed
                   next
                     case coerce
-                    solve( !KD( (~r2_33⊕h(<~r1_27, ~k_29>)) ) ▶₀ #vk.1 )
-                      case reader_31_manyto2to3
+                    solve( !KD( (~r2_34⊕h(<~u_tgany0_31, ~k_29>)) ) ▶₀ #vk.1 )
+                      case reader_32_manyto2to3_reader1
                       by contradiction /* impossible chain */
                     next
-                      case tag_37
+                      case tag_38
                       solve( (#vl.1, 0) ~~> (#vk.1, 0) )
                         case d_0_fst
-                        solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.6 )
+                        solve( !Tag_20( ~k_36, ~id_37 ) ▶₂ #vr.6 )
                           case Setup_23
                           solve( splitEqs(7) )
                             case split
@@ -209,57 +209,57 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                         case d_0_snd
                         solve( (#vr.7, 0) ~~> (#vk.1, 0) )
                           case Xor
-                          solve( !KU( ~r1_27 ) @ #vk.2 )
-                            case reader_31_manyto2to3
+                          solve( !KU( ~u_tgany0_31 ) @ #vk.2 )
+                            case reader_32_manyto2to3_reader1
                             by contradiction /* cyclic */
                           qed
                         next
                           case d_xor_case_1
                           solve( (#vr.8, 0) ~~> (#vk.1, 0) )
                             case Xor
-                            solve( !KU( (h(<~r1_27, ~k_35>)⊕h(<r1_34, ~k_35>)) ) @ #vk.3 )
+                            solve( !KU( (h(<~u_tgany0_31, ~k_36>)⊕h(<r1_35, ~k_36>)) ) @ #vk.3 )
                               case c_xor
-                              solve( !KU( h(<r1_34, ~k_35>) ) @ #vk.4 )
+                              solve( !KU( h(<r1_35, ~k_36>) ) @ #vk.4 )
                                 case c_h
-                                by solve( !KU( ~k_35 ) @ #vk.7 )
+                                by solve( !KU( ~k_36 ) @ #vk.7 )
                               next
-                                case tag_37
-                                solve( !KU( ~r2_33.1 ) @ #vk.6 )
-                                  case tag_37_case_1
+                                case tag_38
+                                solve( !KU( ~r2_34.1 ) @ #vk.6 )
+                                  case tag_38_case_1
                                   solve( !KU( ~id_30 ) @ #vk.7 )
-                                    case tag_37
-                                    solve( !KU( ~r2_33.2 ) @ #vk.9 )
-                                      case tag_37_case_1
+                                    case tag_38
+                                    solve( !KU( ~r2_34.2 ) @ #vk.9 )
+                                      case tag_38_case_1
                                       by contradiction /* cyclic */
                                     next
-                                      case tag_37_case_2
-                                      solve( !KU( h(<~r1_27, ~k_35>) ) @ #vk.8 )
+                                      case tag_38_case_2
+                                      solve( !KU( h(<~u_tgany0_31, ~k_36>) ) @ #vk.8 )
                                         case c_h
-                                        by solve( !KU( ~k_35 ) @ #vk.13 )
+                                        by solve( !KU( ~k_36 ) @ #vk.13 )
                                       next
-                                        case tag_37
-                                        solve( !KU( ~r1_27 ) @ #vk.11 )
-                                          case reader_31_manyto2to3
+                                        case tag_38
+                                        solve( !KU( ~u_tgany0_31 ) @ #vk.11 )
+                                          case reader_32_manyto2to3_reader1
                                           by contradiction /* cyclic */
                                         qed
                                       qed
                                     qed
                                   qed
                                 next
-                                  case tag_37_case_2
+                                  case tag_38_case_2
                                   by contradiction /* cyclic */
                                 qed
                               qed
                             next
                               case coerce
-                              solve( !KD( (h(<~r1_27, ~k_35>)⊕h(<r1_34, ~k_35>)) ) ▶₀ #vk.2 )
-                                case reader_31_manyto2to3
+                              solve( !KD( (h(<~u_tgany0_31, ~k_36>)⊕h(<r1_35, ~k_36>)) ) ▶₀ #vk.2 )
+                                case reader_32_manyto2to3_reader1
                                 by contradiction /* impossible chain */
                               next
-                                case tag_37
+                                case tag_38
                                 solve( (#vl.1, 0) ~~> (#vk.2, 0) )
                                   case d_0_fst
-                                  solve( !Tag_20( ~k_35.1, ~id_36 ) ▶₂ #vr.8 )
+                                  solve( !Tag_20( ~k_36.1, ~id_37 ) ▶₂ #vr.8 )
                                     case Setup_23
                                     solve( splitEqs(12) )
                                       case split
@@ -287,56 +287,56 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                                     case d_xor_case_2
                                     solve( (#vr.10, 0) ~~> (#vk.2, 0) )
                                       case Xor_case_1
-                                      solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.8 )
+                                      solve( !Tag_20( ~k_36, ~id_37 ) ▶₂ #vr.8 )
                                         case Setup_23
                                         solve( splitEqs(12) )
                                           case split
-                                          solve( !KU( (~r2_33.1⊕h(<~r1_27, ~k_35>)) ) @ #vk.4 )
+                                          solve( !KU( (~r2_34.1⊕h(<~u_tgany0_31, ~k_36>)) ) @ #vk.4 )
                                             case c_xor
-                                            solve( !KU( ~r2_33.1 ) @ #vk.6 )
-                                              case tag_37_case_1
+                                            solve( !KU( ~r2_34.1 ) @ #vk.6 )
+                                              case tag_38_case_1
                                               solve( !KU( ~id_30 ) @ #vk.7 )
-                                                case tag_37
-                                                solve( !KU( ~r2_33.2 ) @ #vk.9 )
-                                                  case tag_37_case_1
+                                                case tag_38
+                                                solve( !KU( ~r2_34.2 ) @ #vk.9 )
+                                                  case tag_38_case_1
                                                   by contradiction /* cyclic */
                                                 next
-                                                  case tag_37_case_2
-                                                  solve( !KU( h(<~r1_27, ~k_35>) ) @ #vk.8 )
+                                                  case tag_38_case_2
+                                                  solve( !KU( h(<~u_tgany0_31, ~k_36>) ) @ #vk.8 )
                                                     case c_h
-                                                    by solve( !KU( ~k_35 ) @ #vk.13 )
+                                                    by solve( !KU( ~k_36 ) @ #vk.13 )
                                                   next
-                                                    case tag_37
-                                                    solve( !KU( ~r1_27 ) @ #vk.11 )
-                                                      case reader_31_manyto2to3
+                                                    case tag_38
+                                                    solve( !KU( ~u_tgany0_31 ) @ #vk.11 )
+                                                      case reader_32_manyto2to3_reader1
                                                       by contradiction /* cyclic */
                                                     qed
                                                   qed
                                                 qed
                                               qed
                                             next
-                                              case tag_37_case_2
-                                              solve( !KU( h(<~r1_27, ~k_35>) ) @ #vk.6 )
+                                              case tag_38_case_2
+                                              solve( !KU( h(<~u_tgany0_31, ~k_36>) ) @ #vk.6 )
                                                 case c_h
-                                                by solve( !KU( ~k_35 ) @ #vk.10 )
+                                                by solve( !KU( ~k_36 ) @ #vk.10 )
                                               next
-                                                case tag_37
-                                                solve( !KU( ~r1_27 ) @ #vk.8 )
-                                                  case reader_31_manyto2to3
+                                                case tag_38
+                                                solve( !KU( ~u_tgany0_31 ) @ #vk.8 )
+                                                  case reader_32_manyto2to3_reader1
                                                   by contradiction /* cyclic */
                                                 qed
                                               qed
                                             qed
                                           next
                                             case coerce
-                                            solve( !KD( (~r2_33.1⊕h(<~r1_27, ~k_35>)) ) ▶₀ #vk.3 )
-                                              case reader_31_manyto2to3
+                                            solve( !KD( (~r2_34.1⊕h(<~u_tgany0_31, ~k_36>)) ) ▶₀ #vk.3 )
+                                              case reader_32_manyto2to3_reader1
                                               by contradiction /* impossible chain */
                                             next
-                                              case tag_37
+                                              case tag_38
                                               solve( (#vl.2, 0) ~~> (#vk.3, 0) )
                                                 case d_0_fst
-                                                solve( !Tag_20( ~k_35.1, ~id_36 ) ▶₂ #vr.11 )
+                                                solve( !Tag_20( ~k_36.1, ~id_37 ) ▶₂ #vr.11 )
                                                   case Setup_23
                                                   solve( splitEqs(18) )
                                                     case split
@@ -370,10 +370,10 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                                                   case d_xor_case_2
                                                   solve( (#vr.13, 0) ~~> (#vk.3, 0) )
                                                     case Xor
-                                                    solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.11 )
+                                                    solve( !Tag_20( ~k_36, ~id_37 ) ▶₂ #vr.11 )
                                                       case Setup_23
-                                                      solve( !KU( ~r1_27 ) @ #vk.5 )
-                                                        case reader_31_manyto2to3
+                                                      solve( !KU( ~u_tgany0_31 ) @ #vk.5 )
+                                                        case reader_32_manyto2to3_reader1
                                                         by contradiction /* cyclic */
                                                       qed
                                                     qed
@@ -392,10 +392,10 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                                       qed
                                     next
                                       case Xor_case_2
-                                      solve( !Tag_20( ~k_35, ~id_36 ) ▶₂ #vr.8 )
+                                      solve( !Tag_20( ~k_36, ~id_37 ) ▶₂ #vr.8 )
                                         case Setup_23
-                                        solve( !KU( ~r1_27 ) @ #vk.4 )
-                                          case reader_31_manyto2to3
+                                        solve( !KU( ~u_tgany0_31 ) @ #vk.4 )
+                                          case reader_32_manyto2to3_reader1
                                           by contradiction /* cyclic */
                                         qed
                                       qed
@@ -415,10 +415,10 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
                           case d_xor_case_2
                           solve( (#vr.8, 0) ~~> (#vk.1, 0) )
                             case Xor
-                            solve( !Tag_20( ~k_29, ~id_36 ) ▶₂ #vr.6 )
+                            solve( !Tag_20( ~k_29, ~id_37 ) ▶₂ #vr.6 )
                               case Setup_23
-                              solve( !KU( ~r1_27 ) @ #vk.3 )
-                                case reader_31_manyto2to3
+                              solve( !KU( ~u_tgany0_31 ) @ #vk.3 )
+                                case reader_32_manyto2to3_reader1
                                 by contradiction /* cyclic */
                               qed
                             qed
@@ -455,10 +455,10 @@ solve( StF( ~pid, 'tgk3', tgc_r1_0 ) ▶₀ #i_46 )
             case d_xor_case_2
             solve( (#vr.5, 0) ~~> (#vk, 0) )
               case Xor
-              solve( !Tag_20( ~k_29, ~id_36 ) ▶₂ #vr.3 )
+              solve( !Tag_20( ~k_29, ~id_37 ) ▶₂ #vr.3 )
                 case Setup_23
-                solve( !KU( ~r1_27 ) @ #vk.1 )
-                  case reader_31_manyto2to3
+                solve( !KU( ~u_tgany0_31 ) @ #vk.1 )
+                  case reader_32_manyto2to3_reader1
                   by contradiction /* cyclic */
                 qed
               qed
@@ -478,16 +478,16 @@ qed
 
 lemma executable:
   exists-trace
-  "∃ x_51 #i_52 #j_53.
-    ((Alive_25( x_51, 'Tag' ) @ #i_52) ∧
-     (Response_32( x_51, 'Tag' ) @ #j_53)) ∧
-    (¬(∃ #k_54. (Response_32( x_51, 'Tag' ) @ #k_54) ∧ (¬(#j_53 = #k_54))))"
+  "∃ x_52 #i_53 #j_54.
+    ((Alive_25( x_52, 'Tag' ) @ #i_53) ∧
+     (Response_33( x_52, 'Tag' ) @ #j_54)) ∧
+    (¬(∃ #k_55. (Response_33( x_52, 'Tag' ) @ #k_55) ∧ (¬(#j_54 = #k_55))))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ x_51 #i_52 #j_53.
-  (Alive_25( x_51, 'Tag' ) @ #i_52) ∧ (Response_32( x_51, 'Tag' ) @ #j_53)
+"∃ x_52 #i_53 #j_54.
+  (Alive_25( x_52, 'Tag' ) @ #i_53) ∧ (Response_33( x_52, 'Tag' ) @ #j_54)
  ∧
-  ∀ #k_54. (Response_32( x_51, 'Tag' ) @ #k_54) ⇒ #j_53 = #k_54"
+  ∀ #k_55. (Response_33( x_52, 'Tag' ) @ #k_55) ⇒ #j_54 = #k_55"
 */
 by sorry
 

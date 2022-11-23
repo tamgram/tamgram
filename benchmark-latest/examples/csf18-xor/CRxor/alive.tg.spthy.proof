@@ -17,269 +17,210 @@ rule (modulo E) Setup_28:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_33_1to2:
+rule (modulo E) initiator_34_1to2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_33_manyto2to3:
+rule (modulo E) initiator_34_manyto2to3_initiator:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~na_29 ) ]
   --[ Challenge_25( ~na_29 ) ]->
    [ StF( ~pid, 'tgk3', ~na_29 ), Out( ~na_29 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_33_manyto3:
+rule (modulo E) initiator_34_manyto3_initiator2:
    [
-   StF( ~pid, 'tgk3', tgc_na_0 ), !InitLTK_19( ~k_32 ), In( <m_31, nb_30> )
+   StF( ~pid, 'tgk3', ~u_tgany0_33 ), !InitLTK_19( ~k_32 ),
+   In( <m_31, nb_30> )
    ]
-  --[ Alive_23( tgc_na_0, ~k_32 ), Eq_21( h((~k_32⊕nb_30⊕tgc_na_0)), m_31 )
+  --[
+  Alive_23( ~u_tgany0_33, ~k_32 ),
+  Eq_21( h((~k_32⊕~u_tgany0_33⊕nb_30)), m_31 )
   ]->
    [ ]
 
   /*
-  rule (modulo AC) initiator_33_manyto3:
+  rule (modulo AC) initiator_34_manyto3_initiator2:
      [
-     StF( ~pid, 'tgk3', tgc_na_0 ), !InitLTK_19( ~k_32 ), In( <m_31, nb_30> )
+     StF( ~pid, 'tgk3', ~u_tgany0_33 ), !InitLTK_19( ~k_32 ),
+     In( <m_31, nb_30> )
      ]
-    --[ Alive_23( tgc_na_0, ~k_32 ), Eq_21( h(z), m_31 ) ]->
+    --[ Alive_23( ~u_tgany0_33, ~k_32 ), Eq_21( h(z), m_31 ) ]->
      [ ]
     variants (modulo AC)
-     1. ~k_32 = ~k_32.9
-        nb_30 = nb_30.12
-        tgc_na_0
-              = tgc_na_0.13
-        z     = (~k_32.9⊕nb_30.12⊕tgc_na_0.13)
+    1. ~k_32 = ~k_32.9
+       ~u_tgany0_33
+             = ~u_tgany0_33.11
+       nb_30 = nb_30.13
+       z     = (~k_32.9⊕~u_tgany0_33.11⊕nb_30.13)
     
-     2. ~k_32 = ~k_32.9
-        nb_30 = nb_30.12
-        tgc_na_0
-              = zero
-        z     = (~k_32.9⊕nb_30.12)
+    2. ~k_32 = ~k_32.9
+       ~u_tgany0_33
+             = ~u_tgany0_33.11
+       nb_30 = zero
+       z     = (~k_32.9⊕~u_tgany0_33.11)
     
-     3. ~k_32 = ~k_32.9
-        nb_30 = zero
-        tgc_na_0
-              = tgc_na_0.13
-        z     = (~k_32.9⊕tgc_na_0.13)
+    3. ~k_32 = ~k_32.10
+       ~u_tgany0_33
+             = ~k_32.10
+       nb_30 = nb_30.14
+       z     = nb_30.14
     
-     4. ~k_32 = ~k_32.10
-        nb_30 = ~k_32.10
-        tgc_na_0
-              = tgc_na_0.14
-        z     = tgc_na_0.14
+    4. ~k_32 = ~k_32.10
+       ~u_tgany0_33
+             = ~u_tgany0_33.12
+       nb_30 = ~k_32.10
+       z     = ~u_tgany0_33.12
     
-     5. ~k_32 = ~k_32.10
-        nb_30 = nb_30.13
-        tgc_na_0
-              = ~k_32.10
-        z     = nb_30.13
+    5. ~k_32 = ~k_32.10
+       ~u_tgany0_33
+             = ~u_tgany0_33.12
+       nb_30 = ~u_tgany0_33.12
+       z     = ~k_32.10
     
-     6. ~k_32 = ~k_32.10
-        nb_30 = nb_30.13
-        tgc_na_0
-              = nb_30.13
-        z     = ~k_32.10
-    
-     7. ~k_32 = ~k_32.11
-        nb_30 = nb_30.14
-        tgc_na_0
-              = (nb_30.14⊕x.19)
-        z     = (~k_32.11⊕x.19)
-    
-     8. ~k_32 = ~k_32.11
-        nb_30 = (tgc_na_0.15⊕x.19)
-        tgc_na_0
-              = tgc_na_0.15
-        z     = (~k_32.11⊕x.19)
-    
-     9. ~k_32 = ~k_32.12
-        nb_30 = nb_30.15
-        tgc_na_0
-              = (~k_32.12⊕nb_30.15)
-        z     = zero
-    
-    10. ~k_32 = ~k_32.12
-        nb_30 = zero
-        tgc_na_0
-              = (~k_32.12⊕z.18)
-        z     = z.18
-    
-    11. ~k_32 = ~k_32.12
-        nb_30 = (~k_32.12⊕tgc_na_0.16)
-        tgc_na_0
-              = tgc_na_0.16
-        z     = zero
-    
-    12. ~k_32 = ~k_32.12
-        nb_30 = (~k_32.12⊕z.18)
-        tgc_na_0
-              = zero
-        z     = z.18
-    
-    13. ~k_32 = ~k_32.12
-        nb_30 = (x.19⊕x.20)
-        tgc_na_0
-              = (x.19⊕x.21)
-        z     = (~k_32.12⊕x.20⊕x.21)
-    
-    14. ~k_32 = ~k_32.13
-        nb_30 = nb_30.16
-        tgc_na_0
-              = (~k_32.13⊕nb_30.16⊕z.19)
-        z     = z.19
-    
-    15. ~k_32 = ~k_32.13
-        nb_30 = (~k_32.13⊕tgc_na_0.17⊕z.19)
-        tgc_na_0
-              = tgc_na_0.17
-        z     = z.19
-    
-    16. ~k_32 = ~k_32.13
-        nb_30 = (~k_32.13⊕x.23)
-        tgc_na_0
-              = tgc_na_0.17
-        z     = (tgc_na_0.17⊕x.23)
-    
-    17. ~k_32 = ~k_32.13
-        nb_30 = (~k_32.13⊕x.23)
-        tgc_na_0
-              = (z.19⊕x.23)
-        z     = z.19
-    
-    18. ~k_32 = ~k_32.13
-        nb_30 = (z.19⊕x.23)
-        tgc_na_0
-              = (~k_32.13⊕x.23)
-        z     = z.19
-    
-    19. ~k_32 = ~k_32.14
-        nb_30 = nb_30.17
-        tgc_na_0
-              = (~k_32.14⊕x.25)
-        z     = (nb_30.17⊕x.25)
-    
-    20. ~k_32 = ~k_32.14
-        nb_30 = (~k_32.14⊕x.24⊕x.25)
-        tgc_na_0
-              = (x.24⊕x.26)
-        z     = (x.25⊕x.26)
-    
-    21. ~k_32 = ~k_32.14
-        nb_30 = (x.24⊕x.25)
-        tgc_na_0
-              = (~k_32.14⊕x.24⊕x.26)
-        z     = (x.25⊕x.26)
-  */
-
-rule (modulo E) responder_37:
-   [ In( na_35 ), Fr( ~nb_34 ), !RespLTK_20( ~k_36 ) ]
-  --[
-  Response_26( ~k_36 ), Neq_22( na_35, zero ), NeqForExec_24( na_35, zero )
-  ]->
-   [ Out( <h((~k_36⊕~nb_34⊕na_35)), ~nb_34> ) ]
-
-  /*
-  rule (modulo AC) responder_37:
-     [ In( na_35 ), Fr( ~nb_34 ), !RespLTK_20( ~k_36 ) ]
-    --[
-    Response_26( ~k_36 ), Neq_22( na_35, zero ), NeqForExec_24( na_35, zero )
-    ]->
-     [ Out( <h(z), ~nb_34> ) ]
-    variants (modulo AC)
-    1. ~k_36 = ~k_36.5
-       ~nb_34
-             = ~nb_34.5
-       na_35 = na_35.5
-       z     = (~k_36.5⊕~nb_34.5⊕na_35.5)
-    
-    2. ~k_36 = ~k_36.5
-       ~nb_34
-             = ~nb_34.5
-       na_35 = zero
-       z     = (~k_36.5⊕~nb_34.5)
-    
-    3. ~k_36 = ~x.5
-       ~nb_34
-             = ~x.5
-       na_35 = na_35.6
-       z     = na_35.6
-    
-    4. ~k_36 = ~x.5
-       ~nb_34
-             = ~nb_34.6
-       na_35 = ~x.5
-       z     = ~nb_34.6
-    
-    5. ~k_36 = ~x.5
-       ~nb_34
-             = ~x.6
-       na_35 = (~x.5⊕~x.6)
+    6. ~k_32 = ~k_32.11
+       ~u_tgany0_33
+             = ~u_tgany0_33.13
+       nb_30 = (~k_32.11⊕~u_tgany0_33.13)
        z     = zero
     
-    6. ~k_36 = ~x.5
-       ~nb_34
+    7. ~k_32 = ~k_32.12
+       ~u_tgany0_33
+             = ~u_tgany0_33.14
+       nb_30 = (~u_tgany0_33.14⊕x.21)
+       z     = (~k_32.12⊕x.21)
+    
+    8. ~k_32 = ~k_32.13
+       ~u_tgany0_33
+             = ~u_tgany0_33.15
+       nb_30 = (~k_32.13⊕~u_tgany0_33.15⊕z.19)
+       z     = z.19
+    
+    9. ~k_32 = ~k_32.14
+       ~u_tgany0_33
+             = ~u_tgany0_33.16
+       nb_30 = (~k_32.14⊕x.25)
+       z     = (~u_tgany0_33.16⊕x.25)
+  */
+
+rule (modulo E) responder_38:
+   [ In( na_36 ), Fr( ~nb_35 ), !RespLTK_20( ~k_37 ) ]
+  --[
+  Response_26( ~k_37 ), Neq_22( na_36, zero ), NeqForExec_24( na_36, zero )
+  ]->
+   [ Out( <h((~k_37⊕~nb_35⊕na_36)), ~nb_35> ) ]
+
+  /*
+  rule (modulo AC) responder_38:
+     [ In( na_36 ), Fr( ~nb_35 ), !RespLTK_20( ~k_37 ) ]
+    --[
+    Response_26( ~k_37 ), Neq_22( na_36, zero ), NeqForExec_24( na_36, zero )
+    ]->
+     [ Out( <h(z), ~nb_35> ) ]
+    variants (modulo AC)
+    1. ~k_37 = ~k_37.5
+       ~nb_35
+             = ~nb_35.5
+       na_36 = na_36.5
+       z     = (~k_37.5⊕~nb_35.5⊕na_36.5)
+    
+    2. ~k_37 = ~k_37.5
+       ~nb_35
+             = ~nb_35.5
+       na_36 = zero
+       z     = (~k_37.5⊕~nb_35.5)
+    
+    3. ~k_37 = ~x.5
+       ~nb_35
+             = ~x.5
+       na_36 = na_36.6
+       z     = na_36.6
+    
+    4. ~k_37 = ~x.5
+       ~nb_35
+             = ~nb_35.6
+       na_36 = ~x.5
+       z     = ~nb_35.6
+    
+    5. ~k_37 = ~x.5
+       ~nb_35
              = ~x.6
-       na_35 = (~x.5⊕~x.6⊕x.7)
+       na_36 = (~x.5⊕~x.6)
+       z     = zero
+    
+    6. ~k_37 = ~x.5
+       ~nb_35
+             = ~x.6
+       na_36 = (~x.5⊕~x.6⊕x.7)
        z     = x.7
     
-    7. ~k_36 = ~x.5
-       ~nb_34
-             = ~nb_34.8
-       na_35 = (~x.5⊕x.7)
-       z     = (x.7⊕~nb_34.8)
+    7. ~k_37 = ~x.5
+       ~nb_35
+             = ~nb_35.8
+       na_36 = (~x.5⊕x.7)
+       z     = (x.7⊕~nb_35.8)
     
-    8. ~k_36 = ~k_36.6
-       ~nb_34
+    8. ~k_37 = ~k_37.6
+       ~nb_35
              = ~x.5
-       na_35 = ~x.5
-       z     = ~k_36.6
+       na_36 = ~x.5
+       z     = ~k_37.6
     
-    9. ~k_36 = ~k_36.7
-       ~nb_34
+    9. ~k_37 = ~k_37.7
+       ~nb_35
              = ~x.5
-       na_35 = (~x.5⊕x.6)
-       z     = (x.6⊕~k_36.7)
+       na_36 = (~x.5⊕x.6)
+       z     = (x.6⊕~k_37.7)
   */
 
 restriction equality:
-  "∀ x_38 y_39 #i_40. (Eq_21( x_38, y_39 ) @ #i_40) ⇒ (x_38 = y_39)"
+  "∀ x_39 y_40 #i_41. (Eq_21( x_39, y_40 ) @ #i_41) ⇒ (x_39 = y_40)"
   // safety formula
 
 restriction unique:
-  "∀ #i_42 #j_43.
-    ((OnlyOnce_18( ) @ #i_42) ∧ (OnlyOnce_18( ) @ #j_43)) ⇒ (#i_42 = #j_43)"
+  "∀ #i_43 #j_44.
+    ((OnlyOnce_18( ) @ #i_43) ∧ (OnlyOnce_18( ) @ #j_44)) ⇒ (#i_43 = #j_44)"
   // safety formula
 
 restriction inequality:
-  "¬(∃ x_45 #i_46. Neq_22( x_45, x_45 ) @ #i_46)"
+  "¬(∃ x_46 #i_47. Neq_22( x_46, x_46 ) @ #i_47)"
   // safety formula
 
 lemma alive:
   all-traces
-  "∀ x_48 y_49 #i_50.
-    (Alive_23( x_48, y_49 ) @ #i_50) ⇒
-    (∃ #j_51. Response_26( y_49 ) @ #j_51)"
+  "∀ x_49 y_50 #i_51.
+    (Alive_23( x_49, y_50 ) @ #i_51) ⇒
+    (∃ #j_52. Response_26( y_50 ) @ #j_52)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_48 y_49 #i_50.
-  (Alive_23( x_48, y_49 ) @ #i_50)
+"∃ x_49 y_50 #i_51.
+  (Alive_23( x_49, y_50 ) @ #i_51)
  ∧
-  ∀ #j_51. (Response_26( y_49 ) @ #j_51) ⇒ ⊥"
+  ∀ #j_52. (Response_26( y_50 ) @ #j_52) ⇒ ⊥"
 */
 simplify
-solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
-  case initiator_33_manyto2to3
-  solve( !InitLTK_19( ~k_32 ) ▶₁ #i_50 )
+solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_51 )
+  case initiator_34_manyto2to3_initiator
+  solve( !InitLTK_19( ~k_32 ) ▶₁ #i_51 )
     case Setup_28
     solve( splitEqs(0) )
       case split_case_1
       by solve( !KU( ~k_32 ) @ #vk.2 )
     next
       case split_case_2
-      solve( !KU( h((~k_32⊕~na_29⊕nb_30)) ) @ #vk.1 )
+      solve( !KU( h(~k_32) ) @ #vk.1 )
         case c_h
-        solve( !KU( (~k_32⊕~na_29⊕nb_30) ) @ #vk.3 )
+        by solve( !KU( ~k_32 ) @ #vk.3 )
+      next
+        case responder_38
+        by contradiction /* from formulas */
+      qed
+    next
+      case split_case_3
+      solve( !KU( h((~k_32⊕~u_tgany0_33⊕nb_30)) ) @ #vk.1 )
+        case c_h
+        solve( !KU( (~k_32⊕~u_tgany0_33⊕nb_30) ) @ #vk.3 )
           case c_xor_case_1
           solve( !KU( (~k_32⊕nb_30) ) @ #vk.4 )
             case c_xor
@@ -287,10 +228,10 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           next
             case coerce
             solve( !KD( (~k_32⊕nb_30) ) ▶₀ #vk.2 )
-              case initiator_33_manyto2to3
+              case initiator_34_manyto2to3_initiator
               by contradiction /* impossible chain */
             next
-              case responder_37
+              case responder_38
               solve( (#vl, 0) ~~> (#vk.2, 0) )
                 case d_0_fst
                 by solve( (#vr.4, 0) ~~> (#vk.2, 0) )
@@ -305,16 +246,16 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           by solve( !KU( ~k_32 ) @ #vk.5 )
         next
           case c_xor_case_3
-          solve( !KU( (~k_32⊕~na_29) ) @ #vk.4 )
+          solve( !KU( (~k_32⊕~u_tgany0_33) ) @ #vk.4 )
             case c_xor
             by solve( !KU( ~k_32 ) @ #vk.6 )
           next
             case coerce
-            solve( !KD( (~k_32⊕~na_29) ) ▶₀ #vk.2 )
-              case initiator_33_manyto2to3
+            solve( !KD( (~k_32⊕~u_tgany0_33) ) ▶₀ #vk.2 )
+              case initiator_34_manyto2to3_initiator
               by contradiction /* impossible chain */
             next
-              case responder_37
+              case responder_38
               solve( (#vl, 0) ~~> (#vk.2, 0) )
                 case d_0_fst
                 by solve( (#vr.4, 0) ~~> (#vk.2, 0) )
@@ -326,11 +267,11 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         next
           case coerce
-          solve( !KD( (~k_32⊕~na_29⊕nb_30) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+          solve( !KD( (~k_32⊕~u_tgany0_33⊕nb_30) ) ▶₀ #vk.1 )
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -341,32 +282,23 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         qed
       next
-        case responder_37
-        by contradiction /* from formulas */
-      qed
-    next
-      case split_case_3
-      solve( !KU( h(~k_32) ) @ #vk.1 )
-        case c_h
-        by solve( !KU( ~k_32 ) @ #vk.3 )
-      next
-        case responder_37
+        case responder_38
         by contradiction /* from formulas */
       qed
     next
       case split_case_4
-      solve( !KU( h((~k_32⊕~na_29)) ) @ #vk.1 )
+      solve( !KU( h((~k_32⊕~u_tgany0_33)) ) @ #vk.1 )
         case c_h
-        solve( !KU( (~k_32⊕~na_29) ) @ #vk.3 )
+        solve( !KU( (~k_32⊕~u_tgany0_33) ) @ #vk.3 )
           case c_xor
           by solve( !KU( ~k_32 ) @ #vk.5 )
         next
           case coerce
-          solve( !KD( (~k_32⊕~na_29) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+          solve( !KD( (~k_32⊕~u_tgany0_33) ) ▶₀ #vk.1 )
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -377,12 +309,33 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         qed
       next
-        case responder_37
+        case responder_38
         by contradiction /* from formulas */
       qed
     next
       case split_case_5
-      solve( !KU( (~k_32⊕~na_29⊕z) ) @ #vk.2 )
+      solve( !KU( (~k_32⊕~u_tgany0_33) ) @ #vk.2 )
+        case c_xor
+        by solve( !KU( ~k_32 ) @ #vk.4 )
+      next
+        case coerce
+        solve( !KD( (~k_32⊕~u_tgany0_33) ) ▶₀ #vk )
+          case initiator_34_manyto2to3_initiator
+          by contradiction /* impossible chain */
+        next
+          case responder_38
+          solve( (#vl, 0) ~~> (#vk, 0) )
+            case d_0_fst
+            by solve( (#vr.4, 0) ~~> (#vk, 0) )
+          next
+            case d_0_snd
+            by contradiction /* impossible chain */
+          qed
+        qed
+      qed
+    next
+      case split_case_6
+      solve( !KU( (~k_32⊕~u_tgany0_33⊕z) ) @ #vk.2 )
         case c_xor_case_1
         solve( !KU( (~k_32⊕z) ) @ #vk.3 )
           case c_xor
@@ -390,10 +343,10 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
         next
           case coerce
           solve( !KD( (~k_32⊕z) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -408,16 +361,16 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
         by solve( !KU( ~k_32 ) @ #vk.4 )
       next
         case c_xor_case_3
-        solve( !KU( (~k_32⊕~na_29) ) @ #vk.4 )
+        solve( !KU( (~k_32⊕~u_tgany0_33) ) @ #vk.4 )
           case c_xor
           by solve( !KU( ~k_32 ) @ #vk.6 )
         next
           case coerce
-          solve( !KD( (~k_32⊕~na_29) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+          solve( !KD( (~k_32⊕~u_tgany0_33) ) ▶₀ #vk.1 )
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -429,32 +382,11 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
         qed
       next
         case coerce
-        solve( !KD( (~k_32⊕~na_29⊕z) ) ▶₀ #vk )
-          case initiator_33_manyto2to3
+        solve( !KD( (~k_32⊕~u_tgany0_33⊕z) ) ▶₀ #vk )
+          case initiator_34_manyto2to3_initiator
           by contradiction /* impossible chain */
         next
-          case responder_37
-          solve( (#vl, 0) ~~> (#vk, 0) )
-            case d_0_fst
-            by solve( (#vr.4, 0) ~~> (#vk, 0) )
-          next
-            case d_0_snd
-            by contradiction /* impossible chain */
-          qed
-        qed
-      qed
-    next
-      case split_case_6
-      solve( !KU( (~k_32⊕~na_29) ) @ #vk.2 )
-        case c_xor
-        by solve( !KU( ~k_32 ) @ #vk.4 )
-      next
-        case coerce
-        solve( !KD( (~k_32⊕~na_29) ) ▶₀ #vk )
-          case initiator_33_manyto2to3
-          by contradiction /* impossible chain */
-        next
-          case responder_37
+          case responder_38
           solve( (#vl, 0) ~~> (#vk, 0) )
             case d_0_fst
             by solve( (#vr.4, 0) ~~> (#vk, 0) )
@@ -468,7 +400,7 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
       case split_case_7
       solve( !KU( h((~k_32⊕x)) ) @ #vk.1 )
         case c_h
-        solve( !KU( (~na_29⊕x) ) @ #vk.2 )
+        solve( !KU( (~u_tgany0_33⊕x) ) @ #vk.2 )
           case c_xor
           solve( !KU( (~k_32⊕x) ) @ #vk.3 )
             case c_xor
@@ -476,10 +408,10 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           next
             case coerce
             solve( !KD( (~k_32⊕x) ) ▶₀ #vk.2 )
-              case initiator_33_manyto2to3
+              case initiator_34_manyto2to3_initiator
               by contradiction /* impossible chain */
             next
-              case responder_37
+              case responder_38
               solve( (#vl, 0) ~~> (#vk.2, 0) )
                 case d_0_fst
                 by solve( (#vr.4, 0) ~~> (#vk.2, 0) )
@@ -491,11 +423,11 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         next
           case coerce
-          solve( !KD( (~na_29⊕x) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+          solve( !KD( (~u_tgany0_33⊕x) ) ▶₀ #vk.1 )
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -506,12 +438,12 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         qed
       next
-        case responder_37
+        case responder_38
         by contradiction /* from formulas */
       qed
     next
       case split_case_8
-      solve( !KU( h((~na_29⊕x)) ) @ #vk.1 )
+      solve( !KU( h((~u_tgany0_33⊕x)) ) @ #vk.1 )
         case c_h
         solve( !KU( (~k_32⊕x) ) @ #vk.2 )
           case c_xor
@@ -519,10 +451,10 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
         next
           case coerce
           solve( !KD( (~k_32⊕x) ) ▶₀ #vk.1 )
-            case initiator_33_manyto2to3
+            case initiator_34_manyto2to3_initiator
             by contradiction /* impossible chain */
           next
-            case responder_37
+            case responder_38
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by solve( (#vr.4, 0) ~~> (#vk.1, 0) )
@@ -533,7 +465,7 @@ solve( StF( ~pid, 'tgk3', x_48 ) ▶₀ #i_50 )
           qed
         qed
       next
-        case responder_37
+        case responder_38
         by contradiction /* from formulas */
       qed
     qed
@@ -542,37 +474,37 @@ qed
 
 lemma recentalive_tag:
   all-traces
-  "∀ x_53 y_54 #i_55.
-    (Alive_23( x_53, y_54 ) @ #i_55) ⇒
-    (∃ #j_56 #k_57.
-      (((Challenge_25( x_53 ) @ #k_57) ∧ (Response_26( y_54 ) @ #j_56)) ∧
-       (#k_57 < #j_56)) ∧
-      (#j_56 < #i_55))"
+  "∀ x_54 y_55 #i_56.
+    (Alive_23( x_54, y_55 ) @ #i_56) ⇒
+    (∃ #j_57 #k_58.
+      (((Challenge_25( x_54 ) @ #k_58) ∧ (Response_26( y_55 ) @ #j_57)) ∧
+       (#k_58 < #j_57)) ∧
+      (#j_57 < #i_56))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_53 y_54 #i_55.
-  (Alive_23( x_53, y_54 ) @ #i_55)
+"∃ x_54 y_55 #i_56.
+  (Alive_23( x_54, y_55 ) @ #i_56)
  ∧
-  ∀ #j_56 #k_57.
-   (Challenge_25( x_53 ) @ #k_57) ∧ (Response_26( y_54 ) @ #j_56)
+  ∀ #j_57 #k_58.
+   (Challenge_25( x_54 ) @ #k_58) ∧ (Response_26( y_55 ) @ #j_57)
   ⇒
-   ((¬(#k_57 < #j_56)) ∨ (¬(#j_56 < #i_55)))"
+   ((¬(#k_58 < #j_57)) ∨ (¬(#j_57 < #i_56)))"
 */
 by sorry
 
 lemma executable:
   exists-trace
-  "∃ x_59 y_60 #i_61 #j_62.
-    (((Alive_23( x_59, y_60 ) @ #i_61) ∧ (Response_26( y_60 ) @ #j_62)) ∧
-     (¬(∃ #k_63. (Response_26( y_60 ) @ #k_63) ∧ (¬(#j_62 = #k_63))))) ∧
-    (¬(∃ #l_64. NeqForExec_24( x_59, x_59 ) @ #l_64))"
+  "∃ x_60 y_61 #i_62 #j_63.
+    (((Alive_23( x_60, y_61 ) @ #i_62) ∧ (Response_26( y_61 ) @ #j_63)) ∧
+     (¬(∃ #k_64. (Response_26( y_61 ) @ #k_64) ∧ (¬(#j_63 = #k_64))))) ∧
+    (¬(∃ #l_65. NeqForExec_24( x_60, x_60 ) @ #l_65))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ x_59 y_60 #i_61 #j_62.
-  (Alive_23( x_59, y_60 ) @ #i_61) ∧ (Response_26( y_60 ) @ #j_62)
+"∃ x_60 y_61 #i_62 #j_63.
+  (Alive_23( x_60, y_61 ) @ #i_62) ∧ (Response_26( y_61 ) @ #j_63)
  ∧
-  (∀ #k_63. (Response_26( y_60 ) @ #k_63) ⇒ #j_62 = #k_63) ∧
-  (∀ #l_64. (NeqForExec_24( x_59, x_59 ) @ #l_64) ⇒ ⊥)"
+  (∀ #k_64. (Response_26( y_61 ) @ #k_64) ⇒ #j_63 = #k_64) ∧
+  (∀ #l_65. (NeqForExec_24( x_60, x_60 ) @ #l_65) ⇒ ⊥)"
 */
 by sorry
 
