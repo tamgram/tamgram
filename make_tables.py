@@ -120,6 +120,10 @@ def make_emverify_table(index, lemmas):
         file.write("\end{tblr}")
 
 make_csf18_xor_styles_table("examples/csf18-xor/CH07")
+make_csf18_xor_styles_table("examples/csf18-xor/CRxor")
+make_csf18_xor_styles_table("examples/csf18-xor/KCL07")
+make_csf18_xor_styles_table("examples/csf18-xor/LAK06")
+make_csf18_xor_styles_table("examples/csf18-xor/NSLPK3xor")
 
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
