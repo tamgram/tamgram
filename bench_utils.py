@@ -59,12 +59,15 @@ def check_variant(variant):
     if variant != "tamarin" and variant != "tamgram":
         raise Exception(f"Invalid file variant: {variant}")
 
-def summary_of_lemma(basedir, name, lemma, variant, style=None):
-    check_variant(variant)
-    if variant == "tamarin":
-        suffix = ".spthy.summary"
-    elif variant == "tamgram":
-        suffix = tg_spthy_extension_of_style(style) + ".summary"
+def summary_of_lemma(basedir, name, lemma, variant, style=None, ext=None):
+    if ext is None:
+        check_variant(variant)
+        if variant == "tamarin":
+            suffix = ".spthy.summary"
+        elif variant == "tamgram":
+            suffix = tg_spthy_extension_of_style(style) + ".summary"
+    else:
+        suffix = ext + ".summary"
 
     p = re.compile("[A-Za-z0-9-_: ]*\(([a-z-]+)\)[A-Za-z0-9-_: ]*\(([0-9]+) steps\)")
 
@@ -94,7 +97,7 @@ def time_of_lemma(basedir, name, lemma=None, variant=None, style=None, ext=None)
         elif variant == "tamgram":
             suffix = tg_spthy_extension_of_style(style) + ".time"
     else:
-        suffix = ext
+        suffix = ext + ".time"
 
     try:
         path = f"{basedir}/{name}/{lemma}{suffix}"

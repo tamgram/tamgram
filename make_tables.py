@@ -80,7 +80,7 @@ def make_csf18_xor_styles_table(case):
 
         for lemma in lemmas:
             for (version, ext) in versions:
-                write_time(file, time_of_lemma(base_dir, case, ext=ext))
+                write_time(file, time_of_lemma(base_dir, case, lemma, ext=ext))
 
         file.write("\end{tblr}")
 
