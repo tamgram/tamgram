@@ -45,10 +45,51 @@ def make_csf18_xor_table(case):
                 }
         """)
 
-def make_csf18_xor_styles_table(case):
+def make_csf18_xor_styles_table(name):
+    case = f"examples/csf18-xor/{name}"
     lemmas = lemmas_of_benchmark_case(case)
-    name = case.split("/")[-1]
     with open(f"{base_dir}/CSF18_XOR_{name}_table.tex", "w") as file:
+        file.write("""
+            \\begin{tblr}{
+                    hlines,
+                    vlines,
+                    colspec={c 
+        """)
+
+        versions = [("Original", ".spthy"),
+                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Forward", ".tg.frame-minimal0.spthy"),
+                    ("Backward", ".tg.frame-minimal-backward0.spthy"),
+                    ("Hybrid", ".tg.spthy"),
+                   ]
+
+        for _ in versions:
+            file.write("*{1}{p{0.75cm}}")
+
+        file.write("""
+                    },
+                }
+        """)
+
+        for (version, _) in versions:
+            file.write("& {}".format(version))
+
+        file.write("\\\\")
+        file.write("\n")
+
+        for lemma in lemmas:
+            file.write("{}".format(lemma.replace("_", "\\_")))
+            for (version, ext) in versions:
+                write_time(file, time_of_lemma(base_dir, case, lemma, ext=ext))
+            file.write("\\\\")
+            file.write("\n")
+
+        file.write("\end{tblr}")
+
+def make_emverify_styles_table(name):
+    case = f"examples/EMVerify/contactless/{name}"
+    lemmas = lemmas_of_benchmark_case(case)
+    with open(f"{base_dir}/EMVerify_contactless_{name}_table.tex", "w") as file:
         file.write("""
             \\begin{tblr}{
                     hlines,
@@ -119,11 +160,13 @@ def make_emverify_table(index, lemmas):
 
         file.write("\end{tblr}")
 
-make_csf18_xor_styles_table("examples/csf18-xor/CH07")
-make_csf18_xor_styles_table("examples/csf18-xor/CRxor")
-make_csf18_xor_styles_table("examples/csf18-xor/KCL07")
-make_csf18_xor_styles_table("examples/csf18-xor/LAK06")
-make_csf18_xor_styles_table("examples/csf18-xor/NSLPK3xor")
+make_csf18_xor_styles_table("CH07")
+make_csf18_xor_styles_table("CRxor")
+make_csf18_xor_styles_table("KCL07")
+make_csf18_xor_styles_table("LAK06")
+make_csf18_xor_styles_table("NSLPK3xor")
+
+make_emverify_styles_table("Mastercard_SDA_NoPIN_Low")
 
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
