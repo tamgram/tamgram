@@ -166,7 +166,7 @@ make_csf18_xor_styles_table("KCL07")
 make_csf18_xor_styles_table("LAK06")
 make_csf18_xor_styles_table("NSLPK3xor")
 
-make_emverify_styles_table("Mastercard_SDA_NoPIN_Low")
+make_emverify_styles_table("Mastercard_CDA_NoPIN_Low")
 
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
