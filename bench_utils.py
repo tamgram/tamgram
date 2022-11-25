@@ -57,7 +57,7 @@ def lemmas_of_benchmark_case(name):
 
 def check_variant(variant):
     if variant != "tamarin" and variant != "tamgram":
-        raise Exception("Invalid file variant: {variant}")
+        raise Exception(f"Invalid file variant: {variant}")
 
 def summary_of_lemma(basedir, name, lemma, variant, style=None):
     check_variant(variant)
@@ -86,12 +86,15 @@ def summary_of_lemma(basedir, name, lemma, variant, style=None):
     except:
         return None
 
-def time_of_lemma(basedir, name, lemma, variant, style=None):
-    check_variant(variant)
-    if variant == "tamarin":
-        suffix = ".spthy.time"
-    elif variant == "tamgram":
-        suffix = tg_spthy_extension_of_style(style) + ".time"
+def time_of_lemma(basedir, name, lemma=None, variant=None, style=None, ext=None):
+    if ext is None:
+        check_variant(variant)
+        if variant == "tamarin":
+            suffix = ".spthy.time"
+        elif variant == "tamgram":
+            suffix = tg_spthy_extension_of_style(style) + ".time"
+    else:
+        suffix = ext
 
     try:
         path = f"{basedir}/{name}/{lemma}{suffix}"

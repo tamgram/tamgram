@@ -27,8 +27,28 @@ def write_table(file, cases, lemmas):
         file.write("\\\\")
         file.write("\n")
 
-def make_csf18_xor_cho7_styles_table(case, lemmas):
+def make_csf18_xor_table(case):
     with open(f"{base_dir}/CSF18_XOR_{case}_table.tex", "w") as file:
+        file.write("""
+            \\begin{tblr}{
+                    hlines,
+                    vlines,
+                    colspec={c 
+        """)
+
+        for _ in versions:
+            file.write("*{1}{p{1.5cm}} *{1}{p{1cm}}")
+
+        file.write("""
+                    },
+                    column{4-5,8-9}={blue8},
+                }
+        """)
+
+def make_csf18_xor_styles_table(case):
+    lemmas = lemmas_of_benchmark_case(case)
+    name = case.split("/")[-1]
+    with open(f"{base_dir}/CSF18_XOR_{name}_table.tex", "w") as file:
         file.write("""
             \\begin{tblr}{
                     hlines,
@@ -44,13 +64,25 @@ def make_csf18_xor_cho7_styles_table(case, lemmas):
                    ]
 
         for _ in versions:
-            file.write("*{1}{p{1.5cm}} *{1}{p{1cm}}")
+            file.write("*{1}{p{1cm}}")
 
         file.write("""
                     },
                     column{4-5,8-9}={blue8},
                 }
         """)
+
+        for (version, _) in versions:
+            file.write("& \\SetCell[c=2]{{}} {} &".format(version))
+
+        file.write("\\\\")
+        file.write("\n")
+
+        for lemma in lemmas:
+            for (version, ext) in versions:
+                write_time(file, time_of_lemma(base_dir, case, ext=ext))
+
+        file.write("\end{tblr}")
 
 def make_emverify_table(index, lemmas):
     with open(f"{base_dir}/EMVerify_table{index}.tex", "w") as file:
@@ -84,6 +116,8 @@ def make_emverify_table(index, lemmas):
         write_table(file, cases, lemmas)
 
         file.write("\end{tblr}")
+
+make_csf18_xor_styles_table("examples/csf18-xor/CH07")
 
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
