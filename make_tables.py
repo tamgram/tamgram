@@ -64,23 +64,25 @@ def make_csf18_xor_styles_table(case):
                    ]
 
         for _ in versions:
-            file.write("*{1}{p{1cm}}")
+            file.write("*{1}{p{0.75cm}}")
 
         file.write("""
                     },
-                    column{4-5,8-9}={blue8},
                 }
         """)
 
         for (version, _) in versions:
-            file.write("& \\SetCell[c=2]{{}} {} &".format(version))
+            file.write("& {}".format(version))
 
         file.write("\\\\")
         file.write("\n")
 
         for lemma in lemmas:
+            file.write("{}".format(lemma.replace("_", "\\_")))
             for (version, ext) in versions:
                 write_time(file, time_of_lemma(base_dir, case, lemma, ext=ext))
+            file.write("\\\\")
+            file.write("\n")
 
         file.write("\end{tblr}")
 
