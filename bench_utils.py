@@ -59,7 +59,7 @@ def check_variant(variant):
     if variant != "tamarin" and variant != "tamgram":
         raise Exception(f"Invalid file variant: {variant}")
 
-def summary_of_lemma(basedir, name, lemma, variant, style=None, ext=None):
+def summary_of_lemma(basedir, name, lemma, variant=None, style=None, ext=None):
     if ext is None:
         check_variant(variant)
         if variant == "tamarin":
@@ -89,7 +89,7 @@ def summary_of_lemma(basedir, name, lemma, variant, style=None, ext=None):
     except:
         return None
 
-def time_of_lemma(basedir, name, lemma=None, variant=None, style=None, ext=None):
+def time_of_lemma(basedir, name, lemma, variant=None, style=None, ext=None):
     if ext is None:
         check_variant(variant)
         if variant == "tamarin":

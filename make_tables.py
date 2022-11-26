@@ -11,8 +11,8 @@ def write_summary(file, summary):
     else:
         file.write("& {0} {1} steps".format(summary["status"], summary["step_count"]))
 
-def write_time(file, time):
-    if time is None or time == "":
+def write_time(file, summary, time):
+    if summary is None or time is None or time == "":
         file.write("& -")
     else:
         file.write("& {:.1f}".format(time))
@@ -22,8 +22,9 @@ def write_table(file, cases, lemmas):
         file.write("{0}".format(case.split("/")[-1].replace("_", "\\_")))
         for lemma in lemmas:
             for variant in ["tamarin", "tamgram"]:
-                write_summary(file, summary_of_lemma(base_dir, case, lemma, variant))
-                write_time(file, time_of_lemma(base_dir, case, lemma, variant))
+                summary = summary_of_lemma(base_dir, case, lemma, variant)
+                write_summary(file, summary)
+                write_time(file, summary, time_of_lemma(base_dir, case, lemma, variant))
         file.write("\\\\")
         file.write("\n")
 
@@ -80,7 +81,9 @@ def make_csf18_xor_styles_table(name):
         for lemma in lemmas:
             file.write("{}".format(lemma.replace("_", "\\_")))
             for (version, ext) in versions:
-                write_time(file, time_of_lemma(base_dir, case, lemma, ext=ext))
+                write_time(file,
+                           summary_of_lemma(base_dir, case, lemma, ext=ext),
+                           time_of_lemma(base_dir, case, lemma, ext=ext))
             file.write("\\\\")
             file.write("\n")
 
@@ -121,7 +124,9 @@ def make_emverify_styles_table(name):
         for lemma in lemmas:
             file.write("{}".format(lemma.replace("_", "\\_")))
             for (version, ext) in versions:
-                write_time(file, time_of_lemma(base_dir, case, lemma, ext=ext))
+                write_time(file,
+                           summary_of_lemma(base_dir, case, lemma, ext=ext),
+                           time_of_lemma(base_dir, case, lemma, ext=ext))
             file.write("\\\\")
             file.write("\n")
 
