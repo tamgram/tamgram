@@ -77,12 +77,13 @@ for case in cases:
                     p = subprocess.run(args, timeout=timeout, capture_output=True)
                     summary_section_reached = False
                     for line in p.stdout.splitlines():
-                        if "summary" in line.decode("utf-8"):
+                        line = line.decode("utf-8")
+                        if "summary" in line:
                             summary_section_reached = True
 
                         if summary_section_reached:
-                            if lemma in line.decode("utf-8"):
-                                summary = line.decode("utf-8").strip()
+                            if lemma in line.split():
+                                summary = line.strip()
                 except subprocess.TimeoutExpired:
                     summary = ""
 
