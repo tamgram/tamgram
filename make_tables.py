@@ -12,7 +12,9 @@ def write_summary(file, summary):
         file.write("& {0} {1} steps".format(summary["status"], summary["step_count"]))
 
 def write_time(file, summary, time):
-    if summary is None or time is None or time == "":
+    if summary is None and time is not None:
+        file.write("& \\texttt{TIMEOUT}")
+    elif time is None or time == "":
         file.write("& -")
     else:
         file.write("& {:.1f}".format(time))
