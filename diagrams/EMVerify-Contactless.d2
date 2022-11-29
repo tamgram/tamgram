@@ -1,0 +1,93 @@
+Terminal START -> Terminal_Sent_GPO: Terminal_Sends_GPO
+
+Card START -> Card_Responded_To_GPO: Card_Responds_To_GPO 
+
+Terminal_Sent_GPO -> Terminal_Sent_ReadRecord: Terminal_Sends_ReadRecord 
+
+Card_Responded_To_GPO -> Card_Ready_For_Cryptogram: Card_Responds_To_ReadRecord_NotDDA
+
+Card_Responded_To_GPO -> Card_Ready_For_DDA: Card_Responds_To_ReadRecord_DDA
+
+Terminal_Sent_ReadRecord -> Terminal_Ready_For_CVM: Terminal_Receives_Records_SDA
+
+Terminal_Sent_ReadRecord -> Terminal_Ready_For_CVM: Terminal_Receives_Records_CDA
+
+Terminal_Sent_ReadRecord -> Terminal_Ready_For_DDA: Terminal_Receives_Records_DDA
+
+Terminal_Ready_For_DDA -> Terminal_Sent_InternalAuthenticate: Terminal_Sends_InternalAuthenticate
+
+Card_Ready_For_DDA -> Card_Ready_For_Cryptogram: Card_Responds_To_InternalAuthenticate
+
+Terminal_Sent_InternalAuthenticate -> Terminal_Ready_For_CVM: Terminal_Receives_InternalAuthenticate_Response
+
+Terminal_Ready_For_CVM -> Terminal_Ready_For_Cryptogram: Terminal_Processes_CVM_NoPIN
+
+Terminal_Ready_For_CVM -> Terminal_Ready_For_Cryptogram: Terminal_Processes_CVM_OnlinePIN
+
+Terminal_Ready_For_CVM -> Terminal_Ready_For_Cryptogram: Terminal_Processes_CVM_ODCVM
+
+Terminal_Ready_For_Cryptogram -> Terminal_Sent_GenerateAC_NoCDA: Terminal_Sends_GenerateAC_NoCDA
+
+Terminal_Ready_For_Cryptogram -> Terminal_Sent_GenerateAC_CDA: Terminal_Sends_GenerateAC_CDA
+
+Card_Ready_For_Cryptogram -> Card END: Card_Responds_To_GenerateAC_NoCDA
+
+Card_Ready_For_Cryptogram -> Card END: Card_Responds_To_GenerateAC_CDA
+
+Terminal_Sent_GenerateAC_NoCDA -> Terminal_Received_AC: Terminal_Receives_AC_NoCDA
+
+Terminal_Sent_GenerateAC_CDA -> Terminal_Received_AC: Terminal_Receives_AC_CDA
+
+Terminal_Received_AC -> Terminal END: Terminal_Commits_TC (if Mastercard)
+
+"Recv($Terminal,$Bank,<channelID,'Mastercard','1'>,...)" -> Bank_Checked_AC: Bank_Receives_AC
+
+"Recv($Terminal,$Bank,<channelID,'Mastercard','1'>,...)" -> Bank END: Bank_Receives_AC_Failed
+
+Bank_Checked_AC -> Bank_Commits: Bank_Processes_CVM_NotOnlinePIN
+
+Bank_Commits -> "Send($Bank,$Terminal,<channelID,'Mastercard','2'>,...)": Bank_Commits (if Mastercard)
+
+Bank_Checked_AC -> Bank_Commits: Bank_Processes_CVM_OnlinePIN
+
+Terminal_Received_AC -> Terminal END: Terminal_Commits_ARQC (if Mastercard)
+
+!Value($amount,'Low') -> Terminal_Sent_GPO_Visa: Terminal_Sends_GPO_Low_Visa
+
+!Value($amount,'High') -> Terminal_Sent_GPO_Visa: Terminal_Sends_GPO_High_Visa
+
+Card START -> Card_Responded_To_GPO_Visa: Card_Responds_To_GPO_EMV_Visa
+
+Card START -> Card_Responded_To_GPO_Visa: Card_Responds_To_GPO_DDA_Visa
+
+Terminal_Sent_GPO_Visa -> Terminal_Sent_ReadRecord_Visa: Terminal_Sends_ReadRecord_Visa
+
+Card_Responded_To_GPO_Visa -> Card END: Card_Responds_To_ReadRecord_EMV_Visa
+
+Card_Responded_To_GPO_Visa -> Card END: Card_Responds_To_ReadRecord_DDA_Visa
+
+Terminal_Sent_ReadRecord_Visa -> Terminal_Ready_For_CVM_Visa: Terminal_Receives_Records_EMV_Visa
+
+Terminal_Sent_ReadRecord_Visa -> Terminal_Ready_For_CVM_Visa: Terminal_Receives_Records_DDA_Visa
+
+Terminal_Ready_For_CVM_Visa -> Terminal_Ready_To_Send_AC_Visa: Terminal_Processes_CVM_NoPIN_Visa
+
+Terminal_Ready_For_CVM_Visa -> Terminal_Ready_To_Send_AC_Visa: Terminal_Processes_CVM_CDCVM_Visa
+
+Terminal_Ready_For_CVM_Visa -> Terminal_Ready_To_Send_AC_Visa: Terminal_Processes_CVM_OnlinePIN_Visa
+
+Terminal_Ready_To_Send_AC_Visa -> Terminal_Received_AC_Visa: Terminal_Sends_AC_Visa
+
+Terminal_Received_AC_Visa -> Terminal END: Terminal_Commits_TC_Visa (if Visa)
+
+"Recv($Terminal,$Bank,<channelID,'Visa','1'>,...)" -> Bank_Checked_AC_Visa: Bank_Receives_AC_Visa
+
+"Recv($Terminal,$Bank,<channelID,'Visa','1'>,...)" -> Bank END: Bank_Receives_AC_Failed_Visa
+
+Bank_Checked_AC_Visa -> Bank_Commits_Visa: Bank_Processes_CVM_NotOnlinePIN_Visa
+
+Bank_Commits_Visa -> "Send($Bank,$Terminal,<channelID,'Visa','2'>,...)": Bank_Commits_Visa (if Visa)
+
+Bank_Checked_AC_Visa -> Bank_Commits_Visa: Bank_Processes_CVM_OnlinePIN_Visa
+
+Terminal_Received_AC_Visa -> Terminal END: Terminal_Commits_ARQC_Visa (if Visa)
