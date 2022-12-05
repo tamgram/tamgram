@@ -63,6 +63,7 @@
 %token LET
 %token IN
 %token <Loc.t> CHOICE
+%token WHILE
 %token PRED
 %token APRED
 %token FUN
@@ -81,8 +82,8 @@
 %token GLOBAL *)
 %token OPEN
 %token INSERT
-%token ENTRY_POINT
-%token GOTO
+(* %token ENTRY_POINT *)
+(* %token GOTO *)
 %token EQUATION
 %token <string Loc.tagged> BUILTIN
 %token BUILTINS
@@ -472,16 +473,20 @@ proc:
     { P_branch (Some loc, branches, next) }
   | loc = CHOICE; LEFT_CUR_BRACK; branches = flexible_list(SEMICOLON, proc_in_block); RIGHT_CUR_BRACK
     { P_branch (Some loc, branches, P_null) }
+  | WHILE; cell = cell; CAS; term = term; proc = proc_in_block
+    { P_while_cell_cas { cell; term; proc; next = P_null; } }
+  | WHILE; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
+    { P_while_cell_cas { cell; term; proc; next; } }
   | proc = proc_in_block; SEMICOLON; next = proc
     { P_scoped (proc, next) }
   | proc = proc_in_block
     { P_scoped (proc, P_null) }
-  | ENTRY_POINT; name = STRING; SEMICOLON; next = proc
+  (* | ENTRY_POINT; name = STRING; SEMICOLON; next = proc
     { P_entry_point { name; next } }
   | ENTRY_POINT; name = STRING;
     { P_entry_point { name; next = P_null } }
   | GOTO; dest = STRING;
-    { P_goto { dest; } }
+    { P_goto { dest; } } *)
 
 proc_in_block:
   | LEFT_CUR_BRACK; proc = proc; RIGHT_CUR_BRACK

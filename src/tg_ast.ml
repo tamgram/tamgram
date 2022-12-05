@@ -140,6 +140,12 @@ type proc =
   | P_goto of {
       dest : string Loc.tagged;
     }
+  | P_while_cell_cas of {
+    cell : string Loc.tagged;
+    term : term;
+    proc : proc;
+    next : proc;
+    }
 
 and proc_macro = {
   arg_and_typs : Typ.term Binding.t list;

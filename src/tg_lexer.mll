@@ -57,6 +57,7 @@ rule read =
   | "let"            { LET }
   | "in"             { IN }
   | "choice"         { CHOICE (loc lexbuf) }
+  | "while"          { WHILE }
   | "apred"          { APRED }
   | "pred"           { PRED }
   | "fun"            { FUN }
@@ -75,8 +76,8 @@ rule read =
   | "local"          { LOCAL } *)
   | "open"           { OPEN }
   | "insert"         { INSERT }
-  | "entry_point"    { ENTRY_POINT }
-  | "goto"           { GOTO }
+  (* | "entry_point"    { ENTRY_POINT } *)
+  (* | "goto"           { GOTO } *)
   | "equation"       { EQUATION }
   | "builtins"       { BUILTINS }
 
