@@ -78,8 +78,8 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> Ok ()
-    | P_entry_point { next; _ } -> aux next
+    | P_null (* | P_goto _ *) -> Ok ()
+    (* | P_entry_point { next; _ } -> aux next *)
     | P_let _ | P_let_macro _ -> failwith "Unexpected case"
     | P_app (_, _, _, next) -> aux next
     | P_line { tag = _; rule; next } ->
@@ -96,6 +96,9 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
       in
       aux next
     | P_scoped (proc, next) ->
+      let* () = aux proc in
+      aux next
+    | P_while_cell_cas { proc; next; _ } ->
       let* () = aux proc in
       aux next
   in

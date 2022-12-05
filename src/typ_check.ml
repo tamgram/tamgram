@@ -351,8 +351,8 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
   let open Tg_ast in
   let rec aux typ_ctx proc =
     match proc with
-    | P_null | P_goto _ -> Ok ()
-    | P_entry_point { next; _ } -> aux typ_ctx next
+    | P_null (* | P_goto _ *) -> Ok ()
+    (* | P_entry_point { next; _ } -> aux typ_ctx next *)
     | P_let { binding; next; _ } ->
       let* typ = typ_of_term typ_ctx (Binding.get binding) in
       let name = Binding.name binding in
@@ -384,6 +384,18 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
     | P_scoped (proc, next) ->
       let* () = aux typ_ctx proc in
       aux typ_ctx next
+    | P_while_cell_cas { cell = _; term; proc; next } -> (
+      let* typ = typ_of_term typ_ctx term in
+      let expected_typs = compatible_typs_of_typ `Bitstring in
+      if List.mem typ expected_typs then
+        let* () = aux typ_ctx proc in
+        aux typ_ctx next
+      else (
+              Error (error_msg_for_term ~expected_one_of_typs:expected_typs ~actual_typ:typ
+              term
+                    )
+      )
+    )
   and aux_list typ_ctx procs =
     match procs with
     | [] -> Ok ()

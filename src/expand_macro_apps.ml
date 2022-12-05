@@ -104,9 +104,9 @@ let aux_proc
   let open Tg_ast in
   let rec aux term_macro_defs proc =
     match proc with
-    | P_null | P_goto _ -> proc
-    | P_entry_point { name; next } ->
-      P_entry_point { name; next = aux term_macro_defs next }
+    | P_null (* | P_goto _ *) -> proc
+    (* | P_entry_point { name; next } ->
+      P_entry_point { name; next = aux term_macro_defs next } *)
     | P_let { binding; next } ->
       P_let
         {
@@ -177,6 +177,13 @@ let aux_proc
       P_scoped
         ( aux term_macro_defs proc,
           aux term_macro_defs next )
+    | P_while_cell_cas { cell; term; proc; next } ->
+        P_while_cell_cas {
+          cell;
+        term;
+        proc = aux term_macro_defs proc;
+        next = aux term_macro_defs next;
+    }
   in
   aux term_macro_defs proc
 

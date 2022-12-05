@@ -65,6 +65,12 @@ let sub
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) ->
       P_scoped (aux proc, aux next)
+    | P_while_cell_cas { cell; term; proc; next } ->
+        P_while_cell_cas { cell;
+        term = term_sub term;
+        proc = aux proc;
+        next = aux next;
+    }
     (* | P_entry_point { name; next } ->
       P_entry_point { name; next = aux next } *)
   in
@@ -81,7 +87,7 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
   in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> String_tagged_set.empty
+    | P_null (* | P_goto _ *) -> String_tagged_set.empty
     | P_let { binding; next } ->
       let x = Binding.get binding in
       String_tagged_set.union (Term.cells_in_term x) (aux next)
@@ -108,7 +114,12 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
         (aux next :: List.map aux procs)
     | P_scoped (proc, next) ->
       String_tagged_set.union (aux proc) (aux next)
-    | P_entry_point { name = _; next } ->
-      aux next
+    (* | P_entry_point { name = _; next } ->
+      aux next *)
+    | P_while_cell_cas { cell; term; proc; next } ->
+        List.map aux [ proc; next ]
+    |> List.fold_left
+        String_tagged_set.union
+      String_tagged_set.(add cell (Term.cells_in_term term))
   in
   aux proc

@@ -198,8 +198,8 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> Ok ()
-    | P_entry_point { next; _ } -> aux next
+    | P_null (* | P_goto _ *) -> Ok ()
+    (* | P_entry_point { next; _ } -> aux next *)
     | P_let { binding; next; _ } ->
       let* () = check_name ~allow_wildcard:true (Binding.name_str binding) in
       let* () = check_term ~allow_wildcard:false (Binding.get binding) in
@@ -230,6 +230,9 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
       aux next
     | P_scoped (x, next) ->
       let* () = aux x in
+      aux next
+    | P_while_cell_cas { proc; next; _ } ->
+      let* () = aux proc in
       aux next
   in
   aux proc

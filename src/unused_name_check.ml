@@ -175,6 +175,10 @@ let names_used_in_proc (proc : Tg_ast.proc) : Name_set.t =
       let usage_next = aux usage_next next in
       aux usage_next proc
     (* | P_entry_point { next; _ } -> aux usage_next next *)
+    | P_while_cell_cas { cell = _; term; proc; next } ->
+      let usage_next = aux usage_next next in
+      let usage = names_used_in_term term in
+      aux (Name_set.union usage usage_next) proc
   and aux_list usage_next acc procs =
     match procs with
     | [] -> acc

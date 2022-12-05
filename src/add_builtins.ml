@@ -53,10 +53,10 @@ let base =
               let x = T_var (Path.of_string "x", `Local 0, None) in
               let y = T_var (Path.of_string "y", `Local 0, None) in
               T_binary_op (`Imp,
-              T_action (
-                fact = T_app ( Path.of_string Params.while_cell_eq_apred_name, [x; y], None);
-                termporal = (Loc.untagged "i", `Local 0);
-              ),
+              T_action {
+                fact = T_app ( Path.of_string Params.while_cell_eq_apred_name, `Local 0, [x; y], None);
+                temporal = (Loc.untagged "i", `Local 0);
+              },
               T_binary_op (`Eq, x, y)
             );
           }
