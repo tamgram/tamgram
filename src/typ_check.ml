@@ -385,17 +385,17 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
       let* () = aux typ_ctx proc in
       aux typ_ctx next
     | P_while_cell_cas { cell = _; term; proc; next } -> (
-      let* typ = typ_of_term typ_ctx term in
-      let expected_typs = compatible_typs_of_typ `Bitstring in
-      if List.mem typ expected_typs then
-        let* () = aux typ_ctx proc in
-        aux typ_ctx next
-      else (
-              Error (error_msg_for_term ~expected_one_of_typs:expected_typs ~actual_typ:typ
-              term
-                    )
+        let* typ = typ_of_term typ_ctx term in
+        let expected_typs = compatible_typs_of_typ `Bitstring in
+        if List.mem typ expected_typs then
+          let* () = aux typ_ctx proc in
+          aux typ_ctx next
+        else (
+          Error (error_msg_for_term ~expected_one_of_typs:expected_typs ~actual_typ:typ
+                   term
+                )
+        )
       )
-    )
   and aux_list typ_ctx procs =
     match procs with
     | [] -> Ok ()

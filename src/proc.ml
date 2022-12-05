@@ -66,13 +66,13 @@ let sub
     | P_scoped (proc, next) ->
       P_scoped (aux proc, aux next)
     | P_while_cell_cas { cell; term; proc; next } ->
-        P_while_cell_cas { cell;
-        term = term_sub term;
-        proc = aux proc;
-        next = aux next;
-    }
-    (* | P_entry_point { name; next } ->
-      P_entry_point { name; next = aux next } *)
+      P_while_cell_cas { cell;
+                         term = term_sub term;
+                         proc = aux proc;
+                         next = aux next;
+                       }
+      (* | P_entry_point { name; next } ->
+         P_entry_point { name; next = aux next } *)
   in
   aux proc
 
@@ -115,11 +115,11 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
     | P_scoped (proc, next) ->
       String_tagged_set.union (aux proc) (aux next)
     (* | P_entry_point { name = _; next } ->
-      aux next *)
+       aux next *)
     | P_while_cell_cas { cell; term; proc; next } ->
-        List.map aux [ proc; next ]
-    |> List.fold_left
+      List.map aux [ proc; next ]
+      |> List.fold_left
         String_tagged_set.union
-      String_tagged_set.(add cell (Term.cells_in_term term))
+        String_tagged_set.(add cell (Term.cells_in_term term))
   in
   aux proc

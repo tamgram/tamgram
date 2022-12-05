@@ -85,7 +85,7 @@ let reduce_proc subs (proc : Tg_ast.proc) : Tg_ast.proc =
     match proc with
     | P_null (* | P_goto _ *) -> proc
     (* | P_entry_point { name; next } ->
-      P_entry_point { name; next = aux subs next } *)
+       P_entry_point { name; next = aux subs next } *)
     | P_let { binding; next; _ } ->
       let subs =
         (Binding.name binding, reduce_term subs (Binding.get binding)) :: subs

@@ -4,8 +4,8 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
     match proc with
     | P_null -> replace_with
     (* | P_goto _ -> proc
-    | P_entry_point { name; next } ->
-      P_entry_point { name; next = aux next } *)
+       | P_entry_point { name; next } ->
+       P_entry_point { name; next = aux next } *)
     | P_let { binding; next } ->
       P_let { binding; next = aux next }
     | P_let_macro { binding; next } ->

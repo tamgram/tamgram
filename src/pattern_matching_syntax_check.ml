@@ -1,25 +1,25 @@
 open Result_infix
 
 let rec check_term_either_constant_or_wildcard (term : Tg_ast.term)
-: (unit, Error_msg.t) result =
+  : (unit, Error_msg.t) result =
   let open Tg_ast in
   let aux term =
     match term with
     | T_value _ | T_symbol _ -> Ok ()
     | T_var (path, _, _) -> (
-      let msg = "Only wildcard (_) can be used as variable here" in
-      match path with
-      | [] -> failwith "Unexpected case"
-      | [ x ] -> (
-        match Loc.content x with
-        | "_" -> Ok ()
-        | _ -> Error (Error_msg.make (Loc.tag x) msg)
-      )
+        let msg = "Only wildcard (_) can be used as variable here" in
+        match path with
+        | [] -> failwith "Unexpected case"
+        | [ x ] -> (
+            match Loc.content x with
+            | "_" -> Ok ()
+            | _ -> Error (Error_msg.make (Loc.tag x) msg)
+          )
         | _ -> Error (Error_msg.make (Path.loc path) msg)
-    )
-        | T_tuple (_, l) -> check_terms_either_constant_or_wildcard l
-        | T_app (_, _, l, _) -> check_terms_either_constant_or_wildcard l
-        | _ -> Error (Error_msg.make (Term.loc term) "Only constants, wildcards, cells, tuples, and function applications can be used here")
+      )
+    | T_tuple (_, l) -> check_terms_either_constant_or_wildcard l
+    | T_app (_, _, l, _) -> check_terms_either_constant_or_wildcard l
+    | _ -> Error (Error_msg.make (Term.loc term) "Only constants, wildcards, cells, tuples, and function applications can be used here")
   in
   aux term
 
@@ -28,10 +28,10 @@ and check_terms_either_constant_or_wildcard terms : (unit, Error_msg.t) result =
     match terms with
     | [] -> Ok ()
     | x :: xs ->
-        let* () = check_term_either_constant_or_wildcard x in
-        aux xs
-    in
-    aux terms
+      let* () = check_term_either_constant_or_wildcard x in
+      aux xs
+  in
+  aux terms
 
 let rec check_term ~allow_path_to_var ~(allow_let_binding : bool)
     ~(allow_cell_pat_match : bool) ~(allow_name_as : bool) (term : Tg_ast.term)

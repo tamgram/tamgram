@@ -136,15 +136,15 @@ type proc =
   (* | P_entry_point of {
       name : string Loc.tagged;
       next : proc;
-    }
-  | P_goto of {
+     }
+     | P_goto of {
       dest : string Loc.tagged;
-    } *)
+     } *)
   | P_while_cell_cas of {
-    cell : string Loc.tagged;
-    term : term;
-    proc : proc;
-    next : proc;
+      cell : string Loc.tagged;
+      term : term;
+      proc : proc;
+      next : proc;
     }
 
 and proc_macro = {

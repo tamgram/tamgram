@@ -121,7 +121,7 @@ let aux_proc (builtins : Builtin_set.t) (x : Tg_ast.proc) : (unit, Error_msg.t) 
       let* () = aux proc in
       aux next
     (* | P_entry_point { next; _ } ->
-      aux next *)
+       aux next *)
     | P_while_cell_cas { term; proc; next; _ } ->
       let* () = aux_term builtins term in
       let* () = aux proc in
