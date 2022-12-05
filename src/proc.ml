@@ -29,7 +29,7 @@ let sub
   in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> proc
+    | P_null (* | P_goto _ *) -> proc
     | P_let { binding; next } ->
       let binding = Binding.map term_sub binding in
       P_let { binding; next = aux next }
@@ -65,8 +65,8 @@ let sub
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) ->
       P_scoped (aux proc, aux next)
-    | P_entry_point { name; next } ->
-      P_entry_point { name; next = aux next }
+    (* | P_entry_point { name; next } ->
+      P_entry_point { name; next = aux next } *)
   in
   aux proc
 

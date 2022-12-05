@@ -272,12 +272,12 @@ let aux_proc
   let open Tg_ast in
   let rec aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc =
     match proc with
-    | P_null | P_goto _ -> Ok proc
-    | P_entry_point { name; next } ->
+    | P_null (* | P_goto _ *) -> Ok proc
+    (* | P_entry_point { name; next } ->
       let+ next =
         aux ~lexical_ctx_for_var ~lexical_ctx_for_func next
       in
-      P_entry_point { name; next }
+      P_entry_point { name; next } *)
     | P_let { binding; next } ->
       let* bound_to =
         aux_term
@@ -336,6 +336,14 @@ let aux_proc
       let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
       let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
       P_scoped (proc, next)
+    | P_while_cell_cas { cell; term; proc; next } -> (
+      let* term =
+        aux_term ~lexical_ctx_for_var ~lexical_ctx_for_func term
+      in
+      let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
+      let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
+      P_while_cell_cas { cell; term; proc; next }
+    )
   and aux_list acc ~lexical_ctx_for_var ~lexical_ctx_for_func procs =
     match procs with
     | [] -> Ok (List.rev acc)

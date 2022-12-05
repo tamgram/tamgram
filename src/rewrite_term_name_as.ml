@@ -91,7 +91,7 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> Ok proc
+    | P_null (* | P_goto _ *) -> Ok proc
     | P_let { binding; next } ->
       let+ next = aux next in
       P_let { binding; next }
@@ -113,9 +113,9 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
       let* proc = aux proc in
       let+ next = aux next in
       P_scoped (proc, next)
-    | P_entry_point { name; next } ->
+    (* | P_entry_point { name; next } ->
       let+ next = aux next in
-      P_entry_point { name; next }
+      P_entry_point { name; next } *)
   and aux_list acc procs =
     match procs with
     | [] -> Ok (List.rev acc)

@@ -36,7 +36,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
     let open Tg_ast in
     match proc with
     | P_null -> Ok (entry_points, g)
-    | P_goto { dest } ->
+    (* | P_goto { dest } ->
       let id = Graph.get_id () in
       let entry_point_id =
         String_map.find (Loc.content dest) entry_points
@@ -47,20 +47,20 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         |> Graph.add_vertex_with_id id empty_rule
         |> Graph.add_edge (id, entry_point_id)
       in
-      Ok (entry_points, g)
+      Ok (entry_points, g) *)
     | P_let _
     | P_let_macro _
     | P_scoped _
     | P_app _
       -> failwith "Unexpected case"
-    | P_entry_point { name; next; } ->
+    (* | P_entry_point { name; next; } ->
       let id = Graph.get_id () in
       let g =
         g
         |> link_backward ~last_ids id
         |> Graph.add_vertex_with_id id empty_rule
       in
-      aux (String_map.add (Loc.content name) id entry_points) [id] g next
+      aux (String_map.add (Loc.content name) id entry_points) [id] g next *)
     | P_line { tag; rule; next } ->
       let id = Graph.get_id () in
       (match tag with
@@ -134,6 +134,9 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
             | _ -> default ()
           )
       )
+            | P_while_cell_cas { cell; term; proc; next } -> (
+              failwith "TODO"
+            )
   and aux_list entry_points last_ids g acc procs =
     match procs with
     | [] -> Ok (List.rev acc)

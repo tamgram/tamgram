@@ -281,12 +281,12 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
     | P_scoped (proc, next) ->
       Fmt.pf formatter "%a;@,%a" aux_in_block
         proc aux next
-    | P_entry_point { name; next } ->
+    (* | P_entry_point { name; next } ->
       Fmt.pf formatter "entry_point \"%s\";@,%a"
-        (Loc.content name) aux next
-    | P_goto { dest } ->
+        (Loc.content name) aux next *)
+    (* | P_goto { dest } ->
       Fmt.pf formatter "goto \"%s\""
-        (Loc.content dest)
+        (Loc.content dest) *)
   and aux_in_block formatter p = Fmt.pf formatter "{@,  @[<v>%a@]@,}" aux p in
   aux formatter p
 

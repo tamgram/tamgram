@@ -1,5 +1,39 @@
 open Result_infix
 
+let rec check_term_either_constant_or_wildcard (term : Tg_ast.term)
+: (unit, Error_msg.t) result =
+  let open Tg_ast in
+  let rec aux term =
+    match term with
+    | T_value _ | T_symbol _ -> Ok ()
+    | T_var (path, _, _) -> (
+      let msg = "Only wildcard (_) can be used as variable here" in
+      match path with
+      | [] -> failwith "Unexpected case"
+      | [ x ] -> (
+        match Loc.content x with
+        | "_" -> Ok ()
+        | _ -> Error (Error_msg.make (Loc.tag x) msg)
+      )
+        | _ -> Error (Error_msg.make (Loc.tag x) msg)
+    )
+        | T_tuple (_, l) -> check_terms_either_constant_or_wildcard l
+        | T_app (_, _, l) -> check_terms_either_constant_or_wildcard l
+        | _ -> Error (Error_msg.make (Term.loc term) "Only constants, wildcards, tuples, and function applications can be used here")
+  in
+  aux term
+
+and check_terms_either_constant_or_wildcard terms : (unit, Error_msg.t) result =
+  let open Tg_ast in
+  let rec aux terms =
+    match terms with
+    | [] -> Ok ()
+    | x :: xs ->
+        let* () = check_term_either_constant_or_wildcard x in
+        aux xs
+    in
+    aux terms
+
 let rec check_term ~allow_path_to_var ~(allow_let_binding : bool)
     ~(allow_cell_pat_match : bool) ~(allow_name_as : bool) (term : Tg_ast.term)
   : (unit, Error_msg.t) result =
@@ -214,7 +248,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null | P_goto _ -> Ok ()
+    | P_null (* | P_goto _ *) -> Ok ()
     | P_let { binding; next; _ } ->
       let* () =
         check_term ~allow_path_to_var:true ~allow_let_binding:true
@@ -240,7 +274,11 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     | P_scoped (p, next) ->
       let* () = aux p in
       aux next
-    | P_entry_point { next; _ } -> aux next
+    (* | P_entry_point { next; _ } -> aux next *)
+    | P_while_cell_cas { cell; term; proc; next } ->
+      let* () = check_term_either_constant_or_wildcard term in
+      let* () = aux proc in
+      aux next
   and aux_list procs =
     match procs with
     | [] -> Ok ()

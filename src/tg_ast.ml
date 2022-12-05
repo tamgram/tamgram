@@ -133,13 +133,13 @@ type proc =
     }
   | P_branch of Loc.t option * proc list * proc
   | P_scoped of proc * proc
-  | P_entry_point of {
+  (* | P_entry_point of {
       name : string Loc.tagged;
       next : proc;
     }
   | P_goto of {
       dest : string Loc.tagged;
-    }
+    } *)
   | P_while_cell_cas of {
     cell : string Loc.tagged;
     term : term;
