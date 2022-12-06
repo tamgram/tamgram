@@ -3,84 +3,92 @@ begin
 
 builtins: xor, hashing
 
-rule Setup_28:
-    [ Fr(~k_27)
+restriction tg_cell_eq_restriction:
+  "All x_17 y_18 #i_19 .
+     ((TgCellEq(x_17, y_18) @ #i_19) ==> (((x_17) = (y_18))))"
+
+restriction tg_cell_neq_restriction:
+  "not Ex x_21 #i_22 .
+         TgCellNeq(x_21, x_21) @ #i_22"
+
+rule Setup_37:
+    [ Fr(~k_36)
     ]
-  --[ OnlyOnce_18()
+  --[ OnlyOnce_27()
     ]->
-    [ !InitLTK_19(~k_27)
-    , !RespLTK_20(~k_27)
+    [ !InitLTK_28(~k_36)
+    , !RespLTK_29(~k_36)
     ]
 
-rule initiator_34_1to2:
+rule initiator_43_1to2:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
 
-rule initiator_34_manyto2to3_initiator:
+rule initiator_43_manyto2to3_initiator:
     [ StF(~pid, 'tgk2', 'empty_tuple')
-    , Fr(~na_29)
+    , Fr(~na_38)
     ]
-  --[ Challenge_25(~na_29)
+  --[ Challenge_34(~na_38)
     ]->
-    [ StF(~pid, 'tgk3', <~na_29>)
-    , Out(~na_29)
+    [ StF(~pid, 'tgk3', <~na_38>)
+    , Out(~na_38)
     ]
 
-rule initiator_34_manyto3_initiator2:
-    [ StF(~pid, 'tgk3', <~u_tgany0_33>)
-    , !InitLTK_19(~k_32)
-    , In(<m_31, nb_30>)
+rule initiator_43_manyto3_initiator2:
+    [ StF(~pid, 'tgk3', <~u_tgany0_42>)
+    , !InitLTK_28(~k_41)
+    , In(<m_40, nb_39>)
     ]
-  --[ Alive_23(~u_tgany0_33, ~k_32)
-    , Eq_21(h(((((~u_tgany0_33) XOR (~k_32))) XOR (nb_30))), m_31)
+  --[ Alive_32(~u_tgany0_42, ~k_41)
+    , Eq_30(h(((((~u_tgany0_42) XOR (~k_41))) XOR (nb_39))), m_40)
     ]->
     [ 
     ]
 
-rule responder_38:
-    [ In(na_36)
-    , Fr(~nb_35)
-    , !RespLTK_20(~k_37)
+rule responder_47:
+    [ In(na_45)
+    , Fr(~nb_44)
+    , !RespLTK_29(~k_46)
     ]
-  --[ Response_26(~k_37)
-    , Neq_22(na_36, zero)
-    , NeqForExec_24(na_36, zero)
+  --[ Response_35(~k_46)
+    , Neq_31(na_45, zero)
+    , NeqForExec_33(na_45, zero)
     ]->
-    [ Out(<h(((((na_36) XOR (~k_37))) XOR (~nb_35))), ~nb_35>)
+    [ Out(<h(((((na_45) XOR (~k_46))) XOR (~nb_44))), ~nb_44>)
     ]
 
 restriction equality:
-  "All x_39 y_40 #i_41 .
-     ((Eq_21(x_39, y_40) @ #i_41) ==> (((x_39) = (y_40))))"
+  "All x_48 y_49 #i_50 .
+     ((Eq_30(x_48, y_49) @ #i_50) ==> (((x_48) = (y_49))))"
 
 restriction unique:
-  "All #i_43 #j_44 .
-     ((((OnlyOnce_18() @ #i_43) & (OnlyOnce_18() @ #j_44))) ==> (#i_43 = #j_44))"
+  "All #i_52 #j_53 .
+     ((((OnlyOnce_27() @ #i_52) & (OnlyOnce_27() @ #j_53))) ==> (#i_52 = #j_53))"
 
 restriction inequality:
-  "not Ex x_46 #i_47 .
-         Neq_22(x_46, x_46) @ #i_47"
+  "not Ex x_55 #i_56 .
+         Neq_31(x_55, x_55) @ #i_56"
 
 lemma alive []:
   all-traces
-  "All x_49 y_50 #i_51 .
-     ((Alive_23(x_49, y_50) @ #i_51) ==> (Ex #j_52 .
-                                            Response_26(y_50) @ #j_52))"
+  "All x_58 y_59 #i_60 .
+     ((Alive_32(x_58, y_59) @ #i_60) ==> (Ex #j_61 .
+                                            Response_35(y_59) @ #j_61))"
 
 lemma recentalive_tag []:
   all-traces
-  "All x_54 y_55 #i_56 .
-     ((Alive_23(x_54, y_55) @ #i_56) ==> (Ex #j_57 #k_58 .
-                                            ((((((Challenge_25(x_54) @ #k_58) & (Response_26(
-                                            y_55) @ #j_57))) & (#k_58 < #j_57))) & (#j_57 < #i_56))))"
+  "All x_63 y_64 #i_65 .
+     ((Alive_32(x_63, y_64) @ #i_65) ==> (Ex #j_66 #k_67 .
+                                            ((((((Challenge_34(x_63) @ #k_67) & (Response_35(
+                                            y_64) @ #j_66))) & (#k_67 < #j_66))) & (#j_66 < #i_65))))"
 
 lemma executable []:
   exists-trace
-  "Ex x_60 y_61 #i_62 #j_63 .
-     ((((((Alive_23(x_60, y_61) @ #i_62) & (Response_26(y_61) @ #j_63))) & (not 
-     Ex #k_64 .
-       ((Response_26(y_61) @ #k_64) & (not #j_63 = #k_64))))) & (not 
-     Ex #l_65 .
-       NeqForExec_24(x_60, x_60) @ #l_65))"
+  "Ex x_69 y_70 #i_71 #j_72 .
+     ((((((Alive_32(x_69, y_70) @ #i_71) & (Response_35(y_70) @ #j_72))) & (not 
+     Ex #k_73 .
+       ((Response_35(y_70) @ #k_73) & (not #j_72 = #k_73))))) & (not 
+     Ex #l_74 .
+       NeqForExec_33(x_69, x_69) @ #l_74))"
 
 end
 
