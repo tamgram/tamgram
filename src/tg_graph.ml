@@ -32,7 +32,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
   let tags : string Int_map.t ref = ref Int_map.empty in
   let rec aux
       (last_ids : int list) (g : t) (proc : Tg_ast.proc)
-    : (int String_map.t * t, Error_msg.t) result =
+    : (t, Error_msg.t) result =
     let open Tg_ast in
     match proc with
     | P_null -> Ok g
@@ -55,7 +55,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
       aux [id] g next
     | P_branch (loc, procs, next) -> (
         let* gs =
-          aux_list last_ids g [] procs
+          aux_list last_ids Graph.empty [] procs
         in
         let last_ids =
           CCList.flat_map (fun g ->
@@ -64,7 +64,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
             )
             gs
         in
-        let g = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
+        let g = List.fold_left (fun acc x -> Graph.union acc x) g gs in
         let default () =
           aux last_ids g next
         in
@@ -115,21 +115,31 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
                         None)];
           }
         in
-        let* true_branch_remainder =
-          aux [true_branch_first_rule_id] proc
+        let g =
+          g
+          |> Graph.add_vertex_with_id
+            true_branch_first_rule_id
+            true_branch_first_rule
+          |> link_backward ~last_ids true_branch_first_rule_id
+          |> Graph.add_vertex_with_id
+            false_branch_first_rule_id
+            false_branch_first_rule
+          |> link_backward ~last_ids false_branch_first_rule_id
         in
-        let* next =
-          aux [false_branch_first_rule_id] next
+        let* proc_g =
+          aux [true_branch_first_rule_id] Graph.empty proc
         in
-        Graph.union true_branch_reaminder next
-        |> Graph.add_vertex_with_id
-          true_branch_first_rule_id
-          true_branch_first_rule
-        |> Graph.add_vertex_with_id
-          false_branch_first_rule_id
-          false_branch_first_rule
-        |> link_backward ~last_ids true_branch_first_rule_id
-        |> link_backward ~last_ids false_branch_first_rule_id
+        let true_branch_leaves =
+          Graph.leaves proc_g
+          |> List.of_seq
+        in
+        let g =
+          g
+          |> Graph.union proc_g
+          |> link_backward ~last_ids:true_branch_leaves true_branch_first_rule_id
+          |> link_backward ~last_ids:true_branch_leaves false_branch_first_rule_id
+        in
+        aux [false_branch_first_rule_id] g next
       )
   and aux_list last_ids g acc procs =
     match procs with
@@ -138,5 +148,5 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
       let* p = aux last_ids g p in
       aux_list last_ids g (p :: acc) ps
   in
-  let+ _, g = aux [] Graph.empty proc in
+  let+ g = aux [] Graph.empty proc in
   (g, !tags)

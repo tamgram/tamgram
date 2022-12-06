@@ -75,7 +75,6 @@ let base =
                                     ];
                             formula =
                               let x = T_var (Path.of_string "x", `Local 0, None) in
-                              let y = T_var (Path.of_string "y", `Local 0, None) in
                               T_action {
                                 fact = T_app ( Path.of_string Params.while_cell_neq_apred_name, `Local 0, [x; x], None);
                                 temporal = (Loc.untagged "i", `Local 0);
