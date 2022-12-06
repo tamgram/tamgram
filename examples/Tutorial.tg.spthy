@@ -3,96 +3,88 @@ begin
 
 builtins: hashing, asymmetric-encryption
 
-restriction tg_cell_eq_restriction:
-  "All x_19 y_20 #i_21 .
-     ((TgCellEq(x_19, y_20) @ #i_21) ==> (((x_19) = (y_20))))"
-
-restriction tg_cell_neq_restriction:
-  "not Ex x_23 #i_24 .
-         TgCellNeq(x_23, x_23) @ #i_24"
-
-rule Register_pk_32:
-    [ Fr(~ltk_31)
+rule Register_pk_25:
+    [ Fr(~ltk_24)
     ]
   --[ 
     ]->
-    [ !Ltk_29($A, ~ltk_31)
-    , !Pk_30($A, pk(~ltk_31))
+    [ !Ltk_22($A, ~ltk_24)
+    , !Pk_23($A, pk(~ltk_24))
     ]
 
-rule Get_pk_35:
-  [!Pk_30(A_34, pk)]--[]->[Out(pk)]
+rule Get_pk_28:
+  [!Pk_23(A_27, pk)]--[]->[Out(pk)]
 
-rule Reveal_ltk_39:
-  [!Ltk_29(A_38, ltk_37)]--[LtkReveal_36(A_38)]->[Out(ltk_37)]
+rule Reveal_ltk_32:
+  [!Ltk_22(A_31, ltk_30)]--[LtkReveal_29(A_31)]->[Out(ltk_30)]
 
-rule Client_43_3to4:
+rule Client_36_3to4:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
-rule Client_43_manyto4to5:
+rule Client_36_manyto4to5:
     [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Fr(~k_42)
-    , !Pk_30($S, pkS_41)
+    , Fr(~k_35)
+    , !Pk_23($S, pkS_34)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk5', <~k_42, $S>)
-    , Out(aenc(<'1', ~k_42>, pkS_41))
+    [ StF(~pid, 'tgk5', <~k_35, $S>)
+    , Out(aenc(<'1', ~k_35>, pkS_34))
     ]
 
-rule Client_43_manyto5:
+rule Client_36_manyto5:
     [ StF(~pid, 'tgk5', <tgc_k_0, tgc_server_0>)
     , In(h(tgc_k_0))
     ]
-  --[ SessKeyC_40(tgc_server_0, tgc_k_0)
+  --[ SessKeyC_33(tgc_server_0, tgc_k_0)
     ]->
     [ 
     ]
 
-rule Serv_1_48:
-    [ !Ltk_29($S, ~ltkS_47)
-    , In(request_46)
+rule Serv_1_41:
+    [ !Ltk_22($S, ~ltkS_40)
+    , In(request_39)
     ]
-  --[ Eq_44(fst(adec(request_46, ~ltkS_47)), '1')
-    , AnswerRequest_45($S, snd(adec(request_46, ~ltkS_47)))
+  --[ Eq_37(fst(adec(request_39, ~ltkS_40)), '1')
+    , AnswerRequest_38($S, snd(adec(request_39, ~ltkS_40)))
     ]->
-    [ Out(h(snd(adec(request_46, ~ltkS_47))))
+    [ Out(h(snd(adec(request_39, ~ltkS_40))))
     ]
 
 restriction Equality_Checks_Succeed:
-  "All x_49 y_50 #i_51 .
-     ((Eq_44(x_49, y_50) @ #i_51) ==> (((x_49) = (y_50))))"
+  "All x_42 y_43 #i_44 .
+     ((Eq_37(x_42, y_43) @ #i_44) ==> (((x_42) = (y_43))))"
 
 lemma Client_session_key_secrecy []:
   all-traces
-  "not Ex S_53 k_54 #i_55 #j_56 .
-         ((((SessKeyC_40(S_53, k_54) @ #i_55) & (K(k_54) @ #j_56))) & (not 
-         Ex #r_57 .
-           LtkReveal_36(S_53) @ #r_57))"
+  "not Ex S_46 k_47 #i_48 #j_49 .
+         ((((SessKeyC_33(S_46, k_47) @ #i_48) & (K(k_47) @ #j_49))) & (not 
+         Ex #r_50 .
+           LtkReveal_29(S_46) @ #r_50))"
 
 lemma Client_auth []:
   all-traces
-  "All S_59 k_60 #i_61 .
-     ((SessKeyC_40(S_59, k_60) @ #i_61) ==> (((Ex #a_62 .
-                                                 AnswerRequest_45(S_59, k_60) @ #a_62) | (
-     Ex #r_63 .
-       ((LtkReveal_36(S_59) @ #r_63) & (#r_63 < #i_61))))))"
+  "All S_52 k_53 #i_54 .
+     ((SessKeyC_33(S_52, k_53) @ #i_54) ==> (((Ex #a_55 .
+                                                 AnswerRequest_38(S_52, k_53) @ #a_55) | (
+     Ex #r_56 .
+       ((LtkReveal_29(S_52) @ #r_56) & (#r_56 < #i_54))))))"
 
 lemma Client_auth_injective []:
   all-traces
-  "All S_65 k_66 #i_67 .
-     ((SessKeyC_40(S_65, k_66) @ #i_67) ==> (((Ex #a_68 .
-                                                 ((AnswerRequest_45(S_65, k_66) @ #a_68) & (
-                                                 All #j_69 .
-                                                   ((SessKeyC_40(S_65, k_66) @ #j_69) ==> (#i_67 = #j_69))))) | (
-     Ex #r_70 .
-       ((LtkReveal_36(S_65) @ #r_70) & (#r_70 < #i_67))))))"
+  "All S_58 k_59 #i_60 .
+     ((SessKeyC_33(S_58, k_59) @ #i_60) ==> (((Ex #a_61 .
+                                                 ((AnswerRequest_38(S_58, k_59) @ #a_61) & (
+                                                 All #j_62 .
+                                                   ((SessKeyC_33(S_58, k_59) @ #j_62) ==> (#i_60 = #j_62))))) | (
+     Ex #r_63 .
+       ((LtkReveal_29(S_58) @ #r_63) & (#r_63 < #i_60))))))"
 
 lemma Client_session_key_honest_setup []:
   exists-trace
-  "Ex S_72 k_73 #i_74 .
-     ((SessKeyC_40(S_72, k_73) @ #i_74) & (not Ex #r_75 .
-                                                 LtkReveal_36(S_72) @ #r_75))"
+  "Ex S_65 k_66 #i_67 .
+     ((SessKeyC_33(S_65, k_66) @ #i_67) & (not Ex #r_68 .
+                                                 LtkReveal_29(S_65) @ #r_68))"
 
 end
 

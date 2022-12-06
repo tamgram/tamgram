@@ -3,121 +3,113 @@ begin
 
 builtins: xor, hashing
 
-functions: rot_35/2
+functions: rot_28/2
 
-functions: lh_36/1
+functions: lh_29/1
 
-functions: rh_37/1
+functions: rh_30/1
 
-restriction tg_cell_eq_restriction:
-  "All x_17 y_18 #i_19 .
-     ((TgCellEq(x_17, y_18) @ #i_19) ==> (((x_17) = (y_18))))"
-
-restriction tg_cell_neq_restriction:
-  "not Ex x_21 #i_22 .
-         TgCellNeq(x_21, x_21) @ #i_22"
-
-rule Setup_40:
-    [ Fr(~k_38)
-    , Fr(~id_39)
+rule Setup_33:
+    [ Fr(~k_31)
+    , Fr(~id_32)
     ]
   --[ 
     ]->
-    [ !Reader_27(~k_38, ~id_39)
-    , !Tag_28(~k_38, ~id_39)
+    [ !Reader_20(~k_31, ~id_32)
+    , !Tag_21(~k_31, ~id_32)
     ]
 
-rule reader_47_1to2:
+rule reader_40_1to2:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
 
-rule reader_47_manyto2to3_reader1:
+rule reader_40_manyto2to3_reader1:
     [ StF(~pid, 'tgk2', 'empty_tuple')
-    , Fr(~r1_41)
+    , Fr(~r1_34)
     ]
-  --[ Challenge_29(~r1_41, 'Reader')
+  --[ Challenge_22(~r1_34, 'Reader')
     ]->
-    [ StF(~pid, 'tgk3', <~r1_41>)
-    , Out(~r1_41)
+    [ StF(~pid, 'tgk3', <~r1_34>)
+    , Out(~r1_34)
     ]
 
-rule reader_47_manyto3_reader2:
-    [ StF(~pid, 'tgk3', <~u_tgany0_46>)
-    , !Reader_27(~k_43, ~id_44)
-    , In(<r2_42, lh_36(((rot_35(~id_44, hash_45)) XOR (hash_45)))>)
+rule reader_40_manyto3_reader2:
+    [ StF(~pid, 'tgk3', <~u_tgany0_39>)
+    , !Reader_20(~k_36, ~id_37)
+    , In(<r2_35, lh_29(((rot_28(~id_37, hash_38)) XOR (hash_38)))>)
     ]
-  --[ Alive_30(~k_43, 'Tag')
-    , Response_31(~k_43, 'Reader')
-    , Eq_32(h(((((~u_tgany0_46) XOR (r2_42))) XOR (~k_43))), hash_45)
-    , Running_33(<'T', 'R', <((((~k_43) XOR (~u_tgany0_46))) XOR (r2_42))>>)
-    , Commit_34(<'R', 'T', <((((~k_43) XOR (~u_tgany0_46))) XOR (r2_42))>>)
+  --[ Alive_23(~k_36, 'Tag')
+    , Response_24(~k_36, 'Reader')
+    , Eq_25(h(((((~u_tgany0_39) XOR (r2_35))) XOR (~k_36))), hash_38)
+    , Running_26(<'T', 'R', <((((~k_36) XOR (~u_tgany0_39))) XOR (r2_35))>>)
+    , Commit_27(<'R', 'T', <((((~k_36) XOR (~u_tgany0_39))) XOR (r2_35))>>)
     ]->
-    [ Out(rh_37(((rot_35(~id_44, hash_45)) XOR (hash_45))))
+    [ Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
     ]
 
-rule tag_56_4to5:
+rule tag_49_4to5:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
 
-rule tag_56_manyto5to6_tag1:
+rule tag_49_manyto5to6_tag1:
     [ StF(~pid, 'tgk5', 'empty_tuple')
-    , In(r1_49)
-    , Fr(~r2_48)
-    , !Tag_28(~k_50, ~id_51)
+    , In(r1_42)
+    , Fr(~r2_41)
+    , !Tag_21(~k_43, ~id_44)
     ]
-  --[ Response_31(~k_50, 'Tag')
-    , Challenge_29(~r2_48, 'Tag')
-    , Running_33(<'R', 'T', <((((~k_50) XOR (r1_49))) XOR (~r2_48))>>)
+  --[ Response_24(~k_43, 'Tag')
+    , Challenge_22(~r2_41, 'Tag')
+    , Running_26(<'R', 'T', <((((~k_43) XOR (r1_42))) XOR (~r2_41))>>)
     ]->
-    [ StF(~pid, 'tgk6', <h(((((r1_49) XOR (~r2_48))) XOR (~k_50))), ~k_50, r1_49, ~r2_48>)
-    , Out(<~r2_48, lh_36(((rot_35(~id_51, h(((((r1_49) XOR (~r2_48))) XOR (~k_50))))) XOR (h(((((r1_49) XOR (~r2_48))) XOR (~k_50))))))>)
+    [ StF(~pid, 'tgk6', <h(((((r1_42) XOR (~r2_41))) XOR (~k_43))), ~k_43, r1_42, ~r2_41>)
+    , Out(<~r2_41, lh_29(((rot_28(~id_44, h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))) XOR (h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))))>)
     ]
 
-rule tag_56_manyto6_tag2:
-    [ StF(~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_54, tgc_r1_0, ~u_tgany2_53>)
-    , In(rh_37(((rot_35(~u_id_55, tgc_hash_0)) XOR (tgc_hash_0))))
-    , !Tag_28(~u_tgany1_54, ~u_id_55)
+rule tag_49_manyto6_tag2:
+    [ StF(~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46>)
+    , In(rh_30(((rot_28(~u_id_48, tgc_hash_0)) XOR (tgc_hash_0))))
+    , !Tag_21(~u_tgany1_47, ~u_id_48)
     ]
-  --[ Alive_30(~u_tgany1_54, 'Reader')
-    , Commit_34(<'T', 'R', <((((~u_tgany1_54) XOR (tgc_r1_0))) XOR (~u_tgany2_53))>>)
+  --[ Alive_23(~u_tgany1_47, 'Reader')
+    , Commit_27(<'T', 'R', <((((~u_tgany1_47) XOR (tgc_r1_0))) XOR (~u_tgany2_46))>>)
     ]->
     [ 
     ]
 
 restriction equality:
-  "All x_57 y_58 #i_59 .
-     ((Eq_32(x_57, y_58) @ #i_59) ==> (((x_57) = (y_58))))"
+  "All x_50 y_51 #i_52 .
+     ((Eq_25(x_50, y_51) @ #i_52) ==> (((x_50) = (y_51))))"
 
 lemma recentalive_tag []:
   all-traces
-  "All x_61 #i_62 .
-     ((Alive_30(x_61, 'Tag') @ #i_62) ==> (Ex y_63 #j_64 #k_65 .
-                                             ((((((Challenge_29(y_63, 'Reader') @ #k_65) & (Response_31(
-                                             x_61, 'Tag') @ #j_64))) & (#k_65 < #j_64))) & (#j_64 < #i_62))))"
+  "All x_54 #i_55 .
+     ((Alive_23(x_54, 'Tag') @ #i_55) ==> (Ex y_56 #j_57 #k_58 .
+                                             ((((((Challenge_22(y_56, 'Reader') @ #k_58) & (Response_24(
+                                             x_54, 'Tag') @ #j_57))) & (#k_58 < #j_57))) & (#j_57 < #i_55))))"
 
 lemma recentalive_reader []:
   all-traces
-  "All x_67 #i_68 .
-     ((Alive_30(x_67, 'Reader') @ #i_68) ==> (Ex y_69 #j_70 #k_71 .
-                                                ((((((Challenge_29(y_69, 'Tag') @ #k_71) & (Response_31(
-                                                x_67, 'Reader') @ #j_70))) & (#k_71 < #j_70))) & (#j_70 < #i_68))))"
+  "All x_60 #i_61 .
+     ((Alive_23(x_60, 'Reader') @ #i_61) ==> (Ex y_62 #j_63 #k_64 .
+                                                ((((((Challenge_22(y_62, 'Tag') @ #k_64) & (Response_24(
+                                                x_60, 'Reader') @ #j_63))) & (#k_64 < #j_63))) & (#j_63 < #i_61))))"
 
 lemma noninjectiveagreement_tag []:
   all-traces
-  "All t_73 #i_74 .
-     ((Commit_34(<'T', 'R', t_73>) @ #i_74) ==> (Ex #j_75 .
-                                                   Running_33(<'T', 'R', t_73>) @ #j_75))"
+  "All t_66 #i_67 .
+     ((Commit_27(<'T', 'R', t_66>) @ #i_67) ==> (Ex #j_68 .
+                                                   Running_26(<'T', 'R', t_66>) @ #j_68))"
 
 lemma noninjectiveagreement_reader []:
   all-traces
-  "All t_77 #i_78 .
-     ((Commit_34(<'R', 'T', t_77>) @ #i_78) ==> (Ex #j_79 .
-                                                   Running_33(<'R', 'T', t_77>) @ #j_79))"
+  "All t_70 #i_71 .
+     ((Commit_27(<'R', 'T', t_70>) @ #i_71) ==> (Ex #j_72 .
+                                                   Running_26(<'R', 'T', t_70>) @ #j_72))"
 
 lemma executable []:
   exists-trace
-  "Ex x_81 #i_82 #j_83 .
-     ((((Alive_30(x_81, 'Reader') @ #i_82) & (Response_31(x_81, 'Tag') @ #j_83))) & (not 
-     Ex #k_84 .
-       ((Response_31(x_81, 'Tag') @ #k_84) & (not #j_83 = #k_84))))"
+  "Ex x_74 #i_75 #j_76 .
+     ((((Alive_23(x_74, 'Reader') @ #i_75) & (Response_24(x_74, 'Tag') @ #j_76))) & (not 
+     Ex #k_77 .
+       ((Response_24(x_74, 'Tag') @ #k_77) & (not #j_76 = #k_77))))"
 
 end
 

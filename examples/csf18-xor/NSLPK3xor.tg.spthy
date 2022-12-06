@@ -3,137 +3,128 @@ begin
 
 builtins: asymmetric-encryption, xor
 
-restriction tg_cell_eq_restriction:
-  "All x_19 y_20 #i_21 .
-     ((TgCellEq(x_19, y_20) @ #i_21) ==> (((x_19) = (y_20))))"
-
-restriction tg_cell_neq_restriction:
-  "not Ex x_23 #i_24 .
-         TgCellNeq(x_23, x_23) @ #i_24"
-
-rule Register_pk_33:
-    [ Fr(~ltkA_32)
+rule Register_pk_26:
+    [ Fr(~ltkA_25)
     ]
-  --[ Register_31($A)
+  --[ Register_24($A)
     ]->
-    [ !Ltk_29($A, ~ltkA_32)
-    , !Pk_30($A, pk(~ltkA_32))
-    , Out(pk(~ltkA_32))
+    [ !Ltk_22($A, ~ltkA_25)
+    , !Pk_23($A, pk(~ltkA_25))
+    , Out(pk(~ltkA_25))
     ]
 
-rule Reveal_ltk_37:
-  [!Ltk_29(A_36, ltkA_35)]--[RevLtk_34(A_36)]->[Out(ltkA_35)]
+rule Reveal_ltk_30:
+  [!Ltk_22(A_29, ltkA_28)]--[RevLtk_27(A_29)]->[Out(ltkA_28)]
 
-rule I_52_2to3:
+rule I_45_2to3:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk3', 'empty_tuple')]
 
-rule I_52_manyto3to4_I_1:
+rule I_45_manyto3to4_I_1:
     [ StF(~pid, 'tgk3', 'empty_tuple')
-    , Fr(~ni_44)
-    , !Pk_30($R, pkR_43)
+    , Fr(~ni_37)
+    , !Pk_23($R, pkR_36)
     ]
-  --[ OUT_I_1_41(aenc(<'1', ~ni_44, $I>, pkR_43))
+  --[ OUT_I_1_34(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]->
-    [ StF(~pid, 'tgk4', <$I, $R, ~ni_44>)
-    , Out(aenc(<'1', ~ni_44, $I>, pkR_43))
+    [ StF(~pid, 'tgk4', <$I, $R, ~ni_37>)
+    , Out(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]
 
-rule I_52_manyto4_I_2:
+rule I_45_manyto4_I_2:
     [ StF(~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0>)
-    , !Ltk_29(tgc_I_0, ltkI_48)
-    , In(aenc(<'2', tgc_ni_0, x_46>, pk(ltkI_48)))
-    , !Pk_30(tgc_R_0, pkR_47)
+    , !Ltk_22(tgc_I_0, ltkI_41)
+    , In(aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)))
+    , !Pk_23(tgc_R_0, pkR_40)
     ]
-  --[ IN_I_2_nr_42(((x_46) XOR (tgc_R_0)), aenc(<'2', tgc_ni_0, x_46>, pk(ltkI_48)))
-    , Commit_38(tgc_I_0, tgc_R_0, <'init', tgc_ni_0, ((x_46) XOR (tgc_R_0))>)
-    , Running_39(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, ((x_46) XOR (tgc_R_0))>)
+  --[ IN_I_2_nr_35(((x_39) XOR (tgc_R_0)), aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)))
+    , Commit_31(tgc_I_0, tgc_R_0, <'init', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
+    , Running_32(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
     ]->
-    [ Out(aenc(<'3', ((x_46) XOR (tgc_R_0))>, pkR_47))
-    , Secret_40(tgc_I_0, tgc_R_0, ((x_46) XOR (tgc_R_0)))
-    , Secret_40(tgc_I_0, tgc_R_0, tgc_ni_0)
+    [ Out(aenc(<'3', ((x_39) XOR (tgc_R_0))>, pkR_40))
+    , Secret_33(tgc_I_0, tgc_R_0, ((x_39) XOR (tgc_R_0)))
+    , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
 
-rule R_63_5to6:
+rule R_56_5to6:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk6', 'empty_tuple')]
 
-rule R_63_manyto6to7_R_1:
+rule R_56_manyto6to7_R_1:
     [ StF(~pid, 'tgk6', 'empty_tuple')
-    , !Ltk_29($R, ltkR_58)
-    , In(aenc(<'1', ni_57, I_59>, pk(ltkR_58)))
-    , !Pk_30(I_59, pkI_55)
-    , Fr(~nr_56)
+    , !Ltk_22($R, ltkR_51)
+    , In(aenc(<'1', ni_50, I_52>, pk(ltkR_51)))
+    , !Pk_23(I_52, pkI_48)
+    , Fr(~nr_49)
     ]
-  --[ IN_R_1_ni_53(ni_57, aenc(<'1', ni_57, I_59>, pk(ltkR_58)))
-    , OUT_R_1_54(aenc(<'2', ni_57, ((~nr_56) XOR ($R))>, pkI_55))
-    , Running_39(I_59, $R, <'init', ni_57, ~nr_56>)
+  --[ IN_R_1_ni_46(ni_50, aenc(<'1', ni_50, I_52>, pk(ltkR_51)))
+    , OUT_R_1_47(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
+    , Running_32(I_52, $R, <'init', ni_50, ~nr_49>)
     ]->
-    [ StF(~pid, 'tgk7', <I_59, $R, ni_57, ~nr_56>)
-    , Out(aenc(<'2', ni_57, ((~nr_56) XOR ($R))>, pkI_55))
+    [ StF(~pid, 'tgk7', <I_52, $R, ni_50, ~nr_49>)
+    , Out(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
     ]
 
-rule R_63_manyto7_R_2:
+rule R_56_manyto7_R_2:
     [ StF(~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0>)
-    , !Ltk_29(tgc_R_0, ltkR_62)
-    , In(aenc(<'3', tgc_nr_0>, pk(ltkR_62)))
+    , !Ltk_22(tgc_R_0, ltkR_55)
+    , In(aenc(<'3', tgc_nr_0>, pk(ltkR_55)))
     ]
-  --[ Commit_38(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0>)
+  --[ Commit_31(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0>)
     ]->
-    [ Secret_40(tgc_R_0, tgc_I_0, tgc_nr_0)
-    , Secret_40(tgc_R_0, tgc_I_0, tgc_ni_0)
+    [ Secret_33(tgc_R_0, tgc_I_0, tgc_nr_0)
+    , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 
-rule Secrecy_claim_68:
-  [Secret_40(A_67, B_66, m_65)]--[Secret_64(A_67, B_66, m_65)]->[]
+rule Secrecy_claim_61:
+  [Secret_33(A_60, B_59, m_58)]--[Secret_57(A_60, B_59, m_58)]->[]
 
 lemma types [sources]:
   all-traces
-  "((All ni_69 m1_70 #i_71 .
-       ((IN_R_1_ni_53(ni_69, m1_70) @ #i_71) ==> (((Ex #j_72 .
-                                                      ((!KU(ni_69) @ #j_72) & (#j_72 < #i_71))) | (
-       Ex #j_73 .
-         OUT_I_1_41(m1_70) @ #j_73))))) & (All nr_74 m2_75 #i_76 .
-                                             ((IN_I_2_nr_42(nr_74, m2_75) @ #i_76) ==> (((
-                                             Ex #j_77 .
-                                               ((!KU(nr_74) @ #j_77) & (#j_77 < #i_76))) | (
-                                             Ex #j_78 .
-                                               OUT_R_1_54(m2_75) @ #j_78))))))"
+  "((All ni_62 m1_63 #i_64 .
+       ((IN_R_1_ni_46(ni_62, m1_63) @ #i_64) ==> (((Ex #j_65 .
+                                                      ((!KU(ni_62) @ #j_65) & (#j_65 < #i_64))) | (
+       Ex #j_66 .
+         OUT_I_1_34(m1_63) @ #j_66))))) & (All nr_67 m2_68 #i_69 .
+                                             ((IN_I_2_nr_35(nr_67, m2_68) @ #i_69) ==> (((
+                                             Ex #j_70 .
+                                               ((!KU(nr_67) @ #j_70) & (#j_70 < #i_69))) | (
+                                             Ex #j_71 .
+                                               OUT_R_1_47(m2_68) @ #j_71))))))"
 
 restriction onekeypername:
-  "not Ex A_80 #i_81 #j_82 .
-         ((((Register_31(A_80) @ #i_81) & (Register_31(A_80) @ #j_82))) & (not #i_81 = #j_82))"
+  "not Ex A_73 #i_74 #j_75 .
+         ((((Register_24(A_73) @ #i_74) & (Register_24(A_73) @ #j_75))) & (not #i_74 = #j_75))"
 
 lemma nonce_secrecy []:
   all-traces
-  "not Ex A_84 B_85 s_86 #i_87 .
-         ((((((Secret_64(A_84, B_85, s_86) @ #i_87) & (Ex #j_88 .
-                                                         K(s_86) @ #j_88))) & (not 
-         Ex #r_89 .
-           RevLtk_34(A_84) @ #r_89))) & (not Ex #r_90 .
-                                               RevLtk_34(B_85) @ #r_90))"
+  "not Ex A_77 B_78 s_79 #i_80 .
+         ((((((Secret_57(A_77, B_78, s_79) @ #i_80) & (Ex #j_81 .
+                                                         K(s_79) @ #j_81))) & (not 
+         Ex #r_82 .
+           RevLtk_27(A_77) @ #r_82))) & (not Ex #r_83 .
+                                               RevLtk_27(B_78) @ #r_83))"
 
 lemma injective_agree []:
   all-traces
-  "All actor_92 peer_93 params_94 #i_95 .
-     ((Commit_38(actor_92, peer_93, params_94) @ #i_95) ==> (((((Ex #j_96 .
-                                                                   ((((Running_39(
-                                                                   actor_92, peer_93, params_94) @ #j_96) & (#j_96 < #i_95))) & (not 
+  "All actor_85 peer_86 params_87 #i_88 .
+     ((Commit_31(actor_85, peer_86, params_87) @ #i_88) ==> (((((Ex #j_89 .
+                                                                   ((((Running_32(
+                                                                   actor_85, peer_86, params_87) @ #j_89) & (#j_89 < #i_88))) & (not 
                                                                    Ex 
-                                                                   actor2_97 peer2_98 #i2_99 .
+                                                                   actor2_90 peer2_91 #i2_92 .
                                                                      
-                                                                   ((Commit_38(
-                                                                   actor2_97, peer2_98, params_94) @ #i2_99) & (not #i_95 = #i2_99))))) | (
-     Ex #r_100 .
-       RevLtk_34(actor_92) @ #r_100))) | (Ex #r_101 .
-                                            RevLtk_34(peer_93) @ #r_101))))"
+                                                                   ((Commit_31(
+                                                                   actor2_90, peer2_91, params_87) @ #i2_92) & (not #i_88 = #i2_92))))) | (
+     Ex #r_93 .
+       RevLtk_27(actor_85) @ #r_93))) | (Ex #r_94 .
+                                           RevLtk_27(peer_86) @ #r_94))))"
 
 lemma session_key_setup_possible []:
   exists-trace
-  "Ex A_103 B_104 s_105 #i_106 .
-     ((((Secret_64(A_103, B_104, s_105) @ #i_106) & (not Ex #r_107 .
-                                                           RevLtk_34(
-                                                           A_103) @ #r_107))) & (not 
-     Ex #r_108 .
-       RevLtk_34(B_104) @ #r_108))"
+  "Ex A_96 B_97 s_98 #i_99 .
+     ((((Secret_57(A_96, B_97, s_98) @ #i_99) & (not Ex #r_100 .
+                                                       RevLtk_27(A_96) @ #r_100))) & (not 
+     Ex #r_101 .
+       RevLtk_27(B_97) @ #r_101))"
 
 end
 
