@@ -6,8 +6,14 @@ type exit_bias = [
   | `Empty
 ]
 
-let rule_is_empty (ru : Tg_ast.rule) =
-  ru.l = [] && ru.a = [] && ru.r = []
+let rule_is_empty (spec : Spec.t) (g : Tg_graph.t) (k : int) =
+  let ru = Graph.find k g in
+  let cell_pat_matches =
+    Option.value ~default:[]
+      (Int_map.find_opt k spec.user_specified_cell_pat_matches)
+  in
+  cell_pat_matches = []
+  && ru.l = [] && ru.a = [] && ru.r = []
 
 let exit_fact_to_empty_rule (spec : Spec.t) g (k : int) ~empty_rule : Tg_ast.term =
   let ctx_r =
@@ -141,9 +147,8 @@ module Backward_biased = struct
            None)
 end
 
-let exit_bias (g : Tg_graph.t) (k : int) : exit_bias =
-  let ru = Graph.find k g in
-  if rule_is_empty ru then
+let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
+  if rule_is_empty spec g k then
     `Empty
   else (
     let succ = Graph.succ k g in
@@ -156,15 +161,15 @@ let exit_bias (g : Tg_graph.t) (k : int) : exit_bias =
 let compute_possible_exit_facts spec g k : (int option * Tg_ast.term) Seq.t =
   let empty_rule_exit_facts =
     Graph.succ_seq k g
-    |> Seq.filter (fun x -> exit_bias g x = `Empty)
+    |> Seq.filter (fun x -> exit_bias spec g x = `Empty)
     |> Seq.map (fun empty_rule ->
         (Some empty_rule, exit_fact_to_empty_rule spec g k ~empty_rule))
   in
-  match exit_bias g k with
+  match exit_bias spec g k with
   | `Empty -> Seq.empty
   | `Forward ->
     Graph.succ_seq k g
-    |> Seq.filter (fun x -> exit_bias g x <> `Empty)
+    |> Seq.filter (fun x -> exit_bias spec g x <> `Empty)
     |> Seq.map (fun succ ->
         (Some succ, Forward_biased.exit_fact spec g k ~succ)
       )
@@ -174,7 +179,7 @@ let compute_possible_exit_facts spec g k : (int option * Tg_ast.term) Seq.t =
       empty_rule_exit_facts
 
 let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
-  match exit_bias g k with
+  match exit_bias spec g k with
   | `Empty -> Seq.empty
   | _ ->
     let
@@ -183,7 +188,7 @@ let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
       empty_rule_exit_preds
       =
       Int_set.fold (fun x (f, b, e) ->
-          match exit_bias g x with
+          match exit_bias spec g x with
           | `Forward -> (Int_set.add x f, b, e)
           | `Backward -> (f, Int_set.add x b, e)
           | `Empty -> (f, b, Int_set.add x e)
