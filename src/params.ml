@@ -36,7 +36,11 @@ let pcell_restriction_name = "pcell_restriction"
 
 let while_cell_eq_restriction_name = "tg_cell_eq_restriction"
 
+let while_cell_neq_restriction_name = "tg_cell_neq_restriction"
+
 let while_cell_eq_apred_name = "TgCellEq"
+
+let while_cell_neq_apred_name = "TgCellNeq"
 
 let builtin_functions = [
   "h";
@@ -82,6 +86,8 @@ let reserved_names =
     pcell_restriction_name;
     while_cell_eq_restriction_name;
     while_cell_eq_apred_name;
+    while_cell_neq_restriction_name;
+    while_cell_neq_apred_name;
   ]
 
 let reserved_prefixes =

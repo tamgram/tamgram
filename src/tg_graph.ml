@@ -31,36 +31,16 @@ let normalize_rule_tag (s : string) =
 let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
   let tags : string Int_map.t ref = ref Int_map.empty in
   let rec aux
-      (entry_points : int String_map.t) (last_ids : int list) (g : t) (proc : Tg_ast.proc)
+      (last_ids : int list) (g : t) (proc : Tg_ast.proc)
     : (int String_map.t * t, Error_msg.t) result =
     let open Tg_ast in
     match proc with
-    | P_null -> Ok (entry_points, g)
-    (* | P_goto { dest } ->
-       let id = Graph.get_id () in
-       let entry_point_id =
-        String_map.find (Loc.content dest) entry_points
-       in
-       let g =
-        g
-        |> link_backward ~last_ids id
-        |> Graph.add_vertex_with_id id empty_rule
-        |> Graph.add_edge (id, entry_point_id)
-       in
-       Ok (entry_points, g) *)
+    | P_null -> Ok g
     | P_let _
     | P_let_macro _
     | P_scoped _
     | P_app _
       -> failwith "Unexpected case"
-    (* | P_entry_point { name; next; } ->
-       let id = Graph.get_id () in
-       let g =
-        g
-        |> link_backward ~last_ids id
-        |> Graph.add_vertex_with_id id empty_rule
-       in
-       aux (String_map.add (Loc.content name) id entry_points) [id] g next *)
     | P_line { tag; rule; next } ->
       let id = Graph.get_id () in
       (match tag with
@@ -72,25 +52,10 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         |> link_backward ~last_ids id
         |> Graph.add_vertex_with_id id rule
       in
-      aux entry_points [id] g next
+      aux [id] g next
     | P_branch (loc, procs, next) -> (
-        let* entry_points_and_gs =
-          aux_list entry_points last_ids g [] procs
-        in
-        let entry_points, gs =
-          List.split entry_points_and_gs
-        in
-        let entry_points =
-          List.fold_left (fun acc e ->
-              String_map.union (fun _k x y ->
-                  assert (x = y);
-                  Some x
-                )
-                acc
-                e
-            )
-            String_map.empty
-            entry_points
+        let* gs =
+          aux_list last_ids g [] procs
         in
         let last_ids =
           CCList.flat_map (fun g ->
@@ -101,13 +66,13 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         in
         let g = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
         let default () =
-          aux entry_points last_ids g next
+          aux last_ids g next
         in
         match last_ids with
         | [] -> (
             match next with
             | P_null ->
-              aux entry_points last_ids g next
+              aux last_ids g next
             | _ ->
               Error (
                 Error_msg.make
@@ -126,7 +91,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
                   |> link_backward ~last_ids id
                   |> Graph.add_vertex_with_id id empty_rule
                 in
-                aux entry_points [id] g next
+                aux [id] g next
               )
               else (
                 default ()
@@ -135,14 +100,43 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
           )
       )
     | P_while_cell_cas { cell; term; proc; next } -> (
-        failwith "TODO"
+        let true_branch_first_rule_id = Graph.get_id () in
+        let true_branch_first_rule =
+          Tg_ast.{ empty_rule with
+                   l = [ T_cell_pat_match (cell, term) ];
+                 }
+        in
+        let false_branch_first_rule_id = Graph.get_id () in
+        let false_branch_first_rule = Tg_ast.{
+            empty_rule with
+            a = [T_app (Path.of_string Params.while_cell_neq_apred_name,
+                        `Local 0,
+                        [ T_symbol (cell, `Cell); term ],
+                        None)];
+          }
+        in
+        let* true_branch_remainder =
+          aux [true_branch_first_rule_id] proc
+        in
+        let* next =
+          aux [false_branch_first_rule_id] next
+        in
+        Graph.union true_branch_reaminder next
+        |> Graph.add_vertex_with_id
+          true_branch_first_rule_id
+          true_branch_first_rule
+        |> Graph.add_vertex_with_id
+          false_branch_first_rule_id
+          false_branch_first_rule
+        |> link_backward ~last_ids true_branch_first_rule_id
+        |> link_backward ~last_ids false_branch_first_rule_id
       )
-  and aux_list entry_points last_ids g acc procs =
+  and aux_list last_ids g acc procs =
     match procs with
     | [] -> Ok (List.rev acc)
     | p :: ps ->
-      let* p = aux entry_points last_ids g p in
-      aux_list entry_points last_ids g (p :: acc) ps
+      let* p = aux last_ids g p in
+      aux_list last_ids g (p :: acc) ps
   in
-  let+ _, g = aux String_map.empty [] Graph.empty proc in
+  let+ _, g = aux [] Graph.empty proc in
   (g, !tags)
