@@ -38,6 +38,8 @@ let base =
       (Binding.make_untagged Params.pcell_freed_apred_name 4);
     D_apred
       (Binding.make_untagged Params.while_cell_eq_apred_name 2);
+    D_apred
+      (Binding.make_untagged Params.while_cell_neq_apred_name 2);
     D_restriction
       { binding =
           Binding.make_untagged Params.while_cell_eq_restriction_name
