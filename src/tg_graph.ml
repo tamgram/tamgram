@@ -99,21 +99,27 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
             | _ -> default ()
           )
       )
-    | P_while_cell_cas { cell; term; proc; next } -> (
-        let true_branch_first_rule_id = Graph.get_id () in
-        let true_branch_first_rule =
+    | P_while_cell_cas { mode; cell; term; proc; next } -> (
+        let matching_rule =
           Tg_ast.{ empty_rule with
                    l = [ T_cell_pat_match (cell, term) ];
                  }
         in
-        let false_branch_first_rule_id = Graph.get_id () in
-        let false_branch_first_rule = Tg_ast.{
+        let not_matching_rule =
+          Tg_ast.{
             empty_rule with
             a = [T_app (Path.of_string Params.while_cell_neq_apred_name,
                         `Local 0,
                         [ T_symbol (cell, `Cell); term ],
                         None)];
           }
+        in
+        let true_branch_first_rule_id = Graph.get_id () in
+        let false_branch_first_rule_id = Graph.get_id () in
+        let true_branch_first_rule, false_branch_first_rule =
+          match mode with
+          | `Matching -> matching_rule, not_matching_rule
+          | `Not_matching -> not_matching_rule, matching_rule
         in
         let g =
           g

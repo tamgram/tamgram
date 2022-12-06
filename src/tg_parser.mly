@@ -474,9 +474,13 @@ proc:
   | loc = CHOICE; LEFT_CUR_BRACK; branches = flexible_list(SEMICOLON, proc_in_block); RIGHT_CUR_BRACK
     { P_branch (Some loc, branches, P_null) }
   | WHILE; cell = cell; CAS; term = term; proc = proc_in_block
-    { P_while_cell_cas { cell; term; proc; next = P_null; } }
+    { P_while_cell_cas { mode = `Matching; cell; term; proc; next = P_null; } }
   | WHILE; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
-    { P_while_cell_cas { cell; term; proc; next; } }
+    { P_while_cell_cas { mode = `Matching; cell; term; proc; next; } }
+  | WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block
+    { P_while_cell_cas { mode = `Not_matching; cell; term; proc; next = P_null; } }
+  | WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
+    { P_while_cell_cas { mode = `Not_matching; cell; term; proc; next; } }
   | proc = proc_in_block; SEMICOLON; next = proc
     { P_scoped (proc, next) }
   | proc = proc_in_block

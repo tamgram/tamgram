@@ -115,6 +115,11 @@ type rule = {
   r : term list;
 }
 
+type while_mode = [
+  | `Matching
+  | `Not_matching
+]
+
 type proc =
   | P_null
   | P_let of {
@@ -141,6 +146,7 @@ type proc =
       dest : string Loc.tagged;
      } *)
   | P_while_cell_cas of {
+      mode : while_mode;
       cell : string Loc.tagged;
       term : term;
       proc : proc;

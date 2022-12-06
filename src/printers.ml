@@ -287,8 +287,10 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
     (* | P_goto { dest } ->
        Fmt.pf formatter "goto \"%s\""
         (Loc.content dest) *)
-    | P_while_cell_cas { cell; term; proc; next } ->
-      Fmt.pf formatter "while '%s cas @[<h>%a@] %a;@,%a" (Loc.content cell) pp_term term
+    | P_while_cell_cas { mode; cell; term; proc; next } ->
+      Fmt.pf formatter "while %s '%s cas @[<h>%a@] %a;@,%a"
+        (match mode with `Matching -> "" | `Not_matching -> "not")
+        (Loc.content cell) pp_term term
         aux_in_block proc aux next
   and aux_in_block formatter p = Fmt.pf formatter "{@,  @[<v>%a@]@,}" aux p in
   aux formatter p

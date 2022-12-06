@@ -336,13 +336,13 @@ let aux_proc
       let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
       let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
       P_scoped (proc, next)
-    | P_while_cell_cas { cell; term; proc; next } -> (
+    | P_while_cell_cas { mode; cell; term; proc; next } -> (
         let* term =
           aux_term ~lexical_ctx_for_var ~lexical_ctx_for_func term
         in
         let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
         let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
-        P_while_cell_cas { cell; term; proc; next }
+        P_while_cell_cas { mode; cell; term; proc; next }
       )
   and aux_list acc ~lexical_ctx_for_var ~lexical_ctx_for_func procs =
     match procs with

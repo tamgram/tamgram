@@ -106,8 +106,8 @@ let reduce_proc subs (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_scoped (proc, next) ->
       Misc_utils.replace_proc_end ~replace_with:(aux subs next)
         (aux subs proc)
-    | P_while_cell_cas { cell; term; proc; next } ->
-      P_while_cell_cas { cell; term; proc = aux subs proc; next = aux subs next }
+    | P_while_cell_cas { mode; cell; term; proc; next } ->
+      P_while_cell_cas { mode; cell; term; proc = aux subs proc; next = aux subs next }
   in
   aux subs proc
 
