@@ -123,3 +123,27 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
         String_tagged_set.(add cell (Term.cells_in_term term))
   in
   aux proc
+
+let while_used_in_proc (proc : Tg_ast.proc) : bool =
+  let open Tg_ast in
+  let rec aux proc =
+    match proc with
+    | P_null -> false
+    | P_let { next; _ } ->
+      aux next
+    | P_let_macro { next; _ } ->
+      aux next
+    | P_app (_path, _name, l, next) ->
+      failwith "Unexpected case"
+    | P_line { next; _ } ->
+      aux next
+    | P_branch (_loc, procs, next) ->
+      List.fold_left
+        (||) false
+        (List.map aux (next :: procs))
+    | P_scoped (proc, next) ->
+      aux proc || aux next
+    | P_while_cell_cas _ ->
+      true
+  in
+  aux proc
