@@ -133,7 +133,7 @@ let while_used_in_proc (proc : Tg_ast.proc) : bool =
       aux next
     | P_let_macro { next; _ } ->
       aux next
-    | P_app (_path, _name, l, next) ->
+    | P_app _ ->
       failwith "Unexpected case"
     | P_line { next; _ } ->
       aux next
