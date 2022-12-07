@@ -198,8 +198,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> Ok ()
-    (* | P_entry_point { next; _ } -> aux next *)
+    | P_null | P_break _ | P_continue _ -> Ok ()
     | P_let { binding; next; _ } ->
       let* () = check_name ~allow_wildcard:true (Binding.name_str binding) in
       let* () = check_term ~allow_wildcard:false (Binding.get binding) in

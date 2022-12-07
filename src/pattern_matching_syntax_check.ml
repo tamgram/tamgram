@@ -247,7 +247,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> Ok ()
+    | P_null | P_break _ | P_continue _ -> Ok ()
     | P_let { binding; next; _ } ->
       let* () =
         check_term ~allow_path_to_var:true ~allow_let_binding:true

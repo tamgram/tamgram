@@ -101,7 +101,7 @@ let aux_proc (builtins : Builtin_set.t) (x : Tg_ast.proc) : (unit, Error_msg.t) 
   let open Tg_ast in
   let rec aux (x : Tg_ast.proc) =
     match x with
-    | P_null (* | P_goto _ *) -> Ok ()
+    | P_null | P_break _ | P_continue _ -> Ok ()
     | P_let { binding; next } ->
       let* () = aux_term builtins (Binding.get binding) in
       aux next

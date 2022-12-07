@@ -152,7 +152,7 @@ let names_used_in_proc (proc : Tg_ast.proc) : Name_set.t =
   let open Tg_ast in
   let rec aux usage_next proc =
     match proc with
-    | P_null (* | P_goto _ *) -> usage_next
+    | P_null | P_break _ | P_continue _ -> usage_next
     | P_let { binding; next; _ } ->
       let usage_next = aux usage_next next in
       check_let_binding binding usage_next
@@ -174,7 +174,6 @@ let names_used_in_proc (proc : Tg_ast.proc) : Name_set.t =
     | P_scoped (proc, next) ->
       let usage_next = aux usage_next next in
       aux usage_next proc
-    (* | P_entry_point { next; _ } -> aux usage_next next *)
     | P_while_cell_cas { term; proc; next; _ } ->
       let usage_next = aux usage_next next in
       let usage = names_used_in_term term in

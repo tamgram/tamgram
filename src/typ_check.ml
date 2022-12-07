@@ -351,8 +351,7 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
   let open Tg_ast in
   let rec aux typ_ctx proc =
     match proc with
-    | P_null (* | P_goto _ *) -> Ok ()
-    (* | P_entry_point { next; _ } -> aux typ_ctx next *)
+    | P_null | P_break _ | P_continue _ -> Ok ()
     | P_let { binding; next; _ } ->
       let* typ = typ_of_term typ_ctx (Binding.get binding) in
       let name = Binding.name binding in

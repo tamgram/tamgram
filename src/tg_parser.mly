@@ -64,6 +64,8 @@
 %token IN
 %token <Loc.t> CHOICE
 %token WHILE
+%token <Loc.t> BREAK
+%token <Loc.t> CONTINUE
 %token PRED
 %token APRED
 %token FUN
@@ -489,16 +491,18 @@ proc:
     { P_while_cell_cas { label = Some label; mode = `Not_matching; cell; term; proc; next = P_null; } }
   | label = STRING; COLON; WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
     { P_while_cell_cas { label = Some label; mode = `Not_matching; cell; term; proc; next; } }
+  | loc = BREAK
+    { P_break (Some loc, None) }
+  | loc = BREAK; label = STRING
+    { P_break (Some loc, Some label) }
+  | loc = CONTINUE
+    { P_continue (Some loc, None) }
+  | loc = CONTINUE; label = STRING
+    { P_continue (Some loc, Some label) }
   | proc = proc_in_block; SEMICOLON; next = proc
     { P_scoped (proc, next) }
   | proc = proc_in_block
     { P_scoped (proc, P_null) }
-  (* | ENTRY_POINT; name = STRING; SEMICOLON; next = proc
-    { P_entry_point { name; next } }
-  | ENTRY_POINT; name = STRING;
-    { P_entry_point { name; next = P_null } }
-  | GOTO; dest = STRING;
-    { P_goto { dest; } } *)
 
 proc_in_block:
   | LEFT_CUR_BRACK; proc = proc; RIGHT_CUR_BRACK

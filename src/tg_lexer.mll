@@ -58,6 +58,8 @@ rule read =
   | "in"             { IN }
   | "choice"         { CHOICE (loc lexbuf) }
   | "while"          { WHILE }
+  | "break"          { BREAK (loc lexbuf) }
+  | "continue"       { CONTINUE (loc lexbuf) }
   | "apred"          { APRED }
   | "pred"           { PRED }
   | "fun"            { FUN }

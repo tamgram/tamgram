@@ -272,12 +272,7 @@ let aux_proc
   let open Tg_ast in
   let rec aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc =
     match proc with
-    | P_null (* | P_goto _ *) -> Ok proc
-    (* | P_entry_point { name; next } ->
-       let+ next =
-        aux ~lexical_ctx_for_var ~lexical_ctx_for_func next
-       in
-       P_entry_point { name; next } *)
+    | P_null | P_break _ | P_continue _ -> Ok proc
     | P_let { binding; next } ->
       let* bound_to =
         aux_term

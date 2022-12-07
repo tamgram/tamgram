@@ -3,6 +3,7 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
   let rec aux proc =
     match proc with
     | P_null -> replace_with
+    | P_break _ | P_continue _ -> proc
     | P_let { binding; next } ->
       P_let { binding; next = aux next }
     | P_let_macro { binding; next } ->

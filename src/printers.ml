@@ -292,6 +292,16 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
         (match mode with `Matching -> "" | `Not_matching -> "not")
         (Loc.content cell) pp_term term
         aux_in_block proc aux next
+    | P_break (_, label) -> (
+        match label with
+        | None -> Fmt.pf formatter "break"
+        | Some label -> Fmt.pf formatter "break \"%s\"" (Loc.content label)
+      )
+    | P_continue (_, label) -> (
+        match label with
+        | None -> Fmt.pf formatter "continue"
+        | Some label -> Fmt.pf formatter "continue \"%s\"" (Loc.content label)
+      )
   and aux_in_block formatter p = Fmt.pf formatter "{@,  @[<v>%a@]@,}" aux p in
   aux formatter p
 

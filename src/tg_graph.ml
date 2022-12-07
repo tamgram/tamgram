@@ -2,6 +2,12 @@ open Result_infix
 
 type t = Tg_ast.rule Graph.t
 
+type loop_skeleton = {
+  true_branch_guard_rule_id : int;
+  false_branch_guard_rule_id : int;
+  after_loop_rule_id : int;
+}
+
 let link_backward ~(last_ids : int list) (id : int) (g : t) =
   List.fold_left (fun g x ->
       Graph.add_edge (x, id) g
@@ -28,9 +34,39 @@ let normalize_rule_tag (s : string) =
       | _ -> '_'
     ) s
 
+let loop_find
+    ~(keyword : string Loc.tagged)
+    ~(label : string Loc.tagged option)
+    (labelled_loops : loop_skeleton String_map.t)
+    (loop_stack : loop_skeleton list)
+  : (loop_skeleton, Error_msg.t) result =
+  match loop_stack with
+  | [] -> Error (
+      Error_msg.make
+        (Loc.tag keyword)
+        (Fmt.str "%s can only be used inside a loop" (Loc.content keyword))
+    )
+  | inner_most_loop_skeleton :: _ -> (
+      match label with
+      | None -> (
+          Ok inner_most_loop_skeleton
+        )
+      | Some label -> (
+          match String_map.find_opt (Loc.content label) labelled_loops with
+          | None -> Error (
+              Error_msg.make
+                (Loc.tag label)
+                (Fmt.str "Loop with label \"%s\" not found" (Loc.content label))
+            )
+          | Some skeleton -> Ok skeleton
+        )
+    )
+
 let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
   let tags : string Int_map.t ref = ref Int_map.empty in
   let rec aux
+      (labelled_loops : loop_skeleton String_map.t)
+      (loop_stack : loop_skeleton list)
       (last_ids : int list) (g : t) (proc : Tg_ast.proc)
     : (t, Error_msg.t) result =
     let open Tg_ast in
@@ -52,10 +88,10 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         |> link_backward ~last_ids id
         |> Graph.add_vertex_with_id id rule
       in
-      aux [id] g next
+      aux labelled_loops loop_stack [id] g next
     | P_branch (loc, procs, next) -> (
         let* gs =
-          aux_list last_ids Graph.empty [] procs
+          aux_list labelled_loops loop_stack last_ids Graph.empty [] procs
         in
         let last_ids =
           CCList.flat_map (fun g ->
@@ -66,18 +102,18 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         in
         let g = List.fold_left (fun acc x -> Graph.union acc x) g gs in
         let default () =
-          aux last_ids g next
+          aux labelled_loops loop_stack last_ids g next
         in
         match last_ids with
         | [] -> (
             match next with
             | P_null ->
-              aux last_ids g next
+              aux labelled_loops loop_stack last_ids g next
             | _ ->
               Error (
                 Error_msg.make
                   loc
-                  "the process after choice here is not reachable"
+                  "The process after choice here is not reachable"
               )
           )
         | [_] -> default ()
@@ -91,7 +127,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
                   |> link_backward ~last_ids id
                   |> Graph.add_vertex_with_id id empty_rule
                 in
-                aux [id] g next
+                aux labelled_loops loop_stack [id] g next
               )
               else (
                 default ()
@@ -99,7 +135,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
             | _ -> default ()
           )
       )
-    | P_while_cell_cas { mode; cell; term; proc; next } -> (
+    | P_while_cell_cas { label; mode; cell; term; proc; next } -> (
         let matching_rule =
           Tg_ast.{ empty_rule with
                    l = [ T_cell_pat_match (cell, term) ];
@@ -114,9 +150,10 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
                         None)];
           }
         in
-        let true_branch_first_rule_id = Graph.get_id () in
-        let false_branch_first_rule_id = Graph.get_id () in
-        let true_branch_first_rule, false_branch_first_rule =
+        let true_branch_guard_rule_id = Graph.get_id () in
+        let false_branch_guard_rule_id = Graph.get_id () in
+        let after_loop_rule_id = Graph.get_id () in
+        let true_branch_guard_rule, false_branch_guard_rule =
           match mode with
           | `Matching -> matching_rule, not_matching_rule
           | `Not_matching -> not_matching_rule, matching_rule
@@ -124,16 +161,31 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         let g =
           g
           |> Graph.add_vertex_with_id
-            true_branch_first_rule_id
-            true_branch_first_rule
-          |> link_backward ~last_ids true_branch_first_rule_id
+            true_branch_guard_rule_id
+            true_branch_guard_rule
+          |> link_backward ~last_ids true_branch_guard_rule_id
           |> Graph.add_vertex_with_id
-            false_branch_first_rule_id
-            false_branch_first_rule
-          |> link_backward ~last_ids false_branch_first_rule_id
+            false_branch_guard_rule_id
+            false_branch_guard_rule
+          |> link_backward ~last_ids false_branch_guard_rule_id
+        in
+        let loop_skeleton : loop_skeleton =
+          { true_branch_guard_rule_id;
+            false_branch_guard_rule_id;
+            after_loop_rule_id ;
+          }
         in
         let* proc_g =
-          aux [true_branch_first_rule_id] Graph.empty proc
+          let labelled_loops =
+            match label with
+            | None -> labelled_loops
+            | Some label ->
+              String_map.add (Loc.content label) loop_skeleton labelled_loops
+          in
+          let loop_stack =
+            loop_skeleton :: loop_stack
+          in
+          aux labelled_loops loop_stack [true_branch_guard_rule_id] Graph.empty proc
         in
         let true_branch_leaves =
           Graph.leaves proc_g
@@ -142,17 +194,40 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         let g =
           g
           |> Graph.union proc_g
-          |> link_backward ~last_ids:true_branch_leaves true_branch_first_rule_id
-          |> link_backward ~last_ids:true_branch_leaves false_branch_first_rule_id
+          |> link_backward ~last_ids:true_branch_leaves true_branch_guard_rule_id
+          |> link_backward ~last_ids:true_branch_leaves false_branch_guard_rule_id
+          |> link_backward ~last_ids:[false_branch_guard_rule_id] after_loop_rule_id
+          |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
         in
-        aux [false_branch_first_rule_id] g next
+        aux labelled_loops loop_stack [after_loop_rule_id] g next
       )
-  and aux_list last_ids g acc procs =
+    | P_break (loc, label) -> (
+        let+ skeleton =
+          loop_find
+            ~keyword:Loc.{ loc; content = "break" }
+            ~label
+            labelled_loops loop_stack
+        in
+        g
+        |> link_backward ~last_ids skeleton.after_loop_rule_id
+      )
+    | P_continue (loc, label) -> (
+        let+ skeleton =
+          loop_find
+            ~keyword:Loc.{ loc; content = "continue" }
+            ~label
+            labelled_loops loop_stack
+        in
+        g
+        |> link_backward ~last_ids skeleton.true_branch_guard_rule_id
+        |> link_backward ~last_ids skeleton.false_branch_guard_rule_id
+      )
+  and aux_list labelled_loops loop_stack last_ids g acc procs =
     match procs with
     | [] -> Ok (List.rev acc)
     | p :: ps ->
-      let* p = aux last_ids g p in
-      aux_list last_ids g (p :: acc) ps
+      let* p = aux labelled_loops loop_stack last_ids g p in
+      aux_list labelled_loops loop_stack last_ids g (p :: acc) ps
   in
-  let+ g = aux [] Graph.empty proc in
+  let+ g = aux String_map.empty [] [] Graph.empty proc in
   (g, !tags)

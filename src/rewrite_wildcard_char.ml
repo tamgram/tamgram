@@ -45,7 +45,7 @@ let rewrite_proc (proc : Tg_ast.proc) : Tg_ast.proc =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> proc
+    | P_null | P_break _ | P_continue _ -> proc
     | P_let { binding; next } ->
       P_let { binding; next = aux next }
     | P_let_macro { binding; next } ->
@@ -57,8 +57,6 @@ let rewrite_proc (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_branch (loc, procs, next) ->
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) -> P_scoped (aux proc, aux next)
-    (* | P_entry_point { name; next } ->
-       P_entry_point { name; next = aux next } *)
     | P_while_cell_cas { label; mode; cell; term; proc; next } ->
       P_while_cell_cas {
         label;

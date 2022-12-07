@@ -138,13 +138,6 @@ type proc =
     }
   | P_branch of Loc.t option * proc list * proc
   | P_scoped of proc * proc
-  (* | P_entry_point of {
-      name : string Loc.tagged;
-      next : proc;
-     }
-     | P_goto of {
-      dest : string Loc.tagged;
-     } *)
   | P_while_cell_cas of {
       label : string Loc.tagged option;
       mode : while_mode;
@@ -153,6 +146,8 @@ type proc =
       proc : proc;
       next : proc;
     }
+  | P_break of Loc.t option * string Loc.tagged option
+  | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
   arg_and_typs : Typ.term Binding.t list;

@@ -91,7 +91,7 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
   let open Tg_ast in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> Ok proc
+    | P_null | P_break _ | P_continue _ -> Ok proc
     | P_let { binding; next } ->
       let+ next = aux next in
       P_let { binding; next }

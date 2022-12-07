@@ -29,7 +29,7 @@ let sub
   in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> proc
+    | P_null | P_break _ | P_continue _ -> proc
     | P_let { binding; next } ->
       let binding = Binding.map term_sub binding in
       P_let { binding; next = aux next }
@@ -87,7 +87,7 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
   in
   let rec aux proc =
     match proc with
-    | P_null (* | P_goto _ *) -> String_tagged_set.empty
+    | P_null | P_break _ | P_continue _ -> String_tagged_set.empty
     | P_let { binding; next } ->
       let x = Binding.get binding in
       String_tagged_set.union (Term.cells_in_term x) (aux next)
@@ -114,8 +114,6 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
         (aux next :: List.map aux procs)
     | P_scoped (proc, next) ->
       String_tagged_set.union (aux proc) (aux next)
-    (* | P_entry_point { name = _; next } ->
-       aux next *)
     | P_while_cell_cas { cell; term; proc; next } ->
       List.map aux [ proc; next ]
       |> List.fold_left
@@ -145,5 +143,6 @@ let while_used_in_proc (proc : Tg_ast.proc) : bool =
       aux proc || aux next
     | P_while_cell_cas _ ->
       true
+    | P_break _ | P_continue _ -> false
   in
   aux proc
