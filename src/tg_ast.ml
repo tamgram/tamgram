@@ -146,6 +146,7 @@ type proc =
       dest : string Loc.tagged;
      } *)
   | P_while_cell_cas of {
+      label : string Loc.tagged option;
       mode : while_mode;
       cell : string Loc.tagged;
       term : term;

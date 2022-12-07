@@ -177,8 +177,9 @@ let aux_proc
       P_scoped
         ( aux term_macro_defs proc,
           aux term_macro_defs next )
-    | P_while_cell_cas { mode; cell; term; proc; next } ->
+    | P_while_cell_cas { label; mode; cell; term; proc; next } ->
       P_while_cell_cas {
+        label;
         mode;
         cell;
         term;

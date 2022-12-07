@@ -65,8 +65,9 @@ let sub
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) ->
       P_scoped (aux proc, aux next)
-    | P_while_cell_cas { mode; cell; term; proc; next } ->
-      P_while_cell_cas { mode;
+    | P_while_cell_cas { label; mode; cell; term; proc; next } ->
+      P_while_cell_cas { label;
+                         mode;
                          cell;
                          term = term_sub term;
                          proc = aux proc;
