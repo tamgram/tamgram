@@ -9,11 +9,11 @@ from bench_utils import *
 parser = argparse.ArgumentParser(description='Benchmark.')
 # parser.add_argument('--dir', help='directory to use')
 parser.add_argument('--pattern', help='pattern', default="**")
-parser.add_argument('--allstyles', action="store_true")
+parser.add_argument('--all-styles', action="store_true")
 parser.add_argument('--tgonly', action="store_true")
 parser.add_argument('--tmonly', action="store_true")
 parser.add_argument('--core', help='core count', default=4)
-parser.add_argument('--maxmemory', help='maximum memory', default="50G")
+parser.add_argument('--max-memory', help='maximum memory', default="50G")
 parser.add_argument('--timeout', help='timeout for Tamarin command in minutes', default=60)
 
 args = parser.parse_args()
@@ -22,7 +22,7 @@ config = {}
 
 config["pattern"] = args.pattern
 config["core"] = args.core
-config["maxmemory"] = args.maxmemory
+config["max_memory"] = args.max_memory
 config["timeout"] = args.timeout
 
 if args.tgonly and args.tmonly:
@@ -30,11 +30,11 @@ if args.tgonly and args.tmonly:
     exit(1)
 
 if args.tgonly:
-    config["exts"] = tg_spthy_extensions(args.allstyles)
+    config["exts"] = tg_spthy_extensions(args.all_styles)
 elif args.tmonly:
     config["exts"] = [ ".spthy" ]
 else:
-    config["exts"] = [ ".spthy" ] + tg_spthy_extensions(args.allstyles)
+    config["exts"] = [ ".spthy" ] + tg_spthy_extensions(args.all_styles)
 
 cases = benchmark_cases(config["pattern"])
 
@@ -64,7 +64,7 @@ for case in cases:
                 args = ["tamarin-prover",
                         "+RTS",
                         f'-N{config["core"]}',
-                        f'-M{config["maxmemory"]}',
+                        f'-M{config["max_memory"]}',
                         "-RTS",
                         f"--prove={lemma}",
                         f"--output={proof_file_path}",

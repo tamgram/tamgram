@@ -6,14 +6,14 @@ from bench_utils import *
 parser = argparse.ArgumentParser(description='Display benchmark.')
 parser.add_argument('--dir', help='directory to use')
 parser.add_argument('--pattern', help='pattern', default="**")
-parser.add_argument('--allstyles', action="store_true")
+parser.add_argument('--all-styles', action="store_true")
 
 args = parser.parse_args()
 
 config = {}
 
 config["pattern"] = args.pattern
-if args.allstyles:
+if args.all_styles:
     config["additional_styles"] = additional_styles
 else:
     config["additional_styles"] = []
