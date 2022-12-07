@@ -1,0 +1,36 @@
+theory while
+begin
+
+rule A_18_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_18_manyto1tomany:
+  [StF(~pid, 'tgk1', 'empty_tuple')]--[]->[StB(~pid, 'tgk1', <'2'>)]
+
+rule A_18_1to2to5:
+  [StB(~pid, 'tgk1', <'2'>)]--[]->[StF(~pid, 'tgk5', <'2'>)]
+
+rule A_18_1to3to4:
+  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellNeq(tgc_a_0, '2')]->[St(~pid, 'tgk4', <tgc_a_0>)]
+
+rule A_18_manyto5to6:
+    [ StF(~pid, 'tgk5', <tgc_a_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk6', 'empty_tuple')
+    , Out(<'while', tgc_a_0>)
+    ]
+
+rule A_18_manyto6to4:
+  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[St(~pid, 'tgk4', <'3'>)]
+
+rule A_18_4to7:
+  [St(~pid, 'tgk4', <tgc_a_0>)]--[]->[Out(<'done', tgc_a_0>)]
+
+restriction tg_cell_neq_restriction:
+  "not Ex x_0 #i_0 .
+         TgCellNeq(x_0, x_0) @ #i_0"
+
+end
+
