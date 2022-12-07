@@ -189,6 +189,11 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
         in
         let true_branch_leaves =
           Graph.leaves proc_g
+          |> Seq.filter (fun k ->
+              not (List.mem k [ true_branch_guard_rule_id
+                              ; false_branch_guard_rule_id
+                              ; after_loop_rule_id])
+            )
           |> List.of_seq
         in
         let g =
