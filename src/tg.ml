@@ -41,7 +41,6 @@ let default_pipeline =
     ("Fact usage check", Fact_usage_check.map_spec);
     ("Rewrite singleton processes into rules", Rewrite_singleton_processes_into_rules.map_spec);
     ("Add starting rules", Add_start_rules.map_spec);
-    ("Add restrictions for while loops", Add_restrictions_while_loops.map_spec);
     ("Construct process graphs", Construct_proc_graphs.map_spec);
     ("Propagate type annotations", Propagate_typ_annotations.map_spec);
     ("Cell usage check", Cell_usage_check.map_spec);

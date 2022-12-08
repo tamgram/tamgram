@@ -62,8 +62,30 @@ let loop_find
         )
     )
 
-let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
+type restrictions_required = {
+  cell_neq : bool;
+  cell_pat_match_restrictions : Tg_ast.term Int_map.t;
+}
+
+let restrictions_empty = {
+  cell_neq = false;
+  cell_pat_match_restrictions = Int_map.empty;
+}
+
+let restrictions_required_union x y : restrictions_required =
+  {
+    cell_neq = x.cell_neq || x.cell_neq;
+    cell_pat_match_restrictions =
+      Int_map.union (fun _ _ -> failwith "Unexpected case")
+        x.cell_pat_match_restrictions y.cell_pat_match_restrictions;
+  }
+
+let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required, Error_msg.t) result =
   let tags : string Int_map.t ref = ref Int_map.empty in
+  let add_cell_neq_restriction = ref false in
+  let cell_pat_match_restrictions : Tg_ast.term Int_map.t ref =
+    ref Int_map.empty
+  in
   let rec aux
       (labelled_loops : loop_skeleton String_map.t)
       (loop_stack : loop_skeleton list)
@@ -142,13 +164,27 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
                  }
         in
         let not_matching_rule =
-          Tg_ast.{
-            empty_rule with
-            a = [T_app (Path.of_string Params.while_cell_neq_apred_name,
-                        `Local 0,
-                        [ T_symbol (cell, `Cell); term ],
-                        None)];
-          }
+          if String_tagged_set.is_empty (Term.free_var_name_strs_in_term term) then (
+            add_cell_neq_restriction := true;
+            Tg_ast.{
+              empty_rule with
+              a = [T_app (Path.of_string Params.cell_neq_apred_name,
+                          `Local 0,
+                          [ T_symbol (cell, `Cell); term ],
+                          None)];
+            }
+          )
+          else (
+            let id = Graph.get_id () in
+            cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
+            Tg_ast.{
+              empty_rule with
+              a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
+                          `Local 0,
+                          [ T_symbol (cell, `Cell); term ],
+                          None)];
+            }
+          )
         in
         let true_branch_guard_rule_id = Graph.get_id () in
         let false_branch_guard_rule_id = Graph.get_id () in
@@ -235,4 +271,8 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t, Error_msg.t) result =
       aux_list labelled_loops loop_stack last_ids g (p :: acc) ps
   in
   let+ g = aux String_map.empty [] [] Graph.empty proc in
-  (g, !tags)
+  (g,
+   !tags,
+   { cell_neq = !add_cell_neq_restriction;
+     cell_pat_match_restrictions = !cell_pat_match_restrictions }
+  )

@@ -34,13 +34,17 @@ let pcell_ptr_prefix = "pcellptr"
 
 let pcell_restriction_name = "pcell_restriction"
 
-let while_cell_eq_restriction_name = "tg_cell_eq_restriction"
+let cell_eq_restriction_name = "tg_cell_eq_restriction"
 
-let while_cell_neq_restriction_name = "tg_cell_neq_restriction"
+let cell_neq_restriction_name = "tg_cell_neq_restriction"
 
-let while_cell_eq_apred_name = "TgCellEq"
+let cell_eq_apred_name = "TgCellEq"
 
-let while_cell_neq_apred_name = "TgCellNeq"
+let cell_neq_apred_name = "TgCellNeq"
+
+let cell_pat_match_restriction_prefix = "tg_cell_pat_match_restriction"
+
+let cell_pat_match_apred_prefix = "TgCellPatMatch_"
 
 let builtin_functions = [
   "h";
@@ -84,10 +88,10 @@ let reserved_names =
     pcell_freed_apred_name;
     pcell_read_apred_name;
     pcell_restriction_name;
-    while_cell_eq_restriction_name;
-    while_cell_eq_apred_name;
-    while_cell_neq_restriction_name;
-    while_cell_neq_apred_name;
+    cell_eq_restriction_name;
+    cell_eq_apred_name;
+    cell_neq_restriction_name;
+    cell_neq_apred_name;
   ]
 
 let reserved_prefixes =
@@ -99,6 +103,8 @@ let reserved_prefixes =
     graph_vertex_label_prefix;
     auto_gen_name_prefix;
     pcell_ptr_prefix;
+    cell_pat_match_restriction_prefix;
+    cell_pat_match_apred_prefix;
   ]
 
 let file_extension = ".tg"

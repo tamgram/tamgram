@@ -37,9 +37,9 @@ let base =
     D_apred
       (Binding.make_untagged Params.pcell_freed_apred_name 4);
     D_apred
-      (Binding.make_untagged Params.while_cell_eq_apred_name 2);
+      (Binding.make_untagged Params.cell_eq_apred_name 2);
     D_apred
-      (Binding.make_untagged Params.while_cell_neq_apred_name 2);
+      (Binding.make_untagged Params.cell_neq_apred_name 2);
     D_fun (Binding.make_untagged "pair" 2);
     D_fun (Binding.make_untagged "fst" 1);
     D_fun (Binding.make_untagged "snd" 1);
