@@ -1,8 +1,10 @@
+fun f/1
+
 process A =
   []->['a := "2"];
-  "loop0": while 'a cas "2" {
+  "loop0": while 'a cas f(_) {
     []->[ Out(<"while", 'a>) ];
-    []->[ 'a := "3" ];
+    []->[ 'a := f('a) ];
     break "loop0"
   };
   []->[ Out(<"done", 'a>) ]
