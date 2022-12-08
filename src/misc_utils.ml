@@ -13,8 +13,8 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_line { tag; rule; next } -> P_line { tag; rule; next = aux next }
     | P_branch (loc, procs, next) -> P_branch (loc, procs, next)
     | P_scoped (proc, next) -> P_scoped (proc, aux next)
-    | P_while_cell_cas { label; mode; cell; term; proc; next } ->
-      P_while_cell_cas { label; mode; cell; term; proc; next = aux next }
+    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } ->
+      P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next = aux next }
   in
   aux proc
 

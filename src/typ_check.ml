@@ -383,7 +383,15 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
     | P_scoped (proc, next) ->
       let* () = aux typ_ctx proc in
       aux typ_ctx next
-    | P_while_cell_cas { mode = _; cell = _; term; proc; next } -> (
+    | P_while_cell_cas { mode = _; cell = _; term; vars_in_term; proc; next } -> (
+        let typ_ctx =
+          List.fold_left (fun ctx binding ->
+            Printf.printf "binding: %s\n" (Binding.name_str_untagged binding);
+              Typ.Ctx.add (Binding.name binding) `Bitstring ctx
+            )
+            typ_ctx
+            vars_in_term
+        in
         let* typ = typ_of_term typ_ctx term in
         let expected_typs = compatible_typs_of_typ `Bitstring in
         if List.mem typ expected_typs then

@@ -157,10 +157,11 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
             | _ -> default ()
           )
       )
-    | P_while_cell_cas { label; mode; cell; term; proc; next } -> (
+    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } -> (
         let matching_rule =
           Tg_ast.{ empty_rule with
                    l = [ T_cell_pat_match (cell, term) ];
+                   vars_in_l = List.map (Binding.update `Bitstring) vars_in_term;
                  }
         in
         let not_matching_rule =

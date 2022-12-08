@@ -143,6 +143,7 @@ type proc =
       mode : while_mode;
       cell : string Loc.tagged;
       term : term;
+      vars_in_term : unit Binding.t list;
       proc : proc;
       next : proc;
     }

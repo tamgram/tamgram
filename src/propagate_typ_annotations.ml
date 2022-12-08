@@ -15,6 +15,7 @@ let fill_in_typ_annotations_for_term (typ_ctx : Typ.Ctx.t) (term : Tg_ast.term) 
     | T_quantified _ ->
       failwith "Unexpected case"
     | T_var (path, name, _) ->
+        Fmt.pf "name: %a" pp_name name;
       T_var (path, name,
              Some (CCOption.get_exn_or
                      (Fmt.str "Unexpected failure in type lookup for %a" Printers.pp_path path)

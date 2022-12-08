@@ -116,10 +116,10 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
     (* | P_entry_point { name; next } ->
        let+ next = aux next in
        P_entry_point { name; next } *)
-    | P_while_cell_cas { label; mode; cell; term; proc; next } ->
+    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } ->
       let* proc = aux proc in
       let+ next = aux next in
-      P_while_cell_cas { label; mode; cell; term; proc; next }
+      P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next }
   and aux_list acc procs =
     match procs with
     | [] -> Ok (List.rev acc)

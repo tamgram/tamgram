@@ -331,13 +331,29 @@ let aux_proc
       let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
       let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
       P_scoped (proc, next)
-    | P_while_cell_cas { label; mode; cell; term; proc; next } -> (
+    | P_while_cell_cas { label; mode; cell; term; vars_in_term = _; proc; next } -> (
+        let free_vars =
+          Term.free_var_name_strs_in_term term
+          |> String_tagged_set.to_seq
+          |> Seq.map Loc.content
+          |> List.of_seq
+        in
+        let lexical_ctx_for_pat_term, names =
+          Lexical_ctx.add_local_name_strs free_vars Lexical_ctx.empty
+        in
+        let vars_in_term =
+          List.map2 (fun name name_str ->
+              Binding.make_untagged ~name name_str ()
+            )
+            names
+            free_vars
+        in
         let* term =
-          aux_term ~lexical_ctx_for_var ~lexical_ctx_for_func term
+          aux_term ~lexical_ctx_for_var:lexical_ctx_for_pat_term ~lexical_ctx_for_func term
         in
         let* proc = aux ~lexical_ctx_for_var ~lexical_ctx_for_func proc in
         let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
-        P_while_cell_cas { label; mode; cell; term; proc; next }
+        P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next }
       )
   and aux_list acc ~lexical_ctx_for_var ~lexical_ctx_for_func procs =
     match procs with
