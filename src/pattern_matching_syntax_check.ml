@@ -147,24 +147,31 @@ let check_for_inconsistent_typ_annotations
          | _, _ -> None)
       m1 m2
   in
+  let default () =
+    Ok (String_tagged_map.union (fun _ _ x -> Some x) m1 m2)
+  in
   match String_tagged_map.min_binding_opt inconsistency with
-  | None -> Ok (String_tagged_map.union (fun _ _ x -> Some x) m1 m2)
+  | None -> default ()
   | Some (name_str, (x1, x2)) ->
-    let x1_str =
-      match x1 with
-      | None -> "unannotated"
-      | Some x -> Fmt.str "%a" Printers.pp_typ x
-    in
-    let x2_str =
-      match x2 with
-      | None -> "unannotated"
-      | Some x -> Fmt.str "%a" Printers.pp_typ x
-    in
-    Error
-      (Error_msg.make
-         (Loc.tag name_str)
-         (Fmt.str "inconsistent type annotations (%s and %s) for name %s"
-            x1_str x2_str (Loc.content name_str)))
+    if Loc.content name_str = "_" then
+      default ()
+    else (
+      let x1_str =
+        match x1 with
+        | None -> "unannotated"
+        | Some x -> Fmt.str "%a" Printers.pp_typ x
+      in
+      let x2_str =
+        match x2 with
+        | None -> "unannotated"
+        | Some x -> Fmt.str "%a" Printers.pp_typ x
+      in
+      Error
+        (Error_msg.make
+           (Loc.tag name_str)
+           (Fmt.str "inconsistent type annotations (%s and %s) for name %s"
+              x1_str x2_str (Loc.content name_str)))
+    )
 
 let rec check_typ_annotations_of_term (term : Tg_ast.term) :
   (Typ.term option String_tagged_map.t, Error_msg.t) result =
