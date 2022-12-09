@@ -25,11 +25,10 @@ let default_pipeline =
     ("Add builtins", Add_builtins.map_spec);
     ("Missing builtin check", Missing_builtin_check.map_spec);
     ("Name check", Name_check.map_spec);
-    (* ("Loop check", Loop_check.map_spec); *)
     ("Cell usage check", Cell_usage_check.map_spec);
     ("Uninterpreted predicate check", Pred_check.map_spec);
-    ( "Duplicate uninterpreted function symbols check",
-      Dup_uninterpreted_fun_symbols_check.map_spec );
+    ("Duplicate uninterpreted function symbols check",
+     Dup_uninterpreted_fun_symbols_check.map_spec );
     ("Pattern matching syntax check", Pattern_matching_syntax_check.map_spec);
     ("Rewrite wildcard character", Rewrite_wildcard_char.map_spec);
     ("Rewrte term name as", Rewrite_term_name_as.map_spec);

@@ -170,6 +170,51 @@ let free_var_name_str_and_typs_in_terms (terms : Tg_ast.term list) :
          (free_var_name_str_and_typs_in_term x))
     String_map.empty terms
 
+let free_var_names_in_term (term : Tg_ast.term) : string Loc.tagged Name_map.t =
+  let union = Name_map.union (fun _ x _ -> Some x) in
+  let rec aux bound term =
+    let open Tg_ast in
+    match term with
+    | T_value _ | T_symbol _ -> Name_map.empty
+    | T_name_as (x, _) -> aux bound x
+    | T_var (path, name, _typ) -> (
+        match path with
+        | [] -> failwith "Unexpected case"
+        | [ x ] ->
+          if Name_set.mem name bound then Name_map.empty
+          else
+            Name_map.add name x Name_map.empty
+        | _ -> Name_map.empty)
+    | T_tuple (_, l) -> aux_list bound l
+    | T_app (_, _, args, _) -> aux_list bound args
+    | T_unary_op (_, x) -> aux bound x
+    | T_binary_op (_, x, y) ->
+      let s1 = aux bound x in
+      let s2 = aux bound y in
+      union s1 s2
+    | T_cell_pat_match (_, y) -> aux bound y
+    | T_cell_assign (_, y) -> aux bound y
+    | T_let { binding; next; _ } ->
+      let s1 = aux bound (Binding.get binding) in
+      let bound = Name_set.add (Binding.name binding) bound in
+      let s2 = aux bound next in
+      union s1 s2
+    | T_let_macro { binding; next; _ } ->
+      let ({ body; _ } : Tg_ast.macro) = Binding.get binding in
+      let s1 = aux bound body in
+      let bound = Name_set.add (Binding.name binding) bound in
+      let s2 = aux bound next in
+      union s1 s2
+    | T_action { fact; _ } -> aux bound fact
+    | T_temporal_a_lt_b _ | T_temporal_eq _ -> Name_map.empty
+    | T_quantified { formula; _ } -> aux bound formula
+  and aux_list bound terms =
+    CCList.fold_left
+      (fun acc x -> union acc (aux bound x))
+      Name_map.empty terms
+  in
+  aux Name_set.empty term
+
 let rec change_cell_names_in_term (subs : (string * string Loc.tagged) list)
     (term : Tg_ast.term) : Tg_ast.term =
   let open Tg_ast in

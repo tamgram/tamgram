@@ -386,7 +386,6 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
     | P_while_cell_cas { mode = _; cell = _; term; vars_in_term; proc; next } -> (
         let typ_ctx =
           List.fold_left (fun ctx binding ->
-            Printf.printf "binding: %s\n" (Binding.name_str_untagged binding);
               Typ.Ctx.add (Binding.name binding) `Bitstring ctx
             )
             typ_ctx

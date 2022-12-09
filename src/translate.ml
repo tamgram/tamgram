@@ -11,6 +11,7 @@ let pp_name_untagged formatter ((name_str, name) : string * Name.t) : unit =
         state_pred_prefix;
         auto_gen_name_prefix;
         pcell_ptr_prefix;
+        cell_pat_match_apred_prefix;
       ]
   then
     Fmt.pf formatter "%s" name_str

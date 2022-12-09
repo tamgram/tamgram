@@ -1,12 +1,30 @@
 open Result_infix
 
+let add_apred_decls (restrictions_required : Tg_graph.restrictions_required) (spec : Spec.t)
+  : Spec.t =
+  let decls =
+    Int_map.to_seq restrictions_required.cell_pat_match_restrictions
+    |> Seq.map (fun (id, _term) ->
+        let open Tg_ast in
+        D_apred
+          (Binding.make_untagged
+             (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id)
+             1
+          )
+      )
+    |> List.of_seq
+  in
+  { spec with
+    root = decls @ spec.root
+  }
+
 let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (spec : Spec.t)
   : Spec.t =
   let cell_pat_restrictions =
     Int_map.to_seq restrictions_required.cell_pat_match_restrictions
     |> Seq.map (fun (id, term) ->
         let open Tg_ast in
-        let free_vars = String_tagged_set.to_list @@ Term.free_var_name_strs_in_term term in
+        let free_vars = Name_map.to_seq @@ Term.free_var_names_in_term term in
         let temporal_var = "i" in
         let cell_var = "cell" in
         D_restriction
@@ -17,11 +35,16 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
                     quantifier = `All;
                     quant = (Binding.make_untagged temporal_var `Temporal)
                             ::
-                            List.map (fun x -> Binding.make x `Bitstring) free_vars;
+                            (Binding.make_untagged cell_var `Bitstring)
+                            ::
+                            (free_vars
+                             |> Seq.map (fun (name, x) -> Binding.make ~name x `Bitstring)
+                             |> List.of_seq
+                            );
                     formula =
                       T_binary_op (`Imp,
                                    T_action {
-                                     fact = T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_restriction_prefix id),
+                                     fact = T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
                                                    `Local 0,
                                                    [T_var (Path.of_string cell_var, `Local 0, None)],
                                                    None);
@@ -123,4 +146,5 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
     proc_graphs = !proc_graphs;
     rule_tags = !rule_tags;
   }
+  |> add_apred_decls !restrictions_required
   |> add_restrictions !restrictions_required

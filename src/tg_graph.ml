@@ -165,27 +165,28 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
                  }
         in
         let not_matching_rule =
-          if String_tagged_set.is_empty (Term.free_var_name_strs_in_term term) then (
-            add_cell_neq_restriction := true;
-            Tg_ast.{
-              empty_rule with
-              a = [T_app (Path.of_string Params.cell_neq_apred_name,
-                          `Local 0,
-                          [ T_symbol (cell, `Cell); term ],
-                          None)];
-            }
-          )
-          else (
-            let id = Graph.get_id () in
-            cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
-            Tg_ast.{
-              empty_rule with
-              a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
-                          `Local 0,
-                          [ T_symbol (cell, `Cell); term ],
-                          None)];
-            }
-          )
+          match vars_in_term with
+          | [] -> (
+              add_cell_neq_restriction := true;
+              Tg_ast.{
+                empty_rule with
+                a = [T_app (Path.of_string Params.cell_neq_apred_name,
+                            `Local 0,
+                            [ T_symbol (cell, `Cell); term ],
+                            None)];
+              }
+            )
+          | _ -> (
+              let id = Graph.get_id () in
+              cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
+              Tg_ast.{
+                empty_rule with
+                a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
+                            `Local 0,
+                            [ T_symbol (cell, `Cell) ],
+                            None)];
+              }
+            )
         in
         let true_branch_guard_rule_id = Graph.get_id () in
         let false_branch_guard_rule_id = Graph.get_id () in
