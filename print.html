@@ -692,100 +692,37 @@ process A =
   }
 
 </code></pre>
-<p>Compiled result</p>
-<pre><code>theory choice
-begin
-
-builtins: hashing
-
-rule A_22_0tomany:
-  [Fr(~pid)]--[]-&gt;[StB(~pid, 'tgk0', 'empty_tuple')]
-
-rule A_22_0to1to5:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('A')
-    ]
-  --[ 
-    ]-&gt;
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , Out(h('A'))
-    ]
-
-rule A_22_0to2to4:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('B')
-    , In(x_17)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(&lt;'B', x_17&gt;))
-    ]
-
-rule A_22_0to3to4:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('C')
-    , In(x_18)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(&lt;'C', x_18&gt;))
-    ]
-
-rule A_22_manyto4to5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , In(x_19)
-    ]
-  --[ 
-    ]-&gt;
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , Out(h(&lt;x_19, x_19&gt;))
-    ]
-
-rule A_22_5to6:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('D')
-    , In(x_20)
-    ]
-  --[ 
-    ]-&gt;
-    [ Out(h(&lt;'D', x_20&gt;))
-    ]
-
-rule A_22_5to7:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('E')
-    , In(x_21)
-    ]
-  --[ 
-    ]-&gt;
-    [ Out(h(&lt;'E', x_21&gt;))
-    ]
-
-end
-</code></pre>
-<p>It is perhaps worth noting that with differing depth of the <code>choice</code> tree,
-manual encoding is especially prone to errors and adjustment of
-the manual encoding is significantly more difficult than relying on Tamgram.</p>
 <a class="header" href="print.html#loops" id="loops"><h2>Loops</h2></a>
-<p>One final important primitive are loops (or jumps).
-We note that encoding of a naive case such as
-a process with only one outer loop is straightfoward.
-However, with jumps only occuring in certain choices
-(for instance &quot;breaking&quot; a loop if some condition is met,
-or just a while loop in general),
-encoding the transitions manually
-becomes non-trivial.</p>
-<p>In Tamgram, possible jump points are denoted
-by <code>entry_point &quot;label&quot;</code>,
-jumps to entry points are denoted by <code>goto &quot;label&quot;</code>.
-To reduce complexity of static analysis and facilitate
-more readable Tamgram files, jumps are restricted to
-backwards - entry point must have appeared earlier in
-the process.</p>
-<p>Similarly we write a simple example in Tamgram and show
-the compiled results.</p>
+<p>Tamgram supports a restricted form
+of while loops, namely the condition
+is restricted to pattern matching of cells,
+which reads as follows:</p>
+<pre><code>while 'c cas ... {
+  P
+}
+</code></pre>
+<p>where the term <code>...</code> is one of the following:</p>
+<ul>
+<li>a string literal (e.g. &quot;1&quot;)</li>
+<li>a public constant (e.g. <code>$A</code>)</li>
+<li>a cell</li>
+<li>wildcard variable (exactly <code>_</code>)</li>
+<li>a term constructed with some function symbol
+where all the arguments belong
+to one category in this list</li>
+</ul>
+<p>In the case where no variables are involved,
+the while loop false branch is compiled
+with the usual inequality restriction.</p>
+<p>In the case where wildcard <code>_</code> is used anywhere,
+a unique restriction and action predicate is
+generated for the while loop that demands
+inequality for all instantiation for the term
+(treating the term as a shape specification in essence).</p>
+<p>The main reason why no actual variables are allowed
+is to ensure the consistency that &quot;cell as&quot; operator
+does not introduce variables that has
+scope larger than a rule.</p>
 <pre><code>builtins := multiset
 
 apred Neq/2
@@ -845,74 +782,6 @@ lemma eventually_right_guess =
   exists-trace
   Ex x #i.
     RightGuess(x) @ i
-</code></pre>
-<p>Compiled output</p>
-<pre><code>theory guess
-begin
-
-builtins: multiset
-
-restriction Inequality:
-  &quot;All x_18 y_19 #i_20 .
-     ((Neq_16(x_18, y_19) @ #i_20) ==&gt; (not ((x_18) = (y_19))))&quot;
-
-restriction Equality:
-  &quot;All x_22 y_23 #i_24 .
-     ((Eq_17(x_22, y_23) @ #i_24) ==&gt; (((x_22) = (y_23))))&quot;
-
-rule GuessingGame_30_0to1:
-  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule GuessingGame_30_manyto1to2_Output_some_possible_answers:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , Out(&lt;'A', 'B', 'C', 'F'&gt;)
-    ]
-
-rule GuessingGame_30_manyto2to3_Some_persistent_states:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]-&gt;[St(~pid, 'tgk3', &lt;'0'&gt;)]
-
-rule GuessingGame_30_3to4to7:
-    [ St(~pid, 'tgk3', &lt;tgc_try_count_0&gt;)
-    , In(x_28)
-    ]
-  --[ Eq_17(x_28, 'F')
-    ]-&gt;
-    [ StF(~pid, 'tgk7', &lt;((tgc_try_count_0) + ('1'))&gt;)
-    ]
-
-rule GuessingGame_30_3to5to6:
-    [ St(~pid, 'tgk3', &lt;tgc_try_count_0&gt;)
-    , In(x_29)
-    ]
-  --[ Neq_16(x_29, 'F')
-    ]-&gt;
-    [ St(~pid, 'tgk6', &lt;((tgc_try_count_0) + ('1'))&gt;)
-    ]
-
-rule GuessingGame_30_manyto7:
-  [StF(~pid, 'tgk7', &lt;tgc_try_count_0&gt;)]--[RightGuess_26(tgc_try_count_0)]-&gt;[]
-
-lemma at_least_one_guess []:
-  all-traces
-  &quot;All x_31 #i_32 .
-     ((RightGuess_26(x_31) @ #i_32) ==&gt; (not ((x_31) = ('0'))))&quot;
-
-lemma possibly_2_guesses []:
-  exists-trace
-  &quot;Ex #i_34 .
-     RightGuess_26((((('0') + ('1'))) + ('1'))) @ #i_34&quot;
-
-lemma eventually_right_guess []:
-  exists-trace
-  &quot;Ex x_36 #i_37 .
-     RightGuess_26(x_36) @ #i_37&quot;
-
-end
-
 </code></pre>
 <a class="header" href="print.html#process-macros" id="process-macros"><h2>Process macros</h2></a>
 <p>Process macros allow access to the process syntax space,
@@ -1027,88 +896,6 @@ process B =
   out_enc(&quot;B1&quot;, 'k, 'n);
   out_enc(&quot;B2&quot;, 'k, 'n)
 </code></pre>
-<p>The compiled output becomes slightly more complex
-this time since we require modification of
-process context.</p>
-<pre><code>theory process_macro1
-begin
-
-builtins: symmetric-encryption
-
-rule A_24_0to1:
-  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule A_24_manyto1to2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    , Fr(~k_23)
-    , Fr(~n_22)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk2', &lt;~k_23, ~n_22&gt;)
-    ]
-
-rule A_24_manyto2to3_Out_enc:
-    [ StF(~pid, 'tgk2', &lt;tgc_k_0, tgc_n_0&gt;)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk3', &lt;tgc_k_0, ~n_20&gt;)
-    , Out(senc(&lt;'A1', tgc_n_0&gt;, tgc_k_0))
-    ]
-
-rule A_24_manyto3_Out_enc:
-    [ StF(~pid, 'tgk3', &lt;tgc_k_0, tgc_n_0&gt;)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]-&gt;
-    [ Out(senc(&lt;'A2', tgc_n_0&gt;, tgc_k_0))
-    ]
-
-rule B_27_4to5:
-  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk5', 'empty_tuple')]
-
-rule B_27_manyto5to6:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Fr(~k_26)
-    , Fr(~n_25)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk6', &lt;~k_26, ~n_25&gt;)
-    ]
-
-rule B_27_manyto6to7_Out_enc:
-    [ StF(~pid, 'tgk6', &lt;tgc_k_0, tgc_n_0&gt;)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk7', &lt;tgc_k_0, ~n_20&gt;)
-    , Out(senc(&lt;'B1', tgc_n_0&gt;, tgc_k_0))
-    ]
-
-rule B_27_manyto7_Out_enc:
-    [ StF(~pid, 'tgk7', &lt;tgc_k_0, tgc_n_0&gt;)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]-&gt;
-    [ Out(senc(&lt;'B2', tgc_n_0&gt;, tgc_k_0))
-    ]
-
-end
-
-</code></pre>
-<p>where we see in rules <code>A_24_manyto2to3_Out_enc</code>
-and <code>B_27_manyto6to7_Out_enc</code>,
-the new nonce replaces the old nonce in the passed context tuple
-correctly.</p>
-<p>Achieving similar results in manual encoding requires
-careful choice of prefixes and naming schemes
-from our observation.</p>
 <a class="header" href="print.html#static-analysis" id="static-analysis"><h1>Static analysis</h1></a>
 <a class="header" href="print.html#invalid-cell-reference" id="invalid-cell-reference"><h2>Invalid cell reference</h2></a>
 <p>To rule out invalid cell references,
