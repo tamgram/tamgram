@@ -1,0 +1,38 @@
+theory while
+begin
+
+functions: f_18/1
+
+rule A_20_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule A_20_manyto1tomany:
+  [StF(~pid, 'tgk1', 'empty_tuple')]--[]->[StB(~pid, 'tgk1', <f_18('2')>)]
+
+rule A_20_1to3to6:
+  [StB(~pid, 'tgk1', <f_18(u_tgany0_19)>)]--[]->[StF(~pid, 'tgk6', <f_18(u_tgany0_19)>)]
+
+rule A_20_1to4to5:
+  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[St(~pid, 'tgk5', <tgc_a_0>)]
+
+rule A_20_manyto6to7:
+    [ StF(~pid, 'tgk6', <tgc_a_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk7', <tgc_a_0>)
+    , Out(<'while', tgc_a_0>)
+    ]
+
+rule A_20_manyto7to5:
+  [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[St(~pid, 'tgk5', <f_18(tgc_a_0)>)]
+
+rule A_20_5to8:
+  [St(~pid, 'tgk5', <tgc_a_0>)]--[]->[Out(<'done', tgc_a_0>)]
+
+restriction tg_cell_pat_match_restriction2:
+  "All #i_0 cell_0 u_tgany0_19 .
+     ((TgCellPatMatch_2(cell_0) @ #i_0) ==> (not ((cell_0) = (f_18(u_tgany0_19)))))"
+
+end
+

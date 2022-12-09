@@ -1,7 +1,7 @@
 fun f/1
 
 process A =
-  []->['a := "2"];
+  []->['a := f("2")];
   "loop0": while 'a cas f(_) {
     []->[ Out(<"while", 'a>) ];
     []->[ 'a := f('a) ];
