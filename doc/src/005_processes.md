@@ -274,107 +274,42 @@ process A =
 
 ```
 
-Compiled result
-
-```
-theory choice
-begin
-
-builtins: hashing
-
-rule A_22_0tomany:
-  [Fr(~pid)]--[]->[StB(~pid, 'tgk0', 'empty_tuple')]
-
-rule A_22_0to1to5:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('A')
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , Out(h('A'))
-    ]
-
-rule A_22_0to2to4:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('B')
-    , In(x_17)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<'B', x_17>))
-    ]
-
-rule A_22_0to3to4:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('C')
-    , In(x_18)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<'C', x_18>))
-    ]
-
-rule A_22_manyto4to5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , In(x_19)
-    ]
-  --[ 
-    ]->
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , Out(h(<x_19, x_19>))
-    ]
-
-rule A_22_5to6:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('D')
-    , In(x_20)
-    ]
-  --[ 
-    ]->
-    [ Out(h(<'D', x_20>))
-    ]
-
-rule A_22_5to7:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('E')
-    , In(x_21)
-    ]
-  --[ 
-    ]->
-    [ Out(h(<'E', x_21>))
-    ]
-
-end
-```
-
-It is perhaps worth noting that with differing depth of the `choice` tree,
-manual encoding is especially prone to errors and adjustment of
-the manual encoding is significantly more difficult than relying on Tamgram.
-
 ## Loops
 
-One final important primitive are loops (or jumps).
-We note that encoding of a naive case such as
-a process with only one outer loop is straightfoward.
-However, with jumps only occuring in certain choices
-(for instance "breaking" a loop if some condition is met,
-or just a while loop in general),
-encoding the transitions manually
-becomes non-trivial.
+Tamgram supports a restricted form
+of while loops, namely the condition
+is restricted to pattern matching of cells,
+which reads as follows:
 
-In Tamgram, possible jump points are denoted
-by `entry_point "label"`,
-jumps to entry points are denoted by `goto "label"`.
-To reduce complexity of static analysis and facilitate
-more readable Tamgram files, jumps are restricted to
-backwards - entry point must have appeared earlier in
-the process.
+```
+while 'c cas ... {
+  P
+}
+```
 
-Similarly we write a simple example in Tamgram and show
-the compiled results.
+where the term `...` is one of the following:
+- a string literal (e.g. "1")
+- a public constant (e.g. `$A`)
+- a cell
+- wildcard variable (exactly `_`)
+- a term constructed with some function symbol
+  where all the arguments belong
+  to one category in this list
+
+In the case where no variables are involved,
+the while loop false branch is compiled
+with the usual inequality restriction.
+
+In the case where wildcard `_` is used anywhere,
+a unique restriction and action predicate is
+generated for the while loop that demands
+inequality for all instantiation for the term
+(treating the term as a shape specification in essence).
+
+The main reason why no actual variables are allowed
+is to ensure the consistency that "cell as" operator
+does not introduce variables that has
+scope larger than a rule.
 
 ```
 builtins := multiset
@@ -436,77 +371,6 @@ lemma eventually_right_guess =
   exists-trace
   Ex x #i.
     RightGuess(x) @ i
-```
-
-Compiled output
-
-```
-theory guess
-begin
-
-builtins: multiset
-
-restriction Inequality:
-  "All x_18 y_19 #i_20 .
-     ((Neq_16(x_18, y_19) @ #i_20) ==> (not ((x_18) = (y_19))))"
-
-restriction Equality:
-  "All x_22 y_23 #i_24 .
-     ((Eq_17(x_22, y_23) @ #i_24) ==> (((x_22) = (y_23))))"
-
-rule GuessingGame_30_0to1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule GuessingGame_30_manyto1to2_Output_some_possible_answers:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , Out(<'A', 'B', 'C', 'F'>)
-    ]
-
-rule GuessingGame_30_manyto2to3_Some_persistent_states:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[St(~pid, 'tgk3', <'0'>)]
-
-rule GuessingGame_30_3to4to7:
-    [ St(~pid, 'tgk3', <tgc_try_count_0>)
-    , In(x_28)
-    ]
-  --[ Eq_17(x_28, 'F')
-    ]->
-    [ StF(~pid, 'tgk7', <((tgc_try_count_0) + ('1'))>)
-    ]
-
-rule GuessingGame_30_3to5to6:
-    [ St(~pid, 'tgk3', <tgc_try_count_0>)
-    , In(x_29)
-    ]
-  --[ Neq_16(x_29, 'F')
-    ]->
-    [ St(~pid, 'tgk6', <((tgc_try_count_0) + ('1'))>)
-    ]
-
-rule GuessingGame_30_manyto7:
-  [StF(~pid, 'tgk7', <tgc_try_count_0>)]--[RightGuess_26(tgc_try_count_0)]->[]
-
-lemma at_least_one_guess []:
-  all-traces
-  "All x_31 #i_32 .
-     ((RightGuess_26(x_31) @ #i_32) ==> (not ((x_31) = ('0'))))"
-
-lemma possibly_2_guesses []:
-  exists-trace
-  "Ex #i_34 .
-     RightGuess_26((((('0') + ('1'))) + ('1'))) @ #i_34"
-
-lemma eventually_right_guess []:
-  exists-trace
-  "Ex x_36 #i_37 .
-     RightGuess_26(x_36) @ #i_37"
-
-end
-
 ```
 
 ## Process macros
@@ -634,89 +498,3 @@ process B =
   out_enc("B2", 'k, 'n)
 ```
 
-The compiled output becomes slightly more complex
-this time since we require modification of
-process context.
-
-```
-theory process_macro1
-begin
-
-builtins: symmetric-encryption
-
-rule A_24_0to1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule A_24_manyto1to2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    , Fr(~k_23)
-    , Fr(~n_22)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk2', <~k_23, ~n_22>)
-    ]
-
-rule A_24_manyto2to3_Out_enc:
-    [ StF(~pid, 'tgk2', <tgc_k_0, tgc_n_0>)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk3', <tgc_k_0, ~n_20>)
-    , Out(senc(<'A1', tgc_n_0>, tgc_k_0))
-    ]
-
-rule A_24_manyto3_Out_enc:
-    [ StF(~pid, 'tgk3', <tgc_k_0, tgc_n_0>)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]->
-    [ Out(senc(<'A2', tgc_n_0>, tgc_k_0))
-    ]
-
-rule B_27_4to5:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
-
-rule B_27_manyto5to6:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Fr(~k_26)
-    , Fr(~n_25)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk6', <~k_26, ~n_25>)
-    ]
-
-rule B_27_manyto6to7_Out_enc:
-    [ StF(~pid, 'tgk6', <tgc_k_0, tgc_n_0>)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk7', <tgc_k_0, ~n_20>)
-    , Out(senc(<'B1', tgc_n_0>, tgc_k_0))
-    ]
-
-rule B_27_manyto7_Out_enc:
-    [ StF(~pid, 'tgk7', <tgc_k_0, tgc_n_0>)
-    , Fr(~n_20)
-    ]
-  --[ 
-    ]->
-    [ Out(senc(<'B2', tgc_n_0>, tgc_k_0))
-    ]
-
-end
-
-```
-
-where we see in rules `A_24_manyto2to3_Out_enc`
-and `B_27_manyto6to7_Out_enc`,
-the new nonce replaces the old nonce in the passed context tuple
-correctly.
-
-Achieving similar results in manual encoding requires
-careful choice of prefixes and naming schemes
-from our observation.
