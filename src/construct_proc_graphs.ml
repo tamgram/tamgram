@@ -26,16 +26,18 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
         let open Tg_ast in
         let free_vars = Name_map.to_seq @@ Term.free_var_names_in_term term in
         let temporal_var = "i" in
+        let _, temporal_var_name = Lexical_ctx.(add_local_name_str temporal_var empty) in
         let cell_var = "cell" in
+        let _, cell_var_name = Lexical_ctx.(add_local_name_str cell_var empty) in
         D_restriction
           { binding =
               Binding.make_untagged (Fmt.str "%s%d" Params.cell_pat_match_restriction_prefix id)
                 (T_quantified {
                     loc = None;
                     quantifier = `All;
-                    quant = (Binding.make_untagged temporal_var `Temporal)
+                    quant = (Binding.make_untagged ~name:temporal_var_name temporal_var `Temporal)
                             ::
-                            (Binding.make_untagged cell_var `Bitstring)
+                            (Binding.make_untagged ~name:cell_var_name cell_var `Bitstring)
                             ::
                             (free_vars
                              |> Seq.map (fun (name, x) -> Binding.make ~name x `Bitstring)
@@ -46,12 +48,12 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
                                    T_action {
                                      fact = T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
                                                    `Local 0,
-                                                   [T_var (Path.of_string cell_var, `Local 0, None)],
+                                                   [T_var (Path.of_string cell_var, cell_var_name, None)],
                                                    None);
-                                     temporal = (Loc.untagged temporal_var, `Local 0);
+                                     temporal = (Loc.untagged temporal_var, temporal_var_name);
                                    },
                                    T_unary_op (`Not,
-                                               T_binary_op (`Eq, T_var (Path.of_string "cell", `Local 0, None), term)
+                                               T_binary_op (`Eq, T_var (Path.of_string cell_var, cell_var_name, None), term)
                                               )
                                   )
                   }
@@ -61,6 +63,10 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
   in
   let restrictions =
     if restrictions_required.cell_neq then
+      let temporal_var = "i" in
+      let _, temporal_var_name = Lexical_ctx.(add_local_name_str temporal_var empty) in
+      let x = "x" in
+      let _, x_name = Lexical_ctx.(add_local_name_str x empty) in
       Seq.cons
         Tg_ast.(D_restriction
                   { binding =
@@ -70,15 +76,15 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
                                       T_quantified {
                                         loc = None;
                                         quantifier = `Ex;
-                                        quant = [ Binding.make_untagged "x" `Bitstring
-                                                ; Binding.make_untagged "i" `Temporal
+                                        quant = [ Binding.make_untagged ~name:x_name x `Bitstring
+                                                ; Binding.make_untagged ~name:temporal_var_name temporal_var `Temporal
                                                 ];
                                         formula =
-                                          let x = T_var (Path.of_string "x", `Local 0, None) in
+                                          let x = T_var (Path.of_string x, x_name, None) in
                                           T_action {
                                             fact = T_app ( Path.of_string Params.cell_neq_apred_name,
                                                            `Local 0, [x; x], None);
-                                            temporal = (Loc.untagged "i", `Local 0);
+                                            temporal = (Loc.untagged temporal_var, temporal_var_name);
                                           };
                                       }
                                      )
