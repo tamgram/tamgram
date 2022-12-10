@@ -134,20 +134,18 @@ that is used to decide the transition to take:</p>
 <pre><code>process A =
   []--&gt;[ 'st := &quot;St0&quot; ];
 
-  entry_point &quot;main&quot;;
-
-  choice {
-    { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
-    { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St2&quot; ] };
-    { [ 'st cas &quot;St2&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
-    { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
-  };
-
-  goto &quot;main&quot;
+  loop {
+    choice {
+      { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+      { [ 'st cas &quot;St0&quot; ]--&gt;[ 'st := &quot;St2&quot; ] };
+      { [ 'st cas &quot;St2&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+      { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+    }
+  }
 </code></pre>
-<pre><code>File &quot;impossible_pattern0.tg&quot;, line 10, character 9
-10 |     { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
-              ^
+<pre><code>File &quot;impossible_pattern0.tg&quot;, line 9, character 11
+9 |       { [ 'st cas &quot;St3&quot; ]--&gt;[ 'st := &quot;St1&quot; ] };
+               ^
 Error: Cell 'st never matches pattern &quot;St3&quot;
 </code></pre>
 <p>We may add an additional check of unused cell data
