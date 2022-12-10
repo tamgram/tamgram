@@ -281,17 +281,23 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
     | P_scoped (proc, next) ->
       Fmt.pf formatter "%a;@,%a" aux_in_block
         proc aux next
-    (* | P_entry_point { name; next } ->
-       Fmt.pf formatter "entry_point \"%s\";@,%a"
-        (Loc.content name) aux next *)
-    (* | P_goto { dest } ->
-       Fmt.pf formatter "goto \"%s\""
-        (Loc.content dest) *)
-    | P_while_cell_cas { mode; cell; term; proc; next } ->
-      Fmt.pf formatter "while %s '%s cas @[<h>%a@] %a;@,%a"
-        (match mode with `Matching -> "" | `Not_matching -> "not")
-        (Loc.content cell) pp_term term
-        aux_in_block proc aux next
+    | P_loop { label; mode; proc; next } -> (
+        (match label with
+         | None -> ()
+         | Some s ->
+           Fmt.pf formatter "%s: " (Loc.content s)
+        );
+        (match mode with
+         | `While { mode; cell; term; _ } ->
+           Fmt.pf formatter "while %s ('%s cas @[<h>%a@]) %a;@,%a"
+             (match mode with `Matching -> "" | `Not_matching -> "not")
+             (Loc.content cell) pp_term term
+             aux_in_block proc aux next
+         | `Unconditional ->
+           Fmt.pf formatter "loop %a;@,%a"
+             aux_in_block proc aux next
+        )
+      )
     | P_break (_, label) -> (
         match label with
         | None -> Fmt.pf formatter "break"

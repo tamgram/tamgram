@@ -230,7 +230,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     | P_scoped (x, next) ->
       let* () = aux x in
       aux next
-    | P_while_cell_cas { proc; next; _ } ->
+    | P_loop { proc; next; _ } ->
       let* () = aux proc in
       aux next
   in

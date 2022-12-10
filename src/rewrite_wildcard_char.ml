@@ -57,13 +57,16 @@ let rewrite_proc (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_branch (loc, procs, next) ->
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) -> P_scoped (aux proc, aux next)
-    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } ->
-      P_while_cell_cas {
+    | P_loop { label; mode; proc; next } ->
+      let mode =
+        match mode with
+        | `While { mode; cell; term; vars_in_term } ->
+          `While { mode; cell; term = rewrite_term term; vars_in_term }
+        | `Unconditional -> mode
+      in
+      P_loop {
         label;
         mode;
-        cell;
-        term = rewrite_term term;
-        vars_in_term;
         proc = aux proc;
         next = aux next;
       }

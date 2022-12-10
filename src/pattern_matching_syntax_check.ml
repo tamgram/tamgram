@@ -280,11 +280,15 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     | P_scoped (p, next) ->
       let* () = aux p in
       aux next
-    (* | P_entry_point { next; _ } -> aux next *)
-    | P_while_cell_cas { term; proc; next; _ } ->
-      let* () = check_term_either_constant_or_wildcard term in
-      let* () = aux proc in
-      aux next
+    | P_loop { mode; proc; next; _ } -> (
+        let* () =
+          match mode with
+          | `While { term; _ } -> check_term_either_constant_or_wildcard term
+          | `Unconditional -> Ok ()
+        in
+        let* () = aux proc in
+        aux next
+      )
   and aux_list procs =
     match procs with
     | [] -> Ok ()

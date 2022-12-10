@@ -122,8 +122,14 @@ let aux_proc (builtins : Builtin_set.t) (x : Tg_ast.proc) : (unit, Error_msg.t) 
       aux next
     (* | P_entry_point { next; _ } ->
        aux next *)
-    | P_while_cell_cas { term; proc; next; _ } ->
-      let* () = aux_term builtins term in
+    | P_loop { mode; proc; next; _ } ->
+      let* () =
+        match mode with
+        | `While { term; _ } ->
+          aux_term builtins term
+        | `Unconditional ->
+          Ok ()
+      in
       let* () = aux proc in
       aux next
   and aux_list l =
