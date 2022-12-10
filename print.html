@@ -701,6 +701,11 @@ which reads as follows:</p>
   P
 }
 </code></pre>
+<p>or</p>
+<pre><code>while not ('c cas ...) {
+  P
+}
+</code></pre>
 <p>where the term <code>...</code> is one of the following:</p>
 <ul>
 <li>a string literal (e.g. &quot;1&quot;)</li>
@@ -737,34 +742,19 @@ restriction Equality =
 apred RightGuess/1
 
 process GuessingGame =
-  let answer = &quot;F&quot; in
-  
   &quot;Output some possible answers&quot;:
-  []--&gt;[Out(&lt;&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, answer&gt;)];
+  []--&gt;[Out(&lt;&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;F&quot;&gt;)];
   
   &quot;Some persistent states&quot;:
-  []--&gt;['try_count := &quot;0&quot;];
+  []--&gt;
+  [ 'try_count := &quot;0&quot;
+  , 'correct_answer := &quot;F&quot;
+  , 'answer := &quot;NULL&quot; ];
   
-  entry_point &quot;start&quot;;
-  
-  choice {
-    {
-      /*	We proceed if we receive the right answer
-          from network
-      */
-      [In(x)]--[Eq(x, answer)]
-      --&gt;
-      ['try_count := 'try_count+&quot;1&quot;]
-    };
-    {
-      /* 	Otherwise we count the try and go back to
-          start
-      */
-      [In(x)]--[Neq(x, answer)]
-      --&gt;
-      ['try_count := 'try_count+&quot;1&quot;];
-      goto &quot;start&quot;
-    };
+  while not ('answer cas 'correct_answer) {
+    [ In(x) ]--&gt;
+    [ 'answer := x
+    , 'try_count := 'try_count + &quot;1&quot; ]
   };
   
   []--[ RightGuess('try_count) ]--&gt;[ ]
@@ -782,6 +772,11 @@ lemma eventually_right_guess =
   exists-trace
   Ex x #i.
     RightGuess(x) @ i
+</code></pre>
+<p>Tamgram also supports unconditional loops with <code>loop</code> keyword:</p>
+<pre><code>loop {
+  P
+}
 </code></pre>
 <a class="header" href="print.html#process-macros" id="process-macros"><h2>Process macros</h2></a>
 <p>Process macros allow access to the process syntax space,
@@ -811,64 +806,6 @@ process B =
   [ Fr(~k) ]--&gt;[ 'k := k ];
   out_enc(&quot;B1&quot;, 'k);
   out_enc(&quot;B2&quot;, 'k)
-</code></pre>
-<p>We can see in this case it is a simple
-AST expansion in the following compiled output.</p>
-<pre><code>theory process_macro0
-begin
-
-builtins: symmetric-encryption
-
-rule A_22_0to1:
-  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule A_22_manyto1to2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    , Fr(~k_21)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk2', &lt;~k_21&gt;)
-    ]
-
-rule A_22_manyto2to3:
-    [ StF(~pid, 'tgk2', &lt;tgc_k_0&gt;)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk3', &lt;tgc_k_0&gt;)
-    , Out(senc('A1', tgc_k_0))
-    ]
-
-rule A_22_manyto3:
-  [StF(~pid, 'tgk3', &lt;tgc_k_0&gt;)]--[]-&gt;[Out(senc('A2', tgc_k_0))]
-
-rule B_24_4to5:
-  [Fr(~pid)]--[]-&gt;[StF(~pid, 'tgk5', 'empty_tuple')]
-
-rule B_24_manyto5to6:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Fr(~k_23)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk6', &lt;~k_23&gt;)
-    ]
-
-rule B_24_manyto6to7:
-    [ StF(~pid, 'tgk6', &lt;tgc_k_0&gt;)
-    ]
-  --[ 
-    ]-&gt;
-    [ StF(~pid, 'tgk7', &lt;tgc_k_0&gt;)
-    , Out(senc('B1', tgc_k_0))
-    ]
-
-rule B_24_manyto7:
-  [StF(~pid, 'tgk7', &lt;tgc_k_0&gt;)]--[]-&gt;[Out(senc('B2', tgc_k_0))]
-
-end
-
 </code></pre>
 <p>If we wish to also abstract away nonce increment/refresh,
 we can make use of &quot;cell arguments&quot;, which allow
