@@ -8,7 +8,7 @@
 
   - `mix0` to `frame-minimal-hybrid0`
 
-- Replaced `goto` with `while 'c cas pattern { ... }` loops
+- Replaced `goto` with `while` and `loop` loops
 
 ## 0.2.0
 
