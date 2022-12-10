@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from bench_utils import *
 
 parser = argparse.ArgumentParser(description='Benchmark.')
-# parser.add_argument('--dir', help='directory to use')
 parser.add_argument('--pattern', help='pattern', default="**")
 parser.add_argument('--all-styles', action="store_true")
 parser.add_argument('--tgonly', action="store_true")

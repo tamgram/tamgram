@@ -4,6 +4,10 @@ import re
 
 tg_file_dir = "examples"
 
+def change_tg_file_dir(dir):
+    global tg_file_dir
+    tg_file_dir = dir
+
 additional_styles = [
                      "frame-minimal0",
                      "frame-minimal-backward0",

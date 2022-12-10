@@ -5,12 +5,14 @@ import subprocess
 from bench_utils import *
 
 parser = argparse.ArgumentParser(description='Compile examples.')
-parser.add_argument('--dir', help='directory to use')
+parser.add_argument('--dir', help='directory to use', default=tg_file_dir)
 parser.add_argument('--all-styles', action="store_true")
 parser.add_argument('--dev', action="store_true")
 parser.add_argument('--pattern', help='pattern', default="**")
 
 args = parser.parse_args()
+
+change_tg_file_dir(args.dir)
 
 config = {}
 
