@@ -476,6 +476,8 @@ proc:
     { P_branch (Some loc, branches, next) }
   | loc = CHOICE; LEFT_CUR_BRACK; branches = flexible_list(SEMICOLON, proc_in_block); RIGHT_CUR_BRACK
     { P_branch (Some loc, branches, P_null) }
+  | loop = loop
+    { P_loop loop }
   | loc = BREAK
     { P_break (Some loc, None) }
   | loc = BREAK; label = STRING
@@ -495,24 +497,24 @@ proc_in_block:
 
 loop:
   | label = STRING; COLON; loop = unlabelled_loop
-    { P_loop { loop with label = Some label } }
+    { { loop with label = Some label } }
   | loop = unlabelled_loop
-    { P_loop loop }
+    { loop }
 
-while_mode:
+while_cell_match:
   | cell = cell; CAS; term = term
-    { `While_matching { cell; term; vars_in_term = [] } }
+    { { mode = `Matching; cell; term; vars_in_term = [] } }
   | LEFT_PAREN; cell = cell; CAS; term = term; RIGHT_PAREN
-    { `While_matching { cell; term; vars_in_term = [] } }
+    { { mode = `Matching; cell; term; vars_in_term = [] } }
   | NOT; LEFT_PAREN; cell = cell; CAS; term = term; RIGHT_PAREN
-    { `While_not_matching { cell; term; vars_in_term = [] } }
+    { { mode = `Not_matching; cell; term; vars_in_term = [] } }
 
 unlabelled_loop:
-  | WHILE; mode = while_mode; proc = proc_in_block
-    { P_while_cell_cas { label = None; mode; proc; next = P_null; } }
-  | WHILE; mode = while_mode; proc = proc_in_block; next = proc
-    { P_while_cell_cas { label = None; mode; proc; next } }
+  | WHILE; while_cell_match = while_cell_match; proc = proc_in_block
+    { { label = None; mode = `While while_cell_match; proc; next = P_null; } }
+  | WHILE; while_cell_match = while_cell_match; proc = proc_in_block; SEMICOLON; next = proc
+    { { label = None; mode = `While while_cell_match; proc; next } }
   | LOOP; proc = proc_in_block
-    { P_loop { label = None; mode = `Unconditional; proc; next = P_null } }
-  | LOOP; proc = proc_in_block; next = proc
-    { P_loop { label = None; mode = `Unconditional; proc; next } }
+    { { label = None; mode = `Unconditional; proc; next = P_null } }
+  | LOOP; proc = proc_in_block; SEMICOLON; next = proc
+    { { label = None; mode = `Unconditional; proc; next } }
