@@ -66,6 +66,7 @@
 %token WHILE
 %token <Loc.t> BREAK
 %token <Loc.t> CONTINUE
+%token LOOP
 %token PRED
 %token APRED
 %token FUN
@@ -475,22 +476,6 @@ proc:
     { P_branch (Some loc, branches, next) }
   | loc = CHOICE; LEFT_CUR_BRACK; branches = flexible_list(SEMICOLON, proc_in_block); RIGHT_CUR_BRACK
     { P_branch (Some loc, branches, P_null) }
-  | WHILE; cell = cell; CAS; term = term; proc = proc_in_block
-    { P_while_cell_cas { label = None; mode = `Matching; cell; term; vars_in_term = []; proc; next = P_null; } }
-  | WHILE; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
-    { P_while_cell_cas { label = None; mode = `Matching; cell; term; vars_in_term = []; proc; next; } }
-  | label = STRING; COLON; WHILE; cell = cell; CAS; term = term; proc = proc_in_block
-    { P_while_cell_cas { label = Some label; mode = `Matching; cell; term; vars_in_term = []; proc; next = P_null; } }
-  | label = STRING; COLON; WHILE; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
-    { P_while_cell_cas { label = Some label; mode = `Matching; cell; term; vars_in_term = []; proc; next; } }
-  | WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block
-    { P_while_cell_cas { label = None; mode = `Not_matching; cell; term; vars_in_term = []; proc; next = P_null; } }
-  | WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
-    { P_while_cell_cas { label = None; mode = `Not_matching; cell; term; vars_in_term = []; proc; next; } }
-  | label = STRING; COLON; WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block
-    { P_while_cell_cas { label = Some label; mode = `Not_matching; cell; term; vars_in_term = []; proc; next = P_null; } }
-  | label = STRING; COLON; WHILE; NOT; cell = cell; CAS; term = term; proc = proc_in_block; SEMICOLON; next = proc
-    { P_while_cell_cas { label = Some label; mode = `Not_matching; cell; term; vars_in_term = []; proc; next; } }
   | loc = BREAK
     { P_break (Some loc, None) }
   | loc = BREAK; label = STRING
@@ -508,3 +493,26 @@ proc_in_block:
   | LEFT_CUR_BRACK; proc = proc; RIGHT_CUR_BRACK
     { proc }
 
+loop:
+  | label = STRING; COLON; loop = unlabelled_loop
+    { P_loop { loop with label = Some label } }
+  | loop = unlabelled_loop
+    { P_loop loop }
+
+while_mode:
+  | cell = cell; CAS; term = term
+    { `While_matching { cell; term; vars_in_term = [] } }
+  | LEFT_PAREN; cell = cell; CAS; term = term; RIGHT_PAREN
+    { `While_matching { cell; term; vars_in_term = [] } }
+  | NOT; LEFT_PAREN; cell = cell; CAS; term = term; RIGHT_PAREN
+    { `While_not_matching { cell; term; vars_in_term = [] } }
+
+unlabelled_loop:
+  | WHILE; mode = while_mode; proc = proc_in_block
+    { P_while_cell_cas { label = None; mode; proc; next = P_null; } }
+  | WHILE; mode = while_mode; proc = proc_in_block; next = proc
+    { P_while_cell_cas { label = None; mode; proc; next } }
+  | LOOP; proc = proc_in_block
+    { P_loop { label = None; mode = `Unconditional; proc; next = P_null } }
+  | LOOP; proc = proc_in_block; next = proc
+    { P_loop { label = None; mode = `Unconditional; proc; next } }

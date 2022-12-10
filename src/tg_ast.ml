@@ -120,6 +120,18 @@ type while_mode = [
   | `Not_matching
 ]
 
+type while_cell_match = {
+  mode : while_mode;
+  cell : string Loc.tagged;
+  term : term;
+  vars_in_term : unit Binding.t list;
+}
+
+type loop_mode = [
+  | `While of while_cell_match
+  | `Unconditional
+]
+
 type proc =
   | P_null
   | P_let of {
@@ -138,15 +150,7 @@ type proc =
     }
   | P_branch of Loc.t option * proc list * proc
   | P_scoped of proc * proc
-  | P_while_cell_cas of {
-      label : string Loc.tagged option;
-      mode : while_mode;
-      cell : string Loc.tagged;
-      term : term;
-      vars_in_term : unit Binding.t list;
-      proc : proc;
-      next : proc;
-    }
+  | P_loop of loop
   | P_break of Loc.t option * string Loc.tagged option
   | P_continue of Loc.t option * string Loc.tagged option
 
@@ -154,6 +158,14 @@ and proc_macro = {
   arg_and_typs : Typ.term Binding.t list;
   body : proc;
 }
+
+and loop = {
+  label : string Loc.tagged option;
+  mode : loop_mode;
+  proc : proc;
+  next : proc;
+}
+
 
 type trace_quantifier =
   [ `All_traces

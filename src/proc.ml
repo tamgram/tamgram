@@ -9,6 +9,14 @@ let sub
     |> Term.sub ~loc subs
     |> Term.change_cell_names_in_term cell_subs
   in
+  let while_cell_match_sub (x : Tg_ast.while_cell_match) =
+    { x with term = term_sub x.term }
+  in
+  let loop_mode_sub (x : Tg_ast.loop_mode) =
+    match x with
+    | `While x -> `While (while_cell_match_sub x)
+    | `Unconditional -> `Unconditional
+  in
   let aux_rule_binding (binding : rule_binding) : rule_binding =
     match binding with
     | R_let binding ->
@@ -65,15 +73,12 @@ let sub
       P_branch (loc, List.map aux procs, aux next)
     | P_scoped (proc, next) ->
       P_scoped (aux proc, aux next)
-    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } ->
-      P_while_cell_cas { label;
-                         mode;
-                         cell;
-                         term = term_sub term;
-                         vars_in_term;
-                         proc = aux proc;
-                         next = aux next;
-                       }
+    | P_loop { label; mode; proc; next } ->
+      P_loop { label;
+               mode = loop_mode_sub mode;
+               proc = aux proc;
+               next = aux next;
+             }
   in
   aux proc
 
@@ -115,35 +120,17 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
         (aux next :: List.map aux procs)
     | P_scoped (proc, next) ->
       String_tagged_set.union (aux proc) (aux next)
-    | P_while_cell_cas { cell; term; proc; next } ->
-      List.map aux [ proc; next ]
-      |> List.fold_left
-        String_tagged_set.union
-        String_tagged_set.(add cell (Term.cells_in_term term))
-  in
-  aux proc
-
-let while_used_in_proc (proc : Tg_ast.proc) : bool =
-  let open Tg_ast in
-  let rec aux proc =
-    match proc with
-    | P_null -> false
-    | P_let { next; _ } ->
-      aux next
-    | P_let_macro { next; _ } ->
-      aux next
-    | P_app _ ->
-      failwith "Unexpected case"
-    | P_line { next; _ } ->
-      aux next
-    | P_branch (_loc, procs, next) ->
-      List.fold_left
-        (||) false
-        (List.map aux (next :: procs))
-    | P_scoped (proc, next) ->
-      aux proc || aux next
-    | P_while_cell_cas _ ->
-      true
-    | P_break _ | P_continue _ -> false
+    | P_loop { label = _; mode; proc; next } -> (
+        List.fold_left String_tagged_set.union
+          String_tagged_set.empty
+          [ aux proc
+          ; aux next
+          ; (match mode with
+             | `While { cell; term; _ } ->
+               String_tagged_set.(add cell (Term.cells_in_term term))
+             | `Unconditional -> String_tagged_set.empty
+            )
+          ]
+      )
   in
   aux proc

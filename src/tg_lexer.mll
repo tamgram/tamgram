@@ -60,6 +60,7 @@ rule read =
   | "while"          { WHILE }
   | "break"          { BREAK (loc lexbuf) }
   | "continue"       { CONTINUE (loc lexbuf) }
+  | "loop"           { LOOP }
   | "apred"          { APRED }
   | "pred"           { PRED }
   | "fun"            { FUN }

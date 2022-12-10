@@ -4,7 +4,7 @@ type t = Tg_ast.rule Graph.t
 
 type loop_skeleton = {
   true_branch_guard_rule_id : int;
-  false_branch_guard_rule_id : int;
+  false_branch_guard_rule_id : int option;
   after_loop_rule_id : int;
 }
 
@@ -157,63 +157,8 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
             | _ -> default ()
           )
       )
-    | P_while_cell_cas { label; mode; cell; term; vars_in_term; proc; next } -> (
-        let matching_rule =
-          Tg_ast.{ empty_rule with
-                   l = [ T_cell_pat_match (cell, term) ];
-                   vars_in_l = List.map (Binding.update `Bitstring) vars_in_term;
-                 }
-        in
-        let not_matching_rule =
-          match vars_in_term with
-          | [] -> (
-              add_cell_neq_restriction := true;
-              Tg_ast.{
-                empty_rule with
-                a = [T_app (Path.of_string Params.cell_neq_apred_name,
-                            `Local 0,
-                            [ T_symbol (cell, `Cell); term ],
-                            None)];
-              }
-            )
-          | _ -> (
-              let id = Graph.get_id () in
-              cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
-              Tg_ast.{
-                empty_rule with
-                a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
-                            `Local 0,
-                            [ T_symbol (cell, `Cell) ],
-                            None)];
-              }
-            )
-        in
-        let true_branch_guard_rule_id = Graph.get_id () in
-        let false_branch_guard_rule_id = Graph.get_id () in
-        let after_loop_rule_id = Graph.get_id () in
-        let true_branch_guard_rule, false_branch_guard_rule =
-          match mode with
-          | `Matching -> matching_rule, not_matching_rule
-          | `Not_matching -> not_matching_rule, matching_rule
-        in
-        let g =
-          g
-          |> Graph.add_vertex_with_id
-            true_branch_guard_rule_id
-            true_branch_guard_rule
-          |> link_backward ~last_ids true_branch_guard_rule_id
-          |> Graph.add_vertex_with_id
-            false_branch_guard_rule_id
-            false_branch_guard_rule
-          |> link_backward ~last_ids false_branch_guard_rule_id
-        in
-        let loop_skeleton : loop_skeleton =
-          { true_branch_guard_rule_id;
-            false_branch_guard_rule_id;
-            after_loop_rule_id ;
-          }
-        in
-        let* proc_g =
+    | P_loop { label; mode; proc; next } -> (
+        let enter_loop (loop_skeleton : loop_skeleton) (proc : Tg_ast.proc) =
           let labelled_loops =
             match label with
             | None -> labelled_loops
@@ -223,26 +168,118 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
           let loop_stack =
             loop_skeleton :: loop_stack
           in
-          aux labelled_loops loop_stack [true_branch_guard_rule_id] Graph.empty proc
+          aux labelled_loops loop_stack [loop_skeleton.true_branch_guard_rule_id] Graph.empty proc
         in
-        let true_branch_leaves =
-          Graph.leaves proc_g
-          |> Seq.filter (fun k ->
-              not (List.mem k [ true_branch_guard_rule_id
-                              ; false_branch_guard_rule_id
-                              ; after_loop_rule_id])
-            )
-          |> List.of_seq
-        in
-        let g =
-          g
-          |> Graph.union proc_g
-          |> link_backward ~last_ids:true_branch_leaves true_branch_guard_rule_id
-          |> link_backward ~last_ids:true_branch_leaves false_branch_guard_rule_id
-          |> link_backward ~last_ids:[false_branch_guard_rule_id] after_loop_rule_id
-          |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
-        in
-        aux labelled_loops loop_stack [after_loop_rule_id] g next
+        match mode with
+        | `While { mode; cell; term; vars_in_term } -> (
+            let matching_rule =
+              Tg_ast.{ empty_rule with
+                       l = [ T_cell_pat_match (cell, term) ];
+                       vars_in_l = List.map (Binding.update `Bitstring) vars_in_term;
+                     }
+            in
+            let not_matching_rule =
+              match vars_in_term with
+              | [] -> (
+                  add_cell_neq_restriction := true;
+                  Tg_ast.{
+                    empty_rule with
+                    a = [T_app (Path.of_string Params.cell_neq_apred_name,
+                                `Local 0,
+                                [ T_symbol (cell, `Cell); term ],
+                                None)];
+                  }
+                )
+              | _ -> (
+                  let id = Graph.get_id () in
+                  cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
+                  Tg_ast.{
+                    empty_rule with
+                    a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
+                                `Local 0,
+                                [ T_symbol (cell, `Cell) ],
+                                None)];
+                  }
+                )
+            in
+            let true_branch_guard_rule_id = Graph.get_id () in
+            let false_branch_guard_rule_id = Graph.get_id () in
+            let after_loop_rule_id = Graph.get_id () in
+            let true_branch_guard_rule, false_branch_guard_rule =
+              match mode with
+              | `Matching -> matching_rule, not_matching_rule
+              | `Not_matching -> not_matching_rule, matching_rule
+            in
+            let g =
+              g
+              |> Graph.add_vertex_with_id
+                true_branch_guard_rule_id
+                true_branch_guard_rule
+              |> link_backward ~last_ids true_branch_guard_rule_id
+              |> Graph.add_vertex_with_id
+                false_branch_guard_rule_id
+                false_branch_guard_rule
+              |> link_backward ~last_ids false_branch_guard_rule_id
+            in
+            let loop_skeleton : loop_skeleton =
+              { true_branch_guard_rule_id;
+                false_branch_guard_rule_id = Some false_branch_guard_rule_id;
+                after_loop_rule_id ;
+              }
+            in
+            let* proc_g = enter_loop loop_skeleton proc in
+            let true_branch_leaves =
+              Graph.leaves proc_g
+              |> Seq.filter (fun k ->
+                  not (List.mem k [ true_branch_guard_rule_id
+                                  ; false_branch_guard_rule_id
+                                  ; after_loop_rule_id])
+                )
+              |> List.of_seq
+            in
+            let g =
+              g
+              |> Graph.union proc_g
+              |> link_backward ~last_ids:true_branch_leaves true_branch_guard_rule_id
+              |> link_backward ~last_ids:true_branch_leaves false_branch_guard_rule_id
+              |> link_backward ~last_ids:[false_branch_guard_rule_id] after_loop_rule_id
+              |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
+            in
+            aux labelled_loops loop_stack [after_loop_rule_id] g next
+          )
+        | `Unconditional -> (
+            let true_branch_guard_rule_id = Graph.get_id () in
+            let after_loop_rule_id = Graph.get_id () in
+            let g =
+              g
+              |> Graph.add_vertex_with_id
+                true_branch_guard_rule_id
+                empty_rule
+              |> link_backward ~last_ids true_branch_guard_rule_id
+            in
+            let loop_skeleton : loop_skeleton =
+              { true_branch_guard_rule_id;
+                false_branch_guard_rule_id = None;
+                after_loop_rule_id ;
+              }
+            in
+            let* proc_g = enter_loop loop_skeleton proc in
+            let true_branch_leaves =
+              Graph.leaves proc_g
+              |> Seq.filter (fun k ->
+                  not (List.mem k [ true_branch_guard_rule_id
+                                  ; after_loop_rule_id])
+                )
+              |> List.of_seq
+            in
+            let g =
+              g
+              |> Graph.union proc_g
+              |> link_backward ~last_ids:true_branch_leaves true_branch_guard_rule_id
+              |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
+            in
+            aux labelled_loops loop_stack [after_loop_rule_id] g next
+          )
       )
     | P_break (loc, label) -> (
         let+ skeleton =
@@ -263,7 +300,12 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         in
         g
         |> link_backward ~last_ids skeleton.true_branch_guard_rule_id
-        |> link_backward ~last_ids skeleton.false_branch_guard_rule_id
+        |> (fun g ->
+            match skeleton.false_branch_guard_rule_id with
+            | None -> g
+            | Some id ->
+              link_backward ~last_ids id g
+          )
       )
   and aux_list labelled_loops loop_stack last_ids g acc procs =
     match procs with
