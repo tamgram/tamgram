@@ -61,22 +61,20 @@ that is used to decide the transition to take:
 process A =
   []-->[ 'st := "St0" ];
 
-  entry_point "main";
-
-  choice {
-    { [ 'st cas "St0" ]-->[ 'st := "St1" ] };
-    { [ 'st cas "St0" ]-->[ 'st := "St2" ] };
-    { [ 'st cas "St2" ]-->[ 'st := "St1" ] };
-    { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
-  };
-
-  goto "main"
+  loop {
+    choice {
+      { [ 'st cas "St0" ]-->[ 'st := "St1" ] };
+      { [ 'st cas "St0" ]-->[ 'st := "St2" ] };
+      { [ 'st cas "St2" ]-->[ 'st := "St1" ] };
+      { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
+    }
+  }
 ```
 
 ```
-File "impossible_pattern0.tg", line 10, character 9
-10 |     { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
-              ^
+File "impossible_pattern0.tg", line 9, character 11
+9 |       { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
+               ^
 Error: Cell 'st never matches pattern "St3"
 ```
 
