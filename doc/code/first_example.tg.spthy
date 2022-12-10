@@ -3,83 +3,83 @@ begin
 
 builtins: hashing, asymmetric-encryption
 
-rule TgRuleSingleRegister_pk_21_0:
-    [ Fr(~ltk_20)
+rule Register_pk_25:
+    [ Fr(~ltk_24)
     ]
   --[ 
     ]->
-    [ !Ltk_18($A, ~ltk_20)
-    , !Pk_19($A, pk(~ltk_20))
+    [ !Ltk_22($A, ~ltk_24)
+    , !Pk_23($A, pk(~ltk_24))
     ]
 
-rule TgRuleSingleGet_pk_24_1:
-  [!Pk_19(A_23, pubkey_22)]--[]->[Out(pubkey_22)]
+rule Get_pk_28:
+  [!Pk_23(A_27, pubkey_26)]--[]->[Out(pubkey_26)]
 
-rule TgRuleSingleReveal_ltk_28_2:
-  [!Ltk_18(A_27, ltk_26)]--[LtkReveal_25(A_27)]->[Out(ltk_26)]
+rule Reveal_ltk_32:
+  [!Ltk_22(A_31, ltk_30)]--[LtkReveal_29(A_31)]->[Out(ltk_30)]
 
-rule TgStartClient_32_3:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk3', 'empty_tuple')]
+rule Client_36_3to4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
-rule TgRuleClient_32_3to4:
-    [ St(~pid, 'tgk3', 'empty_tuple')
-    , Fr(~k_31)
-    , !Pk_19($S, pkS_30)
+rule Client_36_manyto4to5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Fr(~k_35)
+    , !Pk_23($S, pkS_34)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk4', <$S, ~k_31>)
-    , Out(aenc(~k_31, pkS_30))
+    [ StF(~pid, 'tgk5', <$S, ~k_35>)
+    , Out(aenc(~k_35, pkS_34))
     ]
 
-rule TgRuleClient_32_4to5:
-    [ St(~pid, 'tgk4', <$S, ~k_31>)
-    , In(h(~k_31))
+rule Client_36_manyto5:
+    [ StF(~pid, 'tgk5', <tgc_S_0, tgc_k_0>)
+    , In(h(tgc_k_0))
     ]
-  --[ SessKeyC_29($S, ~k_31)
+  --[ SessKeyC_33(tgc_S_0, tgc_k_0)
     ]->
     [ 
     ]
 
-rule TgRuleSingleServ_36_6:
-    [ !Ltk_18($S, ~ltkS_35)
-    , In(request_34)
+rule Serv_40:
+    [ !Ltk_22($S, ~ltkS_39)
+    , In(request_38)
     ]
-  --[ AnswerRequest_33($S, adec(request_34, ~ltkS_35))
+  --[ AnswerRequest_37($S, adec(request_38, ~ltkS_39))
     ]->
-    [ Out(h(adec(request_34, ~ltkS_35)))
+    [ Out(h(adec(request_38, ~ltkS_39)))
     ]
 
 lemma Client_session_key_secrecy []:
   all-traces
-  "not Ex S_37 k_38 #i_39 #j_40 .
-         ((((SessKeyC_29(S_37, k_38) @ #i_39) & (K(k_38) @ #j_40))) & (not 
-         Ex #r_41 .
-           LtkReveal_25(S_37) @ #r_41))"
+  "not Ex S_41 k_42 #i_43 #j_44 .
+         ((((SessKeyC_33(S_41, k_42) @ #i_43) & (K(k_42) @ #j_44))) & (not 
+         Ex #r_45 .
+           LtkReveal_29(S_41) @ #r_45))"
 
 lemma Client_auth []:
   all-traces
-  "All S_43 k_44 #i_45 .
-     ((SessKeyC_29(S_43, k_44) @ #i_45) ==> (((Ex #a_46 .
-                                                 AnswerRequest_33(S_43, k_44) @ #a_46) | (
-     Ex #r_47 .
-       ((LtkReveal_25(S_43) @ #r_47) & (#r_47 < #i_45))))))"
+  "All S_47 k_48 #i_49 .
+     ((SessKeyC_33(S_47, k_48) @ #i_49) ==> (((Ex #a_50 .
+                                                 AnswerRequest_37(S_47, k_48) @ #a_50) | (
+     Ex #r_51 .
+       ((LtkReveal_29(S_47) @ #r_51) & (#r_51 < #i_49))))))"
 
 lemma Client_auth_injective []:
   all-traces
-  "All S_49 k_50 #i_51 .
-     ((SessKeyC_29(S_49, k_50) @ #i_51) ==> (((Ex #a_52 .
-                                                 ((AnswerRequest_33(S_49, k_50) @ #a_52) & (
-                                                 All #j_53 .
-                                                   ((SessKeyC_29(S_49, k_50) @ #j_53) ==> (#i_51 = #j_53))))) | (
-     Ex #r_54 .
-       ((LtkReveal_25(S_49) @ #r_54) & (#r_54 < #i_51))))))"
+  "All S_53 k_54 #i_55 .
+     ((SessKeyC_33(S_53, k_54) @ #i_55) ==> (((Ex #a_56 .
+                                                 ((AnswerRequest_37(S_53, k_54) @ #a_56) & (
+                                                 All #j_57 .
+                                                   ((SessKeyC_33(S_53, k_54) @ #j_57) ==> (#i_55 = #j_57))))) | (
+     Ex #r_58 .
+       ((LtkReveal_29(S_53) @ #r_58) & (#r_58 < #i_55))))))"
 
 lemma Client_session_key_honest_setup []:
   exists-trace
-  "Ex S_56 k_57 #i_58 .
-     ((SessKeyC_29(S_56, k_57) @ #i_58) & (not Ex #r_59 .
-                                                 LtkReveal_25(S_56) @ #r_59))"
+  "Ex S_60 k_61 #i_62 .
+     ((SessKeyC_33(S_60, k_61) @ #i_62) & (not Ex #r_63 .
+                                                 LtkReveal_29(S_60) @ #r_63))"
 
 end
 

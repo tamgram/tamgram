@@ -12,34 +12,19 @@ restriction Equality =
 apred RightGuess/1
 
 process GuessingGame =
-  let answer = "F" in
-  
   "Output some possible answers":
-  []-->[Out(<"A", "B", "C", answer>)];
+  []-->[Out(<"A", "B", "C", "F">)];
   
   "Some persistent states":
-  []-->['try_count := "0"];
+  []-->
+  [ 'try_count := "0"
+  , 'correct_answer := "F"
+  , 'answer := "NULL" ];
   
-  entry_point "start";
-  
-  choice {
-    {
-      /*	We proceed if we receive the right answer
-          from network
-      */
-      [In(x)]--[Eq(x, answer)]
-      -->
-      ['try_count := 'try_count+"1"]
-    };
-    {
-      /* 	Otherwise we count the try and go back to
-          start
-      */
-      [In(x)]--[Neq(x, answer)]
-      -->
-      ['try_count := 'try_count+"1"];
-      goto "start"
-    };
+  while not ('answer cas 'correct_answer) {
+    [ In(x) ]-->
+    [ 'answer := x
+    , 'try_count := 'try_count + "1" ]
   };
   
   []--[ RightGuess('try_count) ]-->[ ]

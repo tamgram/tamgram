@@ -3,10 +3,10 @@ begin
 
 builtins: hashing
 
-rule A_22_0tomany:
+rule A_24_0tomany:
   [Fr(~pid)]--[]->[StB(~pid, 'tgk0', 'empty_tuple')]
 
-rule A_22_0to1to5:
+rule A_24_0to1to5:
     [ StB(~pid, 'tgk0', 'empty_tuple')
     , In('A')
     ]
@@ -16,56 +16,56 @@ rule A_22_0to1to5:
     , Out(h('A'))
     ]
 
-rule A_22_0to2to4:
+rule A_24_0to2to4:
     [ StB(~pid, 'tgk0', 'empty_tuple')
     , In('B')
-    , In(x_17)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<'B', x_17>))
-    ]
-
-rule A_22_0to3to4:
-    [ StB(~pid, 'tgk0', 'empty_tuple')
-    , In('C')
-    , In(x_18)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk4', 'empty_tuple')
-    , Out(h(<'C', x_18>))
-    ]
-
-rule A_22_manyto4to5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
     , In(x_19)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , Out(h(<x_19, x_19>))
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(<'B', x_19>))
     ]
 
-rule A_22_5to6:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('D')
+rule A_24_0to3to4:
+    [ StB(~pid, 'tgk0', 'empty_tuple')
+    , In('C')
     , In(x_20)
     ]
   --[ 
     ]->
-    [ Out(h(<'D', x_20>))
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Out(h(<'C', x_20>))
     ]
 
-rule A_22_5to7:
-    [ St(~pid, 'tgk5', 'empty_tuple')
-    , In('E')
+rule A_24_manyto4to5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
     , In(x_21)
     ]
   --[ 
     ]->
-    [ Out(h(<'E', x_21>))
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , Out(h(<x_21, x_21>))
+    ]
+
+rule A_24_5to6:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('D')
+    , In(x_22)
+    ]
+  --[ 
+    ]->
+    [ Out(h(<'D', x_22>))
+    ]
+
+rule A_24_5to7:
+    [ St(~pid, 'tgk5', 'empty_tuple')
+    , In('E')
+    , In(x_23)
+    ]
+  --[ 
+    ]->
+    [ Out(h(<'E', x_23>))
     ]
 
 end

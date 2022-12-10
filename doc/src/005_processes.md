@@ -287,6 +287,14 @@ while 'c cas ... {
 }
 ```
 
+or
+
+```
+while not ('c cas ...) {
+  P
+}
+```
+
 where the term `...` is one of the following:
 - a string literal (e.g. "1")
 - a public constant (e.g. `$A`)
@@ -326,34 +334,19 @@ restriction Equality =
 apred RightGuess/1
 
 process GuessingGame =
-  let answer = "F" in
-  
   "Output some possible answers":
-  []-->[Out(<"A", "B", "C", answer>)];
+  []-->[Out(<"A", "B", "C", "F">)];
   
   "Some persistent states":
-  []-->['try_count := "0"];
+  []-->
+  [ 'try_count := "0"
+  , 'correct_answer := "F"
+  , 'answer := "NULL" ];
   
-  entry_point "start";
-  
-  choice {
-    {
-      /*	We proceed if we receive the right answer
-          from network
-      */
-      [In(x)]--[Eq(x, answer)]
-      -->
-      ['try_count := 'try_count+"1"]
-    };
-    {
-      /* 	Otherwise we count the try and go back to
-          start
-      */
-      [In(x)]--[Neq(x, answer)]
-      -->
-      ['try_count := 'try_count+"1"];
-      goto "start"
-    };
+  while not ('answer cas 'correct_answer) {
+    [ In(x) ]-->
+    [ 'answer := x
+    , 'try_count := 'try_count + "1" ]
   };
   
   []--[ RightGuess('try_count) ]-->[ ]
@@ -371,6 +364,14 @@ lemma eventually_right_guess =
   exists-trace
   Ex x #i.
     RightGuess(x) @ i
+```
+
+Tamgram also supports unconditional loops with `loop` keyword:
+
+```
+loop {
+  P
+}
 ```
 
 ## Process macros
@@ -406,67 +407,6 @@ process B =
   [ Fr(~k) ]-->[ 'k := k ];
   out_enc("B1", 'k);
   out_enc("B2", 'k)
-```
-
-We can see in this case it is a simple
-AST expansion in the following compiled output.
-
-```
-theory process_macro0
-begin
-
-builtins: symmetric-encryption
-
-rule A_22_0to1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
-rule A_22_manyto1to2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
-    , Fr(~k_21)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk2', <~k_21>)
-    ]
-
-rule A_22_manyto2to3:
-    [ StF(~pid, 'tgk2', <tgc_k_0>)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk3', <tgc_k_0>)
-    , Out(senc('A1', tgc_k_0))
-    ]
-
-rule A_22_manyto3:
-  [StF(~pid, 'tgk3', <tgc_k_0>)]--[]->[Out(senc('A2', tgc_k_0))]
-
-rule B_24_4to5:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
-
-rule B_24_manyto5to6:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Fr(~k_23)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk6', <~k_23>)
-    ]
-
-rule B_24_manyto6to7:
-    [ StF(~pid, 'tgk6', <tgc_k_0>)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk7', <tgc_k_0>)
-    , Out(senc('B1', tgc_k_0))
-    ]
-
-rule B_24_manyto7:
-  [StF(~pid, 'tgk7', <tgc_k_0>)]--[]->[Out(senc('B2', tgc_k_0))]
-
-end
-
 ```
 
 If we wish to also abstract away nonce increment/refresh,

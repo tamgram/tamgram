@@ -31,8 +31,9 @@ rule A_20_5to8:
   [St(~pid, 'tgk5', <tgc_a_0>)]--[]->[Out(<'done', tgc_a_0>)]
 
 restriction tg_cell_pat_match_restriction2:
-  "All #i_0 cell_0 u_tgany0_19 .
-     ((TgCellPatMatch_2(cell_0) @ #i_0) ==> (not ((cell_0) = (f_18(u_tgany0_19)))))"
+  "All #i_21 cell_22 u_tgany0_19 .
+     ((TgCellPatMatch_2(cell_22) @ #i_21) ==> (not ((cell_22) = (f_18(
+     u_tgany0_19)))))"
 
 end
 

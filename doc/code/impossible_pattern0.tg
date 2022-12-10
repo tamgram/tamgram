@@ -1,13 +1,11 @@
 process A =
   []-->[ 'st := "St0" ];
 
-  entry_point "main";
-
-  choice {
-    { [ 'st cas "St0" ]-->[ 'st := "St1" ] };
-    { [ 'st cas "St0" ]-->[ 'st := "St2" ] };
-    { [ 'st cas "St2" ]-->[ 'st := "St1" ] };
-    { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
-  };
-
-  goto "main"
+  loop {
+    choice {
+      { [ 'st cas "St0" ]-->[ 'st := "St1" ] };
+      { [ 'st cas "St0" ]-->[ 'st := "St2" ] };
+      { [ 'st cas "St2" ]-->[ 'st := "St1" ] };
+      { [ 'st cas "St3" ]-->[ 'st := "St1" ] };
+    }
+  }
