@@ -45,7 +45,7 @@ let default_pipeline =
     ("Cell usage check", Cell_usage_check.map_spec);
     ("Record cell usages", Record_cell_usages.map_spec);
     ("Cell lifetime check", Cell_lifetime_check.map_spec);
-    ("Derive cell contexts required", Derive_cell_ctxs_required.map_spec);
+    ("Derive process contexts required", Derive_proc_ctxs_required.map_spec);
     ("Cell data shape analysis", Cell_data_shape_analysis.map_spec);
     ("Clean up user specified cell pattern matches",
      Clean_up_user_specified_cell_pattern_matches.map_spec);
