@@ -115,20 +115,20 @@ type rule = {
   r : term list;
 }
 
-type while_mode = [
+type cell_match_mode = [
   | `Matching
   | `Not_matching
 ]
 
-type while_cell_match = {
-  mode : while_mode;
+type cond_cell_match = {
+  mode : cell_match_mode;
   cell : string Loc.tagged;
   term : term;
   vars_in_term : unit Binding.t list;
 }
 
 type loop_mode = [
-  | `While of while_cell_match
+  | `While of cond_cell_match
   | `Unconditional
 ]
 
@@ -151,6 +151,7 @@ type proc =
   | P_branch of Loc.t option * proc list * proc
   | P_scoped of proc * proc
   | P_loop of loop
+  | P_if_then_else of if_then_else
   | P_break of Loc.t option * string Loc.tagged option
   | P_continue of Loc.t option * string Loc.tagged option
 
@@ -166,6 +167,12 @@ and loop = {
   next : proc;
 }
 
+and if_then_else = {
+  cond : cond_cell_match;
+  true_branch : proc;
+  false_branch : proc;
+  next : proc;
+}
 
 type trace_quantifier =
   [ `All_traces

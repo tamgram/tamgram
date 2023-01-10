@@ -61,6 +61,9 @@ rule read =
   | "break"          { BREAK (loc lexbuf) }
   | "continue"       { CONTINUE (loc lexbuf) }
   | "loop"           { LOOP }
+  | "if"             { IF }
+  | "then"           { THEN }
+  | "else"           { ELSE }
   | "apred"          { APRED }
   | "pred"           { PRED }
   | "fun"            { FUN }

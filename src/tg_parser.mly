@@ -67,6 +67,9 @@
 %token <Loc.t> BREAK
 %token <Loc.t> CONTINUE
 %token LOOP
+%token IF
+%token THEN
+%token ELSE
 %token PRED
 %token APRED
 %token FUN
@@ -478,6 +481,8 @@ proc:
     { P_branch (Some loc, branches, P_null) }
   | loop = loop
     { P_loop loop }
+  | if_then_else = if_then_else
+    { P_if_then_else if_then_else }
   | loc = BREAK
     { P_break (Some loc, None) }
   | loc = BREAK; label = STRING
@@ -501,7 +506,7 @@ loop:
   | loop = unlabelled_loop
     { loop }
 
-while_cell_match:
+cond_cell_match:
   | cell = cell; CAS; term = term
     { { mode = `Matching; cell; term; vars_in_term = [] } }
   | LEFT_PAREN; cell = cell; CAS; term = term; RIGHT_PAREN
@@ -510,11 +515,29 @@ while_cell_match:
     { { mode = `Not_matching; cell; term; vars_in_term = [] } }
 
 unlabelled_loop:
-  | WHILE; while_cell_match = while_cell_match; proc = proc_in_block
-    { { label = None; mode = `While while_cell_match; proc; next = P_null; } }
-  | WHILE; while_cell_match = while_cell_match; proc = proc_in_block; SEMICOLON; next = proc
-    { { label = None; mode = `While while_cell_match; proc; next } }
+  | WHILE; cond_cell_match = cond_cell_match; proc = proc_in_block
+    { { label = None; mode = `While cond_cell_match; proc; next = P_null; } }
+  | WHILE; cond_cell_match = cond_cell_match; proc = proc_in_block; SEMICOLON; next = proc
+    { { label = None; mode = `While cond_cell_match; proc; next } }
   | LOOP; proc = proc_in_block
     { { label = None; mode = `Unconditional; proc; next = P_null } }
   | LOOP; proc = proc_in_block; SEMICOLON; next = proc
     { { label = None; mode = `Unconditional; proc; next } }
+
+if_then_else:
+  | IF; cond = cond_cell_match;
+    THEN; true_branch = proc_in_block;
+    ELSE; false_branch = proc_in_block
+    { { cond; true_branch; false_branch; next = P_null; } }
+  | IF; cond = cond_cell_match;
+    THEN; true_branch = proc_in_block;
+    { { cond; true_branch; false_branch = P_null; next = P_null; } }
+  | IF; cond = cond_cell_match;
+    THEN; true_branch = proc_in_block;
+    ELSE; false_branch = proc_in_block;
+    SEMICOLON; next = proc
+    { { cond; true_branch; false_branch; next } }
+  | IF; cond = cond_cell_match;
+    THEN; true_branch = proc_in_block;
+    SEMICOLON; next = proc
+    { { cond; true_branch; false_branch = P_null; next } }

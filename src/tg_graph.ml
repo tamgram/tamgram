@@ -86,6 +86,36 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
   let cell_pat_match_restrictions : Tg_ast.term Int_map.t ref =
     ref Int_map.empty
   in
+  let cond_cell_match_matching_rule cell term vars_in_term =
+              Tg_ast.{ empty_rule with
+                       l = [ T_cell_pat_match (cell, term) ];
+                       vars_in_l = List.map (Binding.update `Bitstring) vars_in_term;
+                     }
+  in
+  let cond_cell_match_not_matching_rule cell term vars_in_term =
+              match vars_in_term with
+              | [] -> (
+                  add_cell_neq_restriction := true;
+                  Tg_ast.{
+                    empty_rule with
+                    a = [T_app (Path.of_string Params.cell_neq_apred_name,
+                                `Local 0,
+                                [ T_symbol (cell, `Cell); term ],
+                                None)];
+                  }
+                )
+              | _ -> (
+                  let id = Graph.get_id () in
+                  cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
+                  Tg_ast.{
+                    empty_rule with
+                    a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
+                                `Local 0,
+                                [ T_symbol (cell, `Cell) ],
+                                None)];
+                  }
+                )
+  in
   let rec aux
       (labelled_loops : loop_skeleton String_map.t)
       (loop_stack : loop_skeleton list)
@@ -173,34 +203,10 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         match mode with
         | `While { mode; cell; term; vars_in_term } -> (
             let matching_rule =
-              Tg_ast.{ empty_rule with
-                       l = [ T_cell_pat_match (cell, term) ];
-                       vars_in_l = List.map (Binding.update `Bitstring) vars_in_term;
-                     }
+              cond_cell_match_matching_rule cell term vars_in_term
             in
             let not_matching_rule =
-              match vars_in_term with
-              | [] -> (
-                  add_cell_neq_restriction := true;
-                  Tg_ast.{
-                    empty_rule with
-                    a = [T_app (Path.of_string Params.cell_neq_apred_name,
-                                `Local 0,
-                                [ T_symbol (cell, `Cell); term ],
-                                None)];
-                  }
-                )
-              | _ -> (
-                  let id = Graph.get_id () in
-                  cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
-                  Tg_ast.{
-                    empty_rule with
-                    a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
-                                `Local 0,
-                                [ T_symbol (cell, `Cell) ],
-                                None)];
-                  }
-                )
+              cond_cell_match_not_matching_rule cell term vars_in_term
             in
             let true_branch_guard_rule_id = Graph.get_id () in
             let false_branch_guard_rule_id = Graph.get_id () in
@@ -307,6 +313,9 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
               link_backward ~last_ids id g
           )
       )
+            | P_if_then_else { cond; true_branch; false_branch } -> (
+              failwith "Unimplemented"
+            )
   and aux_list labelled_loops loop_stack last_ids g acc procs =
     match procs with
     | [] -> Ok (List.rev acc)

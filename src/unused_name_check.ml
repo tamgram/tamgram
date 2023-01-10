@@ -177,6 +177,9 @@ let names_used_in_proc (proc : Tg_ast.proc) : Name_set.t =
     | P_loop { proc; next; _ } ->
       let usage_next = aux usage_next next in
       aux usage_next proc
+    | P_if_then_else { true_branch; false_branch; next; _ } ->
+      let usage_next = aux usage_next next in
+      aux_list usage_next [ true_branch; false_branch ]
   and aux_list usage_next acc procs =
     match procs with
     | [] -> acc

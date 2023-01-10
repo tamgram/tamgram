@@ -9,12 +9,12 @@ let sub
     |> Term.sub ~loc subs
     |> Term.change_cell_names_in_term cell_subs
   in
-  let while_cell_match_sub (x : Tg_ast.while_cell_match) =
+  let cond_cell_match_sub (x : Tg_ast.cond_cell_match) =
     { x with term = term_sub x.term }
   in
   let loop_mode_sub (x : Tg_ast.loop_mode) =
     match x with
-    | `While x -> `While (while_cell_match_sub x)
+    | `While x -> `While (cond_cell_match_sub x)
     | `Unconditional -> `Unconditional
   in
   let aux_rule_binding (binding : rule_binding) : rule_binding =
@@ -79,6 +79,11 @@ let sub
                proc = aux proc;
                next = aux next;
              }
+    | P_if_then_else { cond; true_branch; false_branch } ->
+      P_if_then_else { cond = cond_cell_match_sub cond;
+                       true_branch = aux true_branch;
+                       false_branch = aux false_branch;
+                     }
   in
   aux proc
 
@@ -132,5 +137,13 @@ let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
             )
           ]
       )
+             | P_if_then_else { cond = { cell; term; _ }; true_branch; false_branch } -> (
+        List.fold_left String_tagged_set.union
+          String_tagged_set.empty
+          [ aux true_branch
+          ; aux false_branch
+          ; String_tagged_set.(add cell (Term.cells_in_term term))
+          ]
+             )
   in
   aux proc
