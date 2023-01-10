@@ -132,6 +132,12 @@ let aux_proc (builtins : Builtin_set.t) (x : Tg_ast.proc) : (unit, Error_msg.t) 
       in
       let* () = aux proc in
       aux next
+    | P_if_then_else { cond = { term; _ }; true_branch; false_branch; next } -> (
+        let* () = aux_term builtins term in
+        let* () = aux true_branch in
+        let* () = aux false_branch in
+        aux next
+      )
   and aux_list l =
     check_results aux l
   in

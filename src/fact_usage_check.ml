@@ -100,6 +100,10 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     | P_loop { proc; next; _ } ->
       let* () = aux proc in
       aux next
+    | P_if_then_else { true_branch; false_branch; next; _ } ->
+      let* () = aux true_branch in
+      let* () = aux false_branch in
+      aux next
   in
   aux proc
 

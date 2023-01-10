@@ -308,6 +308,14 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
         | None -> Fmt.pf formatter "continue"
         | Some label -> Fmt.pf formatter "continue \"%s\"" (Loc.content label)
       )
+    | P_if_then_else { cond = { mode; cell; term}; true_branch; false_branch; next } -> (
+        Fmt.pf formatter "if %s ('%s cas @[<h>%a@]) then@,%a@,else@,%a;@,%a"
+          (match mode with `Matching -> "" | `Not_matching -> "not")
+          (Loc.content cell) pp_term term
+          aux_in_block true_branch
+          aux_in_block false_branch
+          aux_in_block next
+      )
   and aux_in_block formatter p = Fmt.pf formatter "{@,  @[<v>%a@]@,}" aux p in
   aux formatter p
 

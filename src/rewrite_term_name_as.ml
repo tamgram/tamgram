@@ -113,13 +113,15 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
       let* proc = aux proc in
       let+ next = aux next in
       P_scoped (proc, next)
-    (* | P_entry_point { name; next } ->
-       let+ next = aux next in
-       P_entry_point { name; next } *)
     | P_loop { label; mode; proc; next } ->
       let* proc = aux proc in
       let+ next = aux next in
       P_loop { label; mode; proc; next }
+    | P_if_then_else { cond; true_branch; false_branch; next } ->
+      let* true_branch = aux true_branch in
+      let* false_branch = aux false_branch in
+      let+ next = aux next in
+      P_if_then_else { cond; true_branch; false_branch; next }
   and aux_list acc procs =
     match procs with
     | [] -> Ok (List.rev acc)

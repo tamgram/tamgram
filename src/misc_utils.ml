@@ -15,11 +15,12 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_scoped (proc, next) -> P_scoped (proc, aux next)
     | P_loop { label; mode; proc; next } ->
       P_loop { label; mode; proc; next = aux next }
-    | P_if_then_else { cond; true_branch; false_branch } ->
+    | P_if_then_else { cond; true_branch; false_branch; next } ->
       P_if_then_else {
         cond;
         true_branch = aux true_branch;
         false_branch = aux false_branch;
+        next = aux next;
       }
   in
   aux proc

@@ -361,6 +361,34 @@ let aux_proc
         let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
         P_loop { label; mode; proc; next }
       )
+    | P_if_then_else { cond = { mode; cell; term; _ }; true_branch; false_branch; next } -> (
+        let* cond =
+          let free_vars =
+            Term.free_var_name_strs_in_term term
+            |> String_tagged_set.to_seq
+            |> Seq.map Loc.content
+            |> List.of_seq
+          in
+          let lexical_ctx_for_pat_term, names =
+            Lexical_ctx.add_local_name_strs free_vars Lexical_ctx.empty
+          in
+          let vars_in_term =
+            List.map2 (fun name name_str ->
+                Binding.make_untagged ~name name_str ()
+              )
+              names
+              free_vars
+          in
+          let* term =
+            aux_term ~lexical_ctx_for_var:lexical_ctx_for_pat_term ~lexical_ctx_for_func term
+          in
+          Ok { mode; cell; term; vars_in_term }
+        in
+        let* true_branch = aux ~lexical_ctx_for_var ~lexical_ctx_for_func true_branch in
+        let* false_branch = aux ~lexical_ctx_for_var ~lexical_ctx_for_func false_branch in
+        let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
+        P_if_then_else { cond; true_branch; false_branch; next }
+      )
   and aux_list acc ~lexical_ctx_for_var ~lexical_ctx_for_func procs =
     match procs with
     | [] -> Ok (List.rev acc)

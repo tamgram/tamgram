@@ -182,6 +182,12 @@ let aux_proc
         proc = aux term_macro_defs proc;
         next = aux term_macro_defs next;
       }
+    | P_if_then_else { cond; true_branch; false_branch; next } ->
+      P_if_then_else { cond;
+                       true_branch = aux term_macro_defs true_branch;
+                       false_branch = aux term_macro_defs false_branch;
+                       next = aux term_macro_defs next;
+                     }
   in
   aux term_macro_defs proc
 
