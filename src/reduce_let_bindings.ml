@@ -106,8 +106,9 @@ let reduce_proc subs (proc : Tg_ast.proc) : Tg_ast.proc =
         (aux subs proc)
     | P_loop { label; mode; proc; next } ->
       P_loop { label; mode; proc = aux subs proc; next = aux subs next }
-    | P_if_then_else { cond; true_branch; false_branch; next } ->
-      P_if_then_else { cond;
+    | P_if_then_else { loc; cond; true_branch; false_branch; next } ->
+      P_if_then_else { loc;
+                       cond;
                        true_branch = aux subs true_branch;
                        false_branch = aux subs false_branch;
                        next = aux subs next;

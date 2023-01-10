@@ -230,7 +230,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
             let loop_skeleton : loop_skeleton =
               { true_branch_guard_rule_id;
                 false_branch_guard_rule_id = Some false_branch_guard_rule_id;
-                after_loop_rule_id ;
+                after_loop_rule_id;
               }
             in
             let* proc_g = enter_loop loop_skeleton proc in
@@ -313,8 +313,85 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
               link_backward ~last_ids id g
           )
       )
-    | P_if_then_else { cond; true_branch; false_branch } -> (
-        failwith "Unimplemented"
+    | P_if_then_else { loc;
+                       cond = { mode; cell; term; vars_in_term };
+                       true_branch;
+                       false_branch;
+                       next;
+                     } -> (
+        let matching_rule =
+          cond_cell_match_matching_rule cell term vars_in_term
+        in
+        let not_matching_rule =
+          cond_cell_match_not_matching_rule cell term vars_in_term
+        in
+        let true_branch_guard_rule_id = Graph.get_id () in
+        let false_branch_guard_rule_id = Graph.get_id () in
+        let true_branch_guard_rule, false_branch_guard_rule =
+          match mode with
+          | `Matching -> matching_rule, not_matching_rule
+          | `Not_matching -> not_matching_rule, matching_rule
+        in
+        let g =
+          g
+          |> Graph.add_vertex_with_id
+            true_branch_guard_rule_id
+            true_branch_guard_rule
+          |> link_backward ~last_ids true_branch_guard_rule_id
+          |> Graph.add_vertex_with_id
+            false_branch_guard_rule_id
+            false_branch_guard_rule
+          |> link_backward ~last_ids false_branch_guard_rule_id
+        in
+        let* true_branch_g =
+          aux labelled_loops loop_stack [true_branch_guard_rule_id] Graph.empty true_branch
+        in
+        let* false_branch_g =
+          aux labelled_loops loop_stack [false_branch_guard_rule_id] Graph.empty false_branch
+        in
+        let true_branch_leaves = Graph.leaves true_branch_g in
+        let false_branch_leaves = Graph.leaves false_branch_g in
+        let g =
+          Graph.union g
+            (Graph.union true_branch_g false_branch_g)
+        in
+        let last_ids =
+          Seq.append true_branch_leaves false_branch_leaves
+          |> List.of_seq
+        in
+        let default () =
+          aux labelled_loops loop_stack last_ids g next
+        in
+        match last_ids with
+        | [] -> (
+            match next with
+            | P_null ->
+              aux labelled_loops loop_stack last_ids g next
+            | _ ->
+              Error (
+                Error_msg.make
+                  loc
+                  "The process after if then else here is not reachable"
+              )
+          )
+        | [_] -> default ()
+        | _ -> (
+            match next with
+            | P_branch _ ->
+              if !Params.merge_branches then (
+                let id = Graph.get_id () in
+                let g =
+                  g
+                  |> link_backward ~last_ids id
+                  |> Graph.add_vertex_with_id id empty_rule
+                in
+                aux labelled_loops loop_stack [id] g next
+              )
+              else (
+                default ()
+              )
+            | _ -> default ()
+          )
       )
   and aux_list labelled_loops loop_stack last_ids g acc procs =
     match procs with

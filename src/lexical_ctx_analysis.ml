@@ -361,7 +361,7 @@ let aux_proc
         let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
         P_loop { label; mode; proc; next }
       )
-    | P_if_then_else { cond = { mode; cell; term; _ }; true_branch; false_branch; next } -> (
+    | P_if_then_else { loc; cond = { mode; cell; term; _ }; true_branch; false_branch; next } -> (
         let* cond =
           let free_vars =
             Term.free_var_name_strs_in_term term
@@ -387,7 +387,7 @@ let aux_proc
         let* true_branch = aux ~lexical_ctx_for_var ~lexical_ctx_for_func true_branch in
         let* false_branch = aux ~lexical_ctx_for_var ~lexical_ctx_for_func false_branch in
         let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
-        P_if_then_else { cond; true_branch; false_branch; next }
+        P_if_then_else { loc; cond; true_branch; false_branch; next }
       )
   and aux_list acc ~lexical_ctx_for_var ~lexical_ctx_for_func procs =
     match procs with

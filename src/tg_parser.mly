@@ -67,7 +67,7 @@
 %token <Loc.t> BREAK
 %token <Loc.t> CONTINUE
 %token LOOP
-%token IF
+%token <Loc.t> IF
 %token THEN
 %token ELSE
 %token PRED
@@ -525,19 +525,19 @@ unlabelled_loop:
     { { label = None; mode = `Unconditional; proc; next } }
 
 if_then_else:
-  | IF; cond = cond_cell_match;
+  | loc = IF; cond = cond_cell_match;
     THEN; true_branch = proc_in_block;
     ELSE; false_branch = proc_in_block
-    { { cond; true_branch; false_branch; next = P_null; } }
-  | IF; cond = cond_cell_match;
+    { { loc = Some loc; cond; true_branch; false_branch; next = P_null; } }
+  | loc = IF; cond = cond_cell_match;
     THEN; true_branch = proc_in_block;
-    { { cond; true_branch; false_branch = P_null; next = P_null; } }
-  | IF; cond = cond_cell_match;
+    { { loc = Some loc; cond; true_branch; false_branch = P_null; next = P_null; } }
+  | loc = IF; cond = cond_cell_match;
     THEN; true_branch = proc_in_block;
     ELSE; false_branch = proc_in_block;
     SEMICOLON; next = proc
-    { { cond; true_branch; false_branch; next } }
-  | IF; cond = cond_cell_match;
+    { { loc = Some loc; cond; true_branch; false_branch; next } }
+  | loc = IF; cond = cond_cell_match;
     THEN; true_branch = proc_in_block;
     SEMICOLON; next = proc
-    { { cond; true_branch; false_branch = P_null; next } }
+    { { loc = Some loc; cond; true_branch; false_branch = P_null; next } }

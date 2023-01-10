@@ -168,6 +168,7 @@ and loop = {
 }
 
 and if_then_else = {
+  loc : Loc.t option;
   cond : cond_cell_match;
   true_branch : proc;
   false_branch : proc;

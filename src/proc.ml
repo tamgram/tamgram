@@ -79,8 +79,9 @@ let sub
                proc = aux proc;
                next = aux next;
              }
-    | P_if_then_else { cond; true_branch; false_branch; next } ->
-      P_if_then_else { cond = cond_cell_match_sub cond;
+    | P_if_then_else { loc; cond; true_branch; false_branch; next } ->
+      P_if_then_else { loc;
+                       cond = cond_cell_match_sub cond;
                        true_branch = aux true_branch;
                        false_branch = aux false_branch;
                        next = aux next;

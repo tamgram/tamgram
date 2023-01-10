@@ -70,10 +70,11 @@ let rewrite_proc (proc : Tg_ast.proc) : Tg_ast.proc =
         proc = aux proc;
         next = aux next;
       }
-    | P_if_then_else { cond; true_branch; false_branch; next } -> (
+    | P_if_then_else { loc; cond; true_branch; false_branch; next } -> (
         let { mode; cell; term; vars_in_term } = cond in
         let cond = { mode; cell; term = rewrite_term term; vars_in_term } in
-        P_if_then_else { cond;
+        P_if_then_else { loc;
+                         cond;
                          true_branch = aux true_branch;
                          false_branch = aux false_branch;
                          next = aux next;
