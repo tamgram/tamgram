@@ -1,0 +1,80 @@
+theory if_then_else
+begin
+
+functions: f_18/1
+
+rule TgRuleA_20_0to1:
+    [ Fr(~pid)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk1')
+    , Cell(~pid, 'pid', ~pid)
+    ]
+
+rule TgRuleA_20_1to3:
+    [ St(~pid, 'tgk1')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk3')
+    , Cell(~pid, 'a', f_18('2'))
+    ]
+
+rule TgRuleA_20_1to4:
+    [ St(~pid, 'tgk1')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk4')
+    , Cell(~pid, 'a', f_18('2'))
+    ]
+
+rule TgRuleA_20_3to5:
+    [ St(~pid, 'tgk3')
+    , Cell(~pid, 'a', f_18(u_tgany0_19))
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk5')
+    , Cell(~pid, 'a', f_18(u_tgany0_19))
+    ]
+
+rule TgRuleA_20_4to6:
+    [ St(~pid, 'tgk4')
+    , Cell(~pid, 'a', tgc_a_0)
+    ]
+  --[ TgCellPatMatch_2(tgc_a_0)
+    ]->
+    [ St(~pid, 'tgk6')
+    , Cell(~pid, 'a', tgc_a_0)
+    ]
+
+rule TgRuleA_20_5to7:
+    [ St(~pid, 'tgk5')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk7')
+    , Out('A')
+    ]
+
+rule TgRuleA_20_6to7:
+    [ St(~pid, 'tgk6')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk7')
+    , Out('B')
+    ]
+
+rule TgEndA_20_7:
+  [St(~pid, 'tgk7')]--[]->[Out('C')]
+
+restriction tg_cell_pat_match_restriction2:
+  "All #i_21 cell_22 u_tgany0_19 .
+     ((TgCellPatMatch_2(cell_22) @ #i_21) ==> (not ((cell_22) = (f_18(
+     u_tgany0_19)))))"
+
+end
+

@@ -3,22 +3,22 @@ begin
 
 builtins: hashing, asymmetric-encryption
 
-rule Register_pk_23:
-    [ Fr(~ltk_22)
+rule Register_pk_25:
+    [ Fr(~ltk_24)
     ]
   --[ 
     ]->
-    [ !Ltk_20($A, ~ltk_22)
-    , !Pk_21($A, pk(~ltk_22))
+    [ !Ltk_22($A, ~ltk_24)
+    , !Pk_23($A, pk(~ltk_24))
     ]
 
-rule Get_pk_26:
-  [!Pk_21(A_25, pk)]--[]->[Out(pk)]
+rule Get_pk_28:
+  [!Pk_23(A_27, pk)]--[]->[Out(pk)]
 
-rule Reveal_ltk_30:
-  [!Ltk_20(A_29, ltk_28)]--[LtkReveal_27(A_29)]->[Out(ltk_28)]
+rule Reveal_ltk_32:
+  [!Ltk_22(A_31, ltk_30)]--[LtkReveal_29(A_31)]->[Out(ltk_30)]
 
-rule TgRuleClient_34_3to4:
+rule TgRuleClient_36_3to4:
     [ Fr(~pid)
     ]
   --[ 
@@ -27,74 +27,74 @@ rule TgRuleClient_34_3to4:
     , Cell(~pid, 'pid', ~pid)
     ]
 
-rule TgRuleClient_34_4to5:
+rule TgRuleClient_36_4to5:
     [ St(~pid, 'tgk4')
-    , Fr(~k_33)
-    , !Pk_21($S, pkS_32)
+    , Fr(~k_35)
+    , !Pk_23($S, pkS_34)
     ]
   --[ 
     ]->
     [ St(~pid, 'tgk5')
     , Cell(~pid, 'server', $S)
-    , Cell(~pid, 'k', ~k_33)
-    , Out(aenc(<'1', ~k_33>, pkS_32))
+    , Cell(~pid, 'k', ~k_35)
+    , Out(aenc(<'1', ~k_35>, pkS_34))
     ]
 
-rule TgEndClient_34_5:
+rule TgEndClient_36_5:
     [ St(~pid, 'tgk5')
     , Cell(~pid, 'k', tgc_k_0)
     , Cell(~pid, 'server', tgc_server_0)
     , In(h(tgc_k_0))
     ]
-  --[ SessKeyC_31(tgc_server_0, tgc_k_0)
+  --[ SessKeyC_33(tgc_server_0, tgc_k_0)
     ]->
     [ 
     ]
 
-rule Serv_1_39:
-    [ !Ltk_20($S, ~ltkS_38)
-    , In(request_37)
+rule Serv_1_41:
+    [ !Ltk_22($S, ~ltkS_40)
+    , In(request_39)
     ]
-  --[ Eq_35(fst(adec(request_37, ~ltkS_38)), '1')
-    , AnswerRequest_36($S, snd(adec(request_37, ~ltkS_38)))
+  --[ Eq_37(fst(adec(request_39, ~ltkS_40)), '1')
+    , AnswerRequest_38($S, snd(adec(request_39, ~ltkS_40)))
     ]->
-    [ Out(h(snd(adec(request_37, ~ltkS_38))))
+    [ Out(h(snd(adec(request_39, ~ltkS_40))))
     ]
 
 restriction Equality_Checks_Succeed:
-  "All x_40 y_41 #i_42 .
-     ((Eq_35(x_40, y_41) @ #i_42) ==> (((x_40) = (y_41))))"
+  "All x_42 y_43 #i_44 .
+     ((Eq_37(x_42, y_43) @ #i_44) ==> (((x_42) = (y_43))))"
 
 lemma Client_session_key_secrecy []:
   all-traces
-  "not Ex S_44 k_45 #i_46 #j_47 .
-         ((((SessKeyC_31(S_44, k_45) @ #i_46) & (K(k_45) @ #j_47))) & (not 
-         Ex #r_48 .
-           LtkReveal_27(S_44) @ #r_48))"
+  "not Ex S_46 k_47 #i_48 #j_49 .
+         ((((SessKeyC_33(S_46, k_47) @ #i_48) & (K(k_47) @ #j_49))) & (not 
+         Ex #r_50 .
+           LtkReveal_29(S_46) @ #r_50))"
 
 lemma Client_auth []:
   all-traces
-  "All S_50 k_51 #i_52 .
-     ((SessKeyC_31(S_50, k_51) @ #i_52) ==> (((Ex #a_53 .
-                                                 AnswerRequest_36(S_50, k_51) @ #a_53) | (
-     Ex #r_54 .
-       ((LtkReveal_27(S_50) @ #r_54) & (#r_54 < #i_52))))))"
+  "All S_52 k_53 #i_54 .
+     ((SessKeyC_33(S_52, k_53) @ #i_54) ==> (((Ex #a_55 .
+                                                 AnswerRequest_38(S_52, k_53) @ #a_55) | (
+     Ex #r_56 .
+       ((LtkReveal_29(S_52) @ #r_56) & (#r_56 < #i_54))))))"
 
 lemma Client_auth_injective []:
   all-traces
-  "All S_56 k_57 #i_58 .
-     ((SessKeyC_31(S_56, k_57) @ #i_58) ==> (((Ex #a_59 .
-                                                 ((AnswerRequest_36(S_56, k_57) @ #a_59) & (
-                                                 All #j_60 .
-                                                   ((SessKeyC_31(S_56, k_57) @ #j_60) ==> (#i_58 = #j_60))))) | (
-     Ex #r_61 .
-       ((LtkReveal_27(S_56) @ #r_61) & (#r_61 < #i_58))))))"
+  "All S_58 k_59 #i_60 .
+     ((SessKeyC_33(S_58, k_59) @ #i_60) ==> (((Ex #a_61 .
+                                                 ((AnswerRequest_38(S_58, k_59) @ #a_61) & (
+                                                 All #j_62 .
+                                                   ((SessKeyC_33(S_58, k_59) @ #j_62) ==> (#i_60 = #j_62))))) | (
+     Ex #r_63 .
+       ((LtkReveal_29(S_58) @ #r_63) & (#r_63 < #i_60))))))"
 
 lemma Client_session_key_honest_setup []:
   exists-trace
-  "Ex S_63 k_64 #i_65 .
-     ((SessKeyC_31(S_63, k_64) @ #i_65) & (not Ex #r_66 .
-                                                 LtkReveal_27(S_63) @ #r_66))"
+  "Ex S_65 k_66 #i_67 .
+     ((SessKeyC_33(S_65, k_66) @ #i_67) & (not Ex #r_68 .
+                                                 LtkReveal_29(S_65) @ #r_68))"
 
 end
 
