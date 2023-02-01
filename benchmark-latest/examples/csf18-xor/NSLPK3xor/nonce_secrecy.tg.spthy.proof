@@ -13,215 +13,215 @@ equations:
 
 /* looping facts with injective instances: StF/3 */
 
-rule (modulo E) Register_pk_24:
-   [ Fr( ~ltkA_23 ) ]
-  --[ Register_22( $A ) ]->
+rule (modulo E) Register_pk_26:
+   [ Fr( ~ltkA_25 ) ]
+  --[ Register_24( $A ) ]->
    [
-   !Ltk_20( $A, ~ltkA_23 ), !Pk_21( $A, pk(~ltkA_23) ), Out( pk(~ltkA_23) )
+   !Ltk_22( $A, ~ltkA_25 ), !Pk_23( $A, pk(~ltkA_25) ), Out( pk(~ltkA_25) )
    ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Reveal_ltk_28:
-   [ !Ltk_20( A_27, ltkA_26 ) ] --[ RevLtk_25( A_27 ) ]-> [ Out( ltkA_26 ) ]
+rule (modulo E) Reveal_ltk_30:
+   [ !Ltk_22( A_29, ltkA_28 ) ] --[ RevLtk_27( A_29 ) ]-> [ Out( ltkA_28 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_43_2to3:
+rule (modulo E) I_45_2to3:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk3', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_43_manyto3to4_I_1:
-   [ StF( ~pid, 'tgk3', 'empty_tuple' ), Fr( ~ni_35 ), !Pk_21( $R, pkR_34 )
+rule (modulo E) I_45_manyto3to4_I_1:
+   [ StF( ~pid, 'tgk3', 'empty_tuple' ), Fr( ~ni_37 ), !Pk_23( $R, pkR_36 )
    ]
-  --[ OUT_I_1_32( aenc(<'1', ~ni_35, $I>, pkR_34) ) ]->
+  --[ OUT_I_1_34( aenc(<'1', ~ni_37, $I>, pkR_36) ) ]->
    [
-   StF( ~pid, 'tgk4', <$I, $R, ~ni_35> ),
-   Out( aenc(<'1', ~ni_35, $I>, pkR_34) )
+   StF( ~pid, 'tgk4', <$I, $R, ~ni_37> ),
+   Out( aenc(<'1', ~ni_37, $I>, pkR_36) )
    ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_43_manyto4_I_2:
+rule (modulo E) I_45_manyto4_I_2:
    [
    StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
-   !Ltk_20( tgc_I_0, ltkI_39 ),
-   In( aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ), !Pk_21( tgc_R_0, pkR_38 )
+   !Ltk_22( tgc_I_0, ltkI_41 ),
+   In( aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)) ), !Pk_23( tgc_R_0, pkR_40 )
    ]
   --[
-  IN_I_2_nr_33( (tgc_R_0⊕x_37), aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ),
-  Commit_29( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, (tgc_R_0⊕x_37)> ),
-  Running_30( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, (tgc_R_0⊕x_37)> )
+  IN_I_2_nr_35( (tgc_R_0⊕x_39), aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)) ),
+  Commit_31( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, (tgc_R_0⊕x_39)> ),
+  Running_32( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, (tgc_R_0⊕x_39)> )
   ]->
    [
-   Out( aenc(<'3', (tgc_R_0⊕x_37)>, pkR_38) ),
-   Secret_31( tgc_I_0, tgc_R_0, (tgc_R_0⊕x_37) ),
-   Secret_31( tgc_I_0, tgc_R_0, tgc_ni_0 )
+   Out( aenc(<'3', (tgc_R_0⊕x_39)>, pkR_40) ),
+   Secret_33( tgc_I_0, tgc_R_0, (tgc_R_0⊕x_39) ),
+   Secret_33( tgc_I_0, tgc_R_0, tgc_ni_0 )
    ]
 
   /*
-  rule (modulo AC) I_43_manyto4_I_2:
+  rule (modulo AC) I_45_manyto4_I_2:
      [
      StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
-     !Ltk_20( tgc_I_0, ltkI_39 ),
-     In( aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ), !Pk_21( tgc_R_0, pkR_38 )
+     !Ltk_22( tgc_I_0, ltkI_41 ),
+     In( aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)) ), !Pk_23( tgc_R_0, pkR_40 )
      ]
     --[
-    IN_I_2_nr_33( z, aenc(<'2', tgc_ni_0, x_37>, pk(ltkI_39)) ),
-    Commit_29( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, z> ),
-    Running_30( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, z> )
+    IN_I_2_nr_35( z, aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)) ),
+    Commit_31( tgc_I_0, tgc_R_0, <'init', tgc_ni_0, z> ),
+    Running_32( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, z> )
     ]->
      [
-     Out( aenc(<'3', z>, pkR_38) ), Secret_31( tgc_I_0, tgc_R_0, z ),
-     Secret_31( tgc_I_0, tgc_R_0, tgc_ni_0 )
+     Out( aenc(<'3', z>, pkR_40) ), Secret_33( tgc_I_0, tgc_R_0, z ),
+     Secret_33( tgc_I_0, tgc_R_0, tgc_ni_0 )
      ]
     variants (modulo AC)
     1. tgc_R_0
              = tgc_R_0.13
-       x_37  = tgc_R_0.13
+       x_39  = tgc_R_0.13
        z     = zero
     
     2. tgc_R_0
              = tgc_R_0.13
-       x_37  = zero
+       x_39  = zero
        z     = tgc_R_0.13
     
     3. tgc_R_0
              = tgc_R_0.15
-       x_37  = x_37.17
-       z     = (tgc_R_0.15⊕x_37.17)
+       x_39  = x_39.17
+       z     = (tgc_R_0.15⊕x_39.17)
     
     4. tgc_R_0
              = tgc_R_0.19
-       x_37  = (tgc_R_0.19⊕z.25)
+       x_39  = (tgc_R_0.19⊕z.25)
        z     = z.25
     
     5. tgc_R_0
              = zero
-       x_37  = x_37.13
-       z     = x_37.13
+       x_39  = x_39.13
+       z     = x_39.13
     
     6. tgc_R_0
              = (x.16⊕x.17)
-       x_37  = (x.16⊕x.19)
+       x_39  = (x.16⊕x.19)
        z     = (x.17⊕x.19)
     
     7. tgc_R_0
-             = (x_37.17⊕z.21)
-       x_37  = x_37.17
+             = (x_39.17⊕z.21)
+       x_39  = x_39.17
        z     = z.21
   */
 
-rule (modulo E) R_54_5to6:
+rule (modulo E) R_56_5to6:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk6', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_54_manyto6to7_R_1:
+rule (modulo E) R_56_manyto6to7_R_1:
    [
-   StF( ~pid, 'tgk6', 'empty_tuple' ), !Ltk_20( $R, ltkR_49 ),
-   In( aenc(<'1', ni_48, I_50>, pk(ltkR_49)) ), !Pk_21( I_50, pkI_46 ),
-   Fr( ~nr_47 )
+   StF( ~pid, 'tgk6', 'empty_tuple' ), !Ltk_22( $R, ltkR_51 ),
+   In( aenc(<'1', ni_50, I_52>, pk(ltkR_51)) ), !Pk_23( I_52, pkI_48 ),
+   Fr( ~nr_49 )
    ]
   --[
-  IN_R_1_ni_44( ni_48, aenc(<'1', ni_48, I_50>, pk(ltkR_49)) ),
-  OUT_R_1_45( aenc(<'2', ni_48, ($R⊕~nr_47)>, pkI_46) ),
-  Running_30( I_50, $R, <'init', ni_48, ~nr_47> )
+  IN_R_1_ni_46( ni_50, aenc(<'1', ni_50, I_52>, pk(ltkR_51)) ),
+  OUT_R_1_47( aenc(<'2', ni_50, ($R⊕~nr_49)>, pkI_48) ),
+  Running_32( I_52, $R, <'init', ni_50, ~nr_49> )
   ]->
    [
-   StF( ~pid, 'tgk7', <I_50, $R, ni_48, ~nr_47> ),
-   Out( aenc(<'2', ni_48, ($R⊕~nr_47)>, pkI_46) )
+   StF( ~pid, 'tgk7', <I_52, $R, ni_50, ~nr_49> ),
+   Out( aenc(<'2', ni_50, ($R⊕~nr_49)>, pkI_48) )
    ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_54_manyto7_R_2:
+rule (modulo E) R_56_manyto7_R_2:
    [
    StF( ~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0> ),
-   !Ltk_20( tgc_R_0, ltkR_53 ), In( aenc(<'3', tgc_nr_0>, pk(ltkR_53)) )
+   !Ltk_22( tgc_R_0, ltkR_55 ), In( aenc(<'3', tgc_nr_0>, pk(ltkR_55)) )
    ]
-  --[ Commit_29( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0> ) ]->
+  --[ Commit_31( tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0> ) ]->
    [
-   Secret_31( tgc_R_0, tgc_I_0, tgc_nr_0 ),
-   Secret_31( tgc_R_0, tgc_I_0, tgc_ni_0 )
+   Secret_33( tgc_R_0, tgc_I_0, tgc_nr_0 ),
+   Secret_33( tgc_R_0, tgc_I_0, tgc_ni_0 )
    ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) Secrecy_claim_59:
-   [ Secret_31( A_58, B_57, m_56 ) ]
-  --[ Secret_55( A_58, B_57, m_56 ) ]->
+rule (modulo E) Secrecy_claim_61:
+   [ Secret_33( A_60, B_59, m_58 ) ]
+  --[ Secret_57( A_60, B_59, m_58 ) ]->
    [ ]
 
   /* has exactly the trivial AC variant */
 
 lemma types [sources]:
   all-traces
-  "(∀ ni_60 m1_61 #i_62.
-     (IN_R_1_ni_44( ni_60, m1_61 ) @ #i_62) ⇒
-     ((∃ #j_63. (!KU( ni_60 ) @ #j_63) ∧ (#j_63 < #i_62)) ∨
-      (∃ #j_64. OUT_I_1_32( m1_61 ) @ #j_64))) ∧
-   (∀ nr_65 m2_66 #i_67.
-     (IN_I_2_nr_33( nr_65, m2_66 ) @ #i_67) ⇒
-     ((∃ #j_68. (!KU( nr_65 ) @ #j_68) ∧ (#j_68 < #i_67)) ∨
-      (∃ #j_69. OUT_R_1_45( m2_66 ) @ #j_69)))"
+  "(∀ ni_62 m1_63 #i_64.
+     (IN_R_1_ni_46( ni_62, m1_63 ) @ #i_64) ⇒
+     ((∃ #j_65. (!KU( ni_62 ) @ #j_65) ∧ (#j_65 < #i_64)) ∨
+      (∃ #j_66. OUT_I_1_34( m1_63 ) @ #j_66))) ∧
+   (∀ nr_67 m2_68 #i_69.
+     (IN_I_2_nr_35( nr_67, m2_68 ) @ #i_69) ⇒
+     ((∃ #j_70. (!KU( nr_67 ) @ #j_70) ∧ (#j_70 < #i_69)) ∨
+      (∃ #j_71. OUT_R_1_47( m2_68 ) @ #j_71)))"
 /*
 guarded formula characterizing all counter-examples:
-"((∃ ni_60 m1_61 #i_62.
-    (IN_R_1_ni_44( ni_60, m1_61 ) @ #i_62)
+"((∃ ni_62 m1_63 #i_64.
+    (IN_R_1_ni_46( ni_62, m1_63 ) @ #i_64)
    ∧
-    (∀ #j_63. (!KU( ni_60 ) @ #j_63) ⇒ ¬(#j_63 < #i_62)) ∧
-    (∀ #j_64. (OUT_I_1_32( m1_61 ) @ #j_64) ⇒ ⊥)) ∨
-  (∃ nr_65 m2_66 #i_67.
-    (IN_I_2_nr_33( nr_65, m2_66 ) @ #i_67)
+    (∀ #j_65. (!KU( ni_62 ) @ #j_65) ⇒ ¬(#j_65 < #i_64)) ∧
+    (∀ #j_66. (OUT_I_1_34( m1_63 ) @ #j_66) ⇒ ⊥)) ∨
+  (∃ nr_67 m2_68 #i_69.
+    (IN_I_2_nr_35( nr_67, m2_68 ) @ #i_69)
    ∧
-    (∀ #j_68. (!KU( nr_65 ) @ #j_68) ⇒ ¬(#j_68 < #i_67)) ∧
-    (∀ #j_69. (OUT_R_1_45( m2_66 ) @ #j_69) ⇒ ⊥)))"
+    (∀ #j_70. (!KU( nr_67 ) @ #j_70) ⇒ ¬(#j_70 < #i_69)) ∧
+    (∀ #j_71. (OUT_R_1_47( m2_68 ) @ #j_71) ⇒ ⊥)))"
 */
 by sorry
 
 restriction onekeypername:
-  "¬(∃ A_71 #i_72 #j_73.
-      ((Register_22( A_71 ) @ #i_72) ∧ (Register_22( A_71 ) @ #j_73)) ∧
-      (¬(#i_72 = #j_73)))"
+  "¬(∃ A_73 #i_74 #j_75.
+      ((Register_24( A_73 ) @ #i_74) ∧ (Register_24( A_73 ) @ #j_75)) ∧
+      (¬(#i_74 = #j_75)))"
   // safety formula
 
 lemma nonce_secrecy:
   all-traces
-  "¬(∃ A_75 B_76 s_77 #i_78.
-      (((Secret_55( A_75, B_76, s_77 ) @ #i_78) ∧
-        (∃ #j_79. K( s_77 ) @ #j_79)) ∧
-       (¬(∃ #r_80. RevLtk_25( A_75 ) @ #r_80))) ∧
-      (¬(∃ #r_81. RevLtk_25( B_76 ) @ #r_81)))"
+  "¬(∃ A_77 B_78 s_79 #i_80.
+      (((Secret_57( A_77, B_78, s_79 ) @ #i_80) ∧
+        (∃ #j_81. K( s_79 ) @ #j_81)) ∧
+       (¬(∃ #r_82. RevLtk_27( A_77 ) @ #r_82))) ∧
+      (¬(∃ #r_83. RevLtk_27( B_78 ) @ #r_83)))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ A_75 B_76 s_77 #i_78.
-  (Secret_55( A_75, B_76, s_77 ) @ #i_78)
+"∃ A_77 B_78 s_79 #i_80.
+  (Secret_57( A_77, B_78, s_79 ) @ #i_80)
  ∧
-  (∃ #j_79. (K( s_77 ) @ #j_79)) ∧
-  (∀ #r_80. (RevLtk_25( A_75 ) @ #r_80) ⇒ ⊥) ∧
-  (∀ #r_81. (RevLtk_25( B_76 ) @ #r_81) ⇒ ⊥)"
+  (∃ #j_81. (K( s_79 ) @ #j_81)) ∧
+  (∀ #r_82. (RevLtk_27( A_77 ) @ #r_82) ⇒ ⊥) ∧
+  (∀ #r_83. (RevLtk_27( B_78 ) @ #r_83) ⇒ ⊥)"
 */
 simplify
-solve( Secret_31( A_75, B_76, s_77 ) ▶₀ #i_78 )
-  case R_54_manyto7_R_2_case_1
-  solve( !KU( ~nr_47 ) @ #vk )
-    case I_43_manyto4_I_2_case_1
-    solve( !KU( ~ltkA_23.2 ) @ #vk.4 )
-      case Reveal_ltk_28
-      solve( !KU( aenc(<'3', ~nr_47>, pk(~ltkA_23)) ) @ #vk.2 )
+solve( Secret_33( A_77, B_78, s_79 ) ▶₀ #i_80 )
+  case R_56_manyto7_R_2_case_1
+  solve( !KU( ~nr_49 ) @ #vk )
+    case I_45_manyto4_I_2_case_1
+    solve( !KU( ~ltkA_25.2 ) @ #vk.4 )
+      case Reveal_ltk_30
+      solve( !KU( aenc(<'3', ~nr_49>, pk(~ltkA_25)) ) @ #vk.2 )
         case c_aenc
-        solve( !KU( aenc(<'1', ~ni_35, $A>, pk(~ltkA_23)) ) @ #vk.4 )
+        solve( !KU( aenc(<'1', ~ni_37, $A>, pk(~ltkA_25)) ) @ #vk.4 )
           case c_aenc
-          solve( !KU( ~ni_35 ) @ #vk.12 )
-            case I_43_manyto3to4_I_1
-            solve( !KU( aenc(<'2', ~ni_35, ($R⊕~nr_47)>, pk(~ltkA_23.2)) ) @ #vk.6 )
-              case R_54_manyto6to7_R_1
+          solve( !KU( ~ni_37 ) @ #vk.12 )
+            case I_45_manyto3to4_I_1
+            solve( !KU( aenc(<'2', ~ni_37, ($R⊕~nr_49)>, pk(~ltkA_25.2)) ) @ #vk.6 )
+              case R_56_manyto6to7_R_1
               solve( !KU( ($R⊕$R.1) ) @ #vk.8 )
                 case c_xor
-                solve( !KU( pk(~ltkA_23) ) @ #vk.10 )
-                  case Register_pk_24
+                solve( !KU( pk(~ltkA_25) ) @ #vk.10 )
+                  case Register_pk_26
                   SOLVED // trace found
                 qed
               qed
@@ -235,47 +235,47 @@ qed
 
 lemma injective_agree:
   all-traces
-  "∀ actor_83 peer_84 params_85 #i_86.
-    (Commit_29( actor_83, peer_84, params_85 ) @ #i_86) ⇒
-    (((∃ #j_87.
-        ((Running_30( actor_83, peer_84, params_85 ) @ #j_87) ∧
-         (#j_87 < #i_86)) ∧
-        (¬(∃ actor2_88 peer2_89 #i2_90.
-            (Commit_29( actor2_88, peer2_89, params_85 ) @ #i2_90) ∧
-            (¬(#i_86 = #i2_90))))) ∨
-      (∃ #r_91. RevLtk_25( actor_83 ) @ #r_91)) ∨
-     (∃ #r_92. RevLtk_25( peer_84 ) @ #r_92))"
+  "∀ actor_85 peer_86 params_87 #i_88.
+    (Commit_31( actor_85, peer_86, params_87 ) @ #i_88) ⇒
+    (((∃ #j_89.
+        ((Running_32( actor_85, peer_86, params_87 ) @ #j_89) ∧
+         (#j_89 < #i_88)) ∧
+        (¬(∃ actor2_90 peer2_91 #i2_92.
+            (Commit_31( actor2_90, peer2_91, params_87 ) @ #i2_92) ∧
+            (¬(#i_88 = #i2_92))))) ∨
+      (∃ #r_93. RevLtk_27( actor_85 ) @ #r_93)) ∨
+     (∃ #r_94. RevLtk_27( peer_86 ) @ #r_94))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ actor_83 peer_84 params_85 #i_86.
-  (Commit_29( actor_83, peer_84, params_85 ) @ #i_86)
+"∃ actor_85 peer_86 params_87 #i_88.
+  (Commit_31( actor_85, peer_86, params_87 ) @ #i_88)
  ∧
-  (∀ #j_87.
-    (Running_30( actor_83, peer_84, params_85 ) @ #j_87)
+  (∀ #j_89.
+    (Running_32( actor_85, peer_86, params_87 ) @ #j_89)
    ⇒
-    ((¬(#j_87 < #i_86)) ∨
-     (∃ actor2_88 peer2_89 #i2_90.
-       (Commit_29( actor2_88, peer2_89, params_85 ) @ #i2_90)
+    ((¬(#j_89 < #i_88)) ∨
+     (∃ actor2_90 peer2_91 #i2_92.
+       (Commit_31( actor2_90, peer2_91, params_87 ) @ #i2_92)
       ∧
-       ¬(#i_86 = #i2_90)))) ∧
-  (∀ #r_91. (RevLtk_25( actor_83 ) @ #r_91) ⇒ ⊥) ∧
-  (∀ #r_92. (RevLtk_25( peer_84 ) @ #r_92) ⇒ ⊥)"
+       ¬(#i_88 = #i2_92)))) ∧
+  (∀ #r_93. (RevLtk_27( actor_85 ) @ #r_93) ⇒ ⊥) ∧
+  (∀ #r_94. (RevLtk_27( peer_86 ) @ #r_94) ⇒ ⊥)"
 */
 by sorry
 
 lemma session_key_setup_possible:
   exists-trace
-  "∃ A_94 B_95 s_96 #i_97.
-    ((Secret_55( A_94, B_95, s_96 ) @ #i_97) ∧
-     (¬(∃ #r_98. RevLtk_25( A_94 ) @ #r_98))) ∧
-    (¬(∃ #r_99. RevLtk_25( B_95 ) @ #r_99))"
+  "∃ A_96 B_97 s_98 #i_99.
+    ((Secret_57( A_96, B_97, s_98 ) @ #i_99) ∧
+     (¬(∃ #r_100. RevLtk_27( A_96 ) @ #r_100))) ∧
+    (¬(∃ #r_101. RevLtk_27( B_97 ) @ #r_101))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ A_94 B_95 s_96 #i_97.
-  (Secret_55( A_94, B_95, s_96 ) @ #i_97)
+"∃ A_96 B_97 s_98 #i_99.
+  (Secret_57( A_96, B_97, s_98 ) @ #i_99)
  ∧
-  (∀ #r_98. (RevLtk_25( A_94 ) @ #r_98) ⇒ ⊥) ∧
-  (∀ #r_99. (RevLtk_25( B_95 ) @ #r_99) ⇒ ⊥)"
+  (∀ #r_100. (RevLtk_27( A_96 ) @ #r_100) ⇒ ⊥) ∧
+  (∀ #r_101. (RevLtk_27( B_97 ) @ #r_101) ⇒ ⊥)"
 */
 by sorry
 

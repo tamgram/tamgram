@@ -10,234 +10,234 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 /* looping facts with injective instances: StF/3 */
 
-rule (modulo E) Setup_28:
-   [ Fr( ~k_27 ) ]
-  --[ OnlyOnce_18( ) ]->
-   [ !InitLTK_19( ~k_27 ), !RespLTK_20( ~k_27 ) ]
+rule (modulo E) Setup_30:
+   [ Fr( ~k_29 ) ]
+  --[ OnlyOnce_20( ) ]->
+   [ !InitLTK_21( ~k_29 ), !RespLTK_22( ~k_29 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_34_1to2:
+rule (modulo E) initiator_36_1to2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_34_manyto2to3_initiator:
-   [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~na_29 ) ]
-  --[ Challenge_25( ~na_29 ) ]->
-   [ StF( ~pid, 'tgk3', ~na_29 ), Out( ~na_29 ) ]
+rule (modulo E) initiator_36_manyto2to3_initiator:
+   [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~na_31 ) ]
+  --[ Challenge_27( ~na_31 ) ]->
+   [ StF( ~pid, 'tgk3', ~na_31 ), Out( ~na_31 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_34_manyto3_initiator2:
+rule (modulo E) initiator_36_manyto3_initiator2:
    [
-   StF( ~pid, 'tgk3', ~u_tgany0_33 ), !InitLTK_19( ~k_32 ),
-   In( <m_31, nb_30> )
+   StF( ~pid, 'tgk3', ~u_tgany0_35 ), !InitLTK_21( ~k_34 ),
+   In( <m_33, nb_32> )
    ]
   --[
-  Alive_23( ~u_tgany0_33, ~k_32 ),
-  Eq_21( h((~k_32⊕~u_tgany0_33⊕nb_30)), m_31 )
+  Alive_25( ~u_tgany0_35, ~k_34 ),
+  Eq_23( h((~k_34⊕~u_tgany0_35⊕nb_32)), m_33 )
   ]->
    [ ]
 
   /*
-  rule (modulo AC) initiator_34_manyto3_initiator2:
+  rule (modulo AC) initiator_36_manyto3_initiator2:
      [
-     StF( ~pid, 'tgk3', ~u_tgany0_33 ), !InitLTK_19( ~k_32 ),
-     In( <m_31, nb_30> )
+     StF( ~pid, 'tgk3', ~u_tgany0_35 ), !InitLTK_21( ~k_34 ),
+     In( <m_33, nb_32> )
      ]
-    --[ Alive_23( ~u_tgany0_33, ~k_32 ), Eq_21( h(z), m_31 ) ]->
+    --[ Alive_25( ~u_tgany0_35, ~k_34 ), Eq_23( h(z), m_33 ) ]->
      [ ]
     variants (modulo AC)
-    1. ~k_32 = ~k_32.9
-       ~u_tgany0_33
-             = ~u_tgany0_33.11
-       nb_30 = nb_30.13
-       z     = (~k_32.9⊕~u_tgany0_33.11⊕nb_30.13)
+    1. ~k_34 = ~k_34.9
+       ~u_tgany0_35
+             = ~u_tgany0_35.11
+       nb_32 = nb_32.13
+       z     = (~k_34.9⊕~u_tgany0_35.11⊕nb_32.13)
     
-    2. ~k_32 = ~k_32.9
-       ~u_tgany0_33
-             = ~u_tgany0_33.11
-       nb_30 = zero
-       z     = (~k_32.9⊕~u_tgany0_33.11)
+    2. ~k_34 = ~k_34.9
+       ~u_tgany0_35
+             = ~u_tgany0_35.11
+       nb_32 = zero
+       z     = (~k_34.9⊕~u_tgany0_35.11)
     
-    3. ~k_32 = ~k_32.10
-       ~u_tgany0_33
-             = ~k_32.10
-       nb_30 = nb_30.14
-       z     = nb_30.14
+    3. ~k_34 = ~k_34.10
+       ~u_tgany0_35
+             = ~k_34.10
+       nb_32 = nb_32.14
+       z     = nb_32.14
     
-    4. ~k_32 = ~k_32.10
-       ~u_tgany0_33
-             = ~u_tgany0_33.12
-       nb_30 = ~k_32.10
-       z     = ~u_tgany0_33.12
+    4. ~k_34 = ~k_34.10
+       ~u_tgany0_35
+             = ~u_tgany0_35.12
+       nb_32 = ~k_34.10
+       z     = ~u_tgany0_35.12
     
-    5. ~k_32 = ~k_32.10
-       ~u_tgany0_33
-             = ~u_tgany0_33.12
-       nb_30 = ~u_tgany0_33.12
-       z     = ~k_32.10
+    5. ~k_34 = ~k_34.10
+       ~u_tgany0_35
+             = ~u_tgany0_35.12
+       nb_32 = ~u_tgany0_35.12
+       z     = ~k_34.10
     
-    6. ~k_32 = ~k_32.11
-       ~u_tgany0_33
-             = ~u_tgany0_33.13
-       nb_30 = (~k_32.11⊕~u_tgany0_33.13)
+    6. ~k_34 = ~k_34.11
+       ~u_tgany0_35
+             = ~u_tgany0_35.13
+       nb_32 = (~k_34.11⊕~u_tgany0_35.13)
        z     = zero
     
-    7. ~k_32 = ~k_32.12
-       ~u_tgany0_33
-             = ~u_tgany0_33.14
-       nb_30 = (~u_tgany0_33.14⊕x.21)
-       z     = (~k_32.12⊕x.21)
+    7. ~k_34 = ~k_34.12
+       ~u_tgany0_35
+             = ~u_tgany0_35.14
+       nb_32 = (~u_tgany0_35.14⊕x.21)
+       z     = (~k_34.12⊕x.21)
     
-    8. ~k_32 = ~k_32.13
-       ~u_tgany0_33
-             = ~u_tgany0_33.15
-       nb_30 = (~k_32.13⊕~u_tgany0_33.15⊕z.19)
+    8. ~k_34 = ~k_34.13
+       ~u_tgany0_35
+             = ~u_tgany0_35.15
+       nb_32 = (~k_34.13⊕~u_tgany0_35.15⊕z.19)
        z     = z.19
     
-    9. ~k_32 = ~k_32.14
-       ~u_tgany0_33
-             = ~u_tgany0_33.16
-       nb_30 = (~k_32.14⊕x.25)
-       z     = (~u_tgany0_33.16⊕x.25)
+    9. ~k_34 = ~k_34.14
+       ~u_tgany0_35
+             = ~u_tgany0_35.16
+       nb_32 = (~k_34.14⊕x.25)
+       z     = (~u_tgany0_35.16⊕x.25)
   */
 
-rule (modulo E) responder_38:
-   [ In( na_36 ), Fr( ~nb_35 ), !RespLTK_20( ~k_37 ) ]
+rule (modulo E) responder_40:
+   [ In( na_38 ), Fr( ~nb_37 ), !RespLTK_22( ~k_39 ) ]
   --[
-  Response_26( ~k_37 ), Neq_22( na_36, zero ), NeqForExec_24( na_36, zero )
+  Response_28( ~k_39 ), Neq_24( na_38, zero ), NeqForExec_26( na_38, zero )
   ]->
-   [ Out( <h((~k_37⊕~nb_35⊕na_36)), ~nb_35> ) ]
+   [ Out( <h((~k_39⊕~nb_37⊕na_38)), ~nb_37> ) ]
 
   /*
-  rule (modulo AC) responder_38:
-     [ In( na_36 ), Fr( ~nb_35 ), !RespLTK_20( ~k_37 ) ]
+  rule (modulo AC) responder_40:
+     [ In( na_38 ), Fr( ~nb_37 ), !RespLTK_22( ~k_39 ) ]
     --[
-    Response_26( ~k_37 ), Neq_22( na_36, zero ), NeqForExec_24( na_36, zero )
+    Response_28( ~k_39 ), Neq_24( na_38, zero ), NeqForExec_26( na_38, zero )
     ]->
-     [ Out( <h(z), ~nb_35> ) ]
+     [ Out( <h(z), ~nb_37> ) ]
     variants (modulo AC)
-    1. ~k_37 = ~k_37.5
-       ~nb_35
-             = ~nb_35.5
-       na_36 = na_36.5
-       z     = (~k_37.5⊕~nb_35.5⊕na_36.5)
+    1. ~k_39 = ~k_39.5
+       ~nb_37
+             = ~nb_37.5
+       na_38 = na_38.5
+       z     = (~k_39.5⊕~nb_37.5⊕na_38.5)
     
-    2. ~k_37 = ~k_37.5
-       ~nb_35
-             = ~nb_35.5
-       na_36 = zero
-       z     = (~k_37.5⊕~nb_35.5)
+    2. ~k_39 = ~k_39.5
+       ~nb_37
+             = ~nb_37.5
+       na_38 = zero
+       z     = (~k_39.5⊕~nb_37.5)
     
-    3. ~k_37 = ~x.5
-       ~nb_35
+    3. ~k_39 = ~x.5
+       ~nb_37
              = ~x.5
-       na_36 = na_36.6
-       z     = na_36.6
+       na_38 = na_38.6
+       z     = na_38.6
     
-    4. ~k_37 = ~x.5
-       ~nb_35
-             = ~nb_35.6
-       na_36 = ~x.5
-       z     = ~nb_35.6
+    4. ~k_39 = ~x.5
+       ~nb_37
+             = ~nb_37.6
+       na_38 = ~x.5
+       z     = ~nb_37.6
     
-    5. ~k_37 = ~x.5
-       ~nb_35
+    5. ~k_39 = ~x.5
+       ~nb_37
              = ~x.6
-       na_36 = (~x.5⊕~x.6)
+       na_38 = (~x.5⊕~x.6)
        z     = zero
     
-    6. ~k_37 = ~x.5
-       ~nb_35
+    6. ~k_39 = ~x.5
+       ~nb_37
              = ~x.6
-       na_36 = (~x.5⊕~x.6⊕x.7)
+       na_38 = (~x.5⊕~x.6⊕x.7)
        z     = x.7
     
-    7. ~k_37 = ~x.5
-       ~nb_35
-             = ~nb_35.8
-       na_36 = (~x.5⊕x.7)
-       z     = (x.7⊕~nb_35.8)
+    7. ~k_39 = ~x.5
+       ~nb_37
+             = ~nb_37.8
+       na_38 = (~x.5⊕x.7)
+       z     = (x.7⊕~nb_37.8)
     
-    8. ~k_37 = ~k_37.6
-       ~nb_35
+    8. ~k_39 = ~k_39.6
+       ~nb_37
              = ~x.5
-       na_36 = ~x.5
-       z     = ~k_37.6
+       na_38 = ~x.5
+       z     = ~k_39.6
     
-    9. ~k_37 = ~k_37.7
-       ~nb_35
+    9. ~k_39 = ~k_39.7
+       ~nb_37
              = ~x.5
-       na_36 = (~x.5⊕x.6)
-       z     = (x.6⊕~k_37.7)
+       na_38 = (~x.5⊕x.6)
+       z     = (x.6⊕~k_39.7)
   */
 
 restriction equality:
-  "∀ x_39 y_40 #i_41. (Eq_21( x_39, y_40 ) @ #i_41) ⇒ (x_39 = y_40)"
+  "∀ x_41 y_42 #i_43. (Eq_23( x_41, y_42 ) @ #i_43) ⇒ (x_41 = y_42)"
   // safety formula
 
 restriction unique:
-  "∀ #i_43 #j_44.
-    ((OnlyOnce_18( ) @ #i_43) ∧ (OnlyOnce_18( ) @ #j_44)) ⇒ (#i_43 = #j_44)"
+  "∀ #i_45 #j_46.
+    ((OnlyOnce_20( ) @ #i_45) ∧ (OnlyOnce_20( ) @ #j_46)) ⇒ (#i_45 = #j_46)"
   // safety formula
 
 restriction inequality:
-  "¬(∃ x_46 #i_47. Neq_22( x_46, x_46 ) @ #i_47)"
+  "¬(∃ x_48 #i_49. Neq_24( x_48, x_48 ) @ #i_49)"
   // safety formula
 
 lemma alive:
   all-traces
-  "∀ x_49 y_50 #i_51.
-    (Alive_23( x_49, y_50 ) @ #i_51) ⇒
-    (∃ #j_52. Response_26( y_50 ) @ #j_52)"
+  "∀ x_51 y_52 #i_53.
+    (Alive_25( x_51, y_52 ) @ #i_53) ⇒
+    (∃ #j_54. Response_28( y_52 ) @ #j_54)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_49 y_50 #i_51.
-  (Alive_23( x_49, y_50 ) @ #i_51)
+"∃ x_51 y_52 #i_53.
+  (Alive_25( x_51, y_52 ) @ #i_53)
  ∧
-  ∀ #j_52. (Response_26( y_50 ) @ #j_52) ⇒ ⊥"
+  ∀ #j_54. (Response_28( y_52 ) @ #j_54) ⇒ ⊥"
 */
 by sorry
 
 lemma recentalive_tag:
   all-traces
-  "∀ x_54 y_55 #i_56.
-    (Alive_23( x_54, y_55 ) @ #i_56) ⇒
-    (∃ #j_57 #k_58.
-      (((Challenge_25( x_54 ) @ #k_58) ∧ (Response_26( y_55 ) @ #j_57)) ∧
-       (#k_58 < #j_57)) ∧
-      (#j_57 < #i_56))"
+  "∀ x_56 y_57 #i_58.
+    (Alive_25( x_56, y_57 ) @ #i_58) ⇒
+    (∃ #j_59 #k_60.
+      (((Challenge_27( x_56 ) @ #k_60) ∧ (Response_28( y_57 ) @ #j_59)) ∧
+       (#k_60 < #j_59)) ∧
+      (#j_59 < #i_58))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_54 y_55 #i_56.
-  (Alive_23( x_54, y_55 ) @ #i_56)
+"∃ x_56 y_57 #i_58.
+  (Alive_25( x_56, y_57 ) @ #i_58)
  ∧
-  ∀ #j_57 #k_58.
-   (Challenge_25( x_54 ) @ #k_58) ∧ (Response_26( y_55 ) @ #j_57)
+  ∀ #j_59 #k_60.
+   (Challenge_27( x_56 ) @ #k_60) ∧ (Response_28( y_57 ) @ #j_59)
   ⇒
-   ((¬(#k_58 < #j_57)) ∨ (¬(#j_57 < #i_56)))"
+   ((¬(#k_60 < #j_59)) ∨ (¬(#j_59 < #i_58)))"
 */
 simplify
-solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_56 )
-  case initiator_34_manyto2to3_initiator
-  solve( !InitLTK_19( ~k_32 ) ▶₁ #i_56 )
-    case Setup_28
+solve( StF( ~pid, 'tgk3', ~u_tgany0_35 ) ▶₀ #i_58 )
+  case initiator_36_manyto2to3_initiator
+  solve( !InitLTK_21( ~k_34 ) ▶₁ #i_58 )
+    case Setup_30
     solve( splitEqs(0) )
       case split_case_7
-      solve( !KU( h((~k_32⊕x)) ) @ #vk.1 )
-        case responder_38
-        solve( !KU( (~u_tgany0_33⊕x) ) @ #vk.2 )
+      solve( !KU( h((~k_34⊕x)) ) @ #vk.1 )
+        case responder_40
+        solve( !KU( (~u_tgany0_35⊕x) ) @ #vk.2 )
           case c_xor
           solve( splitEqs(2) )
             case split_case_2
-            solve( !KU( (~nb_35⊕na_36) ) @ #vk.4 )
+            solve( !KU( (~nb_37⊕na_38) ) @ #vk.4 )
               case c_xor
-              solve( !KU( ~u_tgany0_33 ) @ #vk.5 )
-                case initiator_34_manyto2to3_initiator
-                solve( !KU( ~nb_35 ) @ #vk.6 )
-                  case responder_38
+              solve( !KU( ~u_tgany0_35 ) @ #vk.5 )
+                case initiator_36_manyto2to3_initiator
+                solve( !KU( ~nb_37 ) @ #vk.6 )
+                  case responder_40
                   SOLVED // trace found
                 qed
               qed
@@ -251,17 +251,17 @@ qed
 
 lemma executable:
   exists-trace
-  "∃ x_60 y_61 #i_62 #j_63.
-    (((Alive_23( x_60, y_61 ) @ #i_62) ∧ (Response_26( y_61 ) @ #j_63)) ∧
-     (¬(∃ #k_64. (Response_26( y_61 ) @ #k_64) ∧ (¬(#j_63 = #k_64))))) ∧
-    (¬(∃ #l_65. NeqForExec_24( x_60, x_60 ) @ #l_65))"
+  "∃ x_62 y_63 #i_64 #j_65.
+    (((Alive_25( x_62, y_63 ) @ #i_64) ∧ (Response_28( y_63 ) @ #j_65)) ∧
+     (¬(∃ #k_66. (Response_28( y_63 ) @ #k_66) ∧ (¬(#j_65 = #k_66))))) ∧
+    (¬(∃ #l_67. NeqForExec_26( x_62, x_62 ) @ #l_67))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ x_60 y_61 #i_62 #j_63.
-  (Alive_23( x_60, y_61 ) @ #i_62) ∧ (Response_26( y_61 ) @ #j_63)
+"∃ x_62 y_63 #i_64 #j_65.
+  (Alive_25( x_62, y_63 ) @ #i_64) ∧ (Response_28( y_63 ) @ #j_65)
  ∧
-  (∀ #k_64. (Response_26( y_61 ) @ #k_64) ⇒ #j_63 = #k_64) ∧
-  (∀ #l_65. (NeqForExec_24( x_60, x_60 ) @ #l_65) ⇒ ⊥)"
+  (∀ #k_66. (Response_28( y_63 ) @ #k_66) ⇒ #j_65 = #k_66) ∧
+  (∀ #l_67. (NeqForExec_26( x_62, x_62 ) @ #l_67) ⇒ ⊥)"
 */
 by sorry
 

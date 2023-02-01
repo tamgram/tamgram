@@ -10,336 +10,336 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 /* looping facts with injective instances: St/3 */
 
-rule (modulo E) setup_26:
-   [ Fr( ~k_25 ) ]
-  --[ OnlyOnce_18( 'setup' ), Create_23( ~k_25 ) ]->
-   [ !Reader_19( ~k_25 ), !Tag_20( ~k_25 ) ]
+rule (modulo E) setup_28:
+   [ Fr( ~k_27 ) ]
+  --[ OnlyOnce_20( 'setup' ), Create_25( ~k_27 ) ]->
+   [ !Reader_21( ~k_27 ), !Tag_22( ~k_27 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgStartreader_32_1:
+rule (modulo E) TgStartreader_34_1:
    [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk1', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRulereader_32_1to2:
-   [ St( ~pid, 'tgk1', 'empty_tuple' ), !Reader_19( ~k_28 ), Fr( ~r0_27 ) ]
-  --[ OnlyOnce_18( 'initiareader' ) ]->
-   [ St( ~pid, 'tgk2', <~k_28, ~r0_27> ), Out( ~r0_27 ) ]
+rule (modulo E) TgRulereader_34_1to2:
+   [ St( ~pid, 'tgk1', 'empty_tuple' ), !Reader_21( ~k_30 ), Fr( ~r0_29 ) ]
+  --[ OnlyOnce_20( 'initiareader' ) ]->
+   [ St( ~pid, 'tgk2', <~k_30, ~r0_29> ), Out( ~r0_29 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRulereader_32_2to3:
+rule (modulo E) TgRulereader_34_2to3:
    [
-   St( ~pid, 'tgk2', <~u_tgany0_31, ~u_tgany1_30> ),
-   In( <r1_29, h((~u_tgany0_31⊕~u_tgany1_30⊕r1_29))> )
+   St( ~pid, 'tgk2', <~u_tgany0_33, ~u_tgany1_32> ),
+   In( <r1_31, h((~u_tgany0_33⊕~u_tgany1_32⊕r1_31))> )
    ]
   --[
-  Commit_21( <'R', 'T', ~u_tgany0_31, ~u_tgany1_30, r1_29> ),
-  Running_24( <'T', 'R', ~u_tgany0_31, ~u_tgany1_30, r1_29> )
+  Commit_23( <'R', 'T', ~u_tgany0_33, ~u_tgany1_32, r1_31> ),
+  Running_26( <'T', 'R', ~u_tgany0_33, ~u_tgany1_32, r1_31> )
   ]->
    [
-   Out( h((~u_tgany0_31⊕~u_tgany1_30⊕h((~u_tgany0_31⊕~u_tgany1_30⊕r1_29))))
+   Out( h((~u_tgany0_33⊕~u_tgany1_32⊕h((~u_tgany0_33⊕~u_tgany1_32⊕r1_31))))
    )
    ]
 
   /*
-  rule (modulo AC) TgRulereader_32_2to3:
-     [ St( ~pid, 'tgk2', <~u_tgany0_31, ~u_tgany1_30> ), In( <r1_29, h(z)> ) ]
+  rule (modulo AC) TgRulereader_34_2to3:
+     [ St( ~pid, 'tgk2', <~u_tgany0_33, ~u_tgany1_32> ), In( <r1_31, h(z)> ) ]
     --[
-    Commit_21( <'R', 'T', ~u_tgany0_31, ~u_tgany1_30, r1_29> ),
-    Running_24( <'T', 'R', ~u_tgany0_31, ~u_tgany1_30, r1_29> )
+    Commit_23( <'R', 'T', ~u_tgany0_33, ~u_tgany1_32, r1_31> ),
+    Running_26( <'T', 'R', ~u_tgany0_33, ~u_tgany1_32, r1_31> )
     ]->
      [ Out( h(z.1) ) ]
     variants (modulo AC)
-    1. ~u_tgany0_31
-             = ~u_tgany0_31.10
-       ~u_tgany1_30
-             = ~u_tgany1_30.11
-       r1_29 = ~u_tgany0_31.10
-       z     = ~u_tgany1_30.11
-       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(~u_tgany1_30.11))
+    1. ~u_tgany0_33
+             = ~u_tgany0_33.10
+       ~u_tgany1_32
+             = ~u_tgany1_32.11
+       r1_31 = ~u_tgany0_33.10
+       z     = ~u_tgany1_32.11
+       z.1   = (~u_tgany0_33.10⊕~u_tgany1_32.11⊕h(~u_tgany1_32.11))
     
-    2. ~u_tgany0_31
-             = ~u_tgany0_31.10
-       ~u_tgany1_30
-             = ~u_tgany1_30.11
-       r1_29 = ~u_tgany1_30.11
-       z     = ~u_tgany0_31.10
-       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(~u_tgany0_31.10))
+    2. ~u_tgany0_33
+             = ~u_tgany0_33.10
+       ~u_tgany1_32
+             = ~u_tgany1_32.11
+       r1_31 = ~u_tgany1_32.11
+       z     = ~u_tgany0_33.10
+       z.1   = (~u_tgany0_33.10⊕~u_tgany1_32.11⊕h(~u_tgany0_33.10))
     
-    3. ~u_tgany0_31
-             = ~u_tgany0_31.10
-       ~u_tgany1_30
-             = ~u_tgany1_30.11
-       r1_29 = zero
-       z     = (~u_tgany0_31.10⊕~u_tgany1_30.11)
-       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕
-                h((~u_tgany0_31.10⊕~u_tgany1_30.11)))
+    3. ~u_tgany0_33
+             = ~u_tgany0_33.10
+       ~u_tgany1_32
+             = ~u_tgany1_32.11
+       r1_31 = zero
+       z     = (~u_tgany0_33.10⊕~u_tgany1_32.11)
+       z.1   = (~u_tgany0_33.10⊕~u_tgany1_32.11⊕
+                h((~u_tgany0_33.10⊕~u_tgany1_32.11)))
     
-    4. ~u_tgany0_31
-             = ~u_tgany0_31.10
-       ~u_tgany1_30
-             = ~u_tgany1_30.11
-       r1_29 = (~u_tgany0_31.10⊕~u_tgany1_30.11)
+    4. ~u_tgany0_33
+             = ~u_tgany0_33.10
+       ~u_tgany1_32
+             = ~u_tgany1_32.11
+       r1_31 = (~u_tgany0_33.10⊕~u_tgany1_32.11)
        z     = zero
-       z.1   = (~u_tgany0_31.10⊕~u_tgany1_30.11⊕h(zero))
+       z.1   = (~u_tgany0_33.10⊕~u_tgany1_32.11⊕h(zero))
     
-    5. ~u_tgany0_31
-             = ~u_tgany0_31.11
-       ~u_tgany1_30
-             = ~u_tgany0_31.11
-       r1_29 = r1_29.13
-       z     = r1_29.13
-       z.1   = h(r1_29.13)
+    5. ~u_tgany0_33
+             = ~u_tgany0_33.11
+       ~u_tgany1_32
+             = ~u_tgany0_33.11
+       r1_31 = r1_31.13
+       z     = r1_31.13
+       z.1   = h(r1_31.13)
     
-    6. ~u_tgany0_31
-             = ~u_tgany0_31.11
-       ~u_tgany1_30
-             = ~u_tgany1_30.12
-       r1_29 = r1_29.13
-       z     = (~u_tgany0_31.11⊕~u_tgany1_30.12⊕r1_29.13)
-       z.1   = (~u_tgany0_31.11⊕~u_tgany1_30.12⊕
-                h((~u_tgany0_31.11⊕~u_tgany1_30.12⊕r1_29.13)))
+    6. ~u_tgany0_33
+             = ~u_tgany0_33.11
+       ~u_tgany1_32
+             = ~u_tgany1_32.12
+       r1_31 = r1_31.13
+       z     = (~u_tgany0_33.11⊕~u_tgany1_32.12⊕r1_31.13)
+       z.1   = (~u_tgany0_33.11⊕~u_tgany1_32.12⊕
+                h((~u_tgany0_33.11⊕~u_tgany1_32.12⊕r1_31.13)))
     
-    7. ~u_tgany0_31
-             = ~u_tgany0_31.13
-       ~u_tgany1_30
-             = ~u_tgany1_30.14
-       r1_29 = (~u_tgany0_31.13⊕~u_tgany1_30.14⊕z.17)
+    7. ~u_tgany0_33
+             = ~u_tgany0_33.13
+       ~u_tgany1_32
+             = ~u_tgany1_32.14
+       r1_31 = (~u_tgany0_33.13⊕~u_tgany1_32.14⊕z.17)
        z     = z.17
-       z.1   = (~u_tgany0_31.13⊕~u_tgany1_30.14⊕h(z.17))
+       z.1   = (~u_tgany0_33.13⊕~u_tgany1_32.14⊕h(z.17))
     
-    8. ~u_tgany0_31
-             = ~u_tgany0_31.26
-       ~u_tgany1_30
-             = ~u_tgany1_30.27
-       r1_29 = (~u_tgany1_30.27⊕x.49)
-       z     = (~u_tgany0_31.26⊕x.49)
-       z.1   = (~u_tgany0_31.26⊕~u_tgany1_30.27⊕h((~u_tgany0_31.26⊕x.49)))
+    8. ~u_tgany0_33
+             = ~u_tgany0_33.26
+       ~u_tgany1_32
+             = ~u_tgany1_32.27
+       r1_31 = (~u_tgany1_32.27⊕x.49)
+       z     = (~u_tgany0_33.26⊕x.49)
+       z.1   = (~u_tgany0_33.26⊕~u_tgany1_32.27⊕h((~u_tgany0_33.26⊕x.49)))
     
-    9. ~u_tgany0_31
-             = ~u_tgany0_31.27
-       ~u_tgany1_30
-             = ~u_tgany1_30.28
-       r1_29 = (~u_tgany0_31.27⊕x.51)
-       z     = (~u_tgany1_30.28⊕x.51)
-       z.1   = (~u_tgany0_31.27⊕~u_tgany1_30.28⊕h((~u_tgany1_30.28⊕x.51)))
+    9. ~u_tgany0_33
+             = ~u_tgany0_33.27
+       ~u_tgany1_32
+             = ~u_tgany1_32.28
+       r1_31 = (~u_tgany0_33.27⊕x.51)
+       z     = (~u_tgany1_32.28⊕x.51)
+       z.1   = (~u_tgany0_33.27⊕~u_tgany1_32.28⊕h((~u_tgany1_32.28⊕x.51)))
   */
 
-rule (modulo E) TgStarttag_38_4:
+rule (modulo E) TgStarttag_40_4:
    [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk4', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRuletag_38_4to5:
+rule (modulo E) TgRuletag_40_4to5:
    [
-   St( ~pid, 'tgk4', 'empty_tuple' ), !Tag_20( ~k_35 ), Fr( ~r1_33 ),
-   In( r0_34 )
+   St( ~pid, 'tgk4', 'empty_tuple' ), !Tag_22( ~k_37 ), Fr( ~r1_35 ),
+   In( r0_36 )
    ]
-  --[ Running_24( <'R', 'T', ~k_35, r0_34, ~r1_33> ) ]->
+  --[ Running_26( <'R', 'T', ~k_37, r0_36, ~r1_35> ) ]->
    [
-   St( ~pid, 'tgk5', <~k_35, r0_34, ~r1_33> ),
-   Out( <~r1_33, h((~k_35⊕~r1_33⊕r0_34))> )
+   St( ~pid, 'tgk5', <~k_37, r0_36, ~r1_35> ),
+   Out( <~r1_35, h((~k_37⊕~r1_35⊕r0_36))> )
    ]
 
   /*
-  rule (modulo AC) TgRuletag_38_4to5:
+  rule (modulo AC) TgRuletag_40_4to5:
      [
-     St( ~pid, 'tgk4', 'empty_tuple' ), !Tag_20( ~k_35 ), Fr( ~r1_33 ),
-     In( r0_34 )
+     St( ~pid, 'tgk4', 'empty_tuple' ), !Tag_22( ~k_37 ), Fr( ~r1_35 ),
+     In( r0_36 )
      ]
-    --[ Running_24( <'R', 'T', ~k_35, r0_34, ~r1_33> ) ]->
-     [ St( ~pid, 'tgk5', <~k_35, r0_34, ~r1_33> ), Out( <~r1_33, h(z)> ) ]
+    --[ Running_26( <'R', 'T', ~k_37, r0_36, ~r1_35> ) ]->
+     [ St( ~pid, 'tgk5', <~k_37, r0_36, ~r1_35> ), Out( <~r1_35, h(z)> ) ]
     variants (modulo AC)
-    1. ~k_35 = ~k_35.12
-       ~r1_33
-             = ~r1_33.14
-       r0_34 = ~k_35.12
-       z     = ~r1_33.14
+    1. ~k_37 = ~k_37.12
+       ~r1_35
+             = ~r1_35.14
+       r0_36 = ~k_37.12
+       z     = ~r1_35.14
     
-    2. ~k_35 = ~k_35.12
-       ~r1_33
-             = ~r1_33.14
-       r0_34 = ~r1_33.14
-       z     = ~k_35.12
+    2. ~k_37 = ~k_37.12
+       ~r1_35
+             = ~r1_35.14
+       r0_36 = ~r1_35.14
+       z     = ~k_37.12
     
-    3. ~k_35 = ~k_35.12
-       ~r1_33
-             = ~r1_33.14
-       r0_34 = zero
-       z     = (~k_35.12⊕~r1_33.14)
+    3. ~k_37 = ~k_37.12
+       ~r1_35
+             = ~r1_35.14
+       r0_36 = zero
+       z     = (~k_37.12⊕~r1_35.14)
     
-    4. ~k_35 = ~k_35.12
-       ~r1_33
-             = ~r1_33.14
-       r0_34 = (~k_35.12⊕~r1_33.14)
+    4. ~k_37 = ~k_37.12
+       ~r1_35
+             = ~r1_35.14
+       r0_36 = (~k_37.12⊕~r1_35.14)
        z     = zero
     
-    5. ~k_35 = ~k_35.13
-       ~r1_33
-             = ~k_35.13
-       r0_34 = r0_34.16
-       z     = r0_34.16
+    5. ~k_37 = ~k_37.13
+       ~r1_35
+             = ~k_37.13
+       r0_36 = r0_36.16
+       z     = r0_36.16
     
-    6. ~k_35 = ~k_35.13
-       ~r1_33
-             = ~r1_33.15
-       r0_34 = r0_34.16
-       z     = (~k_35.13⊕~r1_33.15⊕r0_34.16)
+    6. ~k_37 = ~k_37.13
+       ~r1_35
+             = ~r1_35.15
+       r0_36 = r0_36.16
+       z     = (~k_37.13⊕~r1_35.15⊕r0_36.16)
     
-    7. ~k_35 = ~k_35.17
-       ~r1_33
-             = ~r1_33.19
-       r0_34 = (~k_35.17⊕~r1_33.19⊕z.24)
+    7. ~k_37 = ~k_37.17
+       ~r1_35
+             = ~r1_35.19
+       r0_36 = (~k_37.17⊕~r1_35.19⊕z.24)
        z     = z.24
     
-    8. ~k_35 = ~k_35.51
-       ~r1_33
-             = ~r1_33.53
-       r0_34 = (~r1_33.53⊕x.100)
-       z     = (~k_35.51⊕x.100)
+    8. ~k_37 = ~k_37.51
+       ~r1_35
+             = ~r1_35.53
+       r0_36 = (~r1_35.53⊕x.100)
+       z     = (~k_37.51⊕x.100)
     
-    9. ~k_35 = ~k_35.53
-       ~r1_33
-             = ~r1_33.55
-       r0_34 = (~k_35.53⊕x.104)
-       z     = (~r1_33.55⊕x.104)
+    9. ~k_37 = ~k_37.53
+       ~r1_35
+             = ~r1_35.55
+       r0_36 = (~k_37.53⊕x.104)
+       z     = (~r1_35.55⊕x.104)
   */
 
-rule (modulo E) TgRuletag_38_5to6:
+rule (modulo E) TgRuletag_40_5to6:
    [
-   St( ~pid, 'tgk5', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
-   In( h((~u_tgany2_37⊕tgc_r0_0⊕h((~u_tgany2_37⊕~u_tgany3_36⊕tgc_r0_0)))) )
+   St( ~pid, 'tgk5', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38> ),
+   In( h((~u_tgany2_39⊕tgc_r0_0⊕h((~u_tgany2_39⊕~u_tgany3_38⊕tgc_r0_0)))) )
    ]
   --[
-  Commit_21( <'T', 'R', ~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
-  FinTag_22( )
+  Commit_23( <'T', 'R', ~u_tgany2_39, tgc_r0_0, ~u_tgany3_38> ),
+  FinTag_24( )
   ]->
    [ ]
 
   /*
-  rule (modulo AC) TgRuletag_38_5to6:
-     [ St( ~pid, 'tgk5', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ), In( h(z) )
+  rule (modulo AC) TgRuletag_40_5to6:
+     [ St( ~pid, 'tgk5', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38> ), In( h(z) )
      ]
     --[
-    Commit_21( <'T', 'R', ~u_tgany2_37, tgc_r0_0, ~u_tgany3_36> ),
-    FinTag_22( )
+    Commit_23( <'T', 'R', ~u_tgany2_39, tgc_r0_0, ~u_tgany3_38> ),
+    FinTag_24( )
     ]->
      [ ]
     variants (modulo AC)
-     1. ~u_tgany2_37
-              = ~u_tgany2_37.8
-        ~u_tgany3_36
-              = ~u_tgany2_37.8
+     1. ~u_tgany2_39
+              = ~u_tgany2_39.8
+        ~u_tgany3_38
+              = ~u_tgany2_39.8
         tgc_r0_0
               = zero
-        z     = (~u_tgany2_37.8⊕h(zero))
+        z     = (~u_tgany2_39.8⊕h(zero))
     
-     2. ~u_tgany2_37
-              = ~u_tgany2_37.9
-        ~u_tgany3_36
-              = ~u_tgany3_36.10
+     2. ~u_tgany2_39
+              = ~u_tgany2_39.9
+        ~u_tgany3_38
+              = ~u_tgany3_38.10
         tgc_r0_0
-              = ~u_tgany2_37.9
-        z     = h(~u_tgany3_36.10)
+              = ~u_tgany2_39.9
+        z     = h(~u_tgany3_38.10)
     
-     3. ~u_tgany2_37
-              = ~u_tgany2_37.9
-        ~u_tgany3_36
-              = ~u_tgany3_36.10
+     3. ~u_tgany2_39
+              = ~u_tgany2_39.9
+        ~u_tgany3_38
+              = ~u_tgany3_38.10
         tgc_r0_0
-              = ~u_tgany3_36.10
-        z     = (~u_tgany2_37.9⊕~u_tgany3_36.10⊕h(~u_tgany2_37.9))
+              = ~u_tgany3_38.10
+        z     = (~u_tgany2_39.9⊕~u_tgany3_38.10⊕h(~u_tgany2_39.9))
     
-     4. ~u_tgany2_37
-              = ~u_tgany2_37.9
-        ~u_tgany3_36
-              = ~u_tgany3_36.10
+     4. ~u_tgany2_39
+              = ~u_tgany2_39.9
+        ~u_tgany3_38
+              = ~u_tgany3_38.10
         tgc_r0_0
               = zero
-        z     = (~u_tgany2_37.9⊕h((~u_tgany2_37.9⊕~u_tgany3_36.10)))
+        z     = (~u_tgany2_39.9⊕h((~u_tgany2_39.9⊕~u_tgany3_38.10)))
     
-     5. ~u_tgany2_37
-              = ~u_tgany2_37.9
-        ~u_tgany3_36
-              = ~u_tgany3_36.10
+     5. ~u_tgany2_39
+              = ~u_tgany2_39.9
+        ~u_tgany3_38
+              = ~u_tgany3_38.10
         tgc_r0_0
-              = (~u_tgany2_37.9⊕~u_tgany3_36.10)
-        z     = (~u_tgany3_36.10⊕h(zero))
+              = (~u_tgany2_39.9⊕~u_tgany3_38.10)
+        z     = (~u_tgany3_38.10⊕h(zero))
     
-     6. ~u_tgany2_37
-              = ~u_tgany2_37.10
-        ~u_tgany3_36
-              = ~u_tgany2_37.10
-        tgc_r0_0
-              = tgc_r0_0.12
-        z     = (~u_tgany2_37.10⊕tgc_r0_0.12⊕h(tgc_r0_0.12))
-    
-     7. ~u_tgany2_37
-              = ~u_tgany2_37.10
-        ~u_tgany3_36
-              = ~u_tgany3_36.11
+     6. ~u_tgany2_39
+              = ~u_tgany2_39.10
+        ~u_tgany3_38
+              = ~u_tgany2_39.10
         tgc_r0_0
               = tgc_r0_0.12
-        z     = (~u_tgany2_37.10⊕tgc_r0_0.12⊕
-                 h((~u_tgany2_37.10⊕~u_tgany3_36.11⊕tgc_r0_0.12)))
+        z     = (~u_tgany2_39.10⊕tgc_r0_0.12⊕h(tgc_r0_0.12))
     
-     8. ~u_tgany2_37
-              = ~u_tgany2_37.23
-        ~u_tgany3_36
-              = ~u_tgany3_36.24
+     7. ~u_tgany2_39
+              = ~u_tgany2_39.10
+        ~u_tgany3_38
+              = ~u_tgany3_38.11
         tgc_r0_0
-              = (~u_tgany3_36.24⊕x.43)
-        z     = (~u_tgany2_37.23⊕~u_tgany3_36.24⊕x.43⊕h((~u_tgany2_37.23⊕x.43)))
+              = tgc_r0_0.12
+        z     = (~u_tgany2_39.10⊕tgc_r0_0.12⊕
+                 h((~u_tgany2_39.10⊕~u_tgany3_38.11⊕tgc_r0_0.12)))
     
-     9. ~u_tgany2_37
-              = ~u_tgany2_37.24
-        ~u_tgany3_36
-              = ~u_tgany3_36.25
+     8. ~u_tgany2_39
+              = ~u_tgany2_39.23
+        ~u_tgany3_38
+              = ~u_tgany3_38.24
         tgc_r0_0
-              = (~u_tgany2_37.24⊕~u_tgany3_36.25⊕x.45)
-        z     = (~u_tgany3_36.25⊕x.45⊕h(x.45))
+              = (~u_tgany3_38.24⊕x.43)
+        z     = (~u_tgany2_39.23⊕~u_tgany3_38.24⊕x.43⊕h((~u_tgany2_39.23⊕x.43)))
     
-    10. ~u_tgany2_37
-              = ~u_tgany2_37.24
-        ~u_tgany3_36
-              = ~u_tgany3_36.25
+     9. ~u_tgany2_39
+              = ~u_tgany2_39.24
+        ~u_tgany3_38
+              = ~u_tgany3_38.25
         tgc_r0_0
-              = (~u_tgany2_37.24⊕x.45)
-        z     = (x.45⊕h((~u_tgany3_36.25⊕x.45)))
+              = (~u_tgany2_39.24⊕~u_tgany3_38.25⊕x.45)
+        z     = (~u_tgany3_38.25⊕x.45⊕h(x.45))
+    
+    10. ~u_tgany2_39
+              = ~u_tgany2_39.24
+        ~u_tgany3_38
+              = ~u_tgany3_38.25
+        tgc_r0_0
+              = (~u_tgany2_39.24⊕x.45)
+        z     = (x.45⊕h((~u_tgany3_38.25⊕x.45)))
   */
 
 lemma executable:
   exists-trace
-  "(∃ #i_39. FinTag_22( ) @ #i_39) ∧
-   (∀ x_40 #i1_41 #i2_42.
-     ((OnlyOnce_18( x_40 ) @ #i1_41) ∧ (OnlyOnce_18( x_40 ) @ #i2_42)) ⇒
-     (#i1_41 = #i2_42))"
+  "(∃ #i_41. FinTag_24( ) @ #i_41) ∧
+   (∀ x_42 #i1_43 #i2_44.
+     ((OnlyOnce_20( x_42 ) @ #i1_43) ∧ (OnlyOnce_20( x_42 ) @ #i2_44)) ⇒
+     (#i1_43 = #i2_44))"
 /*
 guarded formula characterizing all satisfying traces:
-"(∃ #i_39. (FinTag_22( ) @ #i_39)) ∧
- (∀ x_40 #i1_41 #i2_42.
-   (OnlyOnce_18( x_40 ) @ #i1_41) ∧ (OnlyOnce_18( x_40 ) @ #i2_42)
+"(∃ #i_41. (FinTag_24( ) @ #i_41)) ∧
+ (∀ x_42 #i1_43 #i2_44.
+   (OnlyOnce_20( x_42 ) @ #i1_43) ∧ (OnlyOnce_20( x_42 ) @ #i2_44)
   ⇒
-   #i1_41 = #i2_42)"
+   #i1_43 = #i2_44)"
 */
 simplify
-solve( St( ~pid, 'tgk5', <~u_tgany2_37, tgc_r0_0, ~u_tgany3_36>
-       ) ▶₀ #i_39 )
-  case TgRuletag_38_4to5
+solve( St( ~pid, 'tgk5', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>
+       ) ▶₀ #i_41 )
+  case TgRuletag_40_4to5
   solve( splitEqs(0) )
     case split_case_5
-    solve( !KU( h((~u_tgany2_37⊕tgc_r0_0⊕
-                   h((~u_tgany2_37⊕~u_tgany3_36⊕tgc_r0_0))))
+    solve( !KU( h((~u_tgany2_39⊕tgc_r0_0⊕
+                   h((~u_tgany2_39⊕~u_tgany3_38⊕tgc_r0_0))))
            ) @ #vk )
-      case TgRulereader_32_2to3
-      solve( !KU( ~u_tgany3_36 ) @ #vk.3 )
-        case TgRuletag_38_4to5
+      case TgRulereader_34_2to3
+      solve( !KU( ~u_tgany3_38 ) @ #vk.3 )
+        case TgRuletag_40_4to5
         solve( !KU( ~tgc_r0_0 ) @ #vk.2 )
-          case TgRulereader_32_1to2
-          solve( !KU( h((~tgc_r0_0⊕~u_tgany2_37⊕~u_tgany3_36)) ) @ #vk.4 )
-            case TgRuletag_38_4to5
+          case TgRulereader_34_1to2
+          solve( !KU( h((~tgc_r0_0⊕~u_tgany2_39⊕~u_tgany3_38)) ) @ #vk.4 )
+            case TgRuletag_40_4to5
             solve( splitEqs(5) )
               case split_case_1
               SOLVED // trace found
@@ -353,40 +353,40 @@ qed
 
 lemma helpingSecrecy [reuse]:
   all-traces
-  "∀ k_44 #i_45.
-    (Create_23( k_44 ) @ #i_45) ⇒ (¬(∃ #j_46. K( k_44 ) @ #j_46))"
+  "∀ k_46 #i_47.
+    (Create_25( k_46 ) @ #i_47) ⇒ (¬(∃ #j_48. K( k_46 ) @ #j_48))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ k_44 #i_45.
-  (Create_23( k_44 ) @ #i_45) ∧ ∃ #j_46. (K( k_44 ) @ #j_46)"
+"∃ k_46 #i_47.
+  (Create_25( k_46 ) @ #i_47) ∧ ∃ #j_48. (K( k_46 ) @ #j_48)"
 */
 by sorry
 
 lemma noninjectiveagreementTAG [use_induction]:
   all-traces
-  "∀ t_48 #i_49.
-    (Commit_21( <'T', 'R', t_48> ) @ #i_49) ⇒
-    (∃ #j_50. Running_24( <'T', 'R', t_48> ) @ #j_50)"
+  "∀ t_50 #i_51.
+    (Commit_23( <'T', 'R', t_50> ) @ #i_51) ⇒
+    (∃ #j_52. Running_26( <'T', 'R', t_50> ) @ #j_52)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ t_48 #i_49.
-  (Commit_21( <'T', 'R', t_48> ) @ #i_49)
+"∃ t_50 #i_51.
+  (Commit_23( <'T', 'R', t_50> ) @ #i_51)
  ∧
-  ∀ #j_50. (Running_24( <'T', 'R', t_48> ) @ #j_50) ⇒ ⊥"
+  ∀ #j_52. (Running_26( <'T', 'R', t_50> ) @ #j_52) ⇒ ⊥"
 */
 by sorry
 
 lemma noninjectiveagreementREADER [use_induction]:
   all-traces
-  "∀ t_52 #i_53.
-    (Commit_21( <'R', 'T', t_52> ) @ #i_53) ⇒
-    (∃ #j_54. Running_24( <'R', 'T', t_52> ) @ #j_54)"
+  "∀ t_54 #i_55.
+    (Commit_23( <'R', 'T', t_54> ) @ #i_55) ⇒
+    (∃ #j_56. Running_26( <'R', 'T', t_54> ) @ #j_56)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ t_52 #i_53.
-  (Commit_21( <'R', 'T', t_52> ) @ #i_53)
+"∃ t_54 #i_55.
+  (Commit_23( <'R', 'T', t_54> ) @ #i_55)
  ∧
-  ∀ #j_54. (Running_24( <'R', 'T', t_52> ) @ #j_54) ⇒ ⊥"
+  ∀ #j_56. (Running_26( <'R', 'T', t_54> ) @ #j_56) ⇒ ⊥"
 */
 by sorry
 

@@ -3,714 +3,714 @@ theory CH07 begin
 // Function signature and definition of the equational theory E
 
 builtins: xor
-functions: fst/1, h/1, lh_27/1, pair/2, rh_28/1, rot_26/2, snd/1
+functions: fst/1, h/1, lh_29/1, pair/2, rh_30/1, rot_28/2, snd/1
 equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
 /* looping facts with injective instances: St/2 */
 
-rule (modulo E) Setup_31:
-   [ Fr( ~k_29 ), Fr( ~id_30 ) ]
+rule (modulo E) Setup_33:
+   [ Fr( ~k_31 ), Fr( ~id_32 ) ]
   -->
-   [ !Reader_18( ~k_29, ~id_30 ), !Tag_19( ~k_29, ~id_30 ) ]
+   [ !Reader_20( ~k_31, ~id_32 ), !Tag_21( ~k_31, ~id_32 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRulereader_38_1to2:
+rule (modulo E) TgRulereader_40_1to2:
    [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk2' ), Cell( ~pid, 'pid', ~pid ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRulereader_38_2to3:
-   [ St( ~pid, 'tgk2' ), Fr( ~r1_32 ) ]
-  --[ Challenge_20( ~r1_32, 'Reader' ) ]->
-   [ St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~r1_32 ), Out( ~r1_32 ) ]
+rule (modulo E) TgRulereader_40_2to3:
+   [ St( ~pid, 'tgk2' ), Fr( ~r1_34 ) ]
+  --[ Challenge_22( ~r1_34, 'Reader' ) ]->
+   [ St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~r1_34 ), Out( ~r1_34 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgEndreader_38_3:
+rule (modulo E) TgEndreader_40_3:
    [
-   St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~u_tgany0_37 ),
-   !Reader_18( ~k_34, ~id_35 ),
-   In( <r2_33, lh_27((hash_36⊕rot_26(~id_35, hash_36)))> )
+   St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~u_tgany0_39 ),
+   !Reader_20( ~k_36, ~id_37 ),
+   In( <r2_35, lh_29((hash_38⊕rot_28(~id_37, hash_38)))> )
    ]
   --[
-  Alive_21( ~k_34, 'Tag' ), Response_22( ~k_34, 'Reader' ),
-  Eq_23( h((~k_34⊕~u_tgany0_37⊕r2_33)), hash_36 ),
-  Running_24( <'T', 'R', (~k_34⊕~u_tgany0_37⊕r2_33)> ),
-  Commit_25( <'R', 'T', (~k_34⊕~u_tgany0_37⊕r2_33)> )
+  Alive_23( ~k_36, 'Tag' ), Response_24( ~k_36, 'Reader' ),
+  Eq_25( h((~k_36⊕~u_tgany0_39⊕r2_35)), hash_38 ),
+  Running_26( <'T', 'R', (~k_36⊕~u_tgany0_39⊕r2_35)> ),
+  Commit_27( <'R', 'T', (~k_36⊕~u_tgany0_39⊕r2_35)> )
   ]->
-   [ Out( rh_28((hash_36⊕rot_26(~id_35, hash_36))) ) ]
+   [ Out( rh_30((hash_38⊕rot_28(~id_37, hash_38))) ) ]
 
   /*
-  rule (modulo AC) TgEndreader_38_3:
+  rule (modulo AC) TgEndreader_40_3:
      [
-     St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~u_tgany0_37 ),
-     !Reader_18( ~k_34, ~id_35 ), In( <r2_33, lh_27(z)> )
+     St( ~pid, 'tgk3' ), Cell( ~pid, 'r1', ~u_tgany0_39 ),
+     !Reader_20( ~k_36, ~id_37 ), In( <r2_35, lh_29(z)> )
      ]
     --[
-    Alive_21( ~k_34, 'Tag' ), Response_22( ~k_34, 'Reader' ),
-    Eq_23( h(z.1), hash_36 ), Running_24( <'T', 'R', z.1> ),
-    Commit_25( <'R', 'T', z.1> )
+    Alive_23( ~k_36, 'Tag' ), Response_24( ~k_36, 'Reader' ),
+    Eq_25( h(z.1), hash_38 ), Running_26( <'T', 'R', z.1> ),
+    Commit_27( <'R', 'T', z.1> )
     ]->
-     [ Out( rh_28(z) ) ]
+     [ Out( rh_30(z) ) ]
     variants (modulo AC)
-     1. ~id_35
-              = ~id_35.17
-        ~k_34 = ~k_34.18
-        ~u_tgany0_37
-              = ~u_tgany0_37.20
-        hash_36
+     1. ~id_37
+              = ~id_37.17
+        ~k_36 = ~k_36.18
+        ~u_tgany0_39
+              = ~u_tgany0_39.20
+        hash_38
               = zero
-        r2_33 = ~k_34.18
-        z     = rot_26(~id_35.17, zero)
-        z.1   = ~u_tgany0_37.20
+        r2_35 = ~k_36.18
+        z     = rot_28(~id_37.17, zero)
+        z.1   = ~u_tgany0_39.20
     
-     2. ~id_35
-              = ~id_35.17
-        ~k_34 = ~k_34.18
-        ~u_tgany0_37
-              = ~u_tgany0_37.20
-        hash_36
+     2. ~id_37
+              = ~id_37.17
+        ~k_36 = ~k_36.18
+        ~u_tgany0_39
+              = ~u_tgany0_39.20
+        hash_38
               = zero
-        r2_33 = ~u_tgany0_37.20
-        z     = rot_26(~id_35.17, zero)
-        z.1   = ~k_34.18
+        r2_35 = ~u_tgany0_39.20
+        z     = rot_28(~id_37.17, zero)
+        z.1   = ~k_36.18
     
-     3. ~id_35
-              = ~id_35.17
-        ~k_34 = ~k_34.18
-        ~u_tgany0_37
-              = ~u_tgany0_37.20
-        hash_36
+     3. ~id_37
+              = ~id_37.17
+        ~k_36 = ~k_36.18
+        ~u_tgany0_39
+              = ~u_tgany0_39.20
+        hash_38
               = zero
-        r2_33 = zero
-        z     = rot_26(~id_35.17, zero)
-        z.1   = (~k_34.18⊕~u_tgany0_37.20)
+        r2_35 = zero
+        z     = rot_28(~id_37.17, zero)
+        z.1   = (~k_36.18⊕~u_tgany0_39.20)
     
-     4. ~id_35
-              = ~id_35.17
-        ~k_34 = ~k_34.18
-        ~u_tgany0_37
-              = ~u_tgany0_37.20
-        hash_36
+     4. ~id_37
+              = ~id_37.17
+        ~k_36 = ~k_36.18
+        ~u_tgany0_39
+              = ~u_tgany0_39.20
+        hash_38
               = zero
-        r2_33 = (~k_34.18⊕~u_tgany0_37.20)
-        z     = rot_26(~id_35.17, zero)
+        r2_35 = (~k_36.18⊕~u_tgany0_39.20)
+        z     = rot_28(~id_37.17, zero)
         z.1   = zero
     
-     5. ~id_35
-              = ~id_35.18
-        ~k_34 = ~k_34.19
-        ~u_tgany0_37
-              = ~u_tgany0_37.21
-        hash_36
-              = hash_36.22
-        r2_33 = ~k_34.19
-        z     = (hash_36.22⊕rot_26(~id_35.18, hash_36.22))
-        z.1   = ~u_tgany0_37.21
+     5. ~id_37
+              = ~id_37.18
+        ~k_36 = ~k_36.19
+        ~u_tgany0_39
+              = ~u_tgany0_39.21
+        hash_38
+              = hash_38.22
+        r2_35 = ~k_36.19
+        z     = (hash_38.22⊕rot_28(~id_37.18, hash_38.22))
+        z.1   = ~u_tgany0_39.21
     
-     6. ~id_35
-              = ~id_35.18
-        ~k_34 = ~k_34.19
-        ~u_tgany0_37
-              = ~u_tgany0_37.21
-        hash_36
-              = hash_36.22
-        r2_33 = ~u_tgany0_37.21
-        z     = (hash_36.22⊕rot_26(~id_35.18, hash_36.22))
-        z.1   = ~k_34.19
+     6. ~id_37
+              = ~id_37.18
+        ~k_36 = ~k_36.19
+        ~u_tgany0_39
+              = ~u_tgany0_39.21
+        hash_38
+              = hash_38.22
+        r2_35 = ~u_tgany0_39.21
+        z     = (hash_38.22⊕rot_28(~id_37.18, hash_38.22))
+        z.1   = ~k_36.19
     
-     7. ~id_35
-              = ~id_35.18
-        ~k_34 = ~k_34.19
-        ~u_tgany0_37
-              = ~u_tgany0_37.21
-        hash_36
-              = hash_36.22
-        r2_33 = zero
-        z     = (hash_36.22⊕rot_26(~id_35.18, hash_36.22))
-        z.1   = (~k_34.19⊕~u_tgany0_37.21)
+     7. ~id_37
+              = ~id_37.18
+        ~k_36 = ~k_36.19
+        ~u_tgany0_39
+              = ~u_tgany0_39.21
+        hash_38
+              = hash_38.22
+        r2_35 = zero
+        z     = (hash_38.22⊕rot_28(~id_37.18, hash_38.22))
+        z.1   = (~k_36.19⊕~u_tgany0_39.21)
     
-     8. ~id_35
-              = ~id_35.18
-        ~k_34 = ~k_34.19
-        ~u_tgany0_37
-              = ~u_tgany0_37.21
-        hash_36
-              = hash_36.22
-        r2_33 = (~k_34.19⊕~u_tgany0_37.21)
-        z     = (hash_36.22⊕rot_26(~id_35.18, hash_36.22))
+     8. ~id_37
+              = ~id_37.18
+        ~k_36 = ~k_36.19
+        ~u_tgany0_39
+              = ~u_tgany0_39.21
+        hash_38
+              = hash_38.22
+        r2_35 = (~k_36.19⊕~u_tgany0_39.21)
+        z     = (hash_38.22⊕rot_28(~id_37.18, hash_38.22))
         z.1   = zero
     
-     9. ~id_35
-              = ~id_35.19
-        ~k_34 = ~k_34.20
-        ~u_tgany0_37
-              = ~k_34.20
-        hash_36
-              = hash_36.23
-        r2_33 = r2_33.24
-        z     = (hash_36.23⊕rot_26(~id_35.19, hash_36.23))
-        z.1   = r2_33.24
+     9. ~id_37
+              = ~id_37.19
+        ~k_36 = ~k_36.20
+        ~u_tgany0_39
+              = ~k_36.20
+        hash_38
+              = hash_38.23
+        r2_35 = r2_35.24
+        z     = (hash_38.23⊕rot_28(~id_37.19, hash_38.23))
+        z.1   = r2_35.24
     
-    10. ~id_35
-              = ~id_35.19
-        ~k_34 = ~k_34.20
-        ~u_tgany0_37
-              = ~k_34.20
-        hash_36
+    10. ~id_37
+              = ~id_37.19
+        ~k_36 = ~k_36.20
+        ~u_tgany0_39
+              = ~k_36.20
+        hash_38
               = zero
-        r2_33 = r2_33.24
-        z     = rot_26(~id_35.19, zero)
-        z.1   = r2_33.24
+        r2_35 = r2_35.24
+        z     = rot_28(~id_37.19, zero)
+        z.1   = r2_35.24
     
-    11. ~id_35
-              = ~id_35.19
-        ~k_34 = ~k_34.20
-        ~u_tgany0_37
-              = ~u_tgany0_37.22
-        hash_36
-              = hash_36.23
-        r2_33 = r2_33.24
-        z     = (hash_36.23⊕rot_26(~id_35.19, hash_36.23))
-        z.1   = (~k_34.20⊕~u_tgany0_37.22⊕r2_33.24)
+    11. ~id_37
+              = ~id_37.19
+        ~k_36 = ~k_36.20
+        ~u_tgany0_39
+              = ~u_tgany0_39.22
+        hash_38
+              = hash_38.23
+        r2_35 = r2_35.24
+        z     = (hash_38.23⊕rot_28(~id_37.19, hash_38.23))
+        z.1   = (~k_36.20⊕~u_tgany0_39.22⊕r2_35.24)
     
-    12. ~id_35
-              = ~id_35.19
-        ~k_34 = ~k_34.20
-        ~u_tgany0_37
-              = ~u_tgany0_37.22
-        hash_36
+    12. ~id_37
+              = ~id_37.19
+        ~k_36 = ~k_36.20
+        ~u_tgany0_39
+              = ~u_tgany0_39.22
+        hash_38
               = zero
-        r2_33 = r2_33.24
-        z     = rot_26(~id_35.19, zero)
-        z.1   = (~k_34.20⊕~u_tgany0_37.22⊕r2_33.24)
+        r2_35 = r2_35.24
+        z     = rot_28(~id_37.19, zero)
+        z.1   = (~k_36.20⊕~u_tgany0_39.22⊕r2_35.24)
     
-    13. ~id_35
-              = ~id_35.25
-        ~k_34 = ~k_34.26
-        ~u_tgany0_37
-              = ~u_tgany0_37.28
-        hash_36
-              = hash_36.29
-        r2_33 = (~k_34.26⊕~u_tgany0_37.28⊕z.36)
-        z     = (hash_36.29⊕rot_26(~id_35.25, hash_36.29))
+    13. ~id_37
+              = ~id_37.25
+        ~k_36 = ~k_36.26
+        ~u_tgany0_39
+              = ~u_tgany0_39.28
+        hash_38
+              = hash_38.29
+        r2_35 = (~k_36.26⊕~u_tgany0_39.28⊕z.36)
+        z     = (hash_38.29⊕rot_28(~id_37.25, hash_38.29))
         z.1   = z.36
     
-    14. ~id_35
-              = ~id_35.25
-        ~k_34 = ~k_34.26
-        ~u_tgany0_37
-              = ~u_tgany0_37.28
-        hash_36
+    14. ~id_37
+              = ~id_37.25
+        ~k_36 = ~k_36.26
+        ~u_tgany0_39
+              = ~u_tgany0_39.28
+        hash_38
               = zero
-        r2_33 = (~k_34.26⊕~u_tgany0_37.28⊕z.36)
-        z     = rot_26(~id_35.25, zero)
+        r2_35 = (~k_36.26⊕~u_tgany0_39.28⊕z.36)
+        z     = rot_28(~id_37.25, zero)
         z.1   = z.36
     
-    15. ~id_35
-              = ~id_35.85
-        ~k_34 = ~k_34.86
-        ~u_tgany0_37
-              = ~u_tgany0_37.88
-        hash_36
+    15. ~id_37
+              = ~id_37.85
+        ~k_36 = ~k_36.86
+        ~u_tgany0_39
+              = ~u_tgany0_39.88
+        hash_38
               = zero
-        r2_33 = (~u_tgany0_37.88⊕x.168)
-        z     = rot_26(~id_35.85, zero)
-        z.1   = (~k_34.86⊕x.168)
+        r2_35 = (~u_tgany0_39.88⊕x.168)
+        z     = rot_28(~id_37.85, zero)
+        z.1   = (~k_36.86⊕x.168)
     
-    16. ~id_35
-              = ~id_35.86
-        ~k_34 = ~k_34.87
-        ~u_tgany0_37
-              = ~u_tgany0_37.89
-        hash_36
-              = hash_36.90
-        r2_33 = (~u_tgany0_37.89⊕x.170)
-        z     = (hash_36.90⊕rot_26(~id_35.86, hash_36.90))
-        z.1   = (~k_34.87⊕x.170)
+    16. ~id_37
+              = ~id_37.86
+        ~k_36 = ~k_36.87
+        ~u_tgany0_39
+              = ~u_tgany0_39.89
+        hash_38
+              = hash_38.90
+        r2_35 = (~u_tgany0_39.89⊕x.170)
+        z     = (hash_38.90⊕rot_28(~id_37.86, hash_38.90))
+        z.1   = (~k_36.87⊕x.170)
     
-    17. ~id_35
-              = ~id_35.87
-        ~k_34 = ~k_34.88
-        ~u_tgany0_37
-              = ~u_tgany0_37.90
-        hash_36
+    17. ~id_37
+              = ~id_37.87
+        ~k_36 = ~k_36.88
+        ~u_tgany0_39
+              = ~u_tgany0_39.90
+        hash_38
               = zero
-        r2_33 = (~k_34.88⊕x.172)
-        z     = rot_26(~id_35.87, zero)
-        z.1   = (~u_tgany0_37.90⊕x.172)
+        r2_35 = (~k_36.88⊕x.172)
+        z     = rot_28(~id_37.87, zero)
+        z.1   = (~u_tgany0_39.90⊕x.172)
     
-    18. ~id_35
-              = ~id_35.88
-        ~k_34 = ~k_34.89
-        ~u_tgany0_37
-              = ~u_tgany0_37.91
-        hash_36
-              = hash_36.92
-        r2_33 = (~k_34.89⊕x.174)
-        z     = (hash_36.92⊕rot_26(~id_35.88, hash_36.92))
-        z.1   = (~u_tgany0_37.91⊕x.174)
+    18. ~id_37
+              = ~id_37.88
+        ~k_36 = ~k_36.89
+        ~u_tgany0_39
+              = ~u_tgany0_39.91
+        hash_38
+              = hash_38.92
+        r2_35 = (~k_36.89⊕x.174)
+        z     = (hash_38.92⊕rot_28(~id_37.88, hash_38.92))
+        z.1   = (~u_tgany0_39.91⊕x.174)
   */
 
-rule (modulo E) TgRuletag_47_4to5:
+rule (modulo E) TgRuletag_49_4to5:
    [ Fr( ~pid ) ] --> [ St( ~pid, 'tgk5' ), Cell( ~pid, 'pid', ~pid ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) TgRuletag_47_5to6:
-   [ St( ~pid, 'tgk5' ), In( r1_40 ), Fr( ~r2_39 ), !Tag_19( ~k_41, ~id_42 )
+rule (modulo E) TgRuletag_49_5to6:
+   [ St( ~pid, 'tgk5' ), In( r1_42 ), Fr( ~r2_41 ), !Tag_21( ~k_43, ~id_44 )
    ]
   --[
-  Response_22( ~k_41, 'Tag' ), Challenge_20( ~r2_39, 'Tag' ),
-  Running_24( <'R', 'T', (~k_41⊕~r2_39⊕r1_40)> )
+  Response_24( ~k_43, 'Tag' ), Challenge_22( ~r2_41, 'Tag' ),
+  Running_26( <'R', 'T', (~k_43⊕~r2_41⊕r1_42)> )
   ]->
    [
-   St( ~pid, 'tgk6' ), Cell( ~pid, 'k', ~k_41 ), Cell( ~pid, 'r1', r1_40 ),
-   Cell( ~pid, 'r2', ~r2_39 ),
-   Cell( ~pid, 'hash', h((~k_41⊕~r2_39⊕r1_40)) ),
-   Out( <~r2_39, 
-         lh_27((h((~k_41⊕~r2_39⊕r1_40))⊕rot_26(~id_42, h((~k_41⊕~r2_39⊕r1_40)))))>
+   St( ~pid, 'tgk6' ), Cell( ~pid, 'k', ~k_43 ), Cell( ~pid, 'r1', r1_42 ),
+   Cell( ~pid, 'r2', ~r2_41 ),
+   Cell( ~pid, 'hash', h((~k_43⊕~r2_41⊕r1_42)) ),
+   Out( <~r2_41, 
+         lh_29((h((~k_43⊕~r2_41⊕r1_42))⊕rot_28(~id_44, h((~k_43⊕~r2_41⊕r1_42)))))>
    )
    ]
 
   /*
-  rule (modulo AC) TgRuletag_47_5to6:
-     [ St( ~pid, 'tgk5' ), In( r1_40 ), Fr( ~r2_39 ), !Tag_19( ~k_41, ~id_42 )
+  rule (modulo AC) TgRuletag_49_5to6:
+     [ St( ~pid, 'tgk5' ), In( r1_42 ), Fr( ~r2_41 ), !Tag_21( ~k_43, ~id_44 )
      ]
     --[
-    Response_22( ~k_41, 'Tag' ), Challenge_20( ~r2_39, 'Tag' ),
-    Running_24( <'R', 'T', z> )
+    Response_24( ~k_43, 'Tag' ), Challenge_22( ~r2_41, 'Tag' ),
+    Running_26( <'R', 'T', z> )
     ]->
      [
-     St( ~pid, 'tgk6' ), Cell( ~pid, 'k', ~k_41 ), Cell( ~pid, 'r1', r1_40 ),
-     Cell( ~pid, 'r2', ~r2_39 ), Cell( ~pid, 'hash', h(z) ),
-     Out( <~r2_39, lh_27((h(z)⊕rot_26(~id_42, h(z))))> )
+     St( ~pid, 'tgk6' ), Cell( ~pid, 'k', ~k_43 ), Cell( ~pid, 'r1', r1_42 ),
+     Cell( ~pid, 'r2', ~r2_41 ), Cell( ~pid, 'hash', h(z) ),
+     Out( <~r2_41, lh_29((h(z)⊕rot_28(~id_44, h(z))))> )
      ]
     variants (modulo AC)
-    1. ~k_41 = ~k_41.16
-       ~r2_39
-             = ~r2_39.18
-       r1_40 = ~k_41.16
-       z     = ~r2_39.18
+    1. ~k_43 = ~k_43.16
+       ~r2_41
+             = ~r2_41.18
+       r1_42 = ~k_43.16
+       z     = ~r2_41.18
     
-    2. ~k_41 = ~k_41.16
-       ~r2_39
-             = ~r2_39.18
-       r1_40 = ~r2_39.18
-       z     = ~k_41.16
+    2. ~k_43 = ~k_43.16
+       ~r2_41
+             = ~r2_41.18
+       r1_42 = ~r2_41.18
+       z     = ~k_43.16
     
-    3. ~k_41 = ~k_41.16
-       ~r2_39
-             = ~r2_39.18
-       r1_40 = zero
-       z     = (~k_41.16⊕~r2_39.18)
+    3. ~k_43 = ~k_43.16
+       ~r2_41
+             = ~r2_41.18
+       r1_42 = zero
+       z     = (~k_43.16⊕~r2_41.18)
     
-    4. ~k_41 = ~k_41.16
-       ~r2_39
-             = ~r2_39.18
-       r1_40 = (~k_41.16⊕~r2_39.18)
+    4. ~k_43 = ~k_43.16
+       ~r2_41
+             = ~r2_41.18
+       r1_42 = (~k_43.16⊕~r2_41.18)
        z     = zero
     
-    5. ~k_41 = ~k_41.17
-       ~r2_39
-             = ~k_41.17
-       r1_40 = r1_40.20
-       z     = r1_40.20
+    5. ~k_43 = ~k_43.17
+       ~r2_41
+             = ~k_43.17
+       r1_42 = r1_42.20
+       z     = r1_42.20
     
-    6. ~k_41 = ~k_41.17
-       ~r2_39
-             = ~r2_39.19
-       r1_40 = r1_40.20
-       z     = (~k_41.17⊕~r2_39.19⊕r1_40.20)
+    6. ~k_43 = ~k_43.17
+       ~r2_41
+             = ~r2_41.19
+       r1_42 = r1_42.20
+       z     = (~k_43.17⊕~r2_41.19⊕r1_42.20)
     
-    7. ~k_41 = ~k_41.24
-       ~r2_39
-             = ~r2_39.26
-       r1_40 = (~k_41.24⊕~r2_39.26⊕z.34)
+    7. ~k_43 = ~k_43.24
+       ~r2_41
+             = ~r2_41.26
+       r1_42 = (~k_43.24⊕~r2_41.26⊕z.34)
        z     = z.34
     
-    8. ~k_41 = ~k_41.321
-       ~r2_39
-             = ~r2_39.323
-       r1_40 = (~r2_39.323⊕x.639)
-       z     = (~k_41.321⊕x.639)
+    8. ~k_43 = ~k_43.321
+       ~r2_41
+             = ~r2_41.323
+       r1_42 = (~r2_41.323⊕x.639)
+       z     = (~k_43.321⊕x.639)
     
-    9. ~k_41 = ~k_41.323
-       ~r2_39
-             = ~r2_39.325
-       r1_40 = (~k_41.323⊕x.643)
-       z     = (~r2_39.325⊕x.643)
+    9. ~k_43 = ~k_43.323
+       ~r2_41
+             = ~r2_41.325
+       r1_42 = (~k_43.323⊕x.643)
+       z     = (~r2_41.325⊕x.643)
   */
 
-rule (modulo E) TgEndtag_47_6:
+rule (modulo E) TgEndtag_49_6:
    [
    St( ~pid, 'tgk6' ), Cell( ~pid, 'hash', tgc_hash_0 ),
-   Cell( ~pid, 'k', ~u_tgany1_45 ), Cell( ~pid, 'r1', tgc_r1_0 ),
-   Cell( ~pid, 'r2', ~u_tgany2_44 ),
-   In( rh_28((tgc_hash_0⊕rot_26(~u_id_46, tgc_hash_0))) ),
-   !Tag_19( ~u_tgany1_45, ~u_id_46 )
+   Cell( ~pid, 'k', ~u_tgany1_47 ), Cell( ~pid, 'r1', tgc_r1_0 ),
+   Cell( ~pid, 'r2', ~u_tgany2_46 ),
+   In( rh_30((tgc_hash_0⊕rot_28(~u_id_48, tgc_hash_0))) ),
+   !Tag_21( ~u_tgany1_47, ~u_id_48 )
    ]
   --[
-  Alive_21( ~u_tgany1_45, 'Reader' ),
-  Commit_25( <'T', 'R', (~u_tgany1_45⊕~u_tgany2_44⊕tgc_r1_0)> )
+  Alive_23( ~u_tgany1_47, 'Reader' ),
+  Commit_27( <'T', 'R', (~u_tgany1_47⊕~u_tgany2_46⊕tgc_r1_0)> )
   ]->
    [ ]
 
   /*
-  rule (modulo AC) TgEndtag_47_6:
+  rule (modulo AC) TgEndtag_49_6:
      [
      St( ~pid, 'tgk6' ), Cell( ~pid, 'hash', tgc_hash_0 ),
-     Cell( ~pid, 'k', ~u_tgany1_45 ), Cell( ~pid, 'r1', tgc_r1_0 ),
-     Cell( ~pid, 'r2', ~u_tgany2_44 ), In( rh_28(z) ),
-     !Tag_19( ~u_tgany1_45, ~u_id_46 )
+     Cell( ~pid, 'k', ~u_tgany1_47 ), Cell( ~pid, 'r1', tgc_r1_0 ),
+     Cell( ~pid, 'r2', ~u_tgany2_46 ), In( rh_30(z) ),
+     !Tag_21( ~u_tgany1_47, ~u_id_48 )
      ]
-    --[ Alive_21( ~u_tgany1_45, 'Reader' ), Commit_25( <'T', 'R', z.1> ) ]->
+    --[ Alive_23( ~u_tgany1_47, 'Reader' ), Commit_27( <'T', 'R', z.1> ) ]->
      [ ]
     variants (modulo AC)
-     1. ~u_id_46
-              = ~u_id_46.20
-        ~u_tgany1_45
-              = ~u_tgany1_45.21
-        ~u_tgany2_44
-              = ~u_tgany2_44.22
+     1. ~u_id_48
+              = ~u_id_48.20
+        ~u_tgany1_47
+              = ~u_tgany1_47.21
+        ~u_tgany2_46
+              = ~u_tgany2_46.22
         tgc_hash_0
               = zero
         tgc_r1_0
-              = ~u_tgany1_45.21
-        z     = rot_26(~u_id_46.20, zero)
-        z.1   = ~u_tgany2_44.22
+              = ~u_tgany1_47.21
+        z     = rot_28(~u_id_48.20, zero)
+        z.1   = ~u_tgany2_46.22
     
-     2. ~u_id_46
-              = ~u_id_46.20
-        ~u_tgany1_45
-              = ~u_tgany1_45.21
-        ~u_tgany2_44
-              = ~u_tgany2_44.22
+     2. ~u_id_48
+              = ~u_id_48.20
+        ~u_tgany1_47
+              = ~u_tgany1_47.21
+        ~u_tgany2_46
+              = ~u_tgany2_46.22
         tgc_hash_0
               = zero
         tgc_r1_0
-              = ~u_tgany2_44.22
-        z     = rot_26(~u_id_46.20, zero)
-        z.1   = ~u_tgany1_45.21
+              = ~u_tgany2_46.22
+        z     = rot_28(~u_id_48.20, zero)
+        z.1   = ~u_tgany1_47.21
     
-     3. ~u_id_46
-              = ~u_id_46.20
-        ~u_tgany1_45
-              = ~u_tgany1_45.21
-        ~u_tgany2_44
-              = ~u_tgany2_44.22
+     3. ~u_id_48
+              = ~u_id_48.20
+        ~u_tgany1_47
+              = ~u_tgany1_47.21
+        ~u_tgany2_46
+              = ~u_tgany2_46.22
         tgc_hash_0
               = zero
         tgc_r1_0
               = zero
-        z     = rot_26(~u_id_46.20, zero)
-        z.1   = (~u_tgany1_45.21⊕~u_tgany2_44.22)
+        z     = rot_28(~u_id_48.20, zero)
+        z.1   = (~u_tgany1_47.21⊕~u_tgany2_46.22)
     
-     4. ~u_id_46
-              = ~u_id_46.20
-        ~u_tgany1_45
-              = ~u_tgany1_45.21
-        ~u_tgany2_44
-              = ~u_tgany2_44.22
+     4. ~u_id_48
+              = ~u_id_48.20
+        ~u_tgany1_47
+              = ~u_tgany1_47.21
+        ~u_tgany2_46
+              = ~u_tgany2_46.22
         tgc_hash_0
               = zero
         tgc_r1_0
-              = (~u_tgany1_45.21⊕~u_tgany2_44.22)
-        z     = rot_26(~u_id_46.20, zero)
+              = (~u_tgany1_47.21⊕~u_tgany2_46.22)
+        z     = rot_28(~u_id_48.20, zero)
         z.1   = zero
     
-     5. ~u_id_46
-              = ~u_id_46.21
-        ~u_tgany1_45
-              = ~u_tgany1_45.22
-        ~u_tgany2_44
-              = ~u_tgany2_44.23
+     5. ~u_id_48
+              = ~u_id_48.21
+        ~u_tgany1_47
+              = ~u_tgany1_47.22
+        ~u_tgany2_46
+              = ~u_tgany2_46.23
         tgc_hash_0
               = tgc_hash_0.24
         tgc_r1_0
-              = ~u_tgany1_45.22
-        z     = (tgc_hash_0.24⊕rot_26(~u_id_46.21, tgc_hash_0.24))
-        z.1   = ~u_tgany2_44.23
+              = ~u_tgany1_47.22
+        z     = (tgc_hash_0.24⊕rot_28(~u_id_48.21, tgc_hash_0.24))
+        z.1   = ~u_tgany2_46.23
     
-     6. ~u_id_46
-              = ~u_id_46.21
-        ~u_tgany1_45
-              = ~u_tgany1_45.22
-        ~u_tgany2_44
-              = ~u_tgany2_44.23
+     6. ~u_id_48
+              = ~u_id_48.21
+        ~u_tgany1_47
+              = ~u_tgany1_47.22
+        ~u_tgany2_46
+              = ~u_tgany2_46.23
         tgc_hash_0
               = tgc_hash_0.24
         tgc_r1_0
-              = ~u_tgany2_44.23
-        z     = (tgc_hash_0.24⊕rot_26(~u_id_46.21, tgc_hash_0.24))
-        z.1   = ~u_tgany1_45.22
+              = ~u_tgany2_46.23
+        z     = (tgc_hash_0.24⊕rot_28(~u_id_48.21, tgc_hash_0.24))
+        z.1   = ~u_tgany1_47.22
     
-     7. ~u_id_46
-              = ~u_id_46.21
-        ~u_tgany1_45
-              = ~u_tgany1_45.22
-        ~u_tgany2_44
-              = ~u_tgany2_44.23
+     7. ~u_id_48
+              = ~u_id_48.21
+        ~u_tgany1_47
+              = ~u_tgany1_47.22
+        ~u_tgany2_46
+              = ~u_tgany2_46.23
         tgc_hash_0
               = tgc_hash_0.24
         tgc_r1_0
               = zero
-        z     = (tgc_hash_0.24⊕rot_26(~u_id_46.21, tgc_hash_0.24))
-        z.1   = (~u_tgany1_45.22⊕~u_tgany2_44.23)
+        z     = (tgc_hash_0.24⊕rot_28(~u_id_48.21, tgc_hash_0.24))
+        z.1   = (~u_tgany1_47.22⊕~u_tgany2_46.23)
     
-     8. ~u_id_46
-              = ~u_id_46.21
-        ~u_tgany1_45
-              = ~u_tgany1_45.22
-        ~u_tgany2_44
-              = ~u_tgany2_44.23
+     8. ~u_id_48
+              = ~u_id_48.21
+        ~u_tgany1_47
+              = ~u_tgany1_47.22
+        ~u_tgany2_46
+              = ~u_tgany2_46.23
         tgc_hash_0
               = tgc_hash_0.24
         tgc_r1_0
-              = (~u_tgany1_45.22⊕~u_tgany2_44.23)
-        z     = (tgc_hash_0.24⊕rot_26(~u_id_46.21, tgc_hash_0.24))
+              = (~u_tgany1_47.22⊕~u_tgany2_46.23)
+        z     = (tgc_hash_0.24⊕rot_28(~u_id_48.21, tgc_hash_0.24))
         z.1   = zero
     
-     9. ~u_id_46
-              = ~u_id_46.22
-        ~u_tgany1_45
-              = ~u_tgany1_45.23
-        ~u_tgany2_44
-              = ~u_tgany1_45.23
+     9. ~u_id_48
+              = ~u_id_48.22
+        ~u_tgany1_47
+              = ~u_tgany1_47.23
+        ~u_tgany2_46
+              = ~u_tgany1_47.23
         tgc_hash_0
               = tgc_hash_0.25
         tgc_r1_0
               = tgc_r1_0.26
-        z     = (tgc_hash_0.25⊕rot_26(~u_id_46.22, tgc_hash_0.25))
+        z     = (tgc_hash_0.25⊕rot_28(~u_id_48.22, tgc_hash_0.25))
         z.1   = tgc_r1_0.26
     
-    10. ~u_id_46
-              = ~u_id_46.22
-        ~u_tgany1_45
-              = ~u_tgany1_45.23
-        ~u_tgany2_44
-              = ~u_tgany1_45.23
+    10. ~u_id_48
+              = ~u_id_48.22
+        ~u_tgany1_47
+              = ~u_tgany1_47.23
+        ~u_tgany2_46
+              = ~u_tgany1_47.23
         tgc_hash_0
               = zero
         tgc_r1_0
               = tgc_r1_0.26
-        z     = rot_26(~u_id_46.22, zero)
+        z     = rot_28(~u_id_48.22, zero)
         z.1   = tgc_r1_0.26
     
-    11. ~u_id_46
-              = ~u_id_46.22
-        ~u_tgany1_45
-              = ~u_tgany1_45.23
-        ~u_tgany2_44
-              = ~u_tgany2_44.24
+    11. ~u_id_48
+              = ~u_id_48.22
+        ~u_tgany1_47
+              = ~u_tgany1_47.23
+        ~u_tgany2_46
+              = ~u_tgany2_46.24
         tgc_hash_0
               = tgc_hash_0.25
         tgc_r1_0
               = tgc_r1_0.26
-        z     = (tgc_hash_0.25⊕rot_26(~u_id_46.22, tgc_hash_0.25))
-        z.1   = (~u_tgany1_45.23⊕~u_tgany2_44.24⊕tgc_r1_0.26)
+        z     = (tgc_hash_0.25⊕rot_28(~u_id_48.22, tgc_hash_0.25))
+        z.1   = (~u_tgany1_47.23⊕~u_tgany2_46.24⊕tgc_r1_0.26)
     
-    12. ~u_id_46
-              = ~u_id_46.22
-        ~u_tgany1_45
-              = ~u_tgany1_45.23
-        ~u_tgany2_44
-              = ~u_tgany2_44.24
+    12. ~u_id_48
+              = ~u_id_48.22
+        ~u_tgany1_47
+              = ~u_tgany1_47.23
+        ~u_tgany2_46
+              = ~u_tgany2_46.24
         tgc_hash_0
               = zero
         tgc_r1_0
               = tgc_r1_0.26
-        z     = rot_26(~u_id_46.22, zero)
-        z.1   = (~u_tgany1_45.23⊕~u_tgany2_44.24⊕tgc_r1_0.26)
+        z     = rot_28(~u_id_48.22, zero)
+        z.1   = (~u_tgany1_47.23⊕~u_tgany2_46.24⊕tgc_r1_0.26)
     
-    13. ~u_id_46
-              = ~u_id_46.32
-        ~u_tgany1_45
-              = ~u_tgany1_45.33
-        ~u_tgany2_44
-              = ~u_tgany2_44.34
+    13. ~u_id_48
+              = ~u_id_48.32
+        ~u_tgany1_47
+              = ~u_tgany1_47.33
+        ~u_tgany2_46
+              = ~u_tgany2_46.34
         tgc_hash_0
               = tgc_hash_0.35
         tgc_r1_0
-              = (~u_tgany1_45.33⊕~u_tgany2_44.34⊕z.46)
-        z     = (tgc_hash_0.35⊕rot_26(~u_id_46.32, tgc_hash_0.35))
+              = (~u_tgany1_47.33⊕~u_tgany2_46.34⊕z.46)
+        z     = (tgc_hash_0.35⊕rot_28(~u_id_48.32, tgc_hash_0.35))
         z.1   = z.46
     
-    14. ~u_id_46
-              = ~u_id_46.32
-        ~u_tgany1_45
-              = ~u_tgany1_45.33
-        ~u_tgany2_44
-              = ~u_tgany2_44.34
+    14. ~u_id_48
+              = ~u_id_48.32
+        ~u_tgany1_47
+              = ~u_tgany1_47.33
+        ~u_tgany2_46
+              = ~u_tgany2_46.34
         tgc_hash_0
               = zero
         tgc_r1_0
-              = (~u_tgany1_45.33⊕~u_tgany2_44.34⊕z.46)
-        z     = rot_26(~u_id_46.32, zero)
+              = (~u_tgany1_47.33⊕~u_tgany2_46.34⊕z.46)
+        z     = rot_28(~u_id_48.32, zero)
         z.1   = z.46
     
-    15. ~u_id_46
-              = ~u_id_46.124
-        ~u_tgany1_45
-              = ~u_tgany1_45.125
-        ~u_tgany2_44
-              = ~u_tgany2_44.126
+    15. ~u_id_48
+              = ~u_id_48.124
+        ~u_tgany1_47
+              = ~u_tgany1_47.125
+        ~u_tgany2_46
+              = ~u_tgany2_46.126
         tgc_hash_0
               = zero
         tgc_r1_0
-              = (~u_tgany2_44.126⊕x.245)
-        z     = rot_26(~u_id_46.124, zero)
-        z.1   = (~u_tgany1_45.125⊕x.245)
+              = (~u_tgany2_46.126⊕x.245)
+        z     = rot_28(~u_id_48.124, zero)
+        z.1   = (~u_tgany1_47.125⊕x.245)
     
-    16. ~u_id_46
-              = ~u_id_46.125
-        ~u_tgany1_45
-              = ~u_tgany1_45.126
-        ~u_tgany2_44
-              = ~u_tgany2_44.127
+    16. ~u_id_48
+              = ~u_id_48.125
+        ~u_tgany1_47
+              = ~u_tgany1_47.126
+        ~u_tgany2_46
+              = ~u_tgany2_46.127
         tgc_hash_0
               = tgc_hash_0.128
         tgc_r1_0
-              = (~u_tgany2_44.127⊕x.247)
-        z     = (tgc_hash_0.128⊕rot_26(~u_id_46.125, tgc_hash_0.128))
-        z.1   = (~u_tgany1_45.126⊕x.247)
+              = (~u_tgany2_46.127⊕x.247)
+        z     = (tgc_hash_0.128⊕rot_28(~u_id_48.125, tgc_hash_0.128))
+        z.1   = (~u_tgany1_47.126⊕x.247)
     
-    17. ~u_id_46
-              = ~u_id_46.125
-        ~u_tgany1_45
-              = ~u_tgany1_45.126
-        ~u_tgany2_44
-              = ~u_tgany2_44.127
+    17. ~u_id_48
+              = ~u_id_48.125
+        ~u_tgany1_47
+              = ~u_tgany1_47.126
+        ~u_tgany2_46
+              = ~u_tgany2_46.127
         tgc_hash_0
               = zero
         tgc_r1_0
-              = (~u_tgany1_45.126⊕x.247)
-        z     = rot_26(~u_id_46.125, zero)
-        z.1   = (~u_tgany2_44.127⊕x.247)
+              = (~u_tgany1_47.126⊕x.247)
+        z     = rot_28(~u_id_48.125, zero)
+        z.1   = (~u_tgany2_46.127⊕x.247)
     
-    18. ~u_id_46
-              = ~u_id_46.126
-        ~u_tgany1_45
-              = ~u_tgany1_45.127
-        ~u_tgany2_44
-              = ~u_tgany2_44.128
+    18. ~u_id_48
+              = ~u_id_48.126
+        ~u_tgany1_47
+              = ~u_tgany1_47.127
+        ~u_tgany2_46
+              = ~u_tgany2_46.128
         tgc_hash_0
               = tgc_hash_0.129
         tgc_r1_0
-              = (~u_tgany1_45.127⊕x.249)
-        z     = (tgc_hash_0.129⊕rot_26(~u_id_46.126, tgc_hash_0.129))
-        z.1   = (~u_tgany2_44.128⊕x.249)
+              = (~u_tgany1_47.127⊕x.249)
+        z     = (tgc_hash_0.129⊕rot_28(~u_id_48.126, tgc_hash_0.129))
+        z.1   = (~u_tgany2_46.128⊕x.249)
   */
 
 restriction equality:
-  "∀ x_48 y_49 #i_50. (Eq_23( x_48, y_49 ) @ #i_50) ⇒ (x_48 = y_49)"
+  "∀ x_50 y_51 #i_52. (Eq_25( x_50, y_51 ) @ #i_52) ⇒ (x_50 = y_51)"
   // safety formula
 
 lemma recentalive_tag:
   all-traces
-  "∀ x_52 #i_53.
-    (Alive_21( x_52, 'Tag' ) @ #i_53) ⇒
-    (∃ y_54 #j_55 #k_56.
-      (((Challenge_20( y_54, 'Reader' ) @ #k_56) ∧
-        (Response_22( x_52, 'Tag' ) @ #j_55)) ∧
-       (#k_56 < #j_55)) ∧
-      (#j_55 < #i_53))"
+  "∀ x_54 #i_55.
+    (Alive_23( x_54, 'Tag' ) @ #i_55) ⇒
+    (∃ y_56 #j_57 #k_58.
+      (((Challenge_22( y_56, 'Reader' ) @ #k_58) ∧
+        (Response_24( x_54, 'Tag' ) @ #j_57)) ∧
+       (#k_58 < #j_57)) ∧
+      (#j_57 < #i_55))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_52 #i_53.
-  (Alive_21( x_52, 'Tag' ) @ #i_53)
+"∃ x_54 #i_55.
+  (Alive_23( x_54, 'Tag' ) @ #i_55)
  ∧
-  ∀ y_54 #j_55 #k_56.
-   (Challenge_20( y_54, 'Reader' ) @ #k_56) ∧
-   (Response_22( x_52, 'Tag' ) @ #j_55)
+  ∀ y_56 #j_57 #k_58.
+   (Challenge_22( y_56, 'Reader' ) @ #k_58) ∧
+   (Response_24( x_54, 'Tag' ) @ #j_57)
   ⇒
-   ((¬(#k_56 < #j_55)) ∨ (¬(#j_55 < #i_53)))"
+   ((¬(#k_58 < #j_57)) ∨ (¬(#j_57 < #i_55)))"
 */
 by sorry
 
 lemma recentalive_reader:
   all-traces
-  "∀ x_58 #i_59.
-    (Alive_21( x_58, 'Reader' ) @ #i_59) ⇒
-    (∃ y_60 #j_61 #k_62.
-      (((Challenge_20( y_60, 'Tag' ) @ #k_62) ∧
-        (Response_22( x_58, 'Reader' ) @ #j_61)) ∧
-       (#k_62 < #j_61)) ∧
-      (#j_61 < #i_59))"
+  "∀ x_60 #i_61.
+    (Alive_23( x_60, 'Reader' ) @ #i_61) ⇒
+    (∃ y_62 #j_63 #k_64.
+      (((Challenge_22( y_62, 'Tag' ) @ #k_64) ∧
+        (Response_24( x_60, 'Reader' ) @ #j_63)) ∧
+       (#k_64 < #j_63)) ∧
+      (#j_63 < #i_61))"
 /*
 guarded formula characterizing all counter-examples:
-"∃ x_58 #i_59.
-  (Alive_21( x_58, 'Reader' ) @ #i_59)
+"∃ x_60 #i_61.
+  (Alive_23( x_60, 'Reader' ) @ #i_61)
  ∧
-  ∀ y_60 #j_61 #k_62.
-   (Challenge_20( y_60, 'Tag' ) @ #k_62) ∧
-   (Response_22( x_58, 'Reader' ) @ #j_61)
+  ∀ y_62 #j_63 #k_64.
+   (Challenge_22( y_62, 'Tag' ) @ #k_64) ∧
+   (Response_24( x_60, 'Reader' ) @ #j_63)
   ⇒
-   ((¬(#k_62 < #j_61)) ∨ (¬(#j_61 < #i_59)))"
+   ((¬(#k_64 < #j_63)) ∨ (¬(#j_63 < #i_61)))"
 */
 simplify
-solve( Alive_21( x_58, 'Reader' ) @ #i_59 )
-  case TgEndtag_47_6
-  solve( St( ~pid, 'tgk6' ) ▶₀ #i_59 )
-    case TgRuletag_47_5to6
-    solve( Cell( ~pid, 'hash', tgc_hash_0 ) ▶₁ #i_59 )
-      case TgRuletag_47_5to6
-      solve( Cell( ~pid, 'k', ~u_tgany1_45 ) ▶₂ #i_59 )
-        case TgRuletag_47_5to6
-        solve( Cell( ~pid, 'r1', tgc_r1_0 ) ▶₃ #i_59 )
-          case TgRuletag_47_5to6
-          solve( Cell( ~pid, 'r2', ~u_tgany2_44 ) ▶₄ #i_59 )
-            case TgRuletag_47_5to6
-            solve( !Tag_19( ~k_41, ~u_id_46 ) ▶₆ #i_59 )
-              case Setup_31
-              solve( !KU( rh_28((h(z)⊕rot_26(~id_42, h(z)))) ) @ #vk )
-                case TgEndreader_38_3
-                solve( !KU( lh_27((h(z)⊕rot_26(~id_42, h(z)))) ) @ #vk.4 )
-                  case TgRuletag_47_5to6
+solve( Alive_23( x_60, 'Reader' ) @ #i_61 )
+  case TgEndtag_49_6
+  solve( St( ~pid, 'tgk6' ) ▶₀ #i_61 )
+    case TgRuletag_49_5to6
+    solve( Cell( ~pid, 'hash', tgc_hash_0 ) ▶₁ #i_61 )
+      case TgRuletag_49_5to6
+      solve( Cell( ~pid, 'k', ~u_tgany1_47 ) ▶₂ #i_61 )
+        case TgRuletag_49_5to6
+        solve( Cell( ~pid, 'r1', tgc_r1_0 ) ▶₃ #i_61 )
+          case TgRuletag_49_5to6
+          solve( Cell( ~pid, 'r2', ~u_tgany2_46 ) ▶₄ #i_61 )
+            case TgRuletag_49_5to6
+            solve( !Tag_21( ~k_43, ~u_id_48 ) ▶₆ #i_61 )
+              case Setup_33
+              solve( !KU( rh_30((h(z)⊕rot_28(~id_44, h(z)))) ) @ #vk )
+                case TgEndreader_40_3
+                solve( !KU( lh_29((h(z)⊕rot_28(~id_44, h(z)))) ) @ #vk.4 )
+                  case TgRuletag_49_5to6
                   by contradiction /* from formulas */
                 next
-                  case c_lh_27
-                  solve( !KU( (h(z)⊕rot_26(~id_42, h(z))) ) @ #vk.5 )
+                  case c_lh_29
+                  solve( !KU( (h(z)⊕rot_28(~id_44, h(z))) ) @ #vk.5 )
                     case c_xor
-                    solve( !KU( rot_26(~id_42, h(z)) ) @ #vk.6 )
-                      case c_rot_26
-                      by solve( !KU( ~id_42 ) @ #vk.8 )
+                    solve( !KU( rot_28(~id_44, h(z)) ) @ #vk.6 )
+                      case c_rot_28
+                      by solve( !KU( ~id_44 ) @ #vk.8 )
                     qed
                   next
                     case coerce
-                    solve( !KD( (h(z)⊕rot_26(~id_42, h(z))) ) ▶₀ #vk.2 )
-                      case TgEndreader_38_3
+                    solve( !KD( (h(z)⊕rot_28(~id_44, h(z))) ) ▶₀ #vk.2 )
+                      case TgEndreader_40_3
                       by solve( (#vl.1, 0) ~~> (#vk.2, 0) )
                     next
-                      case TgRulereader_38_2to3
+                      case TgRulereader_40_2to3
                       by contradiction /* impossible chain */
                     next
-                      case TgRuletag_47_5to6
+                      case TgRuletag_49_5to6
                       by contradiction /* from formulas */
                     qed
                   qed
                 qed
               next
-                case c_rh_28
-                solve( !KU( (h(z)⊕rot_26(~id_42, h(z))) ) @ #vk.2 )
+                case c_rh_30
+                solve( !KU( (h(z)⊕rot_28(~id_44, h(z))) ) @ #vk.2 )
                   case c_xor
-                  solve( !KU( rot_26(~id_42, h(z)) ) @ #vk.3 )
-                    case c_rot_26
-                    by solve( !KU( ~id_42 ) @ #vk.5 )
+                  solve( !KU( rot_28(~id_44, h(z)) ) @ #vk.3 )
+                    case c_rot_28
+                    by solve( !KU( ~id_44 ) @ #vk.5 )
                   qed
                 next
                   case coerce
-                  solve( !KD( (h(z)⊕rot_26(~id_42, h(z))) ) ▶₀ #vk.1 )
-                    case TgEndreader_38_3
+                  solve( !KD( (h(z)⊕rot_28(~id_44, h(z))) ) ▶₀ #vk.1 )
+                    case TgEndreader_40_3
                     by solve( (#vl, 0) ~~> (#vk.1, 0) )
                   next
-                    case TgRulereader_38_2to3
+                    case TgRulereader_40_2to3
                     by contradiction /* impossible chain */
                   next
-                    case TgRuletag_47_5to6
+                    case TgRuletag_49_5to6
                     solve( (#vl, 0) ~~> (#vk.1, 0) )
                       case d_0_fst
                       by contradiction /* impossible chain */
@@ -731,45 +731,45 @@ qed
 
 lemma noninjectiveagreement_tag:
   all-traces
-  "∀ t_64 #i_65.
-    (Commit_25( <'T', 'R', t_64> ) @ #i_65) ⇒
-    (∃ #j_66. Running_24( <'T', 'R', t_64> ) @ #j_66)"
+  "∀ t_66 #i_67.
+    (Commit_27( <'T', 'R', t_66> ) @ #i_67) ⇒
+    (∃ #j_68. Running_26( <'T', 'R', t_66> ) @ #j_68)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ t_64 #i_65.
-  (Commit_25( <'T', 'R', t_64> ) @ #i_65)
+"∃ t_66 #i_67.
+  (Commit_27( <'T', 'R', t_66> ) @ #i_67)
  ∧
-  ∀ #j_66. (Running_24( <'T', 'R', t_64> ) @ #j_66) ⇒ ⊥"
+  ∀ #j_68. (Running_26( <'T', 'R', t_66> ) @ #j_68) ⇒ ⊥"
 */
 by sorry
 
 lemma noninjectiveagreement_reader:
   all-traces
-  "∀ t_68 #i_69.
-    (Commit_25( <'R', 'T', t_68> ) @ #i_69) ⇒
-    (∃ #j_70. Running_24( <'R', 'T', t_68> ) @ #j_70)"
+  "∀ t_70 #i_71.
+    (Commit_27( <'R', 'T', t_70> ) @ #i_71) ⇒
+    (∃ #j_72. Running_26( <'R', 'T', t_70> ) @ #j_72)"
 /*
 guarded formula characterizing all counter-examples:
-"∃ t_68 #i_69.
-  (Commit_25( <'R', 'T', t_68> ) @ #i_69)
+"∃ t_70 #i_71.
+  (Commit_27( <'R', 'T', t_70> ) @ #i_71)
  ∧
-  ∀ #j_70. (Running_24( <'R', 'T', t_68> ) @ #j_70) ⇒ ⊥"
+  ∀ #j_72. (Running_26( <'R', 'T', t_70> ) @ #j_72) ⇒ ⊥"
 */
 by sorry
 
 lemma executable:
   exists-trace
-  "∃ x_72 #i_73 #j_74.
-    ((Alive_21( x_72, 'Reader' ) @ #i_73) ∧
-     (Response_22( x_72, 'Tag' ) @ #j_74)) ∧
-    (¬(∃ #k_75. (Response_22( x_72, 'Tag' ) @ #k_75) ∧ (¬(#j_74 = #k_75))))"
+  "∃ x_74 #i_75 #j_76.
+    ((Alive_23( x_74, 'Reader' ) @ #i_75) ∧
+     (Response_24( x_74, 'Tag' ) @ #j_76)) ∧
+    (¬(∃ #k_77. (Response_24( x_74, 'Tag' ) @ #k_77) ∧ (¬(#j_76 = #k_77))))"
 /*
 guarded formula characterizing all satisfying traces:
-"∃ x_72 #i_73 #j_74.
-  (Alive_21( x_72, 'Reader' ) @ #i_73) ∧
-  (Response_22( x_72, 'Tag' ) @ #j_74)
+"∃ x_74 #i_75 #j_76.
+  (Alive_23( x_74, 'Reader' ) @ #i_75) ∧
+  (Response_24( x_74, 'Tag' ) @ #j_76)
  ∧
-  ∀ #k_75. (Response_22( x_72, 'Tag' ) @ #k_75) ⇒ #j_74 = #k_75"
+  ∀ #k_77. (Response_24( x_74, 'Tag' ) @ #k_77) ⇒ #j_76 = #k_77"
 */
 by sorry
 
