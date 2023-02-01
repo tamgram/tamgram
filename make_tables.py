@@ -120,6 +120,7 @@ def make_csf18_xor_styles_summarized_table(names):
         file.write("\n")
 
         for name in names:
+            file.write("{}".format(name))
             case = f"examples/csf18-xor/{name}"
             lemmas = lemmas_of_benchmark_case(case)
             for (version, ext) in versions:
