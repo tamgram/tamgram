@@ -91,6 +91,48 @@ def make_csf18_xor_styles_table(name):
 
         file.write("\end{tblr}")
 
+def make_csf18_xor_styles_summarized_table(names):
+    with open(f"{base_dir}/CSF18_XOR_summarized_table.tex", "w") as file:
+        file.write("""
+            \\begin{tblr}{
+                    hlines,
+                    vlines,
+                    colspec={c 
+        """)
+        versions = [("Original", ".spthy"),
+                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Forward", ".tg.frame-minimal0.spthy"),
+                    ("Backward", ".tg.frame-minimal-backward0.spthy"),
+                    ("Hybrid", ".tg.spthy"),
+                   ]
+        for _ in versions:
+            file.write("*{1}{p{0.75cm}}")
+
+        file.write("""
+                    },
+                }
+        """)
+
+        for (version, _) in versions:
+            file.write("& {}".format(version))
+
+        file.write("\\\\")
+        file.write("\n")
+
+        for name in names:
+            case = f"examples/csf18-xor/{name}"
+            lemmas = lemmas_of_benchmark_case(case)
+            for (version, ext) in versions:
+                total_time = 0
+                for lemma in lemmas:
+                    total_time += time_of_lemma(base_dir, case, lemma, ext=ext)
+                file.write("& {:.1f}".format(total_time))
+
+            file.write("\\\\")
+            file.write("\n")
+
+        file.write("\end{tblr}")
+
 def make_emverify_styles_table(name):
     case = f"examples/EMVerify/contactless/{name}"
     lemmas = lemmas_of_benchmark_case(case)
@@ -167,11 +209,17 @@ def make_emverify_table(index, lemmas):
 
         file.write("\end{tblr}")
 
-make_csf18_xor_styles_table("CH07")
-make_csf18_xor_styles_table("CRxor")
-make_csf18_xor_styles_table("KCL07")
-make_csf18_xor_styles_table("LAK06")
-make_csf18_xor_styles_table("NSLPK3xor")
+csf18_xor_cases = ["CH07",
+                   "CRxor",
+                   "KCL07",
+                   "LAK06",
+                   "NSLPK3xor",
+        ]
+
+for case in csf18_xor_cases:
+    make_csf18_xor_styles_table(case)
+
+make_csf18_xor_styles_summarized_table(csf18_xor_cases)
 
 make_emverify_styles_table("Mastercard_CDA_NoPIN_Low")
 
