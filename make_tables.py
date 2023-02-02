@@ -224,6 +224,8 @@ make_csf18_xor_styles_summarized_table(csf18_xor_cases)
 
 make_emverify_styles_table("Mastercard_CDA_NoPIN_Low")
 
+make_emverify_styles_table("Visa_DDA_Low")
+
 make_emverify_table(0, ["executable", "bank_accepts"])
 make_emverify_table(1, ["auth_to_terminal_minimal", "auth_to_terminal"])
 make_emverify_table(2, ["auth_to_bank_minimal", "auth_to_bank"])
