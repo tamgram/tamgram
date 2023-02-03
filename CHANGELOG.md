@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+- Added `if-then-else` syntax
+
 ## 0.3.0
 
 - Renamed styles:
