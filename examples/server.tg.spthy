@@ -1,0 +1,63 @@
+theory test
+begin
+
+builtins: multiset, symmetric-encryption
+
+rule S_27_0to1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule S_27_manyto1tomany:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Init_21(role_22, ka_24, kb_23)
+    ]
+  --[ 
+    ]->
+    [ StB(~pid, 'tgk1', <ka_24, kb_23, role_22>)
+    ]
+
+rule S_27_1to2to3_role_A:
+  [StB(~pid, 'tgk1', <tgc_ka_0, tgc_kb_0, 'A'>)]--[]->[St(~pid, 'tgk3', <tgc_ka_0>)]
+
+rule S_27_3to5to3:
+    [ St(~pid, 'tgk3', <tgc_ka_0>)
+    , In(m_25)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk3', <tgc_ka_0>)
+    , Out(senc(m_25, tgc_ka_0))
+    ]
+
+rule S_27_1to6tomany_role_B:
+  [StB(~pid, 'tgk1', <tgc_ka_0, tgc_kb_0, 'B'>)]--[]->[StB(~pid, 'tgk6', <'0', tgc_kb_0>)]
+
+rule S_27_6to7to10:
+  [StB(~pid, 'tgk6', <tgc_i_0, tgc_kb_0>)]--[TgCellNeq(tgc_i_0, '5')]->[StF(
+~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]
+
+rule S_27_10to7to10:
+  [StB(~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]--[TgCellNeq(tgc_i_0, '5')]->[StF(
+~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]
+
+rule S_27_6to8to9:
+  [StB(~pid, 'tgk6', <'5', tgc_kb_0>)]--[]->[St(~pid, 'tgk9', 'empty_tuple')]
+
+rule S_27_10to8to9:
+  [StB(~pid, 'tgk10', <'5', tgc_kb_0>)]--[]->[St(~pid, 'tgk9', 'empty_tuple')]
+
+rule S_27_manyto10tomany:
+    [ StF(~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)
+    , In(m_26)
+    ]
+  --[ 
+    ]->
+    [ StB(~pid, 'tgk10', <((tgc_i_0) + ('1')), tgc_kb_0>)
+    , Out(senc(m_26, tgc_kb_0))
+    ]
+
+restriction tg_cell_neq_restriction:
+  "not Ex x_29 #i_28 .
+         TgCellNeq(x_29, x_29) @ #i_28"
+
+end
+

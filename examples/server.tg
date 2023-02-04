@@ -1,0 +1,22 @@
+builtins := multiset, symmetric-encryption
+
+pred !Ltk/1
+pred Init/3
+
+process S =
+  [ Init(role, ka, kb) ]
+  ->[ 'role := role,
+      'ka := ka,
+      'kb := kb,
+    ];
+  choice {
+    { "role A": [ 'role cas "A" ]->[];
+      loop {
+        [ In(m) ]->[ Out(senc(m, 'ka)) ] }
+    };
+    { "role B": [ 'role cas "B" ]->[ 'i := "0" ];
+      while not ('i cas "5") {
+        [ In(m) ]
+        ->[ Out(senc(m, 'kb)), 'i := 'i+"1" ] }
+    };
+  }
