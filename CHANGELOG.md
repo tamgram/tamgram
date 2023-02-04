@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+- Added special consideration for cell data shape when value is a number
+
 ## 0.4.0
 
 - Added `if-then-else` syntax
