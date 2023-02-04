@@ -1,4 +1,4 @@
-theory test
+theory server
 begin
 
 builtins: multiset, symmetric-encryption
