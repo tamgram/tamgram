@@ -106,7 +106,7 @@ def make_csf18_xor_styles_summarized_table(names):
                     ("Hybrid", ".tg.spthy"),
                    ]
         for _ in versions:
-            file.write("*{1}{p{0.75cm}}")
+            file.write("*{1}{p{0.9cm}}")
 
         file.write("""
                     },
@@ -153,7 +153,7 @@ def make_emverify_styles_table(name):
                    ]
 
         for _ in versions:
-            file.write("*{1}{p{0.75cm}}")
+            file.write("*{1}{p{0.9cm}}")
 
         file.write("""
                     },
