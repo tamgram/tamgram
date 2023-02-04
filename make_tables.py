@@ -60,7 +60,7 @@ def make_csf18_xor_styles_table(name):
         """)
 
         versions = [("Original", ".spthy"),
-                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Cell-by-cell", ".tg.cell-by-cell.spthy"),
                     ("Forward", ".tg.frame-minimal0.spthy"),
                     ("Backward", ".tg.frame-minimal-backward0.spthy"),
                     ("Hybrid", ".tg.spthy"),
@@ -100,7 +100,7 @@ def make_csf18_xor_styles_summarized_table(names):
                     colspec={c 
         """)
         versions = [("Original", ".spthy"),
-                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Cell-by-cell", ".tg.cell-by-cell.spthy"),
                     ("Forward", ".tg.frame-minimal0.spthy"),
                     ("Backward", ".tg.frame-minimal-backward0.spthy"),
                     ("Hybrid", ".tg.spthy"),
@@ -146,7 +146,7 @@ def make_emverify_styles_table(name):
         """)
 
         versions = [("Original", ".spthy"),
-                    ("Cell by cell", ".tg.cell-by-cell.spthy"),
+                    ("Cell-by-cell", ".tg.cell-by-cell.spthy"),
                     ("Forward", ".tg.frame-minimal0.spthy"),
                     ("Backward", ".tg.frame-minimal-backward0.spthy"),
                     ("Hybrid", ".tg.spthy"),
