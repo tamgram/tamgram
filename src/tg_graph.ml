@@ -74,7 +74,7 @@ let restrictions_empty = {
 
 let restrictions_required_union x y : restrictions_required =
   {
-    cell_neq = x.cell_neq || x.cell_neq;
+    cell_neq = x.cell_neq || y.cell_neq;
     cell_pat_match_restrictions =
       Int_map.union (fun _ _ -> failwith "Unexpected case")
         x.cell_pat_match_restrictions y.cell_pat_match_restrictions;
