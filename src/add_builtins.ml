@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let base =
   let open Tg_ast in

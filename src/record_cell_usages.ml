@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 open Cell_lifetime
 
 module Cell_deps = struct

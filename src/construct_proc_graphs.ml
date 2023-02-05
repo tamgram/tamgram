@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let add_apred_decls (restrictions_required : Tg_graph.restrictions_required) (spec : Spec.t)
   : Spec.t =

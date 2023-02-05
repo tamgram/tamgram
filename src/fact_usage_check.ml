@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 type field =
   [ `L

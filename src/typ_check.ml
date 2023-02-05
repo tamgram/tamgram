@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let compatible_typs_of_typ (a : Typ.term) : Typ.term list =
   a

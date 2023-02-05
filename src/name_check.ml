@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let check_prefix (name : string Loc.tagged) : (unit, Error_msg.t) result =
   match Misc_utils.reserved_prefix_check (Loc.content name) with

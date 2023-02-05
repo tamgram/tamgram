@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let check_name name (seen : String_tagged_set.t) :
   (String_tagged_set.t, Error_msg.t) result =

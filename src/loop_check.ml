@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let aux_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
   let open Tg_ast in

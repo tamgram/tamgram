@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let rec check_term_either_constant_or_wildcard (term : Tg_ast.term)
   : (unit, Error_msg.t) result =

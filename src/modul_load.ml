@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let file_buffers = ref String_map.empty
 

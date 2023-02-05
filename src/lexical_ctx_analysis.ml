@@ -1,4 +1,4 @@
-open Result_infix
+open Result_let
 
 let ( let** ) (r : ('a, Error_msg.t * [< Lexical_ctx.name_resolution_error ]) result)
     f =
