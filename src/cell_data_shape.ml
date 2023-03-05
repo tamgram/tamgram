@@ -34,28 +34,13 @@ let is_number (a : Tg_ast.cell_data_shape)  =
 
 let compatible (a : Tg_ast.cell_data_shape) (b : Tg_ast.cell_data_shape) =
   let open Tg_ast in
-  let rec aux a b =
     (is_number a && is_number b)
     ||
     (match a, b with
      | S_value v1, S_value v2 -> v1 = v2
      | S_pub s1, S_pub s2 -> s1 = s2
-     | S_fresh _, S_fresh _ -> true
-     | S_var _, _ | _, S_var _ -> true
-     | S_tuple l1, S_tuple l2 ->
-       List.length l1 = List.length l2
-       && List.for_all2 aux l1 l2
-     | S_app (_f1, name1, l1), S_app (_f2, name2, l2) ->
-       name1 = name2
-       && List.for_all2 aux l1 l2
-     | S_unary_op (op1, x1), S_unary_op (op2, x2) ->
-       op1 = op2 && aux x1 x2
-     | S_binary_op (op1, x1, y1), S_binary_op (op2, x2, y2) ->
-       op1 = op2 && aux x1 x2 && aux y1 y2
-     | _, _ -> false
+     | _, _ -> true
     )
-  in
-  aux a b
 
 (* let height (s : Tg_ast.cell_data_shape) =
    let open Tg_ast in
