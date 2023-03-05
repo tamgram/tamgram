@@ -73,7 +73,27 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
   let rec aux ~allow_wildcard term =
     match term with
     | T_symbol (x, `Cell) -> check_name ~allow_wildcard:false x
-    | T_value _ | T_symbol _ -> Ok ()
+    | T_symbol _ -> Ok ()
+    | T_value x -> (
+      match Loc.content x with
+      | `T | `F -> Ok ()
+      | `Str s ->
+      if String.for_all (fun c ->
+        match c with
+        | '0'..'9'
+        | 'a'..'z'
+        | 'A'..'Z' -> true
+        | _ -> false
+    ) s
+      then
+        Ok ()
+      else
+    Error
+      (Error_msg.make (Loc.tag x)
+         (Fmt.str "Value \"%s\" contains invalid character"
+            s)
+      )
+    )
     | T_name_as (x, name) ->
       let* () = check_name ~allow_wildcard:false name in
       aux ~allow_wildcard x

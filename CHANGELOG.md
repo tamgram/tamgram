@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2
+
+- Simplified cell data shape analysis heavily to reduce false negatives
+
+- Added missing check for constants of the form `"..."`
+
 ## 0.4.1
 
 - Added special consideration for cell data shape when value is a number

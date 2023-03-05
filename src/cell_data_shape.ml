@@ -34,13 +34,13 @@ let is_number (a : Tg_ast.cell_data_shape)  =
 
 let compatible (a : Tg_ast.cell_data_shape) (b : Tg_ast.cell_data_shape) =
   let open Tg_ast in
-    (is_number a && is_number b)
-    ||
-    (match a, b with
-     | S_value v1, S_value v2 -> v1 = v2
-     | S_pub s1, S_pub s2 -> s1 = s2
-     | _, _ -> true
-    )
+  (is_number a && is_number b)
+  ||
+  (match a, b with
+   | S_value v1, S_value v2 -> v1 = v2
+   | S_pub s1, S_pub s2 -> s1 = s2
+   | _, _ -> true
+  )
 
 (* let height (s : Tg_ast.cell_data_shape) =
    let open Tg_ast in
