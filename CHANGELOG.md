@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+- Fixed constant string literal checking to allow `_`
+
 ## 0.4.2
 
 - Simplified cell data shape analysis heavily to reduce false negatives

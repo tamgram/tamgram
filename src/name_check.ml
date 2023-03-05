@@ -80,6 +80,7 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
         | `Str s ->
           if String.for_all (fun c ->
               match c with
+              | '_'
               | '0'..'9'
               | 'a'..'z'
               | 'A'..'Z' -> true
