@@ -146,7 +146,7 @@ let aux_proc
                          )
                     )
                     ([], [])
-                    macro.arg_and_typs args
+                    (List.map (Binding.map snd) macro.arg_and_typs) args
                 in
                 Proc.sub ~loc:(Path.loc path) ~cell_subs subs
                   macro.body

@@ -414,7 +414,7 @@ let aux_proc_macro
       CCList.fold_map
         (fun lexical_ctx x ->
            match Binding.get x with
-           | `Cell -> lexical_ctx, x
+           | (_, `Cell) -> lexical_ctx, x
            | _ ->
              let lexical_ctx, name =
                Lexical_ctx.add_local_name_str

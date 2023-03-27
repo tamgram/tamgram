@@ -201,7 +201,7 @@ let names_used_in_modul (modul : Tg_ast.modul) : Name_set.t =
         | D_process_macro binding ->
           let macro = Binding.get binding in
           let usage = names_used_in_proc macro.body in
-          check_args macro.arg_and_typs usage;
+          check_args (List.map (Binding.map snd) macro.arg_and_typs) usage;
           usage
         | D_fun _ | D_pred _ | D_ppred _
         | D_apred _ | D_papred _ | D_open _ | D_insert _ ->

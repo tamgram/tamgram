@@ -445,13 +445,13 @@ let check_proc_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.proc_macro Binding.
   let { arg_and_typs; body } : proc_macro = Binding.get binding in
   let typ_ctx' =
     Typ.Ctx.add_multi
-      (List.map (fun x -> (Binding.name x, Binding.get x)) arg_and_typs)
+      (List.map (fun x -> (Binding.name x, snd @@ Binding.get x)) arg_and_typs)
       typ_ctx
   in
   let+ () = check_proc typ_ctx' body in
   let name = Binding.name binding in
   Typ.Ctx.add name
-    (`Fun (List.map Binding.get arg_and_typs, `Process))
+    (`Fun (List.map (fun x -> snd @@ Binding.get x) arg_and_typs, `Process))
     typ_ctx
 
 let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :

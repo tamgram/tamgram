@@ -52,7 +52,7 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
     macro.arg_and_typs
     |> List.filter_map (fun binding ->
         match Binding.get binding with
-        | `Cell -> Some (Binding.name_str binding)
+        | (_, `Cell) -> Some (Binding.name_str binding)
         | _ -> None
       )
     |> String_tagged_set.of_list

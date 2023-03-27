@@ -82,6 +82,27 @@ let pp_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) pp_typ (Binding.get binding)
 
+let pp_macro_arg ?(only_prefix = false) (formatter : Format.formatter)
+    (binding : (Tg_ast.rw * Typ.term) Binding.t) : unit =
+  let (rw, typ) = Binding.get binding in
+  let prefix = prefix_of_typ typ in
+  let rw_str = match rw with
+    | `R -> ""
+    | `Rw -> "rw "
+  in
+  if only_prefix then
+    Fmt.pf formatter "%s%s%s%a"
+      rw_str
+      prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+  else
+    Fmt.pf formatter "%s%s%s%a : %a"
+      rw_str
+      prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding) pp_typ typ
+
 let pp_fact_anno formatter (x : Tg_ast.fact_anno option) : unit =
   match x with
   | None -> ()
@@ -342,7 +363,7 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "process %s%a(@[<h>%a@]) =@,  @[<v>%a@]"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-      Fmt.(list ~sep:comma pp_name_and_typ)
+      Fmt.(list ~sep:comma pp_macro_arg)
       macro.arg_and_typs
       pp_proc macro.body
   | D_let { binding } ->

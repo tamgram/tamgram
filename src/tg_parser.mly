@@ -93,6 +93,7 @@
 %token EQUATION
 %token <string Loc.tagged> BUILTIN
 %token BUILTINS
+%token RW
 
 %token NULL_PROC
 
@@ -210,11 +211,13 @@ name_and_typ:
 
 cell_or_name_and_typ:
   | SINGLE_QUOTE; name = NAME
-    { bind name `Cell }
+    { bind name (`R, `Cell) }
+  | RW; SINGLE_QUOTE; name = NAME
+    { bind name (`Rw, `Cell) }
   | name = NAME; COLON; typ = let_typ
-    { bind name typ }
+    { bind name (`R, typ) }
   | name = NAME
-    { bind name `Bitstring }
+    { bind name (`R, `Bitstring) }
 
 lvar:
   | name = NAME

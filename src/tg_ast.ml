@@ -132,6 +132,11 @@ type loop_mode = [
   | `Unconditional
 ]
 
+type rw = [
+  | `R
+  | `Rw
+]
+
 type proc =
   | P_null
   | P_let of {
@@ -156,7 +161,7 @@ type proc =
   | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
-  arg_and_typs : Typ.term Binding.t list;
+  arg_and_typs : (rw * Typ.term) Binding.t list;
   body : proc;
 }
 

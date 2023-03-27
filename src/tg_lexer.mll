@@ -86,6 +86,7 @@ rule read =
   (* | "goto"           { GOTO } *)
   | "equation"       { EQUATION }
   | "builtins"       { BUILTINS }
+  | "rw"             { RW }
 
   (* Typs *)
   (* | "cell"           { CELL }
