@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.5.0
+
+- Added keyword argument to process macro and term macro
+
+  - Usage for term macro:
+    ```
+    fun f (a:, b:) = <a, b>
+
+    process A =
+      []->[ Out(f(a:"1", b:"2")) ]
+    ```
+
+  - Usage for process macro:
+    ```
+    process f ('a:, b:) = []->[ Out(<'a, b>) ]
+
+    process A =
+      []->[ 'c := "1" ];
+      f('a:'c, b:"2")
+    ```
+
+- Added read write marker to cell input in process macro syntax
+  ```
+  process f(rw 'a, 'b) = []->[ Out(<'a>), 'a := 'b ]
+  ```
+
 ## 0.4.3
 
 - Fixed constant string literal checking to allow `_`
