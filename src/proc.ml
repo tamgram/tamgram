@@ -89,24 +89,43 @@ let sub
   in
   aux proc
 
-let cells_in_proc (proc : Tg_ast.proc) : String_tagged_set.t =
+let cells_in_proc (proc : Tg_ast.proc) : Tg_ast.rw String_tagged_map.t =
   let open Tg_ast in
-  let aux_rule_binding (binding : rule_binding) : String_tagged_set.t =
+  let union_cells_in_term (term : Tg_ast.term) (m : Tg_ast.rw String_tagged_map.t) =
+  in
+  let aux_rule_binding (binding : rule_binding) : Tg_ast.rw String_tagged_map.t =
+    let set =
     match binding with
     | R_let binding ->
       Term.cells_in_term (Binding.get binding)
     | R_let_macro { binding } ->
       Term.cells_in_term (Binding.get binding).body
+    in
+    String_tagged_set.to_seq set
+    |> Seq.map (fun x ->
+        (x, `R)
+        )
+    |> String_tagged_map.of_seq
   in
   let rec aux proc =
     match proc with
-    | P_null | P_break _ | P_continue _ -> String_tagged_set.empty
+    | P_null | P_break _ | P_continue _ -> String_tagged_map.empty
     | P_let { binding; next } ->
       let x = Binding.get binding in
-      String_tagged_set.union (Term.cells_in_term x) (aux next)
+      Term.cells_in_term x
+    |> String_tagged_set.to_seq
+    |> Seq.fold_left (fun m x ->
+        String_tagged_map.add x `R m
+        )
+      (aux next)
     | P_let_macro { binding; next } ->
       let ({ body; _ } : Tg_ast.macro) = Binding.get binding in
-      String_tagged_set.union (Term.cells_in_term body) (aux next)
+      Term.cells_in_term body
+      |> String_tagged_set.to_seq
+      |> Seq.fold_left (fun m x ->
+        String_tagged_map.add x `R m
+        )
+      (aux next)
     | P_app (_path, _name, l, next) ->
       String_tagged_set.union (Term.cells_in_terms l) (aux next)
     | P_line { tag = _; rule = { l; vars_in_l = _; bindings_before_a; a; bindings_before_r; r }; next } ->

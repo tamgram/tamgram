@@ -52,21 +52,35 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
     macro.arg_and_typs
     |> List.filter_map (fun binding ->
         match Binding.get binding with
-        | (_, `Cell) -> Some (Binding.name_str binding)
+        | (perm, `Cell) -> Some (Binding.name_str binding)
         | _ -> None
       )
-    |> String_tagged_set.of_list
+    |> String_map.of_list
   in
-  let cells = Proc.cells_in_proc macro.body in
-  if String_tagged_set.is_empty (String_tagged_set.diff cells cells_in_args) then
-    Ok ()
-  else
-    let x = String_tagged_set.min_elt cells in
-    Error
+  let cells_in_proc = Proc.cells_in_proc macro.body in
+  let rec aux s =
+    match s () with
+    | Seq.Nil -> Ok ()
+    | Seq.Cons ((rw, x), rest) -> (
+      match String_map.find_opt x cells_in_args with
+      | None ->
+          Error
       (Error_msg.make (Loc.tag x)
          (Fmt.str "Cannot use cells not named in arguments, e.g. '%s"
             (Loc.content x))
       )
+      | Some rw' ->
+        match rw, rw' with
+        | `Rw, `R ->
+          Error
+      (Error_msg.make (Loc.tag x)
+         (Fmt.str "Cell '%s was not marked as rw in arguments"
+            (Loc.content x))
+      )
+        | _, _ -> aux rest
+    )
+  in
+  aux (String_map.to_seq cells_in_proc)
 
 let check_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
   let open Tg_ast in
