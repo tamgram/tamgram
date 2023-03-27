@@ -320,38 +320,46 @@ let rec replace_cells_in_term (subs : (string * Tg_ast.term) list)
 and replace_cells_in_terms subs (terms : Tg_ast.term list) : Tg_ast.term list =
   List.map (replace_cells_in_term subs) terms
 
-let rec cells_in_term (term : Tg_ast.term) : String_tagged_set.t =
+let union_cell_rw m1 m2 =
+  String_tagged_map.union (fun _ x y ->
+      match x, y with
+      | `R, `Rw | `Rw, `R -> Some `Rw
+      | _ -> Some `R
+    )
+    m1 m2
+
+let rec cells_in_term (term : Tg_ast.term) : Tg_ast.rw String_tagged_map.t =
   let open Tg_ast in
   let rec aux term =
     match term with
-    | T_value _ -> String_tagged_set.empty
+    | T_value _ -> String_tagged_map.empty
     | T_symbol (name, sort) -> (
         match sort with
-        | `Cell -> String_tagged_set.(add name empty)
-        | _ -> String_tagged_set.empty)
+        | `Cell -> String_tagged_map.(add name `R empty)
+        | _ -> String_tagged_map.empty)
     | T_name_as (x, _) -> aux x
-    | T_var _ -> String_tagged_set.empty
+    | T_var _ -> String_tagged_map.empty
     | T_tuple (_, l) -> cells_in_terms l
     | T_app (_, _, args, _) -> cells_in_terms args
     | T_unary_op (_, x) -> aux x
-    | T_binary_op (_, x, y) -> String_tagged_set.union (aux x) (aux y)
-    | T_cell_pat_match (x, y) -> String_tagged_set.add x (aux y)
-    | T_cell_assign (x, y) -> String_tagged_set.add x (aux y)
+    | T_binary_op (_, x, y) -> union_cell_rw (aux x) (aux y)
+    | T_cell_pat_match (x, y) -> String_tagged_map.add x `R (aux y)
+    | T_cell_assign (x, y) -> String_tagged_map.add x `Rw (aux y)
     | T_let { binding; next; _ } ->
-      String_tagged_set.union (aux (Binding.get binding)) (aux next)
+      union_cell_rw (aux (Binding.get binding)) (aux next)
     | T_let_macro { binding; next; _ } ->
       let ({ body; _ } : Tg_ast.macro) = Binding.get binding in
-      String_tagged_set.union (aux body) (aux next)
+      union_cell_rw (aux body) (aux next)
     | T_action { fact; _ } -> aux fact
-    | T_temporal_a_lt_b _ | T_temporal_eq _ -> String_tagged_set.empty
+    | T_temporal_a_lt_b _ | T_temporal_eq _ -> String_tagged_map.empty
     | T_quantified { formula; _ } -> aux formula
   in
   aux term
 
-and cells_in_terms (terms : Tg_ast.term list) : String_tagged_set.t =
+and cells_in_terms (terms : Tg_ast.term list) : Tg_ast.rw String_tagged_map.t =
   List.fold_left
-    (fun acc x -> String_tagged_set.union acc (cells_in_term x))
-    String_tagged_set.empty terms
+    (fun acc x -> union_cell_rw acc (cells_in_term x))
+    String_tagged_map.empty terms
 
 let rec fill_in_default_typ_for_term ~default (term : Tg_ast.term) : Tg_ast.term
   =

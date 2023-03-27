@@ -10,7 +10,7 @@ let normalize_matches
     | _ ->
       let cell_free_matches', matches =
         List.partition (fun (_, t) ->
-            String_tagged_set.is_empty (Term.cells_in_term t))
+            String_tagged_map.is_empty (Term.cells_in_term t))
           matches
       in
       match cell_free_matches' with

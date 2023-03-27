@@ -2,9 +2,9 @@ open Result_let
 
 let check_term (x : Tg_ast.term) : (unit, Error_msg.t) result =
   let cells = Term.cells_in_term x in
-  if String_tagged_set.is_empty cells then Ok ()
+  if String_tagged_map.is_empty cells then Ok ()
   else
-    let x = String_tagged_set.min_elt cells in
+    let (x, _) = String_tagged_map.choose cells in
     Error
       (Error_msg.make
          (Loc.tag x)
@@ -52,35 +52,35 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
     macro.arg_and_typs
     |> List.filter_map (fun binding ->
         match Binding.get binding with
-        | (perm, `Cell) -> Some (Binding.name_str binding)
+        | (rw, `Cell) -> Some (Binding.name_str binding, rw)
         | _ -> None
       )
-    |> String_map.of_list
+    |> String_tagged_map.of_list
   in
   let cells_in_proc = Proc.cells_in_proc macro.body in
   let rec aux s =
     match s () with
     | Seq.Nil -> Ok ()
-    | Seq.Cons ((rw, x), rest) -> (
-      match String_map.find_opt x cells_in_args with
-      | None ->
+    | Seq.Cons ((x, rw), rest) -> (
+        match String_tagged_map.find_opt x cells_in_args with
+        | None ->
           Error
-      (Error_msg.make (Loc.tag x)
-         (Fmt.str "Cannot use cells not named in arguments, e.g. '%s"
-            (Loc.content x))
+            (Error_msg.make (Loc.tag x)
+               (Fmt.str "Cannot use cells not named in arguments, e.g. '%s"
+                  (Loc.content x))
+            )
+        | Some rw' ->
+          match rw, rw' with
+          | `Rw, `R ->
+            Error
+              (Error_msg.make (Loc.tag x)
+                 (Fmt.str "Cell '%s was not marked as rw in arguments"
+                    (Loc.content x))
+              )
+          | _, _ -> aux rest
       )
-      | Some rw' ->
-        match rw, rw' with
-        | `Rw, `R ->
-          Error
-      (Error_msg.make (Loc.tag x)
-         (Fmt.str "Cell '%s was not marked as rw in arguments"
-            (Loc.content x))
-      )
-        | _, _ -> aux rest
-    )
   in
-  aux (String_map.to_seq cells_in_proc)
+  aux (String_tagged_map.to_seq cells_in_proc)
 
 let check_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
   let open Tg_ast in
