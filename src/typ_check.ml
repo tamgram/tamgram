@@ -266,7 +266,9 @@ and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   let { arg_and_typs; ret_typ; body } = Binding.get binding in
   let typ_ctx' =
     Typ.Ctx.add_multi
-      (List.map (fun x -> (Binding.name x, Binding.get x)) arg_and_typs)
+      (List.map (fun x ->
+           let (_markers, typ) = Binding.get x in
+           (Binding.name x, typ)) arg_and_typs)
       typ_ctx
   in
   let* typ = typ_of_term typ_ctx' body in
@@ -274,7 +276,7 @@ and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   if typs_are_compatible ret_typ typ then
     Ok
       (Typ.Ctx.add name
-         (`Fun (List.map Binding.get arg_and_typs, ret_typ))
+         (`Fun (List.map (fun x -> snd @@ Binding.get x) arg_and_typs, ret_typ))
          typ_ctx)
   else
     Error

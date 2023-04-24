@@ -107,7 +107,7 @@ and check_let_macro_binding (binding : Tg_ast.macro Binding.t)
     (usage_next : Name_set.t) : Name_set.t =
   let macro = Binding.get binding in
   let usage_inner = names_used_in_term macro.body in
-  check_args macro.arg_and_typs usage_inner;
+  check_args (List.map (Binding.map snd) macro.arg_and_typs) usage_inner;
   check_name (Binding.name_str binding) (Binding.name binding) usage_next;
   let ge =
     match Binding.name binding with
@@ -213,7 +213,7 @@ let names_used_in_modul (modul : Tg_ast.modul) : Name_set.t =
         | D_macro { binding; _ } ->
           let macro = Binding.get binding in
           let usage = names_used_in_term macro.body in
-          check_args macro.arg_and_typs usage;
+          check_args (List.map (Binding.map snd) macro.arg_and_typs) usage;
           usage
         | D_lemma { binding; _ } ->
           names_used_in_term (Binding.get binding).formula
