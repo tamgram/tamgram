@@ -30,8 +30,12 @@ type value =
   | `F
   ]
 
+type macro_param_marker = [
+  | `Named
+]
+
 type macro = {
-  arg_and_typs : Typ.term Binding.t list;
+  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
   ret_typ : Typ.term;
   body : term;
 }
@@ -137,9 +141,9 @@ type rw = [
   | `Rw
 ]
 
-type macro_param_marker = [
+type proc_macro_param_marker = [
   | rw
-  | `Named
+  | macro_param_marker
 ]
 
 type proc =
@@ -166,7 +170,7 @@ type proc =
   | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
-  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
+  arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list;
   body : proc;
 }
 

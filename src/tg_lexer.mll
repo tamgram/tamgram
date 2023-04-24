@@ -87,6 +87,7 @@ rule read =
   | "equation"       { EQUATION }
   | "builtins"       { BUILTINS }
   | "rw"             { RW }
+  | "named"          { NAMED }
 
   (* Typs *)
   (* | "cell"           { CELL }

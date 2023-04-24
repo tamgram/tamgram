@@ -70,6 +70,50 @@ let prefix_of_typ (typ : Typ.term) : string =
   | `Fresh -> "~"
   | _ -> ""
 
+let pp_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
+    (binding : (Tg_ast.macro_param_marker list * Typ.term) Binding.t) : unit =
+  let (markers, typ) = Binding.get binding in
+  let named_str =
+    if List.mem `Named markers then
+      "named "
+    else
+      ""
+  in
+  let prefix = prefix_of_typ typ in
+  if only_prefix then
+    Fmt.pf formatter "%s%s%s%a" named_str prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+  else
+    Fmt.pf formatter "%s%s%s%a : %a" named_str prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding) pp_typ typ
+
+let pp_proc_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
+    (binding : (Tg_ast.proc_macro_param_marker list * Typ.term) Binding.t) : unit =
+  let (markers, typ) = Binding.get binding in
+  let named_str =
+    if List.mem `Named markers then
+      "named "
+    else
+      ""
+  in
+  let rw_str =
+    if List.mem `Rw markers then
+      "rw "
+    else
+      ""
+  in
+  let prefix = prefix_of_typ typ in
+  if only_prefix then
+    Fmt.pf formatter "%s%s%s%s%a" named_str rw_str prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+  else
+    Fmt.pf formatter "%s%s%s%s%a : %a" named_str rw_str prefix
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding) pp_typ typ
+
 let pp_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
     (binding : Typ.term Binding.t) : unit =
   let prefix = prefix_of_typ (Binding.get binding) in
@@ -82,35 +126,28 @@ let pp_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) pp_typ (Binding.get binding)
 
-let pp_macro_arg ?(only_prefix = false) (formatter : Format.formatter)
+(* let pp_macro_arg ?(only_prefix = false) (formatter : Format.formatter)
     (binding : (Tg_ast.macro_param_marker list * Typ.term) Binding.t) : unit =
-  let (markers, typ) = Binding.get binding in
-  let prefix = prefix_of_typ typ in
-  let marker_str =
+   let (markers, typ) = Binding.get binding in
+   let prefix = prefix_of_typ typ in
+   let marker_str =
     if List.mem `Named markers then
-  "named "
+   "named "
     else
       ""
-  in
-  let rw_str =
-    if List.mem `Rw markers then
-      "rw "
-    else
-      ""
-  in
-  if only_prefix then
-    Fmt.pf formatter "%s%s%s%s%a"
+   in
+   if only_prefix then
+    Fmt.pf formatter "%s%s%s%a"
       marker_str
-      rw_str
       prefix
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-  else
+   else
     Fmt.pf formatter "%s%s%s%a : %a"
-      rw_str
+      marker_str
       prefix
       (Binding.name_str_untagged binding)
-      pp_name_if_debug (Binding.name binding) pp_typ typ
+      pp_name_if_debug (Binding.name binding) pp_typ typ *)
 
 let pp_fact_anno formatter (x : Tg_ast.fact_anno option) : unit =
   match x with
@@ -190,7 +227,7 @@ let pp_term (formatter : Format.formatter) (x : Tg_ast.term) : unit =
       Fmt.pf formatter "let %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]@,in@,%a"
         (Binding.name_str_untagged binding)
         pp_name_if_debug (Binding.name binding)
-        Fmt.(list ~sep:comma pp_name_and_typ)
+        Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
         arg_and_typs pp_typ ret_typ aux body aux next
     | T_action { fact; temporal } ->
       Fmt.pf formatter "%a @@ %a%a" aux fact aux
@@ -237,7 +274,7 @@ let pp_rule_binding formatter (binding : Tg_ast.rule_binding) =
     Fmt.pf formatter "let %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]@,in@,"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-      Fmt.(list ~sep:comma pp_name_and_typ)
+      Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
       arg_and_typs pp_typ ret_typ pp_term body
 
 let pp_rule_bindings formatter bindings =
@@ -287,7 +324,7 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
       Fmt.pf formatter "let %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]@,in@,%a"
         (Binding.name_str_untagged binding)
         pp_name_if_debug (Binding.name binding)
-        Fmt.(list ~sep:comma pp_name_and_typ)
+        Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
         arg_and_typs pp_typ ret_typ pp_term body aux next
     | P_app (path, name, args, next) ->
       Fmt.pf formatter "%a%a(@[<h>%a@]);@,%a" pp_path path pp_name_if_debug name
@@ -372,7 +409,7 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "process %s%a(@[<h>%a@]) =@,  @[<v>%a@]"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-      Fmt.(list ~sep:comma pp_macro_arg)
+      Fmt.(list ~sep:comma pp_proc_macro_param_name_and_typ)
       macro.arg_and_typs
       pp_proc macro.body
   | D_let { binding } ->
@@ -406,7 +443,7 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "fun %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-      Fmt.(list ~sep:comma pp_name_and_typ)
+      Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
       arg_and_typs pp_typ ret_typ pp_term body
   | D_lemma { binding } ->
     let lemma = Binding.get binding in

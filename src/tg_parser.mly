@@ -2,7 +2,7 @@
   open Tg_ast
   open Syntax_error_exn
 
-  let macro (arg_and_typs : Typ.term Binding.t list) ret_typ body : Tg_ast.macro =
+  let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
     {
       arg_and_typs;
       ret_typ;
@@ -94,6 +94,7 @@
 %token <string Loc.tagged> BUILTIN
 %token BUILTINS
 %token RW
+%token NAMED
 
 %token NULL_PROC
 
@@ -204,16 +205,28 @@ let_typ:
   }
 
 name_and_typ:
+  | NAMED; name = NAME; COLON; typ = let_typ
+    { bind name ([`Named], typ) }
+  | NAMED; name = NAME
+    { bind name ([`Named], `Bitstring) }
   | name = NAME; COLON; typ = let_typ
-    { bind name typ }
+    { bind name ([], typ) }
   | name = NAME
-    { bind name `Bitstring }
+    { bind name ([], `Bitstring) }
 
 cell_or_name_and_typ:
+  | NAMED; SINGLE_QUOTE; name = NAME
+    { bind name ([`Named; `R], `Cell) }
   | SINGLE_QUOTE; name = NAME
     { bind name ([`R], `Cell) }
+  | NAMED; RW; SINGLE_QUOTE; name = NAME
+    { bind name ([`Named; `Rw], `Cell) }
   | RW; SINGLE_QUOTE; name = NAME
     { bind name ([`Rw], `Cell) }
+  | NAMED; name = NAME; COLON; typ = let_typ
+    { bind name ([`Named; `R], typ) }
+  | NAMED; name = NAME
+    { bind name ([`Named; `R], `Bitstring) }
   | name = NAME; COLON; typ = let_typ
     { bind name ([`R], typ) }
   | name = NAME

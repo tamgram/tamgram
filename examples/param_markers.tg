@@ -1,0 +1,14 @@
+fun f/1
+
+fun g(named a, named b) =
+  <f(a), b(a)>
+
+process A =
+  []->['a := g("2")];
+  "loop0": while 'a cas f(_) {
+    []->[ Out(<"while", 'a>) ];
+    []->[ 'a := f('a) ];
+    break "loop0"
+  };
+  []->[ Out(<"done", 'a>) ]
+

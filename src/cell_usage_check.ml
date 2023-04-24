@@ -70,16 +70,16 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
                   (Loc.content x))
             )
         | Some l -> (
-          if rw = `Rw && not (List.mem `Rw l) then
-            Error
-              (Error_msg.make (Loc.tag x)
-                 (Fmt.str "Cell '%s was not marked as rw in arguments"
-                    (Loc.content x))
-              )
-          else (
-            aux rest
+            if rw = `Rw && not (List.mem `Rw l) then
+              Error
+                (Error_msg.make (Loc.tag x)
+                   (Fmt.str "Cell '%s was not marked as rw in arguments"
+                      (Loc.content x))
+                )
+            else (
+              aux rest
+            )
           )
-        )
       )
   in
   aux (String_tagged_map.to_seq cells_in_proc)
