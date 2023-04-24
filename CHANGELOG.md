@@ -6,7 +6,7 @@
 
   - Usage for term macro:
     ```
-    fun f (a:, b:) = <a, b>
+    fun f (named a, named b) = <a, b>
 
     process A =
       []->[ Out(f(a:"1", b:"2")) ]
@@ -14,7 +14,7 @@
 
   - Usage for process macro:
     ```
-    process f ('a:, b:) = []->[ Out(<'a, b>) ]
+    process f (named 'a, named b) = []->[ Out(<'a, b>) ]
 
     process A =
       []->[ 'c := "1" ];
