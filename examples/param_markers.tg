@@ -1,10 +1,10 @@
 fun f/1
 
 fun g(named a, named b) =
-  <f(a), b(a)>
+  <f(a), f(b)>
 
 process A =
-  []->['a := g("2")];
+  []->['a := g("1", "2")];
   "loop0": while 'a cas f(_) {
     []->[ Out(<"while", 'a>) ];
     []->[ 'a := f('a) ];
