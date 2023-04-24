@@ -137,6 +137,11 @@ type rw = [
   | `Rw
 ]
 
+type macro_param_marker = [
+  | rw
+  | `Named
+]
+
 type proc =
   | P_null
   | P_let of {
@@ -161,7 +166,7 @@ type proc =
   | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
-  arg_and_typs : (rw * Typ.term) Binding.t list;
+  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
   body : proc;
 }
 

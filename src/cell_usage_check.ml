@@ -52,7 +52,7 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
     macro.arg_and_typs
     |> List.filter_map (fun binding ->
         match Binding.get binding with
-        | (rw, `Cell) -> Some (Binding.name_str binding, rw)
+        | (l, `Cell) -> Some (Binding.name_str binding, l)
         | _ -> None
       )
     |> String_tagged_map.of_list
@@ -69,15 +69,17 @@ let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
                (Fmt.str "Cannot use cells not named in arguments, e.g. '%s"
                   (Loc.content x))
             )
-        | Some rw' ->
-          match rw, rw' with
-          | `Rw, `R ->
+        | Some l -> (
+          if rw = `Rw && not (List.mem `Rw l) then
             Error
               (Error_msg.make (Loc.tag x)
                  (Fmt.str "Cell '%s was not marked as rw in arguments"
                     (Loc.content x))
               )
-          | _, _ -> aux rest
+          else (
+            aux rest
+          )
+        )
       )
   in
   aux (String_tagged_map.to_seq cells_in_proc)

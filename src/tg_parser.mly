@@ -211,13 +211,13 @@ name_and_typ:
 
 cell_or_name_and_typ:
   | SINGLE_QUOTE; name = NAME
-    { bind name (`R, `Cell) }
+    { bind name ([`R], `Cell) }
   | RW; SINGLE_QUOTE; name = NAME
-    { bind name (`Rw, `Cell) }
+    { bind name ([`Rw], `Cell) }
   | name = NAME; COLON; typ = let_typ
-    { bind name (`R, typ) }
+    { bind name ([`R], typ) }
   | name = NAME
-    { bind name (`R, `Bitstring) }
+    { bind name ([`R], `Bitstring) }
 
 lvar:
   | name = NAME

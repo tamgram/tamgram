@@ -83,15 +83,24 @@ let pp_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
       pp_name_if_debug (Binding.name binding) pp_typ (Binding.get binding)
 
 let pp_macro_arg ?(only_prefix = false) (formatter : Format.formatter)
-    (binding : (Tg_ast.rw * Typ.term) Binding.t) : unit =
-  let (rw, typ) = Binding.get binding in
+    (binding : (Tg_ast.macro_param_marker list * Typ.term) Binding.t) : unit =
+  let (markers, typ) = Binding.get binding in
   let prefix = prefix_of_typ typ in
-  let rw_str = match rw with
-    | `R -> ""
-    | `Rw -> "rw "
+  let marker_str =
+    if List.mem `Named markers then
+  "named "
+    else
+      ""
+  in
+  let rw_str =
+    if List.mem `Rw markers then
+      "rw "
+    else
+      ""
   in
   if only_prefix then
-    Fmt.pf formatter "%s%s%s%a"
+    Fmt.pf formatter "%s%s%s%s%a"
+      marker_str
       rw_str
       prefix
       (Binding.name_str_untagged binding)
