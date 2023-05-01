@@ -58,19 +58,59 @@
       )
       s0
 
+  type macro_arg = [
+    | `Unnamed of term
+    | `Named of string Loc.tagged * term
+  ]
+
   let sort_through_macro_args
-    (l : (string Loc.tagged option * term) list)
+    (l : macro_arg list)
   : (string * term) list * term list =
-    let rec aux named_acc acc l =
+    let rec aux named_acc acc (l : macro_arg list) =
       match l with
       | [] -> (List.rev named_acc, List.rev acc)
       | x :: xs -> (
         match x with
-        | (Some key, arg) -> aux ((key, arg) :: named_acc) acc l
-        | (None, arg) -> aux named_acc (arg :: acc) l
+        | `Named (key, arg) -> aux ((Loc.content key, arg) :: named_acc) acc l
+        | `Unnamed arg -> aux named_acc (arg :: acc) l
       )
     in
     aux [] [] l
+
+  type proc_macro_arg = [
+    | macro_arg
+    | `Named_cell of string Loc.tagged * term
+  ]
+
+  let sort_through_proc_macro_args
+    (l : proc_macro_arg list)
+  : (string * term) list * (string * term) list * term list =
+    let rec aux named_cell_acc named_acc acc l =
+      match l with
+      | [] -> (List.rev named_cell_acc, List.rev named_acc, List.rev acc)
+      | x :: xs -> (
+        match x with
+        | `Named_cell (key, arg) ->
+            aux
+              ((Loc.content key, arg) :: named_cell_acc)
+              named_acc
+              acc
+              l
+        | `Named (key, arg) ->
+            aux
+              named_cell_acc
+              ((Loc.content key, arg) :: named_acc)
+              acc
+              l
+        | `Unnamed arg ->
+            aux
+              named_cell_acc
+              named_acc
+              (arg :: acc)
+              l
+      )
+    in
+    aux [] [] [] l
 %}
 
 (* Keywords *)
@@ -263,14 +303,17 @@ cell:
     { name }
 
 linear_app:
-  | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
+  | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
     LEFT_SQR_BRACK; PLUS; RIGHT_SQR_BRACK;
-    { T_app (f, `Local 0, [], args, Some `Plus) }
-  | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
+    { let named_args, args = sort_through_macro_args args in
+      T_app (f, `Local 0, named_args, args, Some `Plus) }
+  | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
     LEFT_SQR_BRACK; MINUS; RIGHT_SQR_BRACK;
-    { T_app (f, `Local 0, [], args, Some `Minus) }
-  | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
-    { T_app (f, `Local 0, [], args, None) }
+    { let named_args, args = sort_through_macro_args args in
+      T_app (f, `Local 0, named_args, args, Some `Minus) }
+  | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
+    { let named_args, args = sort_through_macro_args args in
+      T_app (f, `Local 0, named_args, args, None) }
 
 fact_common:
   | EXCLAIM; x = linear_app;
@@ -371,11 +414,17 @@ term:
       }
     }
 
-maybe_named_macro_arg:
-  | key = cell; LEFT_ANGLE; MINUS; arg = cell
-    { (Some key, arg) }
+macro_arg:
   | key = NAME; LEFT_ANGLE; MINUS; arg = term
-    { (Some key, arg) }
+    { (`Named (key, arg) : macro_arg) }
+  | arg = term
+    { (`Unnamed arg : macro_arg) }
+
+proc_macro_arg:
+  | key = cell; LEFT_ANGLE; MINUS; arg = cell
+    { (`Named_cell (key, T_symbol (arg, `Cell)) : proc_macro_arg) }
+  | x = macro_arg
+    { x :> proc_macro_arg }
 
 lemma_attr:
   | s = NAME
