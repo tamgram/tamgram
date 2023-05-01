@@ -4,6 +4,7 @@
 
   let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
     {
+      named_arg_and_typs = [];
       arg_and_typs;
       ret_typ;
       body;
@@ -56,6 +57,20 @@
             raise (Syntax_error (Printf.sprintf "unrecognized lemma attribute: %s=%s" s0' s1'))
       )
       s0
+
+  let sort_through_macro_args
+    (l : (string Loc.tagged option * term) list)
+  : (string * term) list * term list =
+    let rec aux named_acc acc l =
+      match l with
+      | [] -> (List.rev named_acc, List.rev acc)
+      | x :: xs -> (
+        match x with
+        | (Some key, arg) -> aux ((key, arg) :: named_acc) acc l
+        | (None, arg) -> aux named_acc (arg :: acc) l
+      )
+    in
+    aux [] [] l
 %}
 
 (* Keywords *)
@@ -250,12 +265,12 @@ cell:
 linear_app:
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
     LEFT_SQR_BRACK; PLUS; RIGHT_SQR_BRACK;
-    { T_app (f, `Local 0, args, Some `Plus) }
+    { T_app (f, `Local 0, [], args, Some `Plus) }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
     LEFT_SQR_BRACK; MINUS; RIGHT_SQR_BRACK;
-    { T_app (f, `Local 0, args, Some `Minus) }
+    { T_app (f, `Local 0, [], args, Some `Minus) }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN;
-    { T_app (f, `Local 0, args, None) }
+    { T_app (f, `Local 0, [], args, None) }
 
 fact_common:
   | EXCLAIM; x = linear_app;
@@ -356,6 +371,12 @@ term:
       }
     }
 
+maybe_named_macro_arg:
+  | key = cell; LEFT_ANGLE; MINUS; arg = cell
+    { (Some key, arg) }
+  | key = NAME; LEFT_ANGLE; MINUS; arg = term
+    { (Some key, arg) }
+
 lemma_attr:
   | s = NAME
     { parse_lemma_attr s None }
@@ -412,7 +433,7 @@ decl:
   | PROCESS; name = NAME; EQ; body = proc
     { D_process { binding = bind name body } }
   | PROCESS; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, cell_or_name_and_typ); RIGHT_PAREN; EQ; body = proc
-    { D_process_macro (bind name { arg_and_typs; body }) }
+    { D_process_macro (bind name { named_arg_and_typs = []; arg_and_typs; body }) }
   | MODULE; name = NAME; EQ; LEFT_CUR_BRACK; m = modul; RIGHT_CUR_BRACK
     { D_modul (name, m) }
   | OPEN; path = path
@@ -480,9 +501,9 @@ proc:
   | LET; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN; COLON; ret_typ = macro_ret_typ; EQ; body = term; IN; next = proc
     { P_let_macro { binding = bind name (macro arg_and_typs ret_typ body); next} }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN; SEMICOLON; next = proc
-    { P_app (f, `Local 0, args, next) }
+    { P_app (f, `Local 0, [], args, next) }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN
-    { P_app (f, `Local 0, args, P_null) }
+    { P_app (f, `Local 0, [], args, P_null) }
   | tag = STRING; COLON; rule = rule; SEMICOLON; next = proc
     { P_line { tag = Some tag; rule; next } }
   | rule = rule; SEMICOLON; next = proc

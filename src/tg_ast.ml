@@ -35,6 +35,7 @@ type macro_param_marker = [
 ]
 
 type macro = {
+  named_arg_and_typs : (string * (macro_param_marker list * Typ.term) Binding.t) list;
   arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
   ret_typ : Typ.term;
   body : term;
@@ -50,7 +51,7 @@ and term =
   | T_symbol of string Loc.tagged * symbol_sort
   | T_var of Path.t * Name.t * Typ.term option
   | T_tuple of Loc.t option * term list
-  | T_app of Path.t * Name.t * term list * fact_anno option
+  | T_app of Path.t * Name.t * (string * term) list * term list * fact_anno option
   | T_unary_op of unary_op * term
   | T_binary_op of binary_op * term * term
   | T_cell_pat_match of string Loc.tagged * term
@@ -156,7 +157,7 @@ type proc =
       binding : macro Binding.t;
       next : proc;
     }
-  | P_app of Path.t * Name.t * term list * proc
+  | P_app of Path.t * Name.t * (string * term) list * term list * proc
   | P_line of {
       tag : string Loc.tagged option;
       rule : rule;
@@ -170,6 +171,7 @@ type proc =
   | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
+  named_arg_and_typs : (string * (proc_macro_param_marker list * Typ.term) Binding.t) list;
   arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list;
   body : proc;
 }
