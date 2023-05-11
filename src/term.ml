@@ -16,7 +16,15 @@ let replace_free_vars_via_name_strs_in_term (subs : (string * Tg_ast.term) list)
               | Some x -> x)
         | _ -> term)
     | T_tuple (loc, l) -> T_tuple (loc, aux_list bound l)
-    | T_app (path, name, args, anno) -> T_app (path, name, aux_list bound args, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args =
+        List.map (fun (s, arg) ->
+          (s, aux bound arg)
+          )
+        named_args
+      in
+      let args = aux_list bound args in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux bound x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux bound x, aux bound y)
     | T_cell_pat_match (x, y) -> T_cell_pat_match (x, aux bound y)
@@ -27,7 +35,7 @@ let replace_free_vars_via_name_strs_in_term (subs : (string * Tg_ast.term) list)
       let next = aux bound next in
       T_let { binding = Binding.update bound_to binding; next }
     | T_let_macro { binding; next } ->
-      let { arg_and_typs; ret_typ; body } = Binding.get binding in
+        let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
       let bound' =
         List.fold_left
           (fun acc x -> String_tagged_set.add (Binding.name_str x) acc)

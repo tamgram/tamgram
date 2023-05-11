@@ -11,7 +11,7 @@ type term =
   | `Formula
   | `Pat_match
   | `Statement
-  | `Fun of term list * term
+  | `Fun of (string * term) list * term list * term
   | `Process
   | `Subroutine of int * int
   | `Equation

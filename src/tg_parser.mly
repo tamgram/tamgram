@@ -550,9 +550,9 @@ proc:
   | LET; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN; COLON; ret_typ = macro_ret_typ; EQ; body = term; IN; next = proc
     { P_let_macro { binding = bind name (macro arg_and_typs ret_typ body); next} }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN; SEMICOLON; next = proc
-    { P_app (f, `Local 0, [], args, next) }
+    { P_app { path = f; name = `Local 0; named_args = []; args; next } }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN
-    { P_app (f, `Local 0, [], args, P_null) }
+    { P_app { path = f; name = `Local 0; named_args = []; args; next = P_null } }
   | tag = STRING; COLON; rule = rule; SEMICOLON; next = proc
     { P_line { tag = Some tag; rule; next } }
   | rule = rule; SEMICOLON; next = proc
