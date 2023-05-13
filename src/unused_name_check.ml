@@ -50,9 +50,11 @@ let rec names_used_in_term (term : Tg_ast.term) : Name_set.t =
     | T_name_as (x, _) -> aux x
     | T_var (_path, name, _typ) -> Name_set.(add name empty)
     | T_tuple (_, l) -> names_used_in_terms l
-    | T_app (_path, name, l, _) ->
-      let usage = names_used_in_terms l in
-      Name_set.add name usage
+    | T_app { name; named_args; args; _ } -> (
+      let usage0 = names_used_in_terms (List.map snd named_args) in
+      let usage1 = names_used_in_terms args in
+      Name_set.add name (Name_set.union usage0 usage1)
+    )
     | T_unary_op (_, x) -> aux x
     | T_binary_op (_, x, y) ->
       let x = aux x in

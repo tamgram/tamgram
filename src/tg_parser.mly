@@ -306,14 +306,14 @@ linear_app:
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
     LEFT_SQR_BRACK; PLUS; RIGHT_SQR_BRACK;
     { let named_args, args = sort_through_macro_args args in
-      T_app (f, `Local 0, named_args, args, Some `Plus) }
+      T_app { path = f; name = `Local 0; named_args; args; anno = Some `Plus } }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
     LEFT_SQR_BRACK; MINUS; RIGHT_SQR_BRACK;
     { let named_args, args = sort_through_macro_args args in
-      T_app (f, `Local 0, named_args, args, Some `Minus) }
+      T_app { path = f; name = `Local 0; named_args; args; anno = Some `Minus }  }
   | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN;
     { let named_args, args = sort_through_macro_args args in
-      T_app (f, `Local 0, named_args, args, None) }
+      T_app { path = f; name = `Local 0; named_args; args; anno = None } }
 
 fact_common:
   | EXCLAIM; x = linear_app;

@@ -13,7 +13,10 @@ let of_term (m : Tg_ast.cell_data_shape String_map.t) (t : Tg_ast.term) : Tg_ast
           S_var (Loc.content @@ List.hd path, name)
       )
     | T_tuple (_, l) -> S_tuple (List.map aux l)
-    | T_app (path, name, args, _) -> S_app (Loc.content @@ List.hd path, name, List.map aux args)
+    | T_app {path; name; named_args; args; _} -> (
+      assert (named_args = []);
+        S_app (Loc.content @@ List.hd path, name, List.map aux args)
+    )
     | T_unary_op (op, x) -> S_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> S_binary_op (op, aux x, aux y)
     | _ -> failwith "Unexpected case"

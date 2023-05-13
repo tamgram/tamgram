@@ -45,7 +45,7 @@ let replace_free_vars_via_name_strs_in_term (subs : (string * Tg_ast.term) list)
       let next = aux bound next in
       T_let_macro
         {
-          binding = Binding.update { arg_and_typs; ret_typ; body } binding;
+          binding = Binding.update { named_arg_and_typs; arg_and_typs; ret_typ; body } binding;
           next;
         }
     | T_action { fact; temporal } ->
@@ -84,7 +84,7 @@ let free_var_name_strs_in_term ?(ignore_name_as = false) (term : Tg_ast.term) :
           else String_tagged_set.(add x empty)
         | _ -> String_tagged_set.empty)
     | T_tuple (_, l) -> aux_list bound l
-    | T_app (_, _, args, _) -> aux_list bound args
+    | T_app { named_args; args; _ } -> aux_list bound (List.map snd named_args @ args)
     | T_unary_op (_, x) -> aux bound x
     | T_binary_op (_, x, y) ->
       let s1 = aux bound x in

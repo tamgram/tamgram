@@ -98,10 +98,12 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         add_cell_neq_restriction := true;
         Tg_ast.{
           empty_rule with
-          a = [T_app (Path.of_string Params.cell_neq_apred_name,
-                      `Local 0,
-                      [ T_symbol (cell, `Cell); term ],
-                      None)];
+          a = [T_app { path = Path.of_string Params.cell_neq_apred_name;
+                      name = `Local 0;
+                      named_args = [];
+                      args = [ T_symbol (cell, `Cell); term ];
+                      anno = None;
+                      } ];
         }
       )
     | _ -> (
@@ -109,10 +111,12 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         cell_pat_match_restrictions := Int_map.add id term !cell_pat_match_restrictions;
         Tg_ast.{
           empty_rule with
-          a = [T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
-                      `Local 0,
-                      [ T_symbol (cell, `Cell) ],
-                      None)];
+          a = [T_app { path = Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id);
+                      name = `Local 0;
+                      named_args = [];
+                      args = [ T_symbol (cell, `Cell) ];
+                      anno = None;
+        }];
         }
       )
   in

@@ -8,8 +8,8 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
       P_let { binding; next = aux next }
     | P_let_macro { binding; next } ->
       P_let_macro { binding; next = aux next }
-    | P_app (path, name, args, next) ->
-      P_app (path, name, args, aux next)
+    | P_app { path; name; named_args; args; next } ->
+      P_app { path; name; named_args; args; next = aux next }
     | P_line { tag; rule; next } -> P_line { tag; rule; next = aux next }
     | P_branch (loc, procs, next) -> P_branch (loc, procs, next)
     | P_scoped (proc, next) -> P_scoped (proc, aux next)
