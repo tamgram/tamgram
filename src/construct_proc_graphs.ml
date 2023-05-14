@@ -46,10 +46,12 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
                     formula =
                       T_binary_op (`Imp,
                                    T_action {
-                                     fact = T_app (Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id),
-                                                   `Local 0,
-                                                   [T_var (Path.of_string cell_var, cell_var_name, None)],
-                                                   None);
+                                     fact = T_app { path = Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id);
+                                                    name = `Local 0;
+                                                    named_args = [];
+                                                    args = [T_var (Path.of_string cell_var, cell_var_name, None)],
+                                                           anno = None;
+                                                  };
                                      temporal = (Loc.untagged temporal_var, temporal_var_name);
                                    },
                                    T_unary_op (`Not,
@@ -82,8 +84,12 @@ let add_restrictions (restrictions_required : Tg_graph.restrictions_required) (s
                                         formula =
                                           let x = T_var (Path.of_string x, x_name, None) in
                                           T_action {
-                                            fact = T_app ( Path.of_string Params.cell_neq_apred_name,
-                                                           `Local 0, [x; x], None);
+                                            fact = T_app { path = Path.of_string Params.cell_neq_apred_name,
+                                                                  name = `Local 0;
+                                                           named_args = [];
+                                                           args = [x; x];
+                                                           anno = None;
+                                                         };
                                             temporal = (Loc.untagged temporal_var, temporal_var_name);
                                           };
                                       }

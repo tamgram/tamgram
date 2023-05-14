@@ -52,8 +52,10 @@ let rewrite_symbol_names_in_term (term : Tg_ast.term) : Tg_ast.term =
     | T_value _ | T_symbol _ -> term
     | T_var (path, name, typ) -> T_var (rewrite_path path name, name, typ)
     | T_tuple (loc, l) -> T_tuple (loc, List.map aux l)
-    | T_app (path, name, args, anno) ->
-      T_app (rewrite_path path name, name, List.map aux args, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
+      let args = List.map aux args in
+      T_app { path = rewrite_path path name; name; named_args; args; anno }
     | T_unary_op (op, term) ->
       T_unary_op (op, aux term)
     | T_binary_op (op, x1, x2) ->

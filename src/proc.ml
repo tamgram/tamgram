@@ -27,8 +27,9 @@ let sub
     | R_let_macro { binding } ->
       R_let_macro {
         binding =
-          Binding.map (fun { arg_and_typs; ret_typ; body } ->
-              { arg_and_typs;
+          Binding.map (fun { named_arg_and_typs; arg_and_typs; ret_typ; body } ->
+              { named_arg_and_typs;
+                arg_and_typs;
                 ret_typ;
                 body = term_sub body;
               })
@@ -43,8 +44,9 @@ let sub
       P_let { binding; next = aux next }
     | P_let_macro { binding; next } ->
       let binding = Binding.map
-          (fun { arg_and_typs; ret_typ; body } ->
-             { arg_and_typs;
+          (fun { named_arg_and_typs; arg_and_typs; ret_typ; body } ->
+             { named_arg_and_typs;
+               arg_and_typs;
                ret_typ;
                body = term_sub body;
              })
@@ -54,8 +56,10 @@ let sub
         binding;
         next = aux next;
       }
-    | P_app (path, name, l, next) ->
-      P_app (path, name, List.map term_sub l, aux next)
+    | P_app {path; name; named_args; args; next } ->
+      let named_args = List.map (fun (s, x) -> (s, term_sub x)) named_args in
+      let args = List.map term_sub args in
+      P_app {path; name; named_args; args; next = aux next }
     | P_line { tag; rule = { l; vars_in_l; bindings_before_a; a; bindings_before_r; r }; next } ->
       P_line
         { tag;
@@ -108,8 +112,13 @@ let cells_in_proc (proc : Tg_ast.proc) : Tg_ast.rw String_tagged_map.t =
     | P_let_macro { binding; next } ->
       let ({ body; _ } : Tg_ast.macro) = Binding.get binding in
       Term.union_cell_rw (Term.cells_in_term body) (aux next)
-    | P_app (_path, _name, l, next) ->
-      Term.union_cell_rw (Term.cells_in_terms l) (aux next)
+    | P_app { named_args; args; next; _ } ->
+      Term.union_cell_rw
+        (Term.union_cell_rw
+           (Term.cells_in_terms (List.map snd named_args))
+           (Term.cells_in_terms args)
+        )
+        (aux next)
     | P_line { tag = _; rule = { l; vars_in_l = _; bindings_before_a; a; bindings_before_r; r }; next } ->
       List.fold_left Term.union_cell_rw String_tagged_map.empty
         [

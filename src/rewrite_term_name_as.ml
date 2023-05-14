@@ -27,9 +27,11 @@ let rec rewrite_term free_vars (term : Tg_ast.term) :
     | T_tuple (loc, l) ->
       let+ l, bindings = rewrite_terms free_vars l in
       (T_tuple (loc, l), bindings)
-    | T_app (path, name, args, anno) ->
-      let+ args, bindings = rewrite_terms free_vars args in
-      (T_app (path, name, args, anno), bindings)
+    | T_app { path; name; named_args; args; anno } ->
+      let* named_args, bindings0 = rewrite_named_args free_vars named_args in
+      let+ args, bindings1 = rewrite_terms free_vars args in
+      let bindings = String_tagged_map.union (fun _ _ x -> Some x) bindings0 bindings1 in
+      (T_app { path; name; named_args; args; anno }, bindings)
     | T_unary_op (op, x) ->
       let+ x, bindings = aux x in
       (T_unary_op (op, x), bindings)
@@ -58,6 +60,11 @@ let rec rewrite_term free_vars (term : Tg_ast.term) :
       failwith "Unexpected case"
   in
   aux term
+
+and rewrite_named_args free_vars (named_args : (string * Tg_ast.term) list) =
+  let names, args = List.split named_args in
+  let+ args, bindings = rewrite_terms free_vars args in
+  (List.combine names args, bindings)
 
 and rewrite_terms free_vars (terms : Tg_ast.term list) :
   (Tg_ast.term list * Tg_ast.term String_tagged_map.t, Error_msg.t) result =
@@ -98,9 +105,9 @@ let rewrite_proc (proc : Tg_ast.proc) : (Tg_ast.proc, Error_msg.t) result =
     | P_let_macro { binding; next } ->
       let+ next = aux next in
       P_let_macro { binding; next }
-    | P_app (path, name, args, next) ->
+    | P_app { path; name; named_args; args; next } ->
       let+ next = aux next in
-      P_app (path, name, args, next)
+      P_app { path; name; named_args; args; next }
     | P_line { tag; rule; next } ->
       let* next = aux next in
       let+ rule = rewrite_rule rule in

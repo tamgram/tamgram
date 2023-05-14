@@ -17,19 +17,25 @@ let l_and_cell_subs_of_rule (roots : Int_set.t) (k : int) (binding : Tg_ast.proc
   if Int_set.mem k roots then
     (l, cell_subs)
   else
-    (T_app (Path.of_string "St", `Global 0,
-            [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-             T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)));
-            ],
-            None)
+    (T_app { path = Path.of_string "St";
+             name = `Global 0;
+             named_args = [];
+             args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                     T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)));
+                    ];
+             anno = None;
+           }
      ::
      List.map (fun c ->
-         T_app (Path.of_string "Cell", `Global 0,
-                [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                 T_value (Loc.untagged (`Str c));
-                 List.assoc c cell_subs;
-                ],
-                None)
+         T_app { path = Path.of_string "Cell";
+                 name = `Global 0;
+                 named_args = [];
+                 args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                         T_value (Loc.untagged (`Str c));
+                         List.assoc c cell_subs;
+                        ];
+                 anno = None;
+               }
        )
        required_cells
      @
@@ -70,23 +76,28 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
       in
       let facts_for_leftover_cells =
         List.map (fun c ->
-            T_app (Path.of_string "Cell", `Global 0,
-                   [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                     T_value (Loc.untagged (`Str c));
-                     List.assoc c cell_subs;
-                   ],
-                   None
-                  )
+            T_app { path = Path.of_string "Cell";
+                    name = `Global 0;
+                    named_args = [];
+                    args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                             T_value (Loc.untagged (`Str c));
+                             List.assoc c cell_subs;
+                           ];
+                    anno = None;
+                  }
           ) leftover_cells
       in
       let facts_for_assigns =
         List.map (fun (c, x) ->
-            T_app (Path.of_string "Cell", `Global 0,
-                   [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                    T_value (Loc.untagged (`Str c));
-                    x;
-                   ],
-                   None)
+            T_app { path = Path.of_string "Cell";
+                    name = `Global 0;
+                    named_args = [];
+                    args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                            T_value (Loc.untagged (`Str c));
+                            x;
+                           ];
+                    anno = None;
+                  }
           )
           assigns
       in
@@ -102,12 +113,15 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
               a;
               bindings_before_r = [];
               r =
-                T_app (Path.of_string "St", `Global 0,
-                       [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                        T_value (Loc.untagged
-                                   (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')));
-                       ],
-                       None)
+                T_app { path = Path.of_string "St";
+                        name = `Global 0;
+                        named_args = [];
+                        args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                                T_value (Loc.untagged
+                                           (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')));
+                               ];
+                        anno = None;
+                      }
                 ::
                 List.flatten [
                   facts_for_leftover_cells;

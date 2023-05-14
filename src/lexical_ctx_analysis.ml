@@ -47,14 +47,17 @@ let rec aux_term
         aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func l
       in
       T_tuple (loc, l)
-    | T_app (path, _, l, anno) ->
+    | T_app { path; named_args; args; anno; _ } ->
       let** name =
         Lexical_ctx.resolve_name path lexical_ctx_for_func
       in
-      let+ l =
-        aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func l
+      let* named_args =
+        aux_named_args ~lexical_ctx_for_var ~lexical_ctx_for_func named_args
       in
-      T_app (path, name, l, anno)
+      let+ args =
+        aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func args
+      in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) ->
       let+ x =
         aux ~lexical_ctx_for_var ~lexical_ctx_for_func x
@@ -155,6 +158,11 @@ and aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func terms =
   in
   aux [] ~lexical_ctx_for_var ~lexical_ctx_for_func terms
 
+and aux_named_args ~lexical_ctx_for_var ~lexical_ctx_for_func named_args =
+  let names, args = List.split named_args in
+  let+ args = aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func args in
+  List.combine names args
+
 and aux_macro
     ~lexical_ctx_for_var
     ~lexical_ctx_for_func
@@ -164,10 +172,21 @@ and aux_macro
       result
   =
   let open Tg_ast in
-  let { arg_and_typs; ret_typ; body } = Binding.get binding in
+  let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
   match check_for_dup_args (List.map Binding.name_str arg_and_typs) with
   | Error msg -> Error (msg, None)
   | Ok () ->
+    let lexical_ctx_for_var, named_arg_and_typs =
+      CCList.fold_map
+        (fun lexical_ctx x ->
+           let lexical_ctx, name =
+             Lexical_ctx.add_local_name_str
+               (Binding.name_str_untagged x)
+               lexical_ctx
+           in
+           (lexical_ctx, Binding.update_name name x))
+        lexical_ctx_for_var named_arg_and_typs
+    in
     let lexical_ctx_for_var, arg_and_typs =
       CCList.fold_map
         (fun lexical_ctx x ->
@@ -182,7 +201,7 @@ and aux_macro
     let+ body =
       aux_term ~lexical_ctx_for_var ~lexical_ctx_for_func body
     in
-    Binding.update { arg_and_typs; ret_typ; body } binding
+    Binding.update { named_arg_and_typs; arg_and_typs; ret_typ; body } binding
 
 let aux_rule_bindings
     ~(lexical_ctx_for_var : Lexical_ctx.t)
@@ -304,15 +323,18 @@ let aux_proc
       let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
       P_let_macro
         { binding = Binding.update_name name binding; next }
-    | P_app (path, _, l, next) ->
+    | P_app { path; named_args; args; next } ->
       let** name = Lexical_ctx.resolve_name path lexical_ctx_for_func in
-      let* l =
-        aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func l
+      let* named_args =
+        aux_named_args ~lexical_ctx_for_var ~lexical_ctx_for_func named_args
+      in
+      let* args =
+        aux_terms ~lexical_ctx_for_var ~lexical_ctx_for_func args
       in
       let+ next =
         aux ~lexical_ctx_for_var ~lexical_ctx_for_func next
       in
-      P_app (path, name, l, next)
+      P_app { path; name; named_args; args; next }
     | P_line { tag; rule; next } ->
       let* rule =
         aux_rule ~lexical_ctx_for_var ~lexical_ctx_for_func rule
@@ -406,10 +428,24 @@ let aux_proc_macro
       Error_msg.t * Lexical_ctx.name_resolution_error option )
       result =
   let open Tg_ast in
-  let { arg_and_typs; body } : proc_macro = Binding.get binding in
+  let { named_arg_and_typs; arg_and_typs; body } : proc_macro = Binding.get binding in
   match check_for_dup_args (List.map Binding.name_str arg_and_typs) with
   | Error msg -> Error (msg, None)
   | Ok () ->
+    let lexical_ctx_for_var, named_arg_and_typs =
+      CCList.fold_map
+        (fun lexical_ctx x ->
+           match Binding.get x with
+           | (_, `Cell) -> lexical_ctx, x
+           | _ ->
+             let lexical_ctx, name =
+               Lexical_ctx.add_local_name_str
+                 (Binding.name_str_untagged x)
+                 lexical_ctx
+             in
+             (lexical_ctx, Binding.update_name name x))
+        lexical_ctx_for_var named_arg_and_typs
+    in
     let lexical_ctx_for_var, arg_and_typs =
       CCList.fold_map
         (fun lexical_ctx x ->
@@ -427,7 +463,7 @@ let aux_proc_macro
     let+ body =
       aux_proc ~lexical_ctx_for_var ~lexical_ctx_for_func body
     in
-    Binding.update { arg_and_typs; body } binding
+    Binding.update { named_arg_and_typs; arg_and_typs; body } binding
 
 let aux_modul
     ~(lexical_ctx_for_var : Lexical_ctx.t)

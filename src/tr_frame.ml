@@ -37,23 +37,29 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
         if Int_set.mem k roots then
           l
         else
-          T_app (Path.of_string "St", `Global 0,
-                 [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-                 ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-                 ; T_tuple (None, frame_l)
-                 ],
-                 None)
+          T_app { path = Path.of_string "St";
+                  name = `Global 0;
+                  named_args = [];
+                  args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                         ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                         ; T_tuple (None, frame_l)
+                         ];
+                  anno = None;
+                }
           ::
           l
       in
       let r =
-        T_app (Path.of_string "St", `Global 0,
-               [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-               ; T_value (Loc.untagged
-                            (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')))
-               ; T_tuple (None, frame_r)
-               ],
-               None)
+        T_app { path = Path.of_string "St";
+                name = `Global 0;
+                named_args = [];
+                args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                       ; T_value (Loc.untagged
+                                    (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')))
+                       ; T_tuple (None, frame_r)
+                       ];
+                anno = None;
+              }
         ::
         r
       in
@@ -96,12 +102,15 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
         |> List.of_seq
       in
       let l =
-        T_app (Path.of_string "St", `Global 0,
-               [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-               ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-               ; T_tuple (None, frame_l)
-               ],
-               None)
+        T_app { path = Path.of_string "St";
+                name = `Global 0;
+                named_args = [];
+                args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                       ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                       ; T_tuple (None, frame_l)
+                       ];
+                anno = None;
+              }
         ::
         l
       in
