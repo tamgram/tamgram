@@ -18,7 +18,10 @@ let rec check_term_either_constant_or_wildcard (term : Tg_ast.term)
         | _ -> Error (Error_msg.make (Path.loc path) msg)
       )
     | T_tuple (_, l) -> check_terms_either_constant_or_wildcard l
-    | T_app (_, _, l, _) -> check_terms_either_constant_or_wildcard l
+    | T_app { named_args; args; _ } -> (
+        let* () = check_terms_either_constant_or_wildcard (List.map snd named_args) in
+        check_terms_either_constant_or_wildcard args
+      )
     | _ -> Error (Error_msg.make (Term.loc term) "Only constants, wildcards, cells, tuples, and function applications can be used here")
   in
   aux term
@@ -85,7 +88,11 @@ let rec check_term ~allow_path_to_var ~(allow_let_binding : bool)
     | T_tuple (_, l) ->
       check_terms ~allow_path_to_var ~allow_let_binding ~allow_cell_pat_match
         ~allow_name_as l
-    | T_app (_, _, args, _) ->
+    | T_app { named_args; args; _ } ->
+      let* () =
+        check_terms ~allow_path_to_var ~allow_let_binding ~allow_cell_pat_match
+          ~allow_name_as (List.map snd named_args)
+      in
       check_terms ~allow_path_to_var ~allow_let_binding ~allow_cell_pat_match
         ~allow_name_as args
     | T_let { binding; next; _ } ->
@@ -184,7 +191,10 @@ let rec check_typ_annotations_of_term (term : Tg_ast.term) :
         | [ x ] -> Ok String_tagged_map.(add x typ empty)
         | _ -> failwith "Unexpected case")
     | T_tuple (_, l) -> check_typ_annotations_of_terms l
-    | T_app (_, _, args, _) -> check_typ_annotations_of_terms args
+    | T_app { named_args; args; _ } ->
+      let* m0 = check_typ_annotations_of_terms (List.map snd named_args) in
+      let+ m1 = check_typ_annotations_of_terms args in
+      String_tagged_map.union (fun _k v _ -> Some v) m0 m1
     | T_unary_op (_, x) -> aux x
     | T_binary_op (_, x, y) ->
       let* x = aux x in
@@ -269,7 +279,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
           (Binding.get binding).body
       in
       aux next
-    | P_app (_path, _name, _args, next) ->
+    | P_app { next; _ } ->
       aux next
     | P_line { tag = _; rule; next } ->
       let* () = check_rule rule in

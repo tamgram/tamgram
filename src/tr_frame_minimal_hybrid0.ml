@@ -31,13 +31,16 @@ let exit_fact_to_empty_rule (spec : Spec.t) g (k : int) ~empty_rule : Tg_ast.ter
       )
     |> List.of_seq
   in
-  T_app (Path.of_string "St", `Global 0,
-         [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-         ; T_value (Loc.untagged (`Str
-                                    (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix empty_rule)))
-         ; T_tuple (None, frame)
-         ],
-         None)
+  T_app { path = Path.of_string "St";
+          name = `Global 0;
+          named_args = [];
+          args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                 ; T_value (Loc.untagged (`Str
+                                            (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix empty_rule)))
+                 ; T_tuple (None, frame)
+                 ];
+          anno = None;
+        }
 
 let entry_fact_from_empty_rule (spec : Spec.t) g (k : int) ~empty_rule : Tg_ast.term =
   let ctx_r =
@@ -51,13 +54,16 @@ let entry_fact_from_empty_rule (spec : Spec.t) g (k : int) ~empty_rule : Tg_ast.
       )
     |> List.of_seq
   in
-  T_app (Path.of_string "St", `Global 0,
-         [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-         ; T_value (Loc.untagged (`Str
-                                    (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix empty_rule)))
-         ; T_tuple (None, frame)
-         ],
-         None)
+  T_app { path = Path.of_string "St";
+          name = `Global 0;
+          named_args = [];
+          args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                 ; T_value (Loc.untagged (`Str
+                                            (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix empty_rule)))
+                 ; T_tuple (None, frame)
+                 ];
+          anno = None;
+        }
 
 module Forward_biased = struct
   let entry_fact (spec : Spec.t) g (k : int) : Tg_ast.term =
@@ -72,12 +78,15 @@ module Forward_biased = struct
         )
       |> List.of_seq
     in
-    T_app (Path.of_string "StF", `Global 0,
-           [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-           ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-           ; T_tuple (None, frame_l)
-           ],
-           None)
+    T_app { path = Path.of_string "StF";
+            name = `Global 0;
+            named_args = [];
+            args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                   ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                   ; T_tuple (None, frame_l)
+                   ];
+            anno = None;
+          }
 
   let exit_fact (spec : Spec.t) (g : Tg_graph.t) (k : int) ~succ : Tg_ast.term =
     let ru = Graph.find k g in
@@ -95,12 +104,15 @@ module Forward_biased = struct
         )
       |> List.of_seq
     in
-    T_app (Path.of_string "StF", `Global 0,
-           [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-           ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix succ)))
-           ; T_tuple (None, frame_r)
-           ],
-           None)
+    T_app { path = Path.of_string "StF";
+            name = `Global 0;
+            named_args = [];
+            args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                   ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix succ)))
+                   ; T_tuple (None, frame_r)
+                   ];
+            anno = None;
+          }
 end
 
 module Backward_biased = struct
@@ -116,12 +128,15 @@ module Backward_biased = struct
         )
       |> List.of_seq
     in
-    T_app (Path.of_string "StB", `Global 0,
-           [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-           ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix pred)))
-           ; T_tuple (None, frame_l)
-           ],
-           None)
+    T_app { path = Path.of_string "StB";
+            name = `Global 0;
+            named_args = [];
+            args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                   ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix pred)))
+                   ; T_tuple (None, frame_l)
+                   ];
+            anno = None;
+          }
 
   let exit_fact (spec : Spec.t) (g : Tg_graph.t) (k : int) : Tg_ast.term =
     let ru = Graph.find k g in
@@ -139,12 +154,15 @@ module Backward_biased = struct
         )
       |> List.of_seq
     in
-    T_app (Path.of_string "StB", `Global 0,
-           [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-           ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-           ; T_tuple (None, frame_r)
-           ],
-           None)
+    T_app { path = Path.of_string "StB";
+            name = `Global 0;
+            named_args = [];
+            args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                   ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                   ; T_tuple (None, frame_r)
+                   ];
+            anno = None;
+          }
 end
 
 let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =

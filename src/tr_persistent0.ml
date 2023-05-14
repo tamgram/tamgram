@@ -50,17 +50,20 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
               let ptr = pcell_ptr_of_cell c in
               T_unary_op (
                 `Persist,
-                T_app (Path.of_string "Pcell", `Global 0,
-                       [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                         T_var (Path.of_string ptr, `Global 0, Some `Fresh);
-                         T_value (Loc.untagged (`Str c));
-                         (match List.assoc_opt c cell_subs with
-                          | None -> 
-                            T_value (Loc.untagged (`Str "NULL"))
-                          | Some x -> x
-                         );
-                       ],
-                       None)
+                T_app { path = Path.of_string "Pcell";
+                        name = `Global 0;
+                        named_args = [];
+                        args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                                 T_var (Path.of_string ptr, `Global 0, Some `Fresh);
+                                 T_value (Loc.untagged (`Str c));
+                                 (match List.assoc_opt c cell_subs with
+                                  | None -> 
+                                    T_value (Loc.untagged (`Str "NULL"))
+                                  | Some x -> x
+                                 );
+                               ];
+                        anno = None;
+                      }
               )
             )
             (Seq.append cells_required cells_defined)
@@ -72,17 +75,18 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
         if String_tagged_set.is_empty cells_defined_set then
           Seq.empty
         else
-          Seq.return (T_app (Path.of_string "Fr",
-                             `Global 0,
-                             [
-                               T_var 
-                                 ( Path.of_string pcell_ptr_new,
-                                   `Global 0,
-                                   Some `Fresh
-                                 )
-                             ],
-                             None
-                            )
+          Seq.return (T_app { path = Path.of_string "Fr";
+                              name = `Global 0;
+                              named_args = [];
+                              args = [
+                                T_var 
+                                  ( Path.of_string pcell_ptr_new,
+                                    `Global 0,
+                                    Some `Fresh
+                                  )
+                              ];
+                              anno = None;
+                            }
                      )
       in
       let a_facts_for_reads =
@@ -91,12 +95,15 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
         else
           Seq.map (fun c ->
               let ptr = pcell_ptr_of_cell c in
-              T_app (Path.of_string Params.pcell_read_apred_name, `Global 0,
-                     [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                      T_var (Path.of_string ptr, `Global 0, Some `Fresh);
-                      T_value (Loc.untagged (`Str c));
-                     ],
-                     None)
+              T_app { path = Path.of_string Params.pcell_read_apred_name;
+                      name = `Global 0;
+                      named_args = [];
+                      args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                              T_var (Path.of_string ptr, `Global 0, Some `Fresh);
+                              T_value (Loc.untagged (`Str c));
+                             ];
+                      anno = None;
+                    }
             )
             cells_required
       in
@@ -106,12 +113,15 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
         else
           Seq.map (fun c ->
               let ptr = pcell_ptr_of_cell c in
-              T_app (Path.of_string Params.pcell_freed_apred_name, `Global 0,
-                     [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                      T_var (Path.of_string ptr, `Global 0, Some `Fresh);
-                      T_value (Loc.untagged (`Str c));
-                     ],
-                     None)
+              T_app { path = Path.of_string Params.pcell_freed_apred_name;
+                      name = `Global 0;
+                      named_args = [];
+                      args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                              T_var (Path.of_string ptr, `Global 0, Some `Fresh);
+                              T_value (Loc.untagged (`Str c));
+                             ];
+                      anno = None;
+                    }
             )
             cells_defined
       in
@@ -122,26 +132,32 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
           |> Seq.map (fun c ->
               T_unary_op (
                 `Persist,
-                T_app (Path.of_string "Pcell", `Global 0,
-                       [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                         T_var (Path.of_string pcell_ptr_new, `Global 0, Some `Fresh);
-                         T_value (Loc.untagged (`Str c));
-                         T_value (Loc.untagged (`Str "NULL"));
-                       ],
-                       None)
+                T_app { path = Path.of_string "Pcell";
+                        name = `Global 0;
+                        named_args = [];
+                        args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                                 T_var (Path.of_string pcell_ptr_new, `Global 0, Some `Fresh);
+                                 T_value (Loc.untagged (`Str c));
+                                 T_value (Loc.untagged (`Str "NULL"));
+                               ];
+                        anno = None;
+                      }
               )
             )
         else
           Seq.map (fun (c, x) ->
               T_unary_op (
                 `Persist,
-                T_app (Path.of_string "Pcell", `Global 0,
-                       [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                        T_var (Path.of_string pcell_ptr_new, `Global 0, Some `Fresh);
-                        T_value (Loc.untagged (`Str c));
-                        x;
-                       ],
-                       None)
+                T_app { path = Path.of_string "Pcell";
+                        name = `Global 0;
+                        named_args = [];
+                        args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                                T_var (Path.of_string pcell_ptr_new, `Global 0, Some `Fresh);
+                                T_value (Loc.untagged (`Str c));
+                                x;
+                               ];
+                        anno = None;
+                      }
               )
             )
             (List.to_seq assigns)
@@ -151,11 +167,14 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
           Seq.empty
         else
           Seq.return
-            (T_app (Path.of_string "St", `Global 0,
-                    [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-                    ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-                    ],
-                    None))
+            (T_app { path = Path.of_string "St";
+                     name = `Global 0;
+                     named_args = [];
+                     args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                            ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                            ];
+                     anno = None;
+                   })
       in
       let l = Seq.concat (List.to_seq [
           l_st;
@@ -172,11 +191,14 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
       in
       let r_st =
         Seq.return
-          (T_app (Path.of_string "St", `Global 0,
-                  [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-                  ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')))
-                  ],
-                  None))
+          (T_app { path = Path.of_string "St";
+                   name = `Global 0;
+                   named_args = [];
+                   args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                          ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k')))
+                          ];
+                   anno = None;
+                 })
       in
       let r = Seq.concat (List.to_seq [
           r_st;
@@ -220,24 +242,30 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
       in
       let l_st =
         Seq.return
-          (T_app (Path.of_string "St", `Global 0,
-                  [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
-                  ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
-                  ],
-                  None))
+          (T_app { path = Path.of_string "St";
+                   name = `Global 0;
+                   named_args = [];
+                   args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh)
+                          ; T_value (Loc.untagged (`Str (Printf.sprintf "%s%d" Params.graph_vertex_label_prefix k)))
+                          ];
+                   anno = None;
+                 })
       in
       let l_facts_for_reads =
         Seq.map (fun c ->
             let ptr = pcell_ptr_of_cell c in
             T_unary_op (
               `Persist,
-              T_app (Path.of_string "Pcell", `Global 0,
-                     [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                       T_var (Path.of_string ptr, `Global 0, Some `Fresh);
-                       T_value (Loc.untagged (`Str c));
-                       List.assoc c cell_subs
-                     ],
-                     None)
+              T_app { path = Path.of_string "Pcell";
+                      name =`Global 0;
+                      named_args = [];
+                      args = [ T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                               T_var (Path.of_string ptr, `Global 0, Some `Fresh);
+                               T_value (Loc.untagged (`Str c));
+                               List.assoc c cell_subs
+                             ];
+                      anno = None;
+                    }
             )
           )
           cells_required
@@ -245,12 +273,15 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
       let a_facts_for_reads =
         Seq.map (fun c ->
             let ptr = pcell_ptr_of_cell c in
-            T_app (Path.of_string Params.pcell_read_apred_name, `Global 0,
-                   [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
-                    T_var (Path.of_string ptr, `Global 0, Some `Fresh);
-                    T_value (Loc.untagged (`Str c));
-                   ],
-                   None)
+            T_app { path = Path.of_string Params.pcell_read_apred_name;
+                    name = `Global 0;
+                    named_args = [];
+                    args = [T_var (Path.of_string "pid", `Global 0, Some `Fresh);
+                            T_var (Path.of_string ptr, `Global 0, Some `Fresh);
+                            T_value (Loc.untagged (`Str c));
+                           ];
+                    anno = None;
+                  }
           )
           cells_required
       in
@@ -298,25 +329,27 @@ let restriction =
                 T_binary_op (
                   `And,
                   T_action {
-                    fact = T_app (Path.of_string Params.pcell_read_apred_name,
-                                  `Global 0,
-                                  [ T_var (Path.of_string "pid", `Global 0, None);
-                                    T_var (Path.of_string Params.pcell_ptr_prefix, `Global 0, None);
-                                    T_var (Path.of_string "cell", `Global 0, None);
-                                  ],
-                                  None
-                                 );
+                    fact = T_app { path = Path.of_string Params.pcell_read_apred_name;
+                                   name = `Global 0;
+                                   named_args = [];
+                                   args = [ T_var (Path.of_string "pid", `Global 0, None);
+                                            T_var (Path.of_string Params.pcell_ptr_prefix, `Global 0, None);
+                                            T_var (Path.of_string "cell", `Global 0, None);
+                                          ];
+                                   anno = None;
+                                 };
                     temporal = (Loc.untagged "i", `Global 0);
                   },
                   T_action {
-                    fact = T_app (Path.of_string Params.pcell_freed_apred_name,
-                                  `Global 0,
-                                  [ T_var (Path.of_string "pid", `Global 0, None);
-                                    T_var (Path.of_string Params.pcell_ptr_prefix, `Global 0, None);
-                                    T_var (Path.of_string "cell", `Global 0, None);
-                                  ],
-                                  None
-                                 );
+                    fact = T_app { path = Path.of_string Params.pcell_freed_apred_name;
+                                   name = `Global 0;
+                                   named_args = [];
+                                   args = [ T_var (Path.of_string "pid", `Global 0, None);
+                                            T_var (Path.of_string Params.pcell_ptr_prefix, `Global 0, None);
+                                            T_var (Path.of_string "cell", `Global 0, None);
+                                          ];
+                                   anno = None;
+                                 };
                     temporal = (Loc.untagged "j", `Global 0);
                   }
                 ),

@@ -24,8 +24,10 @@ let replace_cells_with_placeholder_vars (x : Tg_ast.term) : Tg_ast.term =
       )
     | T_var _ -> x
     | T_tuple (loc, l) -> T_tuple (loc, List.map aux l)
-    | T_app (path, name, args, anno) ->
-      T_app (path, name, List.map aux args, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
+      let args = List.map aux args in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) ->
       T_unary_op (op, aux x)
     | T_binary_op (op, x, y) ->
@@ -64,7 +66,7 @@ let clean_up_r
   let facts, assigns =
     List.fold_left (fun (facts, assigns) term ->
         match term with
-        | T_app ([name], _, _, _) ->
+        | T_app { path = [name]; _ } ->
           if Loc.content name = "undef" then
             (facts, assigns)
           else

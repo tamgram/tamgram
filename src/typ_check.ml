@@ -123,9 +123,10 @@ let rec typ_of_term (typ_ctx : Typ.Ctx.t) (term : Tg_ast.term) :
           typ_ctx l
       in
       `Bitstring
-    | T_app (path, name, args, anno) -> (
+    | T_app { path; name; named_args; args; anno } -> (
         match typ_ctx_find_exn path name typ_ctx with
-        | `Fun (arg_typs, ret_typ) -> (
+        | `Fun (named_arg_typs, arg_typs, ret_typ) -> (
+            let* () = check_named_arg_typs path typ_ctx named_args named_arg_typs in
             let* () = check_arg_typs path typ_ctx args arg_typs in
             match anno with
             | None -> Ok ret_typ
@@ -233,6 +234,43 @@ let rec typ_of_term (typ_ctx : Typ.Ctx.t) (term : Tg_ast.term) :
   in
   aux typ_ctx term
 
+and check_named_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
+    (args : (string * Tg_ast.term) list) (expected_typs : (string * Typ.term) list) :
+  (unit, Error_msg.t) result =
+  let arg_count = List.length args in
+  let expected_arg_count = List.length expected_typs in
+  let rec aux typ_ctx (expected_typs : (string * Typ.term) list) (args : (string * Tg_ast.term) list) =
+    match expected_typs with
+    | [] -> Ok ()
+    | (s, expected_typ) :: rest -> (
+        match List.assoc_opt s args with
+        | None ->
+          Error
+            (Error_msg.make
+               (Loc.tag (List.hd path))
+               (Fmt.str "named argument %s missing" s)
+            )
+        | Some arg -> (
+            let* actual_typ = typ_of_term typ_ctx arg in
+            if typs_are_compatible expected_typ actual_typ then aux typ_ctx rest args
+            else
+              Error
+                (error_msg_for_term
+                   ~expected_one_of_typs:(compatible_typs_of_typ expected_typ)
+                   ~actual_typ arg)
+          )
+      )
+  in
+  if arg_count <> expected_arg_count then
+    Error
+      (Error_msg.make
+         (Loc.tag (List.hd path))
+         (Fmt.str "expected %d named arguments for %a, but got %d instead"
+            expected_arg_count Printers.pp_path
+            path arg_count)
+      )
+  else aux typ_ctx expected_typs args
+
 and check_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
     (args : Tg_ast.term list) (expected_typs : Typ.term list) :
   (unit, Error_msg.t) result =
@@ -263,7 +301,7 @@ and check_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
 and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   (Typ.Ctx.t, Error_msg.t) result =
   let open Tg_ast in
-  let { arg_and_typs; ret_typ; body } = Binding.get binding in
+  let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
   let typ_ctx' =
     Typ.Ctx.add_multi
       (List.map (fun x ->
@@ -276,7 +314,9 @@ and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   if typs_are_compatible ret_typ typ then
     Ok
       (Typ.Ctx.add name
-         (`Fun (List.map (fun x -> snd @@ Binding.get x) arg_and_typs, ret_typ))
+         (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                ret_typ))
          typ_ctx)
   else
     Error
@@ -361,16 +401,17 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
     | P_let_macro { binding; next; _ } ->
       let* typ_ctx = check_macro typ_ctx binding in
       aux typ_ctx next
-    | P_app (path, name, args, next) ->
+    | P_app { path; name; named_args; args; next } ->
       let* () =
         match typ_ctx_find_exn path name typ_ctx with
-        | `Fun (arg_typs, ret_typ) -> (
+        | `Fun (named_arg_typs, arg_typs, ret_typ) -> (
+            let* () = check_named_arg_typs path typ_ctx named_args named_arg_typs in
             let* () = check_arg_typs path typ_ctx args arg_typs in
             match ret_typ with
             | `Process -> Ok ()
             | typ' ->
               Error (error_msg_for_term ~expected_one_of_typs:[`Process] ~actual_typ:typ'
-                       (T_app (path, name, args, None))
+                       (T_app { path; name; named_args; args; anno = None })
                     )
           )
         | typ' -> Error (error_msg_for_fun ~actual_typ:typ' path)
@@ -444,7 +485,7 @@ let check_proc (typ_ctx : Typ.Ctx.t) (proc : Tg_ast.proc) :
 let check_proc_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.proc_macro Binding.t) :
   (Typ.Ctx.t, Error_msg.t) result =
   let open Tg_ast in
-  let { arg_and_typs; body } : proc_macro = Binding.get binding in
+  let { named_arg_and_typs; arg_and_typs; body } : proc_macro = Binding.get binding in
   let typ_ctx' =
     Typ.Ctx.add_multi
       (List.map (fun x -> (Binding.name x, snd @@ Binding.get x)) arg_and_typs)
@@ -453,7 +494,9 @@ let check_proc_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.proc_macro Binding.
   let+ () = check_proc typ_ctx' body in
   let name = Binding.name binding in
   Typ.Ctx.add name
-    (`Fun (List.map (fun x -> snd @@ Binding.get x) arg_and_typs, `Process))
+    (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+           List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+           `Process))
     typ_ctx
 
 let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
@@ -482,7 +525,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           in
           aux
             (Typ.Ctx.add (Binding.name binding)
-               (`Fun (arg_typs, `Bitstring))
+               (`Fun ([], arg_typs, `Bitstring))
                typ_ctx)
             ds
         | D_pred binding -> (
@@ -497,7 +540,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
             in
             aux
               (Typ.Ctx.add (Binding.name binding)
-                 (`Fun (arg_typs, `Fact))
+                 (`Fun ([], arg_typs, `Fact))
                  typ_ctx)
               ds
           )
@@ -513,7 +556,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
             in
             aux
               (Typ.Ctx.add (Binding.name binding)
-                 (`Fun (arg_typs, `Pfact))
+                 (`Fun ([], arg_typs, `Pfact))
                  typ_ctx)
               ds
           )
@@ -525,7 +568,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           in
           aux
             (Typ.Ctx.add (Binding.name binding)
-               (`Fun (arg_typs, `Afact))
+               (`Fun ([], arg_typs, `Afact))
                typ_ctx)
             ds
         | D_papred binding ->
@@ -536,7 +579,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           in
           aux
             (Typ.Ctx.add (Binding.name binding)
-               (`Fun (arg_typs, `Pafact))
+               (`Fun ([], arg_typs, `Pafact))
                typ_ctx)
             ds
         | D_macro { binding; _ } ->

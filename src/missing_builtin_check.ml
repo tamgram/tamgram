@@ -32,7 +32,8 @@ let rec aux_term (builtins : Builtin_set.t) (x : Tg_ast.term) : (unit, Error_msg
     Ok ()
   | T_tuple (_, l) ->
     aux_terms builtins l
-  | T_app (_path, _name, args, _anno) ->
+  | T_app { named_args; args; _ } ->
+    let* () = aux_terms builtins (List.map snd named_args) in
     aux_terms builtins args
   | T_unary_op (_op, x) ->
     aux_term builtins x
@@ -108,7 +109,8 @@ let aux_proc (builtins : Builtin_set.t) (x : Tg_ast.proc) : (unit, Error_msg.t) 
     | P_let_macro { binding; next } ->
       let* () = aux_macro builtins (Binding.get binding) in
       aux next
-    | P_app (_path, _name, args, next) ->
+    | P_app { named_args; args; next } ->
+      let* () = aux_terms builtins (List.map snd named_args) in
       let* () = aux_terms builtins args in
       aux next
     | P_line { tag = _; rule; next } ->
