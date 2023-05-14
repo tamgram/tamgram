@@ -19,9 +19,9 @@ let replace_free_vars_via_name_strs_in_term (subs : (string * Tg_ast.term) list)
     | T_app { path; name; named_args; args; anno } ->
       let named_args =
         List.map (fun (s, arg) ->
-          (s, aux bound arg)
+            (s, aux bound arg)
           )
-        named_args
+          named_args
       in
       let args = aux_list bound args in
       T_app { path; name; named_args; args; anno }
@@ -35,7 +35,7 @@ let replace_free_vars_via_name_strs_in_term (subs : (string * Tg_ast.term) list)
       let next = aux bound next in
       T_let { binding = Binding.update bound_to binding; next }
     | T_let_macro { binding; next } ->
-        let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
+      let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
       let bound' =
         List.fold_left
           (fun acc x -> String_tagged_set.add (Binding.name_str x) acc)
@@ -139,7 +139,11 @@ let free_var_name_str_and_typs_in_term (term : Tg_ast.term) :
               String_map.empty
         | _ -> String_map.empty)
     | T_tuple (_, l) -> aux_list bound l
-    | T_app (_, _, args, _) -> aux_list bound args
+    | T_app { named_args; args; _ } ->
+      String_map.union
+        (fun _k v _ -> Some v)
+        (aux_list bound (List.map snd named_args))
+        (aux_list bound args)
     | T_unary_op (_, x) -> aux bound x
     | T_binary_op (_, x, y) ->
       let s1 = aux bound x in
@@ -194,7 +198,10 @@ let free_var_names_in_term (term : Tg_ast.term) : string Loc.tagged Name_map.t =
             Name_map.add name x Name_map.empty
         | _ -> Name_map.empty)
     | T_tuple (_, l) -> aux_list bound l
-    | T_app (_, _, args, _) -> aux_list bound args
+    | T_app { named_args; args; _ } ->
+      Name_map.union (fun _k v _ -> Some v)
+        (aux_list bound (List.map snd named_args))
+        (aux_list bound args)
     | T_unary_op (_, x) -> aux bound x
     | T_binary_op (_, x, y) ->
       let s1 = aux bound x in
@@ -239,9 +246,10 @@ let rec change_cell_names_in_term (subs : (string * string Loc.tagged) list)
     | T_name_as (x, name) -> T_name_as (aux x, name)
     | T_var _ -> term
     | T_tuple (loc, l) -> T_tuple (loc, change_cell_names_in_terms subs l)
-    | T_app (path, name, args, anno) ->
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
       let args = change_cell_names_in_terms subs args in
-      T_app (path, name, args, anno)
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux x, aux y)
     | T_cell_pat_match (x, y) -> (
@@ -264,12 +272,12 @@ let rec change_cell_names_in_term (subs : (string * string Loc.tagged) list)
       let next = aux next in
       T_let { binding = Binding.update bound_to binding; next }
     | T_let_macro { binding; next } ->
-      let { arg_and_typs; ret_typ; body } = Binding.get binding in
+      let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
       let body = aux body in
       let next = aux next in
       T_let_macro
         {
-          binding = Binding.update { arg_and_typs; ret_typ; body } binding;
+          binding = Binding.update { named_arg_and_typs; arg_and_typs; ret_typ; body } binding;
           next;
         }
     | T_action { fact; temporal } -> T_action { fact = aux fact; temporal }
@@ -298,9 +306,10 @@ let rec replace_cells_in_term (subs : (string * Tg_ast.term) list)
     | T_name_as (x, name) -> T_name_as (aux x, name)
     | T_var _ -> term
     | T_tuple (loc, l) -> T_tuple (loc, replace_cells_in_terms subs l)
-    | T_app (path, name, args, anno) ->
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
       let args = replace_cells_in_terms subs args in
-      T_app (path, name, args, anno)
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux x, aux y)
     | T_cell_pat_match (x, y) -> T_cell_pat_match (x, aux y)
@@ -310,12 +319,12 @@ let rec replace_cells_in_term (subs : (string * Tg_ast.term) list)
       let next = aux next in
       T_let { binding = Binding.update bound_to binding; next }
     | T_let_macro { binding; next } ->
-      let { arg_and_typs; ret_typ; body } = Binding.get binding in
+      let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
       let body = aux body in
       let next = aux next in
       T_let_macro
         {
-          binding = Binding.update { arg_and_typs; ret_typ; body } binding;
+          binding = Binding.update { named_arg_and_typs; arg_and_typs; ret_typ; body } binding;
           next;
         }
     | T_action { fact; temporal } -> T_action { fact = aux fact; temporal }
@@ -348,7 +357,10 @@ let rec cells_in_term (term : Tg_ast.term) : Tg_ast.rw String_tagged_map.t =
     | T_name_as (x, _) -> aux x
     | T_var _ -> String_tagged_map.empty
     | T_tuple (_, l) -> cells_in_terms l
-    | T_app (_, _, args, _) -> cells_in_terms args
+    | T_app { named_args; args; _ } ->
+      union_cell_rw
+        (cells_in_terms (List.map snd named_args))
+        (cells_in_terms args)
     | T_unary_op (_, x) -> aux x
     | T_binary_op (_, x, y) -> union_cell_rw (aux x) (aux y)
     | T_cell_pat_match (x, y) -> String_tagged_map.add x `R (aux y)
@@ -382,8 +394,10 @@ let rec fill_in_default_typ_for_term ~default (term : Tg_ast.term) : Tg_ast.term
     | T_var (path, name, typ) ->
       T_var (path, name, Some (Option.value ~default typ))
     | T_tuple (loc, l) -> T_tuple (loc, fill_in_default_typ_for_terms ~default l)
-    | T_app (path, name, args, anno) ->
-      T_app (path, name, fill_in_default_typ_for_terms ~default args, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
+      let args = fill_in_default_typ_for_terms ~default args in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux x, aux y)
     | T_let { binding; next } ->
@@ -413,8 +427,8 @@ let loc (term : Tg_ast.term) : Loc.t option =
     | T_var ([], _, _) -> failwith "Unexpected case"
     | T_var (x :: _, _, _) -> Loc.tag x
     | T_tuple (loc, _) -> loc
-    | T_app ([], _, _, _) -> failwith "Unexpected case"
-    | T_app (x :: _, _, _, _) -> Loc.tag x
+    | T_app { path = []; _ } -> failwith "Unexpected case"
+    | T_app { path = x :: _; _ } -> Loc.tag x
     | T_unary_op (_, x) -> aux x
     | T_binary_op (_, x, _) -> aux x
     | T_cell_pat_match (x, _) -> Loc.tag x
@@ -441,7 +455,8 @@ let update_loc_of_term (loc : Loc.t option) (term : Tg_ast.term) : Tg_ast.term =
     | T_name_as (x, name) -> T_name_as (aux x, name)
     | T_var (path, name, typ) -> T_var (Loc.update_tag_multi loc path, name, typ)
     | T_tuple (_, l) -> T_tuple (loc, List.map aux l)
-    | T_app (path, name, l, anno) -> T_app (Loc.update_tag_multi loc path, name, l, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      T_app { path = Loc.update_tag_multi loc path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux x, aux y)
     | T_cell_pat_match (x, y) -> T_cell_pat_match (Loc.update_tag loc x, aux y)
@@ -473,7 +488,10 @@ let sub
         | None -> term
         | Some term -> update_loc_of_term loc term)
     | T_tuple (loc, l) -> T_tuple (loc, List.map aux l)
-    | T_app (path, name, l, anno) -> T_app (path, name, List.map aux l, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args = List.map (fun (s, x) -> (s, aux x)) named_args in
+      let args = List.map aux args in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) -> T_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> T_binary_op (op, aux x, aux y)
     | T_cell_pat_match (x, y) -> T_cell_pat_match (x, aux y)
@@ -485,8 +503,8 @@ let sub
         {
           binding =
             Binding.map
-              (fun { arg_and_typs; ret_typ; body } ->
-                 { arg_and_typs; ret_typ; body = aux body })
+              (fun { named_arg_and_typs; arg_and_typs; ret_typ; body } ->
+                 { named_arg_and_typs; arg_and_typs; ret_typ; body = aux body })
               binding;
           next = aux next;
         }

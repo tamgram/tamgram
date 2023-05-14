@@ -14,9 +14,9 @@ let of_term (m : Tg_ast.cell_data_shape String_map.t) (t : Tg_ast.term) : Tg_ast
       )
     | T_tuple (_, l) -> S_tuple (List.map aux l)
     | T_app {path; name; named_args; args; _} -> (
-      assert (named_args = []);
+        assert (named_args = []);
         S_app (Loc.content @@ List.hd path, name, List.map aux args)
-    )
+      )
     | T_unary_op (op, x) -> S_unary_op (op, aux x)
     | T_binary_op (op, x, y) -> S_binary_op (op, aux x, aux y)
     | _ -> failwith "Unexpected case"
@@ -181,7 +181,7 @@ let to_term (s : Tg_ast.cell_data_shape) : Tg_ast.term =
     | S_tuple l ->
       T_tuple (None, List.map aux l)
     | S_app (str, name, l) ->
-      T_app (Path.of_string str, name, List.map aux l, None)
+      T_app { path = Path.of_string str; name; named_args = []; args = List.map aux l; anno = None }
     | S_unary_op (op, x) ->
       T_unary_op (op, aux x)
     | S_binary_op (op, x, y) ->

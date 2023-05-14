@@ -100,10 +100,10 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
       aux ~allow_wildcard x
     | T_var _ -> Ok ()
     | T_tuple (_, l) -> check_terms ~allow_wildcard l
-    | T_app (path, _, l, _) -> (
+    | T_app { path; named_args; args; _ } -> (
         match path with
         | [ x ] when Loc.content x = "undef" -> (
-            match l with
+            match args with
             | [ T_symbol (name, `Cell) ] ->
               if Loc.content name = Params.pid_cell_name then
                 Error
@@ -114,7 +114,10 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
                   )
               else Ok ()
             | _ -> failwith "Unexpected case")
-        | _ -> check_terms ~allow_wildcard l)
+        | _ ->
+          let* () = check_terms ~allow_wildcard (List.map snd named_args) in
+          check_terms ~allow_wildcard args
+      )
     | T_unary_op (_, x) -> aux ~allow_wildcard x
     | T_binary_op (_, x, y) ->
       let* () = aux ~allow_wildcard x in
@@ -233,7 +236,8 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
       in
       let* () = check_term ~allow_wildcard:false body in
       aux next
-    | P_app (_path, _name, args, next) ->
+    | P_app { named_args; args; next; _ } ->
+      let* () = check_terms ~allow_wildcard:false (List.map snd named_args) in
       let* () = check_terms ~allow_wildcard:false args in
       aux next
     | P_line { tag = _; rule; next } ->

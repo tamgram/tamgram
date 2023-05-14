@@ -20,8 +20,14 @@ let fill_in_typ_annotations_for_term (typ_ctx : Typ.Ctx.t) (term : Tg_ast.term) 
                      (Fmt.str "Unexpected failure in type lookup for %a (%a)" Printers.pp_path path Printers.pp_name name)
                      (Typ.Ctx.find name typ_ctx)))
     | T_tuple (loc, l) -> T_tuple (loc, List.map aux l)
-    | T_app (path, name, args, anno) ->
-      T_app (path, name, List.map aux args, anno)
+    | T_app { path; name; named_args; args; anno } ->
+      let named_args =
+        List.map (fun (s, e) -> (s, aux e)) named_args
+      in
+      let args =
+        List.map aux args
+      in
+      T_app { path; name; named_args; args; anno }
     | T_unary_op (op, x) ->
       T_unary_op (op, aux x)
     | T_binary_op (op, x, y) ->

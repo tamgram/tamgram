@@ -33,16 +33,16 @@ let rec usage_in_term (term : Tg_ast.term) : (Usage.t, Error_msg.t) result =
     | T_name_as (x, _) -> aux x
     | T_var _ -> Ok Usage.empty
     | T_tuple (_, l) -> usage_in_terms l
-    | T_app (path, _, l, _) -> (
+    | T_app { path; args; _ } -> (
         match path with
         | [ x ] when Loc.content x = "undef" -> (
-            match List.hd l with
+            match List.hd args with
             | T_symbol (name, `Cell) ->
               Ok Usage.(empty
                         |> add_undefine name
                         |> add_require name)
             | _ -> failwith "Unexpected case")
-        | _ -> usage_in_terms l)
+        | _ -> usage_in_terms args)
     | T_unary_op (_, x) -> aux x
     | T_binary_op (_, x, y) ->
       let* usage_x = aux x in

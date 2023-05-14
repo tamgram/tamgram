@@ -15,7 +15,7 @@ let check_term ~disallowed_names (field : field) (term : Tg_ast.term) :
     | T_name_as (x, _) -> aux x
     | T_var _ -> Ok ()
     | T_tuple _ -> Ok ()
-    | T_app (path, _, _, _) -> (
+    | T_app { path; _ } -> (
         match path with
         | [] -> failwith "Unexpected case"
         | [ s ] ->
@@ -80,7 +80,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     match proc with
     | P_null | P_break _ | P_continue _ -> Ok ()
     | P_let _ | P_let_macro _ -> failwith "Unexpected case"
-    | P_app (_, _, _, next) -> aux next
+    | P_app { next; _ } -> aux next
     | P_line { tag = _; rule; next } ->
       let* () = check_rule rule in
       aux next

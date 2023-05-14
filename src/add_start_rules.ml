@@ -5,15 +5,17 @@ let aux_proc (proc : Tg_ast.proc) : Tg_ast.proc =
       l =
         [
           T_app
-            ( Path.of_string "Fr",
-              `Global 0,
-              [
+            { path = Path.of_string "Fr";
+              name = `Global 0;
+              named_args = [];
+              args = [
                 T_var
                   ( Path.of_string Params.pid_cell_name,
                     `Local 0,
                     Some `Fresh );
-              ],
-              None);
+              ];
+              anno = None;
+            };
         ];
       vars_in_l =
         [

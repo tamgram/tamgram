@@ -29,12 +29,22 @@ let pp_typ (formatter : Format.formatter) (typ : Typ.term) : unit =
     | `Formula -> Fmt.pf formatter "form"
     | `Pat_match -> Fmt.pf formatter "patmatch"
     | `Statement -> Fmt.pf formatter "stmt"
-    | `Fun (args, ret) -> (
-        match args with
-        | [] ->
+    | `Fun (named_args, args, ret) -> (
+        let pp_arg formatter x =
+          match x with
+          | `Named (s, typ) -> Fmt.pf formatter "%s:%a" s aux typ
+          | `Unnamed typ -> Fmt.pf formatter "%a" aux typ
+        in
+        match named_args, args with
+        | [], [] ->
           Fmt.pf formatter "() -> %a" aux ret
-        | _ ->
-          Fmt.pf formatter "%a -> %a" Fmt.(list ~sep:(any " * ") aux) args aux ret
+        | _, _ ->
+          let l =
+            List.map (fun x -> `Named x) named_args
+            @ List.map (fun x -> `Unnamed x) args
+          in
+          Fmt.pf formatter "%a -> %a"
+            Fmt.(list ~sep:(any " * ") pp_arg) l aux ret
       )
     | `Process -> Fmt.pf formatter "process"
     | `Subroutine (arg_count, ret_cell_count) -> (
@@ -198,10 +208,18 @@ let pp_term (formatter : Format.formatter) (x : Tg_ast.term) : unit =
               Fmt.pf formatter "%a%a : %a" pp_path path pp_name_if_debug name
                 pp_typ typ)
         | None -> Fmt.pf formatter "%a%a" pp_path path pp_name_if_debug name)
-    | T_app (path, name, args, anno) ->
+    | T_app { path; name; named_args; args; anno } ->
+      let pp_arg formatter x =
+        match x with
+        | `Named (s, x) -> Fmt.pf formatter "%s:%a" s aux x
+        | `Unnamed x -> Fmt.pf formatter "%a" aux x
+      in
+      let l =
+        List.map (fun x -> `Named x) named_args
+        @ List.map (fun x -> `Unnamed x) args
+      in
       Fmt.pf formatter "%a%a(@[<h>%a@])%a" pp_path path pp_name_if_debug name
-        Fmt.(list ~sep:comma aux)
-        args
+        Fmt.(list ~sep:comma pp_arg) l
         pp_fact_anno
         anno
     | T_unary_op (op, x) ->
@@ -326,11 +344,21 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
         pp_name_if_debug (Binding.name binding)
         Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
         arg_and_typs pp_typ ret_typ pp_term body aux next
-    | P_app (path, name, args, next) ->
-      Fmt.pf formatter "%a%a(@[<h>%a@]);@,%a" pp_path path pp_name_if_debug name
-        Fmt.(list ~sep:comma pp_term)
-        args
-        aux next
+    | P_app { path; name; named_args; args; next } -> (
+        let pp_arg formatter x =
+          match x with
+          | `Named (s, x) -> Fmt.pf formatter "%s:%a" s pp_term x
+          | `Unnamed x -> Fmt.pf formatter "%a" pp_term x
+        in
+        let l =
+          List.map (fun x -> `Named x) named_args
+          @ List.map (fun x -> `Unnamed x) args
+        in
+        Fmt.pf formatter "%a%a(@[<h>%a@]);@,%a" pp_path path pp_name_if_debug name
+          Fmt.(list ~sep:comma pp_arg)
+          l
+          aux next
+      )
     | P_line { tag; rule; next } ->
       (match tag with
        | None -> ()

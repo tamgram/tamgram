@@ -99,11 +99,11 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         Tg_ast.{
           empty_rule with
           a = [T_app { path = Path.of_string Params.cell_neq_apred_name;
-                      name = `Local 0;
-                      named_args = [];
-                      args = [ T_symbol (cell, `Cell); term ];
-                      anno = None;
-                      } ];
+                       name = `Local 0;
+                       named_args = [];
+                       args = [ T_symbol (cell, `Cell); term ];
+                       anno = None;
+                     } ];
         }
       )
     | _ -> (
@@ -112,11 +112,11 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         Tg_ast.{
           empty_rule with
           a = [T_app { path = Path.of_string (Fmt.str "%s%d" Params.cell_pat_match_apred_prefix id);
-                      name = `Local 0;
-                      named_args = [];
-                      args = [ T_symbol (cell, `Cell) ];
-                      anno = None;
-        }];
+                       name = `Local 0;
+                       named_args = [];
+                       args = [ T_symbol (cell, `Cell) ];
+                       anno = None;
+                     }];
         }
       )
   in

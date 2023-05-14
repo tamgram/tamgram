@@ -52,12 +52,12 @@ and term =
   | T_var of Path.t * Name.t * Typ.term option
   | T_tuple of Loc.t option * term list
   | T_app of {
-    path : Path.t;
-    name : Name.t;
-    named_args : (string * term) list;
-    args : term list;
-    anno : fact_anno option;
-  }
+      path : Path.t;
+      name : Name.t;
+      named_args : (string * term) list;
+      args : term list;
+      anno : fact_anno option;
+    }
   | T_unary_op of unary_op * term
   | T_binary_op of binary_op * term * term
   | T_cell_pat_match of string Loc.tagged * term
@@ -164,12 +164,12 @@ type proc =
       next : proc;
     }
   | P_app of {
-    path : Path.t;
-    name : Name.t;
-    named_args : (string * term) list;
-    args : term list;
-    next : proc;
-  }
+      path : Path.t;
+      name : Name.t;
+      named_args : (string * term) list;
+      args : term list;
+      next : proc;
+    }
   | P_line of {
       tag : string Loc.tagged option;
       rule : rule;
