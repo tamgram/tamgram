@@ -1,0 +1,13 @@
+pred Entry/3
+apred Add/2
+apred Unrecorded/2
+
+restriction r0 =
+  All pid k #i .
+    Unrecorded(pid, k)@i ==> (All #j . #j < #i ==> not Add(pid, k)@j)
+
+process add('pid, named k, named v) =
+  choice {
+    { []--[ Unrecorded('pid, k) ]->[ Entry('pid, k, v) ] };
+    { [ Entry('pid, k, _) ] -> [ Entry('pid, k, v) ] };
+  }

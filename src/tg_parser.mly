@@ -3,8 +3,18 @@
   open Syntax_error_exn
 
   let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
+    let named_arg_and_typs, arg_and_typs =
+      List.fold_left (fun (named, unnamed) (markers, typ) ->
+        if List.mem `Named markers then
+          ((markers, typ) :: named, unnamed)
+        else
+          (named, (markers, typ) :: unnamed)
+      )
+      ([], [])
+      arg_and_typs
+    in
     {
-      named_arg_and_typs = [];
+      named_arg_and_typs;
       arg_and_typs;
       ret_typ;
       body;
@@ -71,8 +81,8 @@
       | [] -> (List.rev named_acc, List.rev acc)
       | x :: xs -> (
         match x with
-        | `Named (key, arg) -> aux ((Loc.content key, arg) :: named_acc) acc l
-        | `Unnamed arg -> aux named_acc (arg :: acc) l
+        | `Named (key, arg) -> aux ((Loc.content key, arg) :: named_acc) acc xs
+        | `Unnamed arg -> aux named_acc (arg :: acc) xs
       )
     in
     aux [] [] l
@@ -95,19 +105,19 @@
               ((Loc.content key, arg) :: named_cell_acc)
               named_acc
               acc
-              l
+              xs
         | `Named (key, arg) ->
             aux
               named_cell_acc
               ((Loc.content key, arg) :: named_acc)
               acc
-              l
+              xs
         | `Unnamed arg ->
             aux
               named_cell_acc
               named_acc
               (arg :: acc)
-              l
+              xs
       )
     in
     aux [] [] [] l

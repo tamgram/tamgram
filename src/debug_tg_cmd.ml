@@ -80,7 +80,7 @@ let run
   then (
     Printf.printf "Output file already exists: %s\n" (Option.get output_file);
     1
-  ) else
+  ) else (
     let file_buffers, res = Modul_load.from_file input_file in
     match res with
     | Error msg -> (
@@ -103,6 +103,7 @@ let run
               )
           )
       )
+  )
 
 let cmd =
   Cmd.(v (info "debug-tg")
