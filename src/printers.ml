@@ -32,7 +32,7 @@ let pp_typ (formatter : Format.formatter) (typ : Typ.term) : unit =
     | `Fun (named_args, args, ret) -> (
         let pp_arg formatter x =
           match x with
-          | `Named (s, typ) -> Fmt.pf formatter "%s:%a" s aux typ
+          | `Named (s, typ) -> Fmt.pf formatter "%s<-%a" s aux typ
           | `Unnamed typ -> Fmt.pf formatter "%a" aux typ
         in
         match named_args, args with
@@ -211,7 +211,7 @@ let pp_term (formatter : Format.formatter) (x : Tg_ast.term) : unit =
     | T_app { path; name; named_args; args; anno } ->
       let pp_arg formatter x =
         match x with
-        | `Named (s, x) -> Fmt.pf formatter "%s:%a" s aux x
+        | `Named (s, x) -> Fmt.pf formatter "%s<-%a" s aux x
         | `Unnamed x -> Fmt.pf formatter "%a" aux x
       in
       let l =
@@ -347,7 +347,7 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
     | P_app { path; name; named_args; args; next } -> (
         let pp_arg formatter x =
           match x with
-          | `Named (s, x) -> Fmt.pf formatter "%s:%a" s pp_term x
+          | `Named (s, x) -> Fmt.pf formatter "%s<-%a" s pp_term x
           | `Unnamed x -> Fmt.pf formatter "%a" pp_term x
         in
         let l =
@@ -501,6 +501,7 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "module %s = {@,  %a@,}" (Loc.content name) pp_modul decls
   | D_open path -> Fmt.pf formatter "open %a" pp_path path
   | D_insert path -> Fmt.pf formatter "insert %a" pp_path path
+  | D_import path -> Fmt.pf formatter "import %a" pp_path path
 
 and pp_modul (formatter : Format.formatter) (modul : Tg_ast.modul) : unit =
   Fmt.pf formatter "@[<v>%a@]" Fmt.(list ~sep:(any "@,@,") pp_decl) modul

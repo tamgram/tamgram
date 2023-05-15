@@ -1,2 +1,5 @@
 process A =
-  Table.add('pid, k<-"k", v<-"v")
+  []-->[ Out("a") ];
+  Table.add('pid, k<-"k", v<-"v");
+  // Table.get('pid, k<-"k", 'res<-'c);
+  []-->[ Out('c) ]

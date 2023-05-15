@@ -444,6 +444,8 @@ term:
     }
 
 macro_arg:
+  | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; arg = term
+    { (`Named (key, arg) : macro_arg) }
   | key = NAME; LEFT_ANGLE; MINUS; arg = term
     { (`Named (key, arg) : macro_arg) }
   | arg = term

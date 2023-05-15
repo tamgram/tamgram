@@ -49,7 +49,7 @@ let check_rule
 
 let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
   let cells_in_args =
-    macro.arg_and_typs
+    (macro.named_arg_and_typs @ macro.arg_and_typs)
     |> List.filter_map (fun binding ->
         match Binding.get binding with
         | (l, `Cell) -> Some (Binding.name_str binding, l)

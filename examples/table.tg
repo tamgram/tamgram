@@ -1,6 +1,9 @@
 pred Entry/3
 apred Add/2
 apred Unrecorded/2
+apred Eq/2
+
+restriction Equality_Checks_Succeed= All x y #i. Eq(x,y) @ i ==> x = y
 
 restriction r0 =
   All pid k #i .
@@ -10,4 +13,10 @@ process add('pid, named k, named v) =
   choice {
     { []--[ Unrecorded('pid, k) ]->[ Entry('pid, k, v) ] };
     { [ Entry('pid, k, _) ] -> [ Entry('pid, k, v) ] };
+  }
+
+process get('pid, named k, named 'res) =
+  choice {
+    { []--[ Unrecorded('pid, k) ]->[ 'res := $NULL ] };
+    { [ Entry('pid, k', v) ] --[ Eq(k, k') ]-> [ 'res := v ] };
   }

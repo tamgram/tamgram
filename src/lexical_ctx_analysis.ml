@@ -323,7 +323,7 @@ let aux_proc
       let+ next = aux ~lexical_ctx_for_var ~lexical_ctx_for_func next in
       P_let_macro
         { binding = Binding.update_name name binding; next }
-    | P_app { path; named_args; args; next } ->
+    | P_app { path; named_args; args; next; _ } ->
       let** name = Lexical_ctx.resolve_name path lexical_ctx_for_func in
       let* named_args =
         aux_named_args ~lexical_ctx_for_var ~lexical_ctx_for_func named_args
@@ -698,6 +698,34 @@ let aux_modul
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
+        | D_import path ->
+          let** modul_for_var =
+            Lexical_ctx.resolve_modul path lexical_ctx_for_var
+          in
+          let** modul_for_func =
+            Lexical_ctx.resolve_modul path lexical_ctx_for_func
+          in
+          let** modul_for_form =
+            Lexical_ctx.resolve_modul path lexical_ctx_for_form
+          in
+          let lexical_ctx_for_var =
+            Lexical_ctx.open_modul ~into:lexical_ctx_for_var
+              modul_for_var
+          in
+          let lexical_ctx_for_func =
+            Lexical_ctx.open_modul ~into:lexical_ctx_for_func
+              modul_for_func
+          in
+          let lexical_ctx_for_form =
+            Lexical_ctx.open_modul ~into:lexical_ctx_for_form
+              modul_for_form
+          in
+          aux
+            (d :: acc)
+            ~lexical_ctx_for_var
+            ~lexical_ctx_for_func
+            ~lexical_ctx_for_form
+            ds
         | D_open path ->
           let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
@@ -770,21 +798,21 @@ let aux_modul
     ~lexical_ctx_for_form
     modul
 
-let missing_top_level_modul (modul : Tg_ast.modul) : string option =
-  Lexical_ctx.reset_name_indices_given_count ();
-  match
+(* let missing_top_level_modul (modul : Tg_ast.modul) : string option =
+   Lexical_ctx.reset_name_indices_given_count ();
+   match
     aux_modul
       ~lexical_ctx_for_var:Lexical_ctx.empty
       ~lexical_ctx_for_func:Lexical_ctx.empty
       ~lexical_ctx_for_form:Lexical_ctx.empty
       modul
-  with
-  | Error (_, e) -> (
+   with
+   | Error (_, e) -> (
       match e with
       | None -> None
       | Some e -> (
           match e with `Missing_top_level_modul s -> Some s | _ -> None))
-  | Ok _ -> None
+   | Ok _ -> None *)
 
 let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
   Lexical_ctx.reset_name_indices_given_count ();

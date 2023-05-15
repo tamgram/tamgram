@@ -261,5 +261,6 @@ type decl =
   | D_modul of string Loc.tagged * modul
   | D_open of Path.t
   | D_insert of Path.t
+  | D_import of Path.t
 
 and modul = decl list

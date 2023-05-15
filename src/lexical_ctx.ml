@@ -188,7 +188,7 @@ let resolve_modul ?(path_for_error_msg : Path.t option) (path : Path.t)
           Error
             (Error_msg.make
                (Loc.tag x)
-               (Fmt.str "unbound module %s in path %s"
+               (Fmt.str "Unbound module %s in path %s"
                   (Loc.content x)
                   (Path.to_string path_for_error_msg)),
              match direction with
