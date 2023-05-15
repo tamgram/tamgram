@@ -4,11 +4,12 @@
 
   let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
     let named_arg_and_typs, arg_and_typs =
-      List.fold_left (fun (named, unnamed) (markers, typ) ->
+      List.fold_left (fun (named, unnamed) x ->
+        let markers, _typ = Binding.get x in
         if List.mem `Named markers then
-          ((markers, typ) :: named, unnamed)
+          (x :: named, unnamed)
         else
-          (named, (markers, typ) :: unnamed)
+          (named, x :: unnamed)
       )
       ([], [])
       arg_and_typs
@@ -17,6 +18,24 @@
       named_arg_and_typs;
       arg_and_typs;
       ret_typ;
+      body;
+    }
+
+  let proc_macro (arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list) body : Tg_ast.proc_macro =
+    let named_arg_and_typs, arg_and_typs =
+      List.fold_left (fun (named, unnamed) x ->
+        let markers, _typ = Binding.get x in
+        if List.mem `Named markers then
+          (x :: named, unnamed)
+        else
+          (named, x :: unnamed)
+      )
+      ([], [])
+      arg_and_typs
+    in
+    {
+      named_arg_and_typs;
+      arg_and_typs;
       body;
     }
 
@@ -430,11 +449,11 @@ macro_arg:
   | arg = term
     { (`Unnamed arg : macro_arg) }
 
-proc_macro_arg:
+(* proc_macro_arg:
   | key = cell; LEFT_ANGLE; MINUS; arg = cell
     { (`Named_cell (key, T_symbol (arg, `Cell)) : proc_macro_arg) }
   | x = macro_arg
-    { x :> proc_macro_arg }
+    { x :> proc_macro_arg } *)
 
 lemma_attr:
   | s = NAME
@@ -492,7 +511,7 @@ decl:
   | PROCESS; name = NAME; EQ; body = proc
     { D_process { binding = bind name body } }
   | PROCESS; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, cell_or_name_and_typ); RIGHT_PAREN; EQ; body = proc
-    { D_process_macro (bind name { named_arg_and_typs = []; arg_and_typs; body }) }
+    { D_process_macro (bind name (proc_macro arg_and_typs body)) }
   | MODULE; name = NAME; EQ; LEFT_CUR_BRACK; m = modul; RIGHT_CUR_BRACK
     { D_modul (name, m) }
   | OPEN; path = path
@@ -559,10 +578,12 @@ proc:
     { P_let_macro { binding = bind name (macro arg_and_typs `Bitstring body); next} }
   | LET; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN; COLON; ret_typ = macro_ret_typ; EQ; body = term; IN; next = proc
     { P_let_macro { binding = bind name (macro arg_and_typs ret_typ body); next} }
-  | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN; SEMICOLON; next = proc
-    { P_app { path = f; name = `Local 0; named_args = []; args; next } }
-  | f = path; LEFT_PAREN; args = flexible_list(COMMA, term); RIGHT_PAREN
-    { P_app { path = f; name = `Local 0; named_args = []; args; next = P_null } }
+  | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN; SEMICOLON; next = proc
+    { let named_args, args = sort_through_macro_args args in
+      P_app { path = f; name = `Local 0; named_args; args; next } }
+  | f = path; LEFT_PAREN; args = flexible_list(COMMA, macro_arg); RIGHT_PAREN
+    { let named_args, args = sort_through_macro_args args in
+      P_app { path = f; name = `Local 0; named_args; args; next = P_null } }
   | tag = STRING; COLON; rule = rule; SEMICOLON; next = proc
     { P_line { tag = Some tag; rule; next } }
   | rule = rule; SEMICOLON; next = proc
