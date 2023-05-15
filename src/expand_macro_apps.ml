@@ -8,24 +8,32 @@ let rec aux_term (defs : (Name.t * Tg_ast.macro) list)
       term
     | T_name_as (x, name) -> T_name_as (aux defs x, name)
     | T_tuple (loc, l) -> T_tuple (loc, List.map (aux defs) l)
-    | T_app (path, name, l, anno) -> (
-        let l = List.map (aux defs) l in
+    | T_app { path; name; named_args; args; anno } -> (
+        let named_args = List.map (fun (s, x) -> (s, aux defs x)) named_args in
+        let args = List.map (aux defs) args in
         match List.assoc_opt name defs with
-        | None -> T_app (path, name, l, anno)
+        | None -> T_app { path; name; named_args; args; anno }
         | Some macro -> (
-            match l with
-            | [] -> aux defs macro.body
-            | _ ->
+            match named_args, args with
+            | [], [] -> aux defs macro.body
+            | _, _ ->
               (* TODO: add anno to term after expansion maybe *)
-              let subs =
+              let subs0 =
+                List.map
+                  (fun binding ->
+                     let s = Binding.name_str_untagged binding in
+                     (Binding.name binding, List.assoc s named_args))
+                  macro.named_arg_and_typs
+              in
+              let subs1 =
                 List.map2
                   (fun binding x ->
                      (Binding.name binding, x))
                   macro.arg_and_typs
-                  l
+                  args
               in
               let x =
-                Term.sub ~loc:(Path.loc path) subs
+                Term.sub ~loc:(Path.loc path) (subs0 @ subs1)
                   macro.body
               in
               aux defs x))
@@ -119,15 +127,37 @@ let aux_proc
       aux
         ((Binding.name binding, macro) :: term_macro_defs)
         next
-    | P_app (path, name, args, next) -> (
+    | P_app { path; name; named_args; args; next } -> (
+        let named_args = List.map (fun (s, x) -> (s, aux_term term_macro_defs x)) named_args in
         let args = List.map (aux_term term_macro_defs) args in
         match List.assoc_opt name proc_macro_defs with
         | None -> failwith "Unexpected case"
         | Some macro -> (
             let body =
-              match args with
-              | [] -> macro.body
-              | _ ->
+              match named_args, args with
+              | [], [] -> macro.body
+              | _, _ ->
+                let cell_subs, subs =
+                  List.fold_left
+                    (fun (cell_subs, subs) binding ->
+                       let arg = List.assoc (Binding.name_str_untagged binding) named_args in
+                       match Binding.get binding with
+                       | `Cell -> (
+                           match arg with
+                           | T_symbol (arg_cell, `Cell) ->
+                             ((Binding.name_str_untagged binding, arg_cell) :: cell_subs,
+                              subs)
+                           | _ -> failwith "Unexpected case"
+                         )
+                       | _ -> (
+                           (cell_subs,
+                            (Binding.name binding, arg) :: subs
+                           )
+                         )
+                    )
+                    ([], [])
+                    (List.map (Binding.map snd) macro.named_arg_and_typs)
+                in
                 let cell_subs, subs =
                   List.fold_left2
                     (fun (cell_subs, subs) binding arg ->
@@ -145,7 +175,7 @@ let aux_proc
                            )
                          )
                     )
-                    ([], [])
+                    (cell_subs, subs)
                     (List.map (Binding.map snd) macro.arg_and_typs) args
                 in
                 Proc.sub ~loc:(Path.loc path) ~cell_subs subs
@@ -209,10 +239,11 @@ let aux_modul (decls : Tg_ast.modul) : Tg_ast.modul =
           in
           aux term_macro_defs proc_macro_defs (d :: acc) ds
         | D_process_macro binding ->
-          let { arg_and_typs; body } : proc_macro = Binding.get binding in
+          let { named_arg_and_typs; arg_and_typs; body } : proc_macro = Binding.get binding in
           aux term_macro_defs
             (( Binding.name binding,
-               { arg_and_typs;
+               { named_arg_and_typs;
+                 arg_and_typs;
                  body = aux_proc term_macro_defs proc_macro_defs body
                }
              )
@@ -231,10 +262,11 @@ let aux_modul (decls : Tg_ast.modul) : Tg_ast.modul =
         | D_apred _ | D_papred _ | D_open _ | D_insert _ ->
           aux term_macro_defs proc_macro_defs (d :: acc) ds
         | D_macro { binding; _ } ->
-          let { arg_and_typs; ret_typ; body } = Binding.get binding in
+          let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
           aux
             (( Binding.name binding,
                {
+                 named_arg_and_typs;
                  arg_and_typs;
                  ret_typ;
                  body = aux_term term_macro_defs body;

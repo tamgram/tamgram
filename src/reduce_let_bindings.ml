@@ -6,13 +6,14 @@ let rec reduce_term subs (term : Tg_ast.term) : Tg_ast.term =
     | T_name_as (x, name) -> T_name_as (aux subs x, name)
     | T_var (path, _, _) -> Term.sub ~loc:(Path.loc path) subs term
     | T_tuple (loc, l) -> T_tuple (loc, List.map (aux subs) l)
-    | T_app (path, name, args, anno) -> (
+    | T_app { path; name; named_args; args; anno } -> (
+        let named_args = List.map (fun (s, x) -> (s, aux subs x)) named_args in
         let args = reduce_terms subs args in
         match List.assoc_opt name subs with
-        | None -> T_app (path, name, args, anno)
+        | None -> T_app { path; name; named_args; args; anno }
         | Some x ->
           match x with
-          | T_var (path, name, _) -> T_app (path, name, args, anno)
+          | T_var (path, name, _) -> T_app { path; name; named_args; args; anno }
           | _ -> failwith "Unexpected case"
       )
     | T_unary_op (op, x) -> T_unary_op (op, aux subs x)
@@ -38,9 +39,9 @@ let rec reduce_term subs (term : Tg_ast.term) : Tg_ast.term =
 
 and reduce_terms subs terms = List.map (reduce_term subs) terms
 
-and reduce_macro subs ({ arg_and_typs; ret_typ; body } : Tg_ast.macro) :
+and reduce_macro subs ({ named_arg_and_typs; arg_and_typs; ret_typ; body } : Tg_ast.macro) :
   Tg_ast.macro =
-  { arg_and_typs; ret_typ; body = reduce_term subs body }
+  { named_arg_and_typs; arg_and_typs; ret_typ; body = reduce_term subs body }
 
 let reduce_rule_bindings subs (bindings : Tg_ast.rule_binding list) :
   (Name.t * Tg_ast.term) list * Tg_ast.rule_binding list =
@@ -95,8 +96,10 @@ let reduce_proc subs (proc : Tg_ast.proc) : Tg_ast.proc =
           binding = Binding.map (reduce_macro subs) binding;
           next = aux subs next;
         }
-    | P_app (path, name, l, next) ->
-      P_app (path, name, reduce_terms subs l, aux subs next)
+    | P_app { path; name; named_args; args; next } ->
+      let named_args = List.map (fun (s, x) -> (s, reduce_term subs x)) named_args in
+      let args = reduce_terms subs args in
+      P_app { path; name; named_args; args; next = aux subs next }
     | P_line { tag; rule; next } ->
       P_line { tag; rule = reduce_rule subs rule; next = aux subs next }
     | P_branch (loc, procs, next) ->
@@ -132,8 +135,8 @@ let reduce_modul (decls : Tg_ast.modul) : Tg_ast.modul =
         | D_process_macro binding ->
           aux subs
             (D_process_macro
-               ( Binding.map (fun ({ arg_and_typs; body } : proc_macro) ->
-                     { arg_and_typs; body = reduce_proc subs body }) binding )
+               ( Binding.map (fun ({ named_arg_and_typs; arg_and_typs; body } : proc_macro) ->
+                     { named_arg_and_typs; arg_and_typs; body = reduce_proc subs body }) binding )
              :: acc)
             ds
         | D_let { binding; _ } ->

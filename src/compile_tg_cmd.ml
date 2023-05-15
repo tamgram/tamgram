@@ -47,15 +47,21 @@ let pp_term (formatter : Format.formatter) (x : Tg_ast.term) : unit =
         Fmt.pf formatter "%s%a" prefix pp_path
           path
       )
-    | T_app (path, _name, args, anno) -> (
+    | T_app { path; named_args; args; anno } -> (
+        let pp_arg formatter x =
+          match x with
+          | `Named (s, x) -> Fmt.pf formatter "%s:%a" s aux x
+          | `Unnamed x -> Fmt.pf formatter "%a" aux x
+        in
         if List.mem
             (Loc.content (List.hd path)) Params.builtin_constants
         then
           Fmt.pf formatter "%a" pp_path path
         else
           Fmt.pf formatter "%a(@[<h>%a@])%a" pp_path path
-            Fmt.(list ~sep:comma aux)
-            args
+            Fmt.(list ~sep:comma pp_arg)
+            (List.map (fun x -> `Named x) named_args
+             @ List.map (fun x -> `Unnamed x) args)
             Printers.pp_fact_anno anno
       )
     | T_unary_op (op, x) ->
