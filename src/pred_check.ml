@@ -28,7 +28,7 @@ let aux_modul (decls : Tg_ast.decl list) : (unit, Error_msg.t) result =
         | D_process _ | D_process_macro _ | D_fun _ | D_pred _ | D_ppred _
         | D_apred _ | D_papred _ | D_let _
         | D_macro _ | D_equation _ | D_lemma _ | D_restriction _ | D_rule _
-        | D_open _ | D_insert _ ->
+        | D_import _ ->
           Ok ()
         | D_modul (_, m) -> aux m
         | D_builtins _ -> failwith "Unexpected case"

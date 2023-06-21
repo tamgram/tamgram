@@ -146,7 +146,7 @@ let reduce_modul (decls : Tg_ast.modul) : Tg_ast.modul =
           in
           aux subs acc ds
         | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ | D_open _ | D_insert _ ->
+        | D_apred _ | D_papred _ | D_import _ ->
           aux subs (d :: acc) ds
         | D_macro { binding } ->
           aux subs

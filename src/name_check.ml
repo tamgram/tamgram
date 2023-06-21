@@ -328,7 +328,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
           in
           check_term ~allow_wildcard:false (Binding.get binding)
         | D_rule { binding; _ } -> check_rule (Binding.get binding)
-        | D_open _ | D_insert _ -> Ok ()
+        | D_import _ -> Ok ()
         | D_modul (_, l) ->
           let* () = aux l in
           aux ds

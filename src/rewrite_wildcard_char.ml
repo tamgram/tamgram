@@ -107,7 +107,7 @@ let aux_modul (modul : Tg_ast.modul) : Tg_ast.modul =
           D_rule { binding = Binding.map rewrite_rule binding }
         | D_fun _ | D_pred _ | D_ppred _
         | D_apred _ | D_papred _ | D_let _ | D_macro _ | D_equation _
-        | D_lemma _ | D_restriction _ | D_open _ | D_insert _ ->
+        | D_lemma _ | D_restriction _ | D_import _ ->
           d
         | D_modul (name, m) -> D_modul (name, aux [] m)
         | D_builtins _ -> failwith "Unexpected case"

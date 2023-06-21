@@ -499,8 +499,6 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
       pp_name_if_debug (Binding.name binding) pp_rule (Binding.get binding)
   | D_modul (name, decls) ->
     Fmt.pf formatter "module %s = {@,  %a@,}" (Loc.content name) pp_modul decls
-  | D_open path -> Fmt.pf formatter "open %a" pp_path path
-  | D_insert path -> Fmt.pf formatter "insert %a" pp_path path
   | D_import path -> Fmt.pf formatter "import %a" pp_path path
 
 and pp_modul (formatter : Format.formatter) (modul : Tg_ast.modul) : unit =

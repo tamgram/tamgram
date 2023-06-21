@@ -698,7 +698,7 @@ let aux_modul
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
-        | D_import path ->
+        (* | D_import path ->
           let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
           in
@@ -781,7 +781,8 @@ let aux_modul
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
-            ds
+            ds *)
+        | D_import _
         | D_builtins _ ->
           aux
             (d :: acc)

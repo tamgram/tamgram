@@ -170,8 +170,9 @@
 %token CAS
 (* %token LOCAL
 %token GLOBAL *)
-%token OPEN
-%token INSERT
+(* %token OPEN
+%token INSERT *)
+%token IMPORT
 (* %token ENTRY_POINT *)
 (* %token GOTO *)
 %token EQUATION
@@ -516,10 +517,12 @@ decl:
     { D_process_macro (bind name (proc_macro arg_and_typs body)) }
   | MODULE; name = NAME; EQ; LEFT_CUR_BRACK; m = modul; RIGHT_CUR_BRACK
     { D_modul (name, m) }
-  | OPEN; path = path
+  (* | OPEN; path = path
     { D_open path }
   | INSERT; path = path
-    { D_insert path }
+    { D_insert path } *)
+  | IMPORT; path = path
+    { D_import path }
   | EQUATION; name = NAME; EQ; formula = term
     { D_equation { binding = bind name formula } }
   | LEMMA; name = NAME; EQ; formula = term
