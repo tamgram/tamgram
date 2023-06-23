@@ -59,19 +59,29 @@ let read_file ~path : (string, Error_msg.t) result =
 let available_files_in_dir ~dir : (string String_map.t, Error_msg.t) result =
   let exception Ambiguous_modul_name of string in
   try
-    Ok
-      (Sys.readdir dir
-       |> Array.to_list
-       |> List.fold_left
-         (fun m s ->
-            let key = String.lowercase_ascii s in
-            match String_map.find_opt key m with
-            | None -> String_map.add key (Filename.concat dir s) m
-            | Some _ -> raise (Ambiguous_modul_name key))
-         String_map.empty)
+    Sys.readdir dir
+    |> Array.to_list
+    |> List.fold_left
+      (fun m s ->
+         let key = String.lowercase_ascii s in
+         match String_map.find_opt key m with
+         | None -> String_map.add key (Filename.concat dir s) m
+         | Some _ -> (
+             let modul_name =
+               key
+               |> (fun s ->
+                   CCString.chop_suffix ~suf:Params.file_extension s
+                   |> Option.value ~default:s
+                 )
+               |> String.capitalize_ascii
+             in
+             raise (Ambiguous_modul_name modul_name)
+           ))
+      String_map.empty
+    |> Result.ok
   with
   | Sys_error _ ->
     Error (Error_msg.make_msg_only (Printf.sprintf "Failed to read directory %s" dir))
   | Ambiguous_modul_name name ->
-    Error (Error_msg.make_msg_only (Printf.sprintf "Modul name %s matches multiple files" name))
+    Error (Error_msg.make_msg_only (Printf.sprintf "Module name %s matches multiple files" name))
 
