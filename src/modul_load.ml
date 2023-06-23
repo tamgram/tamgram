@@ -43,7 +43,7 @@ let construct_modul_req_graph ~base_dir ~available_files (target : string)
     | [] -> Ok g
     | modul_name :: ms -> (
         match List.assoc_opt modul_name seen with
-        | Some _ -> (
+        | Some file_name -> (
             Error
               (Error_msg.make_msg_only
                  (Fmt.str "Cannot compile due to dependency cycle:@,@[<v>   %a@]"
@@ -51,7 +51,8 @@ let construct_modul_req_graph ~base_dir ~available_files (target : string)
                       list ~sep:(any "@,-> ")
                         (fun formatter (modul_name, file_name) ->
                            Fmt.pf formatter "module %s as file %s" modul_name file_name))
-                    (List.rev seen))
+                    (List.rev ((modul_name, file_name) :: seen))
+                 )
               )
           )
         | None -> (
