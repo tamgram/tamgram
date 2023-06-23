@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 (* let check_pred (binding : Tg_ast.pred Binding.t) : (unit, Error_msg.t) result =
    let open Tg_ast in

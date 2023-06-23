@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let check_for_overlaps_in_bindings (x1 : Tg_ast.term String_tagged_map.t)
     (x2 : Tg_ast.term String_tagged_map.t) : (unit, Error_msg.t) result =

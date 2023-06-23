@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let check_if_missing
     (builtins : Builtin_set.t)

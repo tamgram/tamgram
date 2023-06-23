@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let ( let** ) (r : ('a, Error_msg.t * [< Lexical_ctx.name_resolution_error ]) result)
     f =
@@ -699,84 +699,84 @@ let aux_modul
             ~lexical_ctx_for_form
             ds
         (* | D_import path ->
-          let** modul_for_var =
+           let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
-          in
-          let** modul_for_func =
+           in
+           let** modul_for_func =
             Lexical_ctx.resolve_modul path lexical_ctx_for_func
-          in
-          let** modul_for_form =
+           in
+           let** modul_for_form =
             Lexical_ctx.resolve_modul path lexical_ctx_for_form
-          in
-          let lexical_ctx_for_var =
+           in
+           let lexical_ctx_for_var =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_var
               modul_for_var
-          in
-          let lexical_ctx_for_func =
+           in
+           let lexical_ctx_for_func =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_func
               modul_for_func
-          in
-          let lexical_ctx_for_form =
+           in
+           let lexical_ctx_for_form =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_form
               modul_for_form
-          in
-          aux
+           in
+           aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
-        | D_open path ->
-          let** modul_for_var =
+           | D_open path ->
+           let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
-          in
-          let** modul_for_func =
+           in
+           let** modul_for_func =
             Lexical_ctx.resolve_modul path lexical_ctx_for_func
-          in
-          let** modul_for_form =
+           in
+           let** modul_for_form =
             Lexical_ctx.resolve_modul path lexical_ctx_for_form
-          in
-          let lexical_ctx_for_var =
+           in
+           let lexical_ctx_for_var =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_var
               modul_for_var
-          in
-          let lexical_ctx_for_func =
+           in
+           let lexical_ctx_for_func =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_func
               modul_for_func
-          in
-          let lexical_ctx_for_form =
+           in
+           let lexical_ctx_for_form =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_form
               modul_for_form
-          in
-          aux
+           in
+           aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
-        | D_insert path ->
-          let** modul_for_var =
+           | D_insert path ->
+           let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
-          in
-          let** modul_for_func =
+           in
+           let** modul_for_func =
             Lexical_ctx.resolve_modul path lexical_ctx_for_func
-          in
-          let** modul_for_form =
+           in
+           let** modul_for_form =
             Lexical_ctx.resolve_modul path lexical_ctx_for_form
-          in
-          let lexical_ctx_for_var =
+           in
+           let lexical_ctx_for_var =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_var
               modul_for_var
-          in
-          let lexical_ctx_for_func =
+           in
+           let lexical_ctx_for_func =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_func
               modul_for_func
-          in
-          let lexical_ctx_for_form =
+           in
+           let lexical_ctx_for_form =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_form
               modul_for_form
-          in
-          aux
+           in
+           aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
@@ -798,6 +798,29 @@ let aux_modul
     ~lexical_ctx_for_func
     ~lexical_ctx_for_form
     modul
+
+let unsatisfied_modul_imports (modul : Tg_ast.modul) : string Loc.tagged list =
+  let open Tg_ast in
+  let rec aux (seen : String_set.t) decls =
+    match decls with
+    | [] -> Seq.empty
+    | d :: ds -> (
+        match d with
+        | D_modul (name, decls) -> (
+            let seen' = String_set.add (Loc.content name) seen in
+            Seq.append (aux seen decls) (aux seen' ds)
+          )
+        | D_import name -> (
+            if String_set.mem (Loc.content name) seen then
+              aux seen ds
+            else
+              Seq.cons name (aux seen ds)
+          )
+        | _ -> aux seen ds
+      )
+  in
+  aux String_set.empty modul
+  |> List.of_seq
 
 (* let missing_top_level_modul (modul : Tg_ast.modul) : string option =
    Lexical_ctx.reset_name_indices_given_count ();

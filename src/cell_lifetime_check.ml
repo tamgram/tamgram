@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let check_path
     (spec : Spec.t)

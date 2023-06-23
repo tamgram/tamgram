@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let add_apred_decls (restrictions_required : Tg_graph.restrictions_required) (spec : Spec.t)
   : Spec.t =

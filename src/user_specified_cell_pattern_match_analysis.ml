@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let match_is_possible
     (possible_shapes : Cell_data_shape_set.t String_map.t)

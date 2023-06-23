@@ -137,8 +137,8 @@ let enter_sublevel (t : t) : t =
     submoduls = String_map.empty;
   }
 
-let open_modul ~(into : t) (t : t) : t =
-  {
+(* let open_modul ~(into : t) (t : t) : t =
+   {
     into with
     names_external_to_modul =
       String_map.union
@@ -146,15 +146,15 @@ let open_modul ~(into : t) (t : t) : t =
         into.names_external_to_modul (exposed_names t);
     external_moduls =
       String_map.union (fun _ _ x -> Some x) into.external_moduls t.submoduls;
-  }
+   }
 
-let insert_modul ~(into : t) (t : t) : t =
-  {
+   let insert_modul ~(into : t) (t : t) : t =
+   {
     into with
     names = String_map.union (fun _ _ x -> Some x) into.names (exposed_names t);
     submoduls =
       String_map.union (fun _ _ x -> Some x) into.submoduls t.submoduls;
-  }
+   } *)
 
 type direction =
   [ `Global

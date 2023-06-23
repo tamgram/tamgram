@@ -259,8 +259,8 @@ type decl =
       binding : rule Binding.t;
     }
   | D_modul of string Loc.tagged * modul
-  | D_import of Path.t
+  | D_import of string Loc.tagged
   (* | D_open of Path.t
-  | D_insert of Path.t *)
+     | D_insert of Path.t *)
 
 and modul = decl list

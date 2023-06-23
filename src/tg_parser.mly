@@ -521,8 +521,8 @@ decl:
     { D_open path }
   | INSERT; path = path
     { D_insert path } *)
-  | IMPORT; path = path
-    { D_import path }
+  | IMPORT; name = NAME
+    { D_import name }
   | EQUATION; name = NAME; EQ; formula = term
     { D_equation { binding = bind name formula } }
   | LEMMA; name = NAME; EQ; formula = term

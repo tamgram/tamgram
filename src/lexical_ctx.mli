@@ -14,9 +14,9 @@ val add_submodul : string -> submodul:t -> t -> t
 
 val enter_sublevel : t -> t
 
-val open_modul : into:t -> t -> t
+(* val open_modul : into:t -> t -> t
 
-val insert_modul : into:t -> t -> t
+   val insert_modul : into:t -> t -> t *)
 
 type modul_resolution_error = [
   | `Missing_top_level_modul of string

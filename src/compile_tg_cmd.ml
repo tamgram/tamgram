@@ -196,7 +196,7 @@ let pp_spec formatter ((theory_name, spec) : string * Spec.t) : unit =
            (Binding.get binding)
        | D_modul (_, decls) ->
          aux decls
-       | D_open _ | D_insert _ -> ()
+       | D_import _ -> ()
       );
       aux ds
   in
@@ -261,25 +261,30 @@ let run
     Printf.printf "Output file already exists: %s\n" (Option.get output_file);
     1
   ) else
-    let file_buffers, res = Modul_load.from_file input_file in
-    match res with
-    | Error msg -> (
-        Error_msg.print file_buffers msg;
-        1
-      )
-    | Ok root -> (
-        let spec = Spec.make root in
-        Tg.run_pipeline spec
-        |> (fun x ->
-            match x with
-            | Error msg -> (
-                Error_msg.print file_buffers msg;
-                1
-              )
-            | Ok spec -> (
-                Spec.print_warnings file_buffers spec;
-                output_spec spec;
-                0
+    let res = Modul_load.from_file input_file in
+    let file_buffers = File_buffer_store.of_dir ~dir:(Filename.dirname input_file) in
+    match file_buffers with
+    | Error msg -> Error_msg.print String_map.empty msg; 1
+    | Ok file_buffers -> (
+        match res with
+        | Error msg -> (
+            Error_msg.print file_buffers msg;
+            1
+          )
+        | Ok root -> (
+            let spec = Spec.make root in
+            Tg.run_pipeline spec
+            |> (fun x ->
+                match x with
+                | Error msg -> (
+                    Error_msg.print file_buffers msg;
+                    1
+                  )
+                | Ok spec -> (
+                    Spec.print_warnings file_buffers spec;
+                    output_spec spec;
+                    0
+                  )
               )
           )
       )

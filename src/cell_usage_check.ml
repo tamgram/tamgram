@@ -1,4 +1,4 @@
-open Result_let
+open Result_syntax
 
 let check_term (x : Tg_ast.term) : (unit, Error_msg.t) result =
   let cells = Term.cells_in_term x in
