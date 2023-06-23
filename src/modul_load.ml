@@ -1,25 +1,6 @@
 open Result_syntax
 
-let available_files_adjacent ~file : (string list String_map.t, Error_msg.t) result =
-  let dir = Filename.dirname file in
-  let+ (available_files : string list String_map.t) =
-    try
-      Ok
-        (Sys.readdir dir
-         |> Array.to_list
-         |> List.fold_left
-           (fun m s ->
-              let key = String.lowercase_ascii s in
-              match String_map.find_opt key m with
-              | None -> String_map.add key [ s ] m
-              | Some l -> String_map.add key (s :: l) m)
-           String_map.empty)
-    with Sys_error _ ->
-      Error (Error_msg.make_msg_only (Printf.sprintf "Failed to read directory %s" dir))
-  in
-  available_files
-
-let find_compatible_file ~required_by ~modul_name ~available_files =
+let find_compatible_file ~required_by ~modul_name ~(available_files : string String_map.t) =
   let file = modul_name ^ Params.file_extension
              |> String.lowercase_ascii
   in
@@ -31,21 +12,7 @@ let find_compatible_file ~required_by ~modul_name ~available_files =
       (Error_msg.make_msg_only
          (Printf.sprintf "File compatible with %s missing, required by module %s" file required_by)
       )
-  | Some [ x ] -> Ok x
-  | Some _ ->
-    Error
-      (Error_msg.make_msg_only
-         (Printf.sprintf "Multiple files compatible with %s, required by module %s" file required_by)
-      )
-
-let read_file ~base_dir ~file_name : (string, Error_msg.t) result =
-  try
-    Ok
-      CCIO.(
-        with_in (Filename.concat base_dir file_name) (fun ic -> read_all ic))
-  with
-  | Sys_error _ ->
-    Error (Error_msg.make_msg_only (Printf.sprintf "Failed to open file %s" file_name))
+  | Some x -> Ok x
 
 let construct_modul_req_graph ~base_dir ~available_files (target : string)
   : (string list String_map.t, Error_msg.t) result =
@@ -57,7 +24,7 @@ let construct_modul_req_graph ~base_dir ~available_files (target : string)
       find_compatible_file ~required_by:target ~modul_name ~available_files
     in
     let actual_file_name = Filename.basename actual_file_path in
-    let* content = read_file ~base_dir ~file_name:actual_file_name in
+    let* content = Misc_utils.read_file ~path:actual_file_path in
     let* m = Tg.parse_modul actual_file_name content in
     let seen = (modul_name, actual_file_name) :: seen in
     match Lexical_ctx_analysis.unsatisfied_modul_imports m with
@@ -105,7 +72,7 @@ let from_file (file : string) : (Tg_ast.modul, Error_msg.t) result =
     Error (Error_msg.make_msg_only (Fmt.str "File %s does not exist" file))
   else (
     let base_dir = Filename.dirname file in
-    let* available_files = available_files_adjacent ~file in
+    let* available_files = Misc_utils.available_files_in_dir ~dir:(Filename.dirname file) in
     let modul_name =
       Filename.basename file
       |> CCString.chop_suffix ~suf:Params.file_extension
@@ -113,7 +80,7 @@ let from_file (file : string) : (Tg_ast.modul, Error_msg.t) result =
       |> String.capitalize_ascii
     in
     let* req_graph = construct_modul_req_graph ~base_dir ~available_files modul_name in
-    let* content = read_file ~base_dir ~file_name:(Filename.basename file) in
+    let* content = Misc_utils.read_file ~path:file in
     let* m = Tg.parse_modul file content in
     Ok m
   )

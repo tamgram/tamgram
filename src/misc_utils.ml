@@ -46,3 +46,32 @@ let reserved_prefix_check (s : string) : (unit, string) result =
     | pre :: xs -> if CCString.prefix ~pre s then Error pre else aux xs
   in
   aux Params.reserved_prefixes
+
+let read_file ~path : (string, Error_msg.t) result =
+  try
+    Ok
+      CCIO.(
+        with_in path (fun ic -> read_all ic))
+  with
+  | Sys_error _ ->
+    Error (Error_msg.make_msg_only (Printf.sprintf "Failed to open file %s" path))
+
+let available_files_in_dir ~dir : (string String_map.t, Error_msg.t) result =
+  let exception Ambiguous_modul_name of string in
+    try
+      Ok
+        (Sys.readdir dir
+         |> Array.to_list
+         |> List.fold_left
+           (fun m s ->
+              let key = String.lowercase_ascii s in
+              match String_map.find_opt key m with
+              | None -> String_map.add key (Filename.concat dir s) m
+              | Some _ -> raise (Ambiguous_modul_name key))
+           String_map.empty)
+    with
+    | Sys_error _ ->
+      Error (Error_msg.make_msg_only (Printf.sprintf "Failed to read directory %s" dir))
+    | Ambiguous_modul_name name ->
+      Error (Error_msg.make_msg_only (Printf.sprintf "Modul name %s matches multiple files" name))
+
