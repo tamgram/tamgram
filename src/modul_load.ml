@@ -14,7 +14,7 @@ let find_compatible_file ~required_by ~modul_name ~(available_files : string Str
       )
   | Some x -> Ok x
 
-let construct_modul_req_graph ~base_dir ~available_files (target : string)
+let construct_modul_req_graph ~available_files (target : string)
   : (string list String_map.t, Error_msg.t) result =
   let rec aux
       (seen : (string * string) list)
@@ -27,13 +27,11 @@ let construct_modul_req_graph ~base_dir ~available_files (target : string)
     let* content = Misc_utils.read_file ~path:actual_file_path in
     let* m = Tg.parse_modul actual_file_name content in
     let seen = (modul_name, actual_file_name) :: seen in
-    match Lexical_ctx_analysis.unsatisfied_modul_imports m with
-    | [] -> Ok String_map.empty
-    | reqs -> (
-        let reqs = List.map Loc.content reqs in
-        let g = String_map.(add modul_name reqs empty) in
-        aux_list g seen reqs
-      )
+    let reqs = Lexical_ctx_analysis.unsatisfied_modul_imports m
+               |> List.map Loc.content
+    in
+    let g = String_map.(add modul_name reqs empty) in
+    aux_list g seen reqs
   and aux_list
       (g : string list String_map.t)
       seen
@@ -68,20 +66,63 @@ let construct_modul_req_graph ~base_dir ~available_files (target : string)
   in
   aux [] target
 
+let total_order_of_moduls (g : string list String_map.t) ~root : string list =
+  let ranking : int String_map.t ref = ref String_map.empty in
+  let rec aux cur_rank root : unit =
+    let rank =
+      String_map.find_opt root !ranking
+      |> Option.value ~default:cur_rank
+    in
+    ranking := String_map.add root rank !ranking;
+    let reqs = String_map.find root g in
+    List.iter (fun x ->
+        aux (rank+1) x
+      ) reqs
+  in
+  aux 0 root;
+  let flipped : string list Int_map.t =
+    !ranking
+    |> String_map.to_seq
+    |> Seq.fold_left (fun (m : string list Int_map.t) (modul, ranking) ->
+        let l = Option.value ~default:[] (Int_map.find_opt ranking m) in
+        Int_map.add ranking (modul :: l) m
+      )
+      Int_map.empty
+  in
+  Int_map.to_seq flipped
+  |> Seq.flat_map (fun (_, l) -> List.to_seq l)
+  |> List.of_seq
+
 let from_file (file : string) : (Tg_ast.modul, Error_msg.t) result =
   if not (Sys.file_exists file) then
     Error (Error_msg.make_msg_only (Fmt.str "File %s does not exist" file))
   else (
-    let base_dir = Filename.dirname file in
     let* available_files = Misc_utils.available_files_in_dir ~dir:(Filename.dirname file) in
-    let modul_name =
+    let root_modul_name =
       Filename.basename file
       |> CCString.chop_suffix ~suf:Params.file_extension
       |> Option.value ~default:file
       |> String.capitalize_ascii
     in
-    let* req_graph = construct_modul_req_graph ~base_dir ~available_files modul_name in
+    let* req_graph = construct_modul_req_graph ~available_files root_modul_name in
+    let import_list =
+      match total_order_of_moduls req_graph ~root:root_modul_name with
+      | [] -> failwith "Unexpected case"
+      | x :: xs -> (
+          assert (x = root_modul_name);
+          xs
+        )
+    in
     let* content = Misc_utils.read_file ~path:file in
     let* m = Tg.parse_modul file content in
-    Ok m
+    let* imported_modul_decls = List.fold_left (fun l modul_name ->
+        let open Tg_ast in
+        let* l = l in
+        let* file = find_compatible_file ~required_by:root_modul_name ~modul_name ~available_files in
+        let* content = Misc_utils.read_file ~path:file in
+        let+ m = Tg.parse_modul file content in
+        (D_modul (Loc.untagged modul_name, m) :: l)
+      ) (Ok []) import_list
+    in
+    Ok (imported_modul_decls @ m)
   )
