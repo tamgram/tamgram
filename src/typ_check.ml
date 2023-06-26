@@ -45,7 +45,7 @@ let error_msg_for_term ~expected_one_of_typs ~actual_typ (term : Tg_ast.term) =
   | [ x ] ->
     Error_msg.make
       (Term.loc term)
-      (Fmt.str "expected type %a for term %a, got %a instead"
+      (Fmt.str "Expected type %a for term %a, got %a instead"
          Printers.pp_typ x Printers.pp_term term Printers.pp_typ
          actual_typ
       )
@@ -53,7 +53,7 @@ let error_msg_for_term ~expected_one_of_typs ~actual_typ (term : Tg_ast.term) =
     Error_msg.make
       (Term.loc term)
       (Fmt.str
-         "expected one of the types [@[<h>%a@]] for term %a, got %a instead"
+         "Expected one of the types [@[<h>%a@]] for term %a, got %a instead"
          Fmt.(list ~sep:comma Printers.pp_typ)
          expected_one_of_typs
          Printers.pp_term term
@@ -62,7 +62,7 @@ let error_msg_for_term ~expected_one_of_typs ~actual_typ (term : Tg_ast.term) =
 let error_msg_for_fun ~actual_typ (path : Path.t) =
   Error_msg.make
     (Loc.tag (List.hd path))
-    (Fmt.str "expected a function type for %a, got %a instead"
+    (Fmt.str "Expected a function type for %a, got %a instead"
        Printers.pp_path path Printers.pp_typ
        actual_typ
     )

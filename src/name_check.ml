@@ -109,7 +109,7 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
                 Error
                   (Error_msg.make
                      (Loc.tag x)
-                     (Fmt.str "cannot undefine reserved cell '%s"
+                     (Fmt.str "Cannot undefine reserved cell '%s"
                         Params.pid_cell_name)
                   )
               else Ok ()
@@ -131,7 +131,7 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
         Error
           (Error_msg.make
              (Loc.tag x)
-             (Fmt.str "cannot assign to reserved cell '%s"
+             (Fmt.str "Cannot assign to reserved cell '%s"
                 Params.pid_cell_name)
           )
       else aux ~allow_wildcard:false y
