@@ -11,7 +11,7 @@ let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
     | P_app { path; name; named_args; args; next } ->
       P_app { path; name; named_args; args; next = aux next }
     | P_line { tag; rule; next } -> P_line { tag; rule; next = aux next }
-    | P_branch (loc, procs, next) -> P_branch (loc, procs, next)
+    | P_branch (loc, procs, next) -> P_branch (loc, procs, aux next)
     | P_scoped (proc, next) -> P_scoped (proc, aux next)
     | P_loop { label; mode; proc; next } ->
       P_loop { label; mode; proc; next = aux next }
