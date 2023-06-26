@@ -340,7 +340,7 @@ and replace_cells_in_terms subs (terms : Tg_ast.term list) : Tg_ast.term list =
 let union_cell_rw m1 m2 =
   String_tagged_map.union (fun _ x y ->
       match x, y with
-      | `R, `Rw | `Rw, `R -> Some `Rw
+      | _, `Rw | `Rw, _ -> Some `Rw
       | _ -> Some `R
     )
     m1 m2
