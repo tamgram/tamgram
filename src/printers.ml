@@ -501,7 +501,7 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "module %s = {@,  %a@,}" (Loc.content name) pp_modul decls
   | D_import name -> Fmt.pf formatter "import %s" (Loc.content name)
   | D_modul_alias (name, path) ->
-      Fmt.pf formatter "module %s = %a" (Loc.content name) pp_path path
+    Fmt.pf formatter "module %s = %a" (Loc.content name) pp_path path
 
 and pp_modul (formatter : Format.formatter) (modul : Tg_ast.modul) : unit =
   Fmt.pf formatter "@[<v>%a@]" Fmt.(list ~sep:(any "@,@,") pp_decl) modul

@@ -783,14 +783,38 @@ let aux_modul
             ~lexical_ctx_for_form
             ds *)
         | D_import _
-        | D_builtins _
-        | D_modul_alias _ ->
+        | D_builtins _ ->
           aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
+        | D_modul_alias (name, path) -> (
+            let** lexical_ctx_for_var' = Lexical_ctx.resolve_modul path lexical_ctx_for_var in
+            let** lexical_ctx_for_func' = Lexical_ctx.resolve_modul path lexical_ctx_for_func in
+            let** lexical_ctx_for_form' = Lexical_ctx.resolve_modul path lexical_ctx_for_form in
+            let lexical_ctx_for_var =
+              Lexical_ctx.add_submodul
+                (Loc.content name) ~submodul:lexical_ctx_for_var'
+                lexical_ctx_for_var
+            in
+            let lexical_ctx_for_func =
+              Lexical_ctx.add_submodul
+                (Loc.content name) ~submodul:lexical_ctx_for_func'
+                lexical_ctx_for_func
+            in
+            let lexical_ctx_for_form =
+              Lexical_ctx.add_submodul (Loc.content name)
+                ~submodul:lexical_ctx_for_form' lexical_ctx_for_form
+            in
+            aux
+              acc
+              ~lexical_ctx_for_var
+              ~lexical_ctx_for_func
+              ~lexical_ctx_for_form
+              ds
+          )
       )
   in
   aux
@@ -812,14 +836,14 @@ let unsatisfied_modul_imports (modul : Tg_ast.modul) : string Loc.tagged list =
             Seq.append (aux seen decls) (aux seen' ds)
           )
         | D_modul_alias (name, path) -> (
-          let top_level = List.hd path in
+            let top_level = List.hd path in
             if String_set.mem (Loc.content top_level) seen then
               aux seen ds
             else (
               let seen = String_set.add (Loc.content name) seen in
               Seq.cons top_level (aux seen ds)
             )
-        )
+          )
         | D_import name -> (
             if String_set.mem (Loc.content name) seen then
               aux seen ds
