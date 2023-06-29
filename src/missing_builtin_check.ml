@@ -182,7 +182,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
           aux_rule builtins (Binding.get binding)
         | D_modul (_name, m) ->
           aux m
-        | D_import _ -> Ok ()
+        | D_import _ | D_modul_alias _ -> Ok ()
       in
       aux ds
   in

@@ -51,7 +51,7 @@ let aux_modul (decls : Tg_ast.modul) : Tg_ast.modul =
             { binding = Binding.map aux_proc binding }
         | D_fun _ | D_pred _ | D_ppred _
         | D_apred _ | D_papred _ | D_equation _ | D_lemma _
-        | D_restriction _ | D_rule _ | D_import _ ->
+        | D_restriction _ | D_rule _ | D_import _ | D_modul_alias _ ->
           d
         | D_process_macro _
         | D_let _ | D_macro _ -> failwith "Unexpected case"

@@ -203,7 +203,7 @@
 %token SINGLE_QUOTE
 %token HASH
 %token AT
-%token ASTERISK
+(* %token ASTERISK *)
 %token PLUS
 
 %token EXCLAIM
@@ -517,6 +517,8 @@ decl:
     { D_process_macro (bind name (proc_macro arg_and_typs body)) }
   | MODULE; name = NAME; EQ; LEFT_CUR_BRACK; m = modul; RIGHT_CUR_BRACK
     { D_modul (name, m) }
+  | MODULE; name = NAME; EQ; path = path
+    { D_modul_alias (name, path) }
   (* | OPEN; path = path
     { D_open path }
   | INSERT; path = path

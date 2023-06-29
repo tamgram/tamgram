@@ -126,7 +126,7 @@ rule read =
   | '&'        { AND }
   | '|'        { OR }
   | "XOR"      { XOR }
-  | '*'        { ASTERISK }
+  (* | '*'        { ASTERISK } *)
   | '+'        { PLUS }
   | '$'        { DOLLAR_SIGN }
 

@@ -260,6 +260,7 @@ type decl =
     }
   | D_modul of string Loc.tagged * modul
   | D_import of string Loc.tagged
+  | D_modul_alias of string Loc.tagged * Path.t
   (* | D_open of Path.t
      | D_insert of Path.t *)
 

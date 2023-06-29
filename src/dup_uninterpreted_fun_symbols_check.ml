@@ -22,7 +22,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
         match d with
         | D_process _ | D_process_macro _
         | D_let _ | D_macro _ | D_equation _
-        | D_lemma _ | D_restriction _ | D_rule _ | D_import _ ->
+        | D_lemma _ | D_restriction _ | D_rule _ | D_import _ | D_modul_alias _ ->
           aux seen ds
         | D_pred binding | D_ppred binding ->
           let* seen = check_name (Binding.name_str binding) seen in

@@ -783,7 +783,8 @@ let aux_modul
             ~lexical_ctx_for_form
             ds *)
         | D_import _
-        | D_builtins _ ->
+        | D_builtins _
+        | D_modul_alias _ ->
           aux
             (d :: acc)
             ~lexical_ctx_for_var
@@ -810,6 +811,15 @@ let unsatisfied_modul_imports (modul : Tg_ast.modul) : string Loc.tagged list =
             let seen' = String_set.add (Loc.content name) seen in
             Seq.append (aux seen decls) (aux seen' ds)
           )
+        | D_modul_alias (name, path) -> (
+          let top_level = List.hd path in
+            if String_set.mem (Loc.content top_level) seen then
+              aux seen ds
+            else (
+              let seen = String_set.add (Loc.content name) seen in
+              Seq.cons top_level (aux seen ds)
+            )
+        )
         | D_import name -> (
             if String_set.mem (Loc.content name) seen then
               aux seen ds

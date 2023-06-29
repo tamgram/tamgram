@@ -60,7 +60,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
           check_process_graph spec well_defined_cells g
         | D_fun _ | D_pred _ | D_ppred _
         | D_apred _ | D_papred _ | D_equation _ | D_lemma _
-        | D_restriction _ | D_rule _ | D_import _ ->
+        | D_restriction _ | D_rule _ | D_import _ | D_modul_alias _ ->
           Ok ()
         | D_process_macro _
         | D_let _ | D_macro _ -> failwith "Unexpected case"

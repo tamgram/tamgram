@@ -56,7 +56,7 @@ let update_name_index_of_decl (name_index : int) (decl : Tg_ast.decl) :
   | D_equation x ->
     D_equation { binding = Binding.update_name name x.binding }
   | D_rule x -> D_rule { binding = Binding.update_name name x.binding }
-  | D_modul _ | D_builtins _ | D_import _ -> decl
+  | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> decl
 
 let name_of_decl (decl : Tg_ast.decl) : Name.t =
   match decl with
@@ -73,7 +73,7 @@ let name_of_decl (decl : Tg_ast.decl) : Name.t =
   | D_restriction { binding; _ } -> Binding.name binding
   | D_equation { binding; _ } -> Binding.name binding
   | D_rule { binding; _ } -> Binding.name binding
-  | D_modul _ | D_builtins _ | D_import _ -> failwith "Unexpected case"
+  | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> failwith "Unexpected case"
 
 let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
   t * Tg_ast.decl =
@@ -93,7 +93,7 @@ let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
     | D_restriction { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_equation { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_rule { binding; _ } -> Some (Binding.name_str_untagged binding)
-    | D_modul _ | D_builtins _ | D_import _ -> None
+    | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> None
   in
   match name_str with
   | None -> (t, decl)
