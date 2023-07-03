@@ -32,6 +32,9 @@
 
 - Added module alias syntax `module A = A.B.C`
 
+- Added uninterpreted function symbols with explicit arguments,
+  which behave like record types
+
 ## 0.4.3
 
 - Fixed constant string literal checking to allow `_`
