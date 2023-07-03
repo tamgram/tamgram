@@ -491,7 +491,11 @@ let aux_modul
       )
     | d :: ds -> (
         match d with
-        | D_fun _ | D_pred _ | D_ppred _ | D_apred _ | D_papred _ ->
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _ ->
           let lexical_ctx_for_func, d =
             Lexical_ctx.add_decl d lexical_ctx_for_func
           in

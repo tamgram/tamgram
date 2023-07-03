@@ -157,8 +157,12 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
         | D_rule { binding } ->
           let+ rule = rewrite_rule (Binding.get binding) in
           D_rule { binding = Binding.update rule binding }
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ | D_let _ | D_macro _ | D_equation _
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _
+        | D_let _ | D_macro _ | D_equation _
         | D_lemma _ | D_restriction _ | D_import _ | D_modul_alias _ ->
           Ok d
         | D_modul (name, m) ->

@@ -166,8 +166,11 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
           aux_proc builtins (Binding.get binding)
         | D_process_macro binding ->
           aux_proc_macro builtins (Binding.get binding)
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ -> Ok ()
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _ -> Ok ()
         | D_let { binding } ->
           aux_term builtins (Binding.get binding)
         | D_macro { binding } ->

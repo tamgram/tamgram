@@ -530,6 +530,15 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
                (`Fun ([], arg_typs, `Bitstring))
                typ_ctx)
             ds
+        | D_fun_exp_args binding ->
+          let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+          aux
+            (Typ.Ctx.add (Binding.name binding)
+               (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                `Bitstring))
+               typ_ctx)
+            ds
         | D_pred binding -> (
             let { arity; options = _ } = Binding.get binding in
             let arg_typs =
@@ -546,6 +555,15 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
                  typ_ctx)
               ds
           )
+        | D_pred_exp_args binding ->
+          let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+          aux
+            (Typ.Ctx.add (Binding.name binding)
+               (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                `Fact))
+               typ_ctx)
+            ds
         | D_ppred binding -> (
             let { arity; options = _ } = Binding.get binding in
             let arg_typs =
@@ -562,6 +580,15 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
                  typ_ctx)
               ds
           )
+        | D_ppred_exp_args binding ->
+          let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+          aux
+            (Typ.Ctx.add (Binding.name binding)
+               (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                `Pfact))
+               typ_ctx)
+            ds
         | D_apred binding ->
           let arg_typs =
             CCSeq.(0 --^ Binding.get binding)
@@ -573,6 +600,15 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
                (`Fun ([], arg_typs, `Afact))
                typ_ctx)
             ds
+        | D_apred_exp_args binding ->
+          let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+          aux
+            (Typ.Ctx.add (Binding.name binding)
+               (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                `Afact))
+               typ_ctx)
+            ds
         | D_papred binding ->
           let arg_typs =
             CCSeq.(0 --^ Binding.get binding)
@@ -582,6 +618,15 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun ([], arg_typs, `Pafact))
+               typ_ctx)
+            ds
+        | D_papred_exp_args binding ->
+          let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+          aux
+            (Typ.Ctx.add (Binding.name binding)
+               (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
+                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                `Pafact))
                typ_ctx)
             ds
         | D_macro { binding; _ } ->

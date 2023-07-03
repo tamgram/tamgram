@@ -58,8 +58,12 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
         | D_process { binding } ->
           let g = Name_map.find (Binding.name binding) spec.proc_graphs in
           check_process_graph spec well_defined_cells g
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ | D_equation _ | D_lemma _
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _
+        | D_equation _ | D_lemma _
         | D_restriction _ | D_rule _ | D_import _ | D_modul_alias _ ->
           Ok ()
         | D_process_macro _

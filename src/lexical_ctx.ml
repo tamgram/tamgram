@@ -45,10 +45,15 @@ let update_name_index_of_decl (name_index : int) (decl : Tg_ast.decl) :
     D_process_macro (Binding.update_name name x)
   | D_let x -> D_let { binding = Binding.update_name name x.binding }
   | D_fun x -> D_fun (Binding.update_name name x)
+  | D_fun_exp_args x -> D_fun_exp_args (Binding.update_name name x)
   | D_pred x -> D_pred (Binding.update_name name x)
+  | D_pred_exp_args x -> D_pred_exp_args (Binding.update_name name x)
   | D_ppred x -> D_ppred (Binding.update_name name x)
+  | D_ppred_exp_args x -> D_ppred_exp_args (Binding.update_name name x)
   | D_apred x -> D_apred (Binding.update_name name x)
+  | D_apred_exp_args x -> D_apred_exp_args (Binding.update_name name x)
   | D_papred x -> D_papred (Binding.update_name name x)
+  | D_papred_exp_args x -> D_papred_exp_args (Binding.update_name name x)
   | D_macro x -> D_macro { binding = Binding.update_name name x.binding }
   | D_lemma x -> D_lemma { binding = Binding.update_name name x.binding }
   | D_restriction x ->
@@ -64,10 +69,15 @@ let name_of_decl (decl : Tg_ast.decl) : Name.t =
   | D_process_macro binding -> Binding.name binding
   | D_let { binding; _ } -> Binding.name binding
   | D_fun x -> Binding.name x
+  | D_fun_exp_args x -> Binding.name x
   | D_pred x -> Binding.name x
+  | D_pred_exp_args x -> Binding.name x
   | D_ppred x -> Binding.name x
+  | D_ppred_exp_args x -> Binding.name x
   | D_apred x -> Binding.name x
+  | D_apred_exp_args x -> Binding.name x
   | D_papred x -> Binding.name x
+  | D_papred_exp_args x -> Binding.name x
   | D_macro { binding; _ } -> Binding.name binding
   | D_lemma { binding; _ } -> Binding.name binding
   | D_restriction { binding; _ } -> Binding.name binding
@@ -84,10 +94,15 @@ let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
     | D_process_macro binding -> Some (Binding.name_str_untagged binding)
     | D_let { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_fun binding -> Some (Binding.name_str_untagged binding)
+    | D_fun_exp_args binding -> Some (Binding.name_str_untagged binding)
     | D_pred binding -> Some (Binding.name_str_untagged binding)
+    | D_pred_exp_args binding -> Some (Binding.name_str_untagged binding)
     | D_ppred binding -> Some (Binding.name_str_untagged binding)
+    | D_ppred_exp_args binding -> Some (Binding.name_str_untagged binding)
     | D_apred binding -> Some (Binding.name_str_untagged binding)
+    | D_apred_exp_args binding -> Some (Binding.name_str_untagged binding)
     | D_papred binding -> Some (Binding.name_str_untagged binding)
+    | D_papred_exp_args binding -> Some (Binding.name_str_untagged binding)
     | D_macro { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_lemma { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_restriction { binding; _ } -> Some (Binding.name_str_untagged binding)

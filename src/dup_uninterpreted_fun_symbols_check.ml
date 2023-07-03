@@ -30,6 +30,13 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
         | D_fun binding | D_apred binding | D_papred binding ->
           let* seen = check_name (Binding.name_str binding) seen in
           aux seen ds
+        | D_fun_exp_args binding
+        | D_pred_exp_args binding
+        | D_ppred_exp_args binding
+        | D_apred_exp_args binding
+        | D_papred_exp_args binding ->
+          let* seen = check_name (Binding.name_str binding) seen in
+          aux seen ds
         | D_modul (_, l) ->
           let* seen = aux String_tagged_set.empty l in
           aux seen ds

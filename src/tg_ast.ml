@@ -41,6 +41,11 @@ type macro = {
   body : term;
 }
 
+and fun_symbol_explicit_args = {
+  named_arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
+  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
+}
+
 and fact_anno = [
   | `Plus
   | `Minus
@@ -236,10 +241,15 @@ type decl =
     }
   | D_process_macro of proc_macro Binding.t
   | D_fun of int Binding.t
+  | D_fun_exp_args of fun_symbol_explicit_args Binding.t
   | D_pred of pred Binding.t
+  | D_pred_exp_args of fun_symbol_explicit_args Binding.t
   | D_ppred of pred Binding.t
+  | D_ppred_exp_args of fun_symbol_explicit_args Binding.t
   | D_apred of int Binding.t
+  | D_apred_exp_args of fun_symbol_explicit_args Binding.t
   | D_papred of int Binding.t
+  | D_papred_exp_args of fun_symbol_explicit_args Binding.t
   | D_let of {
       binding : term Binding.t;
     }

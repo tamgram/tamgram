@@ -99,6 +99,21 @@ let pp_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.forma
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) pp_typ typ
 
+let pp_macro_arg_and_typs
+?only_prefix
+(formatter : Format.formatter)
+((named, unnamed) : (Tg_ast.macro_param_marker list * Typ.term) Binding.t list * (Tg_ast.macro_param_marker list * Typ.term) Binding.t list)
+: unit =
+      let pp_arg formatter x : unit =
+          match x with
+          | `Named binding -> Fmt.pf formatter "named %a" (pp_macro_param_name_and_typ ?only_prefix) binding
+          | `Unnamed binding -> Fmt.pf formatter "%a" (pp_macro_param_name_and_typ ?only_prefix) binding
+      in
+      let args =
+        (List.map (fun x -> `Named x) named) @ (List.map (fun x -> `Unnamed x) unnamed)
+      in
+      Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_arg) args
+
 let pp_proc_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
     (binding : (Tg_ast.proc_macro_param_marker list * Typ.term) Binding.t) : unit =
   let (markers, typ) = Binding.get binding in
@@ -448,31 +463,61 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
     Fmt.pf formatter "fun %s%a/%d"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) (Binding.get binding)
+  | D_fun_exp_args binding ->
+    let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+    Fmt.pf formatter "fun %s%a(@[<h>%a@])"
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
   | D_pred binding ->
     let { arity; options = _ } = Binding.get binding in
     Fmt.pf formatter "pred %s%a/%d"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) arity
+  | D_pred_exp_args binding ->
+    let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+    Fmt.pf formatter "pred %s%a(@[<h>%a@])"
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
   | D_ppred binding ->
     let { arity; options = _ } = Binding.get binding in
     Fmt.pf formatter "!pred %s%a/%d"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) arity
+  | D_ppred_exp_args binding ->
+    let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+    Fmt.pf formatter "!pred %s%a(@[<h>%a@])"
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
   | D_apred binding ->
     Fmt.pf formatter "apred %s%a/%d"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) (Binding.get binding)
+  | D_apred_exp_args binding ->
+    let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+    Fmt.pf formatter "apred %s%a(@[<h>%a@])"
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
   | D_papred binding ->
     Fmt.pf formatter "!apred %s%a/%d"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding) (Binding.get binding)
-  | D_macro { binding } ->
-    let { arg_and_typs; ret_typ; body } = Binding.get binding in
-    Fmt.pf formatter "fun %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]"
+  | D_papred_exp_args binding ->
+    let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
+    Fmt.pf formatter "!apred %s%a(@[<h>%a@])"
       (Binding.name_str_untagged binding)
       pp_name_if_debug (Binding.name binding)
-      Fmt.(list ~sep:comma pp_macro_param_name_and_typ)
-      arg_and_typs pp_typ ret_typ pp_term body
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
+  | D_macro { binding } ->
+    let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
+    Fmt.pf formatter "let %s%a(@[<h>%a@]) : %a =@,  @[<v>%a@]"
+      (Binding.name_str_untagged binding)
+      pp_name_if_debug (Binding.name binding)
+      (pp_macro_arg_and_typs ~only_prefix:false) (named_arg_and_typs, arg_and_typs)
+      pp_typ ret_typ pp_term body
   | D_lemma { binding } ->
     let lemma = Binding.get binding in
     Fmt.pf formatter "lemma %s%a [%a] =@,  @[<v>%s@,%a@]"

@@ -324,8 +324,12 @@ let aux_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
         match d with
         | D_process { binding; _ } -> check_proc (Binding.get binding)
         | D_process_macro binding -> check_proc (Binding.get binding).body
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ | D_import _ | D_modul_alias _ -> Ok ()
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _
+        | D_import _ | D_modul_alias _ -> Ok ()
         | D_equation { binding; _ }
         | D_restriction { binding; _ } ->
           check_term ~allow_path_to_var:false ~allow_let_binding:true

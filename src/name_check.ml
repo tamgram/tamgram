@@ -292,12 +292,24 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
           check_name ~allow_wildcard:false (Binding.name_str binding)
         | D_fun binding ->
           check_name ~allow_wildcard:false (Binding.name_str binding)
+        | D_fun_exp_args binding ->
+          check_name ~allow_wildcard:false (Binding.name_str binding)
         | D_pred binding | D_ppred binding ->
           let* () =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           check_is_capitalized ~is_capitalized:true (Binding.name_str binding)
+        | D_pred_exp_args binding | D_ppred_exp_args binding ->
+          let* () =
+            check_name ~allow_wildcard:false (Binding.name_str binding)
+          in
+          check_is_capitalized ~is_capitalized:true (Binding.name_str binding)
         | D_apred binding | D_papred binding ->
+          let* () =
+            check_name ~allow_wildcard:false (Binding.name_str binding)
+          in
+          check_is_capitalized ~is_capitalized:true (Binding.name_str binding)
+        | D_apred_exp_args binding | D_papred_exp_args binding ->
           let* () =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in

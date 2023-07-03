@@ -166,8 +166,11 @@ let pp_spec formatter ((theory_name, spec) : string * Spec.t) : unit =
            Fmt.pf formatter "functions: %s/%d@,@,"
              name_str
              (Binding.get binding)
-       | D_pred _ | D_ppred _
-       | D_apred _ | D_papred _ -> ()
+        | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _ -> ()
        | D_let _
        | D_macro _  -> failwith "Unexpected case"
        | D_equation { binding } ->

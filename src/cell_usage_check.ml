@@ -93,8 +93,11 @@ let check_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
       let* () =
         match d with
         | D_process _
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _
         | D_import _ | D_modul_alias _ ->
           Ok ()
         | D_process_macro macro ->

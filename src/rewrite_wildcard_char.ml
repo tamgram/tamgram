@@ -105,8 +105,12 @@ let aux_modul (modul : Tg_ast.modul) : Tg_ast.modul =
                   { named_arg_and_typs; arg_and_typs; body = rewrite_proc body } ) binding)
         | D_rule { binding } ->
           D_rule { binding = Binding.map rewrite_rule binding }
-        | D_fun _ | D_pred _ | D_ppred _
-        | D_apred _ | D_papred _ | D_let _ | D_macro _ | D_equation _
+        | D_fun _ | D_fun_exp_args _
+        | D_pred _ | D_pred_exp_args _
+        | D_ppred _ | D_ppred_exp_args _
+        | D_apred _ | D_apred_exp_args _
+        | D_papred _ | D_papred_exp_args _
+        | D_let _ | D_macro _ | D_equation _
         | D_lemma _ | D_restriction _ | D_import _ | D_modul_alias _ ->
           d
         | D_modul (name, m) -> D_modul (name, aux [] m)
