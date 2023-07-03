@@ -15,7 +15,7 @@ let typ_ctx_find_exn path name typ_ctx =
   match Typ.Ctx.find name typ_ctx with
   | None ->
     failwith
-      (Fmt.str "%a: unexpected error - failed to retrieve type of %a"
+      (Fmt.str "%a: Unexpected error - failed to retrieve type of %a"
          Loc.pp_loc_of_tagged (List.hd path) Printers.pp_path path)
   | Some typ -> typ
 
@@ -136,7 +136,7 @@ let rec typ_of_term (typ_ctx : Typ.Ctx.t) (term : Tg_ast.term) :
               | _ ->
                 Error (Error_msg.make
                          (Loc.tag (List.hd path))
-                         (Fmt.str "%a: annotation can only be applied to facts"
+                         (Fmt.str "%a: Annotation can only be applied to facts"
                             Loc.pp_loc_of_tagged (List.hd path))
                       )
           )
@@ -248,7 +248,7 @@ and check_named_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
           Error
             (Error_msg.make
                (Loc.tag (List.hd path))
-               (Fmt.str "named argument %s missing" s)
+               (Fmt.str "Named argument %s missing" s)
             )
         | Some arg -> (
             let* actual_typ = typ_of_term typ_ctx arg in
@@ -265,7 +265,7 @@ and check_named_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
     Error
       (Error_msg.make
          (Loc.tag (List.hd path))
-         (Fmt.str "expected %d named arguments for %a, but got %d instead"
+         (Fmt.str "Expected %d named arguments for %a, but got %d instead"
             expected_arg_count Printers.pp_path
             path arg_count)
       )
@@ -292,7 +292,7 @@ and check_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
     Error
       (Error_msg.make
          (Loc.tag (List.hd path))
-         (Fmt.str "expected %d arguments for %a, but got %d instead"
+         (Fmt.str "Expected %d arguments for %a, but got %d instead"
             expected_arg_count Printers.pp_path
             path arg_count)
       )
