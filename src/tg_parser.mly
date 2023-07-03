@@ -447,11 +447,11 @@ term:
 macro_arg:
   | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; arg = term
     { (`Named (key, arg) : macro_arg) }
-  | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; DOT; DOT; DOT
+  | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
   | key = NAME; LEFT_ANGLE; MINUS; arg = term
     { (`Named (key, arg) : macro_arg) }
-  | key = NAME; LEFT_ANGLE; MINUS; DOT; DOT; DOT
+  | key = NAME; LEFT_ANGLE; MINUS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
   | arg = term
     { (`Unnamed arg : macro_arg) }
