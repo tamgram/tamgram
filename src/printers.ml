@@ -100,19 +100,19 @@ let pp_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.forma
       pp_name_if_debug (Binding.name binding) pp_typ typ
 
 let pp_macro_arg_and_typs
-?only_prefix
-(formatter : Format.formatter)
-((named, unnamed) : (Tg_ast.macro_param_marker list * Typ.term) Binding.t list * (Tg_ast.macro_param_marker list * Typ.term) Binding.t list)
-: unit =
-      let pp_arg formatter x : unit =
-          match x with
-          | `Named binding -> Fmt.pf formatter "named %a" (pp_macro_param_name_and_typ ?only_prefix) binding
-          | `Unnamed binding -> Fmt.pf formatter "%a" (pp_macro_param_name_and_typ ?only_prefix) binding
-      in
-      let args =
-        (List.map (fun x -> `Named x) named) @ (List.map (fun x -> `Unnamed x) unnamed)
-      in
-      Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_arg) args
+    ?only_prefix
+    (formatter : Format.formatter)
+    ((named, unnamed) : (Tg_ast.macro_param_marker list * Typ.term) Binding.t list * (Tg_ast.macro_param_marker list * Typ.term) Binding.t list)
+  : unit =
+  let pp_arg formatter x : unit =
+    match x with
+    | `Named binding -> Fmt.pf formatter "named %a" (pp_macro_param_name_and_typ ?only_prefix) binding
+    | `Unnamed binding -> Fmt.pf formatter "%a" (pp_macro_param_name_and_typ ?only_prefix) binding
+  in
+  let args =
+    (List.map (fun x -> `Named x) named) @ (List.map (fun x -> `Unnamed x) unnamed)
+  in
+  Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_arg) args
 
 let pp_proc_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
     (binding : (Tg_ast.proc_macro_param_marker list * Typ.term) Binding.t) : unit =

@@ -303,7 +303,7 @@ and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   let open Tg_ast in
   let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
   let typ_ctx' =
-      typ_ctx
+    typ_ctx
     |> Typ.Ctx.add_multi
       (List.map (fun x -> (Binding.name x, snd @@ Binding.get x)) arg_and_typs)
     |> Typ.Ctx.add_multi
@@ -535,8 +535,8 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
-                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
-                `Bitstring))
+                      List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                      `Bitstring))
                typ_ctx)
             ds
         | D_pred binding -> (
@@ -560,8 +560,8 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
-                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
-                `Fact))
+                      List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                      `Fact))
                typ_ctx)
             ds
         | D_ppred binding -> (
@@ -585,8 +585,8 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
-                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
-                `Pfact))
+                      List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                      `Pfact))
                typ_ctx)
             ds
         | D_apred binding ->
@@ -605,8 +605,8 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
-                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
-                `Afact))
+                      List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                      `Afact))
                typ_ctx)
             ds
         | D_papred binding ->
@@ -625,8 +625,8 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
           aux
             (Typ.Ctx.add (Binding.name binding)
                (`Fun (List.map (fun x -> (Binding.name_str_untagged x, snd @@ Binding.get x)) named_arg_and_typs,
-                List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
-                `Pafact))
+                      List.map (fun x -> snd @@ Binding.get x) arg_and_typs,
+                      `Pafact))
                typ_ctx)
             ds
         | D_macro { binding; _ } ->
