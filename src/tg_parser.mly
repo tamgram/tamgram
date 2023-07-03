@@ -2,8 +2,7 @@
   open Tg_ast
   open Syntax_error_exn
 
-  let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
-    let named_arg_and_typs, arg_and_typs =
+  let sort_through_arg_and_typs (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) =
       List.fold_left (fun (named, unnamed) x ->
         let markers, _typ = Binding.get x in
         if List.mem `Named markers then
@@ -13,6 +12,10 @@
       )
       ([], [])
       arg_and_typs
+
+  let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
+    let named_arg_and_typs, arg_and_typs =
+      sort_through_arg_and_typs arg_and_typs
     in
     {
       named_arg_and_typs;
@@ -485,6 +488,11 @@ decl:
     { D_fun (bind name arity) }
   | FUN; name = NAME; SLASH; NULL_PROC
     { D_fun (bind name 0) }
+  | FUN; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN
+    { let named_arg_and_typs, arg_and_typs =
+        sort_through_arg_and_typs arg_and_typs
+      in
+      D_fun_exp_args (bind name { named_arg_and_typs; arg_and_typs }) }
   | PRED; name = NAME; SLASH; arity = NAT
     { D_pred (bind name { arity; options = [] }) }
   | PRED; name = NAME; SLASH; NULL_PROC
