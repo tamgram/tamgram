@@ -17,7 +17,7 @@ let parse_modul file_name (input : string) : (Tg_ast.modul, Error_msg.t) result 
     let (lnum, cnum) = pos_of_lexbuf lexbuf in
     Error (Error_msg.make
              (Some Loc.{ file_name; lnum; cnum })
-             "syntax error"
+             "Syntax error"
           )
 
 let default_pipeline =
