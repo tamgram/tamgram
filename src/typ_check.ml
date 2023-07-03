@@ -303,11 +303,11 @@ and check_macro (typ_ctx : Typ.Ctx.t) (binding : Tg_ast.macro Binding.t) :
   let open Tg_ast in
   let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
   let typ_ctx' =
-    Typ.Ctx.add_multi
-      (List.map (fun x ->
-           let (_markers, typ) = Binding.get x in
-           (Binding.name x, typ)) arg_and_typs)
       typ_ctx
+    |> Typ.Ctx.add_multi
+      (List.map (fun x -> (Binding.name x, snd @@ Binding.get x)) arg_and_typs)
+    |> Typ.Ctx.add_multi
+      (List.map (fun x -> (Binding.name x, snd @@ Binding.get x)) named_arg_and_typs)
   in
   let* typ = typ_of_term typ_ctx' body in
   let name = Binding.name binding in
