@@ -89,6 +89,7 @@ rule read =
   | "builtins"       { BUILTINS }
   | "rw"             { RW }
   | "named"          { NAMED }
+  | "is"             { IS }
 
   (* Typs *)
   (* | "cell"           { CELL }

@@ -208,6 +208,7 @@
 %token AT
 (* %token ASTERISK *)
 %token PLUS
+%token IS
 
 %token EXCLAIM
 
@@ -448,13 +449,13 @@ term:
     }
 
 macro_arg:
-  | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; arg = term
+  | SINGLE_QUOTE; key = NAME; IS; arg = term
     { (`Named (key, arg) : macro_arg) }
-  | SINGLE_QUOTE; key = NAME; LEFT_ANGLE; MINUS; DOT
+  | SINGLE_QUOTE; key = NAME; IS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
-  | key = NAME; LEFT_ANGLE; MINUS; arg = term
+  | key = NAME; IS; arg = term
     { (`Named (key, arg) : macro_arg) }
-  | key = NAME; LEFT_ANGLE; MINUS; DOT
+  | key = NAME; IS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
   | arg = term
     { (`Unnamed arg : macro_arg) }
