@@ -15,7 +15,7 @@ process add('pid, named k, named v) =
     { [ Entry('pid, k, _) ] -> [ Entry('pid, k, v) ] };
   }
 
-process get('pid, named k, named 'res) =
+process get('pid, named k, named rw 'res) =
   choice {
     { []--[ Unrecorded('pid, k) ]->[ 'res := $NULL ] };
     { [ Entry('pid, k', v) ] --[ Eq(k, k') ]-> [ 'res := v ] };

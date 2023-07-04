@@ -1,7 +1,12 @@
 import Table
+import A
+import B
+
+module T = Table
+
+fun f(named x)
 
 process A =
-  []-->[ Out("a") ];
-  Table.add('pid, k<-"k", v<-"v");
-  // Table.get('pid, k<-"k", 'res<-'c);
-  []-->[ Out('c) ]
+  [ In(f(x)) ]-->[ Out("a") ];
+  T.add('pid, k is "k", v is "v");
+  0
