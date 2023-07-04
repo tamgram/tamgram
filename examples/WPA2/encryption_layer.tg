@@ -1,0 +1,19 @@
+apred EnqueueMessage/2
+apred SendMessage/2
+pred Queued(a : bitstring, b : bitstring)
+pred SenderPTK/3
+
+process enqueue(named authThreadID, named message) =
+    [ Fr(~messageID) ]
+  --[ EnqueueMessage(authThreadID, messageID)
+    ]->
+    [ Queued(authThreadID, messageID, message) ]
+
+process main =
+    [ Queued(senderID=., senderThreadID=., messageID, message)
+    , SenderPTK(ptkID, senderID, )
+    ]
+  --[ SendMessage(senderID, messageID)
+    ]->
+    [ Out(snenc(message, PTK
+    ]

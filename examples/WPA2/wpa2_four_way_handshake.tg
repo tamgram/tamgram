@@ -1,0 +1,139 @@
+import Encryption_layer
+
+fun NULL() = "NULL"
+
+// S denotes the successor function, GTK indicates that we are
+// dealing with a group key
+fun KDF/3
+fun GTK/1
+fun N/1
+fun snenc/3
+fun sndec/2
+fun S/1
+fun MIC/2
+
+apred Neq/2
+apred Eq/2
+
+apred SupplicantReceivesM1/9
+apred SupplicantSeesCounter/3
+apred SupplicantReceivesM1Again/9
+apred SupplicantReceivesM3/9
+apred SupplicantReceivesM3Again/9
+apred SupplicantGroupKeyRekey/10
+apred SeesNonceForPTK/4
+apred SeesNonceForGTK/4
+apred ReadUnique/2
+apred AllocateUnique/2
+
+apred Free/1
+apred Read/1
+
+fun kNullPTK() = KDF(NULL(), NULL(), NULL())
+fun kNullGTK() = GTK(NULL())
+fun kNullGTKNonce() = <N(NULL()), NULL()>
+fun kNullGTKIndex() = NULL()
+fun kPTKNonceStartNumber() = N("1")
+fun kRequestSleep() = "REQUEST_SLEEP"
+fun kAcceptSleep() = "ACCEPT_SLEEP"
+fun kRequestAwake() = "REQUEST_AWAKE"
+fun kAcceptAwake() = "ACCEPT_AWAKE"
+fun kDataFrame() = "DF"
+fun kManagementFrame() = "MF"
+
+builtins := symmetric-encryption, multiset
+
+equation sndec =
+  All message key nonce .
+    sndec(snenc(message, key, nonce), key) = message
+
+module Restrictions = {
+  module E = Encryption_layer
+
+  restriction Neq =
+      All x y #i. Neq(x, y) @ i ==> not(x = y)
+
+  restriction Equality =
+      All x y #i. Eq(x,y) @ i ==> x = y
+
+  restriction MessagesAreSentInEnqueueOrder =
+       All senderThreadID messageID1 messageID2 #i1 #j1 #i2 #j2.
+       E.EnqueueMessage(senderThreadID, messageID1) @ i1 &
+       E.EnqueueMessage(senderThreadID, messageID2) @ j1 &
+       E.SendMessage(senderThreadID, messageID1) @ i2 &
+       E.SendMessage(senderThreadID, messageID2) @ j2 &
+       #i1 < #j1
+       ==> #i2 < #j2
+
+  // According to the standard, the supplicant only accepts messages 1 and 3 if 
+  // it hasn't seen their replay counters before.
+  restriction ReplayCounterM1 =
+       All suppThreadID suppID PMK authThreadID PTK GTK ANonce SNonce ctr_m1 #i.
+       SupplicantReceivesM1(suppThreadID, suppID, PMK, authThreadID, PTK, 
+                            GTK, ANonce, SNonce, ctr_m1) @ i
+       ==> not Ex #j. j < i & 
+                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m1) @ j
+
+  restriction ReplayCounterM1Again =
+     All suppThreadID suppID PMK authThreadID PTK GTK ANonce SNonce ctr_m1 #i.
+     SupplicantReceivesM1Again(suppThreadID, suppID, PMK, authThreadID, PTK, 
+                                 GTK, ANonce, SNonce, ctr_m1) @ i
+       ==> not Ex #j. j < i & 
+                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m1) @ j
+
+  restriction ReplayCounterM3 =
+       All suppThreadID suppID PMK authThreadID PTK ANonce SNonce GTK ctr_m3 #i.
+       SupplicantReceivesM3(suppThreadID, suppID, PMK, authThreadID, PTK, 
+                            GTK, ANonce, SNonce, ctr_m3) @ i
+       ==> not Ex #j. j < i & 
+                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m3) @ j
+
+  restriction ReplayCounterM3Again =
+       All suppThreadID suppID PMK authThreadID PTK GTK ANonce SNonce ctr_m3 #i.
+       SupplicantReceivesM3Again(suppThreadID, suppID, PMK, authThreadID, PTK, 
+                                 GTK, ANonce, SNonce, ctr_m3) @ i
+       ==> not Ex #j. j < i & 
+                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m3) @ j
+
+  restriction ReplayCounterGroupKeyRekey =
+       All suppThreadID suppID PMK authThreadID PTK oldGTK newGTK ANonce SNonce ctr #i.
+       SupplicantGroupKeyRekey(suppThreadID, suppID, PMK, authThreadID, PTK, 
+                               oldGTK, newGTK, ANonce, SNonce, ctr) @ i
+       ==> not Ex #j. j < i & 
+                      SupplicantSeesCounter(suppThreadID, PMK, ctr) @ j
+
+  restriction ReplayCounterPairwiseMessages =
+       All ptkID receiverThreadID senderID PTK n1 n2 frameType #i #j.
+       SeesNonceForPTK(ptkID, receiverThreadID, PTK, 
+                       <N(n1), senderID, frameType>) @ i &
+       SeesNonceForPTK(ptkID, receiverThreadID, PTK, 
+                       <N(n2), senderID, frameType>) @ j & 
+       i < j
+       ==>  Ex z. n1 + z = n2
+
+  restriction ReplayCounterGroupPayload =
+       All keyID receiverThreadID senderID groupKey n1 n2 #i #j.
+       SeesNonceForGTK(keyID, receiverThreadID, groupKey, <N(n1), senderID>) @ i &
+       SeesNonceForGTK(keyID, receiverThreadID, groupKey, <N(n2), senderID>) @ j & 
+       i < j
+       ==>  Ex z. n1 + z = n2
+
+  restriction MemoryCanBeFreedOnlyOnce =
+      All pointer #i #j. Free(pointer) @ i & Free(pointer) @ j ==> #i = #j
+
+  restriction FreedMemoryCannotBeAccessed =
+      All pointer #i #j. Read(pointer) @ i & Free(pointer) @ j ==> i < j 
+
+  restriction FreedUniqueMemoryCannotBeAccessed =
+       All pointer owner #i #j. ReadUnique(pointer, owner) @ i & 
+       Free(pointer) @ j ==> i < j
+
+  restriction UniqueMemoryMustBeUnique =
+       All pointer1 owner #i #j. 
+       AllocateUnique(pointer1, owner) @ i &
+       ReadUnique(pointer1, owner) @ j
+       ==> i < j & 
+           not(Ex pointer2 #k. i < k & k < j & 
+               AllocateUnique(pointer2, owner) @ k)
+}
+
