@@ -22,7 +22,7 @@ let check_for_dup_args (args : string Loc.tagged list) : (unit, Error_msg.t) res
           Error
             (Error_msg.make
                (Loc.tag x)
-               (Fmt.str "Name %s already used in the arguments at %a"
+               (Fmt.str "Name %s is already used in the arguments at %a"
                   (Loc.content x) Loc.pp_opt loc))
         | None -> aux ((Loc.content x, Loc.tag x) :: seen) xs)
   in
@@ -173,7 +173,10 @@ and aux_macro
   =
   let open Tg_ast in
   let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in
-  match check_for_dup_args (List.map Binding.name_str arg_and_typs) with
+  match
+    check_for_dup_args
+      (List.map Binding.name_str arg_and_typs @ List.map Binding.name_str named_arg_and_typs)
+  with
   | Error msg -> Error (msg, None)
   | Ok () ->
     let lexical_ctx_for_var, named_arg_and_typs =
