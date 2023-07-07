@@ -137,3 +137,131 @@ module Restrictions = {
                AllocateUnique(pointer2, owner) @ k)
 }
 
+module Setup = {
+  process Supp_Create =
+      [ Fr(~suppID) ]
+    --[ SupplicantCreated(~suppID) ]->
+      [ !Supplicant(~suppID)
+      , Out(~suppID) ] // We view the ID as the MAC address, so publish it
+
+  process Auth_Create =
+      [ Fr(~authID)
+      , Fr(~pointerGTKState)
+      , Fr(~x) ]
+    --
+      let gtk4 = GTK(~x) in
+      let gtkNonce = <N("1"), ~authID> in
+      let gtk4Data = <gtk4, gtkNonce, "4"> in
+      let installedGTKData = gtk4Data in
+      let shareGTKData = gtk4Data in
+      [ AuthenticatorCreated(~authID)
+      , AuthenticatorInstalledGTK(~authID, installedGTKData)
+      , AuthenticatorSetsShareGTK(~authID, shareGTKData)
+      , AllocateUnique(~pointerGTKState, ~authID)
+      ]
+    ->[ !Authenticator(~authID)
+      , !AuthGTKState(~authID, "SETKEYSDONE", installedGTKData, shareGTKData,
+                      ~pointerGTKState)
+      , AuthInstalledGTK(~authID, installedGTKData)
+      , Out(~authID) ]
+
+  process Auth_Associate_With_Supp =
+      [ Fr(~PMK)
+      , Fr(~authThreadID)
+      , Fr(~suppThreadID)
+      , Fr(~authReceiverPtkID)
+      , Fr(~suppReceiverPtkID)
+      , Fr(~pointerAuthPTK)
+      , Fr(~pointerSuppPTK)
+      , Fr(~nullGTKID)
+      , !Authenticator(~authID)
+      , !Supplicant(~suppID) ]
+    --
+      let ctr_start = S("0") in
+      let initialPTK = kNullPTK() in
+      let initialSuppGTKData = <kNullGTK(), kNullGTKNonce(), kNullGTKIndex()> in
+      [ Init(~PMK)
+      , Associate(~authID, ~authThreadID, ~suppID, ~suppThreadID, ~PMK) ]->
+      [ AuthState(~authThreadID, 'INIT_R1_SA', <~authID, ~PMK, ~suppThreadID, initialPTK, 
+                  'NULL_ANonce', 'NULL_SNonce', ctr_start>)
+      , SuppState(~suppThreadID, 'INIT_R1_SA', 
+                  <~suppID, ~PMK, ~authThreadID, initialPTK, initialSuppGTKData, 
+                   'NULL_ANonce', 'NULL_SNonce', S('NULL')>)
+      , !PairwiseMasterKey(~PMK, ~authID, ~authThreadID, ~suppID, ~suppThreadID)
+      , !AuthReceiverPTK(~authReceiverPtkID, ~authThreadID, ~authID, initialPTK,
+                         ~pointerAuthPTK)
+      , !SuppReceiverPTK(~suppReceiverPtkID, ~suppThreadID, ~suppID, initialPTK, 
+                         ~pointerSuppPTK)
+      , ReceiverGTK(~suppThreadID, ~nullGTKID, ~PMK,
+                    kNullGTK, kNullGTKNonce, kNullGTKIndex)
+      , Out(~authThreadID)
+      , Out(~suppThreadID) ]
+}
+
+process receiveGTKEncryptedPayload =
+    [ In(snenc(<'data', $message>, GTK(x) as GTK, <N(m), senderID> as incomingNonce))
+    , ReceiverGTK(~receiverThreadID, ~keyID, ~PMK,
+                  GTK(x), <N(n), senderID> as lastNonce, $index) ]
+  --
+    [ ReceiveGTKEncryptedPayload(~keyID, ~receiverThreadID, ~PMK,
+                                  GTK, incomingNonce)
+    , SeesNonceForGTK(~keyID, ~receiverThreadID,
+                      GTK, incomingNonce)
+    , Neq($index, kNullGTKIndex()) ]
+  ->
+    [ ReceiverGTK(~receiverThreadID, ~keyID, ~PMK, 
+                  GTK, incomingNonce, $index) ]
+
+// We have two rules for sending GTK encrypted payloads to distinguish between
+// the case where the installed GTK is also the share GTK and the case 
+// where the two GTKs are different.
+process sendGTKEncryptedPayload_1 =
+    [ AuthInstalledGTK(~authID, installedGTKData) 
+    , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
+                    ~oldPointerGTKState)
+    , Fr(~newPointerGTKState)
+    ]
+  --
+    [ EncryptedWithGTK(~authID, newGTKData, newShareGTKData)
+    , AuthenticatorUsesGTK(~authID, newGTKData, shareGTKData)
+    , SendGTKEncryptedPayload(~authID, newGTKData, newShareGTKData)
+    , AllocateUnique(~newPointerGTKState, ~authID)
+    , Free(~oldPointerGTKState)
+    ]
+  ->
+    [ Out(snenc(<'data', $message>, installedGTK, newGTKNonce))
+    , AuthInstalledGTK(~authID, newGTKData) 
+    , !AuthGTKState(~authID, stateIdentifier, newGTKData, newGTKData, 
+                    ~newPointerGTKState)
+    ]
+
+process sendGTKEncryptedPayload_2 =
+    let
+		installedGTKNonce = <N(n), ~authID>
+		newGTKNonce = <N(n+'1'), ~authID>
+        installedGTKData = <installedGTK, installedGTKNonce, $index>
+        shareGTKData = <shareGTK, shareGTKNonce, $shareIndex>
+        newGTKData = <installedGTK, newGTKNonce, $index>
+	in
+    [ AuthInstalledGTK(~authID, GTK(~x) as installedGTKData)
+    , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
+                    ~oldPointerGTKState)
+    , Fr(~newPointerGTKState) ]
+  --
+    let installedGTKData = <installedGTK, installedGTKNonce,
+    let shareGTKData = <shareGTK, shareGTKNonce, $shareIndex> in
+    let newGTKData = <installedGTK, newGTKNonce, $index> in
+    [ EncryptedWithGTK(~authID, newGTKData, shareGTKData)
+    , AuthenticatorUsesGTK(~authID, newGTKData, shareGTKData)
+    , SendGTKEncryptedPayload(~authID, newGTKData, shareGTKData)
+    , AllocateUnique(~newPointerGTKState, ~authID)
+    , AllocateUnique(~newPointerGTKState, ~authID)
+    , Free(~oldPointerGTKState)
+    , Neq(installedGTK, shareGTK)
+    ]
+  ->
+    [ Out(snenc(<'data', $message>, installedGTK, newGTKNonce))
+    , AuthInstalledGTK(~authID, newGTKData)
+    , !AuthGTKState(~authID, stateIdentifier, newGTKData, shareGTKData,
+                    ~newPointerGTKState)
+    ]
