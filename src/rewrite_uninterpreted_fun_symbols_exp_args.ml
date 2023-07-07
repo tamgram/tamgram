@@ -7,10 +7,10 @@ let check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs : (unit, Erro
     | Seq.Nil -> Ok ()
     | Seq.Cons (x, rest) -> (
         let (markers, _) = Binding.get x in
-        if List.exists (fun x -> x <> `Named) markers then (
+        if not (List.mem `Named markers) then (
           Error
             (Error_msg.make (Loc.tag @@ Binding.name_str binding)
-               (Fmt.str "Only \"named\" marker is allowed for named tuples"))
+               (Fmt.str "Arguments in named tuples must be marked with \"named\""))
         ) else (
           aux rest
         )
