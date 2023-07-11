@@ -498,10 +498,20 @@ decl:
     { D_pred (bind name { arity; options = [] }) }
   | PRED; name = NAME; SLASH; NULL_PROC
     { D_pred (bind name { arity = 0; options = [] }) }
+  | PRED; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN
+    { let named_arg_and_typs, arg_and_typs =
+        sort_through_arg_and_typs arg_and_typs
+      in
+      D_pred_exp_args (bind name { named_arg_and_typs; arg_and_typs }) }
   | PRED; EXCLAIM; name = NAME; SLASH; arity = NAT
     { D_ppred (bind name { arity; options = [] }) }
   | PRED; EXCLAIM; name = NAME; SLASH; NULL_PROC
     { D_ppred (bind name { arity = 0; options = [] }) }
+  | PRED; EXCLAIM; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN
+    { let named_arg_and_typs, arg_and_typs =
+        sort_through_arg_and_typs arg_and_typs
+      in
+      D_ppred_exp_args (bind name { named_arg_and_typs; arg_and_typs }) }
   (* | PRED; name = NAME; SLASH; arity = NAT; LEFT_SQR_BRACK;
     options = flexible_list(COMMA, pred_option);
     RIGHT_SQR_BRACK
@@ -510,10 +520,20 @@ decl:
     { D_apred (bind name arity) }
   | APRED; name = NAME; SLASH; NULL_PROC
     { D_apred (bind name 0) }
+  | APRED; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN
+    { let named_arg_and_typs, arg_and_typs =
+        sort_through_arg_and_typs arg_and_typs
+      in
+      D_apred_exp_args (bind name { named_arg_and_typs; arg_and_typs }) }
   | APRED; EXCLAIM; name = NAME; SLASH; arity = NAT
     { D_papred (bind name arity) }
   | APRED; EXCLAIM; name = NAME; SLASH; NULL_PROC
     { D_papred (bind name 0) }
+  | APRED; EXCLAIM; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN
+    { let named_arg_and_typs, arg_and_typs =
+        sort_through_arg_and_typs arg_and_typs
+      in
+      D_papred_exp_args (bind name { named_arg_and_typs; arg_and_typs }) }
   | LET; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN; COLON; ret_typ = macro_ret_typ; EQ; body = term
     { D_macro { binding = bind name (macro arg_and_typs ret_typ body)} }
   | FUN; name = NAME; LEFT_PAREN; arg_and_typs = flexible_list(COMMA, name_and_typ); RIGHT_PAREN; EQ; body = term
