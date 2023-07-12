@@ -705,57 +705,57 @@ let aux_modul
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
-         | D_open path ->
-           let** modul_for_var =
+        | D_open path ->
+          let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
-           in
-           let** modul_for_func =
+          in
+          let** modul_for_func =
             Lexical_ctx.resolve_modul path lexical_ctx_for_func
-           in
-           let** modul_for_form =
+          in
+          let** modul_for_form =
             Lexical_ctx.resolve_modul path lexical_ctx_for_form
-           in
-           let lexical_ctx_for_var =
+          in
+          let lexical_ctx_for_var =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_var
               modul_for_var
-           in
-           let lexical_ctx_for_func =
+          in
+          let lexical_ctx_for_func =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_func
               modul_for_func
-           in
-           let lexical_ctx_for_form =
+          in
+          let lexical_ctx_for_form =
             Lexical_ctx.open_modul ~into:lexical_ctx_for_form
               modul_for_form
-           in
-           aux
+          in
+          aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func
             ~lexical_ctx_for_form
             ds
-           | D_include path ->
-           let** modul_for_var =
+        | D_include path ->
+          let** modul_for_var =
             Lexical_ctx.resolve_modul path lexical_ctx_for_var
-           in
-           let** modul_for_func =
+          in
+          let** modul_for_func =
             Lexical_ctx.resolve_modul path lexical_ctx_for_func
-           in
-           let** modul_for_form =
+          in
+          let** modul_for_form =
             Lexical_ctx.resolve_modul path lexical_ctx_for_form
-           in
-           let lexical_ctx_for_var =
+          in
+          let lexical_ctx_for_var =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_var
               modul_for_var
-           in
-           let lexical_ctx_for_func =
+          in
+          let lexical_ctx_for_func =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_func
               modul_for_func
-           in
-           let lexical_ctx_for_form =
+          in
+          let lexical_ctx_for_form =
             Lexical_ctx.insert_modul ~into:lexical_ctx_for_form
               modul_for_form
-           in
-           aux
+          in
+          aux
             (d :: acc)
             ~lexical_ctx_for_var
             ~lexical_ctx_for_func

@@ -119,11 +119,12 @@ let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
     if reuse_name_global then
       ( { t with names = String_map.add name_str (name_of_decl decl) t.names },
         decl )
-    else
+    else (
       let name_index = get_new_name_index () in
       let decl = update_name_index_of_decl name_index decl in
       ( { t with names = String_map.add name_str (`Global name_index) t.names },
         decl )
+    )
 
 let add_local_name_str (name_str : string) (t : t) : t * Name.t =
   let name_index = get_new_name_index () in
@@ -156,7 +157,7 @@ let enter_sublevel (t : t) : t =
   }
 
 let open_modul ~(into : t) (t : t) : t =
-   {
+  {
     into with
     names_external_to_modul =
       String_map.union
@@ -164,15 +165,15 @@ let open_modul ~(into : t) (t : t) : t =
         into.names_external_to_modul (exposed_names t);
     external_moduls =
       String_map.union (fun _ _ x -> Some x) into.external_moduls t.submoduls;
-   }
+  }
 
 let insert_modul ~(into : t) (t : t) : t =
-   {
+  {
     into with
     names = String_map.union (fun _ _ x -> Some x) into.names (exposed_names t);
     submoduls =
       String_map.union (fun _ _ x -> Some x) into.submoduls t.submoduls;
-   }
+  }
 
 type direction =
   [ `Global
