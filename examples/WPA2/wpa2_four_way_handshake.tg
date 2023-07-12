@@ -1,4 +1,5 @@
 import Symbols
+open Symbols
 import Encryption_layer
 
 apred SupplicantReceivesM1 (
@@ -54,18 +55,6 @@ apred AllocateUnique/2
 
 apred Free/1
 apred Read/1
-
-fun kNullPTK() = KDF(NULL(), NULL(), NULL())
-fun kNullGTK() = GTK(NULL())
-fun kNullGTKNonce() = <N(NULL()), NULL()>
-fun kNullGTKIndex() = NULL()
-fun kPTKNonceStartNumber() = N("1")
-fun kRequestSleep() = "REQUEST_SLEEP"
-fun kAcceptSleep() = "ACCEPT_SLEEP"
-fun kRequestAwake() = "REQUEST_AWAKE"
-fun kAcceptAwake() = "ACCEPT_AWAKE"
-fun kDataFrame() = "DF"
-fun kManagementFrame() = "MF"
 
 builtins := symmetric-encryption, multiset
 

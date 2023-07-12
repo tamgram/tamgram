@@ -1,11 +1,11 @@
-open Symbols
+import Fun_symbols
+open Fun_symbols
 
 builtins := multiset
 
 apred EnqueueMessage/2
 apred SendMessage/2
 pred Queued (
-  named senderID,
   named senderThreadID,
   named messageID,
   named message,
@@ -22,20 +22,25 @@ process enqueue(named authThreadID, named message) =
     [ Fr(~messageID) ]
   --[ EnqueueMessage(authThreadID, messageID)
     ]->
-    [ Queued(senderID is authThreadID, messageID is ., message) ]
+    [ Queued(
+        senderThreadID is authThreadID,
+        messageID is .,
+        message is .,
+      )
+    ]
 
 process main =
-    [ Queued(senderID is ., senderThreadID is ., messageID, message)
+    [ Queued(senderThreadID is ., messageID is ., message is .)
     , SenderPTK(
         ptkID is .,
         senderThreadID is .,
         senderID is .,
+        PTK is .,
         nonce is <N(n), senderID, messageID>,
-        senderID,
       )
     ]
   --[ SendMessage(senderID, messageID)
     ]->
     let newNonce = <N(n+"1"), senderID, messageID> in
-    [ Out(snenc(message, PTK, new))
+    [ Out(snenc(message, PTK, newNonce))
     ]
