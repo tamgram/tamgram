@@ -33,7 +33,7 @@ let aux_modul (decls : Tg_ast.decl list) : (unit, Error_msg.t) result =
         | D_papred _ | D_papred_exp_args _
         | D_let _
         | D_macro _ | D_equation _ | D_lemma _ | D_restriction _ | D_rule _
-        | D_import _ | D_modul_alias _ ->
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           Ok ()
         | D_modul (_, m) -> aux m
         | D_builtins _ -> failwith "Unexpected case"

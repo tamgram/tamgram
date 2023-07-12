@@ -263,7 +263,7 @@ let aux_modul (decls : Tg_ast.modul) : Tg_ast.modul =
         | D_ppred _ | D_ppred_exp_args _
         | D_apred _ | D_apred_exp_args _
         | D_papred _ | D_papred_exp_args _
-        | D_import _ | D_modul_alias _ ->
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           aux term_macro_defs proc_macro_defs (d :: acc) ds
         | D_macro { binding; _ } ->
           let { named_arg_and_typs; arg_and_typs; ret_typ; body } = Binding.get binding in

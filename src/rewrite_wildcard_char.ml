@@ -111,7 +111,8 @@ let aux_modul (modul : Tg_ast.modul) : Tg_ast.modul =
         | D_apred _ | D_apred_exp_args _
         | D_papred _ | D_papred_exp_args _
         | D_let _ | D_macro _ | D_equation _
-        | D_lemma _ | D_restriction _ | D_import _ | D_modul_alias _ ->
+        | D_lemma _ | D_restriction _
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           d
         | D_modul (name, m) -> D_modul (name, aux [] m)
         | D_builtins _ -> failwith "Unexpected case"

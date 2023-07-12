@@ -509,7 +509,7 @@ let check_modul (typ_ctx : Typ.Ctx.t) (decls : Tg_ast.modul) :
     | [] -> Ok typ_ctx
     | d :: ds -> (
         match d with
-        | D_import _ | D_modul_alias _ -> aux typ_ctx ds
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ -> aux typ_ctx ds
         | D_process { binding; _ } ->
           let* () = check_proc typ_ctx (Binding.get binding) in
           aux (Typ.Ctx.add (Binding.name binding) `Process typ_ctx) ds

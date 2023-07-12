@@ -329,7 +329,7 @@ let aux_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
         | D_ppred _ | D_ppred_exp_args _
         | D_apred _ | D_apred_exp_args _
         | D_papred _ | D_papred_exp_args _
-        | D_import _ | D_modul_alias _ -> Ok ()
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ -> Ok ()
         | D_equation { binding; _ }
         | D_restriction { binding; _ } ->
           check_term ~allow_path_to_var:false ~allow_let_binding:true

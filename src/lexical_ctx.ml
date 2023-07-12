@@ -61,7 +61,8 @@ let update_name_index_of_decl (name_index : int) (decl : Tg_ast.decl) :
   | D_equation x ->
     D_equation { binding = Binding.update_name name x.binding }
   | D_rule x -> D_rule { binding = Binding.update_name name x.binding }
-  | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> decl
+  | D_modul _ | D_builtins _
+  | D_open _ | D_include _ | D_import _ | D_modul_alias _ -> decl
 
 let name_of_decl (decl : Tg_ast.decl) : Name.t =
   match decl with
@@ -83,7 +84,8 @@ let name_of_decl (decl : Tg_ast.decl) : Name.t =
   | D_restriction { binding; _ } -> Binding.name binding
   | D_equation { binding; _ } -> Binding.name binding
   | D_rule { binding; _ } -> Binding.name binding
-  | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> failwith "Unexpected case"
+  | D_open _ | D_include _ | D_modul _
+  | D_builtins _ | D_import _ | D_modul_alias _ -> failwith "Unexpected case"
 
 let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
   t * Tg_ast.decl =
@@ -108,7 +110,8 @@ let add_decl ?(reuse_name_global = false) (decl : Tg_ast.decl) (t : t) :
     | D_restriction { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_equation { binding; _ } -> Some (Binding.name_str_untagged binding)
     | D_rule { binding; _ } -> Some (Binding.name_str_untagged binding)
-    | D_modul _ | D_builtins _ | D_import _ | D_modul_alias _ -> None
+    | D_open _ | D_include _ | D_modul _
+    | D_builtins _ | D_import _ | D_modul_alias _ -> None
   in
   match name_str with
   | None -> (t, decl)
@@ -152,7 +155,7 @@ let enter_sublevel (t : t) : t =
     submoduls = String_map.empty;
   }
 
-(* let open_modul ~(into : t) (t : t) : t =
+let open_modul ~(into : t) (t : t) : t =
    {
     into with
     names_external_to_modul =
@@ -163,13 +166,13 @@ let enter_sublevel (t : t) : t =
       String_map.union (fun _ _ x -> Some x) into.external_moduls t.submoduls;
    }
 
-   let insert_modul ~(into : t) (t : t) : t =
+let insert_modul ~(into : t) (t : t) : t =
    {
     into with
     names = String_map.union (fun _ _ x -> Some x) into.names (exposed_names t);
     submoduls =
       String_map.union (fun _ _ x -> Some x) into.submoduls t.submoduls;
-   } *)
+   }
 
 type direction =
   [ `Global

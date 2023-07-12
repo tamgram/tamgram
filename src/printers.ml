@@ -545,6 +545,8 @@ let rec pp_decl (formatter : Format.formatter) (decl : Tg_ast.decl) : unit =
   | D_modul (name, decls) ->
     Fmt.pf formatter "module %s = {@,  %a@,}" (Loc.content name) pp_modul decls
   | D_import name -> Fmt.pf formatter "import %s" (Loc.content name)
+  | D_open path -> Fmt.pf formatter "open %a" pp_path path
+  | D_include path -> Fmt.pf formatter "include %a" pp_path path
   | D_modul_alias (name, path) ->
     Fmt.pf formatter "module %s = %a" (Loc.content name) pp_path path
 

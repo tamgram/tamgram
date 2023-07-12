@@ -80,8 +80,8 @@ rule read =
   | "cas"            { CAS }
   (* | "global"         { GLOBAL }
   | "local"          { LOCAL } *)
-  (* | "open"           { OPEN }
-  | "insert"         { INSERT } *)
+  | "open"           { OPEN }
+  | "include"        { INCLUDE }
   | "import"         { IMPORT }
   (* | "entry_point"    { ENTRY_POINT } *)
   (* | "goto"           { GOTO } *)

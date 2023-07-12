@@ -211,7 +211,7 @@ let names_used_in_modul (modul : Tg_ast.modul) : Name_set.t =
         | D_ppred _ | D_ppred_exp_args _
         | D_apred _ | D_apred_exp_args _
         | D_papred _ | D_papred_exp_args _
-        | D_import _ | D_modul_alias _ ->
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           Name_set.empty
         | D_let { binding; _ }
         | D_equation { binding; _ }

@@ -101,7 +101,8 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
         | D_apred _
         | D_papred _
         | D_let _ | D_macro _ | D_equation _
-        | D_lemma _ | D_restriction _ | D_import _ | D_modul_alias _ ->
+        | D_lemma _ | D_restriction _
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           Ok [ d ]
         | D_modul (name, m) -> (
             let+ m = aux [] m in

@@ -199,7 +199,7 @@ let pp_spec formatter ((theory_name, spec) : string * Spec.t) : unit =
            (Binding.get binding)
        | D_modul (_, decls) ->
          aux decls
-       | D_import _ | D_modul_alias _ -> ()
+       | D_open _ | D_include _ | D_import _ | D_modul_alias _ -> ()
       );
       aux ds
   in

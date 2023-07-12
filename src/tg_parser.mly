@@ -173,8 +173,8 @@
 %token CAS
 (* %token LOCAL
 %token GLOBAL *)
-(* %token OPEN
-%token INSERT *)
+%token OPEN
+%token INCLUDE
 %token IMPORT
 (* %token ENTRY_POINT *)
 (* %token GOTO *)
@@ -552,10 +552,10 @@ decl:
     { D_modul (name, m) }
   | MODULE; name = NAME; EQ; path = path
     { D_modul_alias (name, path) }
-  (* | OPEN; path = path
+  | OPEN; path = path
     { D_open path }
-  | INSERT; path = path
-    { D_insert path } *)
+  | INCLUDE; path = path
+    { D_include path }
   | IMPORT; name = NAME
     { D_import name }
   | EQUATION; name = NAME; EQ; formula = term

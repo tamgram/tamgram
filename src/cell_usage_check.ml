@@ -98,7 +98,7 @@ let check_modul (decls : Tg_ast.modul) : (unit, Error_msg.t) result =
         | D_ppred _ | D_ppred_exp_args _
         | D_apred _ | D_apred_exp_args _
         | D_papred _ | D_papred_exp_args _
-        | D_import _ | D_modul_alias _ ->
+        | D_open _ | D_include _ | D_import _ | D_modul_alias _ ->
           Ok ()
         | D_process_macro macro ->
           check_proc_macro (Binding.get macro)
