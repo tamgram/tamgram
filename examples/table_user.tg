@@ -4,9 +4,11 @@ import B
 
 module T = Table
 
-fun f(named x)
+fun g(x) = <x>
+
+fun f(named x, named x)
 
 process A =
-  [ In(f(x)) ]-->[ Out("a") ];
+  [ In(f(x is ., x is .)) ]-->[ Out("a") ];
   T.add('pid, k is "k", v is "v");
   0
