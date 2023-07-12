@@ -292,7 +292,7 @@ and check_arg_typs (path : string Loc.tagged list) (typ_ctx : Typ.Ctx.t)
     Error
       (Error_msg.make
          (Loc.tag (List.hd path))
-         (Fmt.str "Expected %d arguments for %a, but got %d instead"
+         (Fmt.str "Expected %d unnamed arguments for %a, but got %d instead"
             expected_arg_count Printers.pp_path
             path arg_count)
       )
