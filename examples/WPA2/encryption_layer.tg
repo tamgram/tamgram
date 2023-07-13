@@ -1,16 +1,23 @@
 import Fun_symbols
 open Fun_symbols
 
-builtins := multiset
-
 apred EnqueueMessage/2
 apred SendMessage/2
 pred Queued (
   named senderThreadID,
   named messageID,
   named message,
+  named frameTag,
 )
 pred SenderPTK (
+  named role,
+  named ptkID,
+  named senderThreadID,
+  named senderID,
+  named PTK,
+  named nonce,
+)
+apred EncryptedWithPTK (
   named ptkID,
   named senderThreadID,
   named senderID,
@@ -18,7 +25,33 @@ pred SenderPTK (
   named nonce,
 )
 
-process enqueue(named authThreadID, named message) =
+apred EncryptedWithPTK_withRole (
+  named role,
+  named ptkID,
+  named senderThreadID,
+  named senderID,
+  named PTK,
+  named nonce,
+)
+
+apred SendPTKEncryptedPayload (
+  named ptkID,
+  named senderThreadID,
+  named senderID,
+  named PTK,
+  named dfNonce,
+)
+
+pred !ReceiverPTK (
+  named role,
+  named ptkID,
+  named receiverThreadID,
+  named receiverID,
+  named PTK,
+  named pointerPTK,
+)
+
+process enqueue(named authThreadID, named message, frameTag) =
     [ Fr(~messageID) ]
   --[ EnqueueMessage(authThreadID, messageID)
     ]->
@@ -26,21 +59,101 @@ process enqueue(named authThreadID, named message) =
         senderThreadID is authThreadID,
         messageID is .,
         message is .,
+        frameTag is .,
       )
     ]
 
-process main =
-    [ Queued(senderThreadID is ., messageID is ., message is .)
+process EncryptionRule =
+    [ Queued(senderThreadID is ., messageID is ., message is ., frameTag is .)
     , SenderPTK(
+        role is .,
         ptkID is .,
         senderThreadID is .,
         senderID is .,
         PTK is .,
-        nonce is <N(n), senderID, messageID>,
+        nonce is <N(n), senderID, frameTag> as nonce,
       )
     ]
-  --[ SendMessage(senderID, messageID)
+  --[ EncryptedWithPTK(ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is .,)
+    , SendMessage(senderID, messageID)
     ]->
     let newNonce = <N(n+"1"), senderID, messageID> in
-    [ Out(snenc(message, PTK, newNonce))
+    [ Out(snenc(message, PTK, frameTag))
+    , SenderPTK(
+        role is .,
+        ptkID is .,
+        senderThreadID is.,
+        senderID is.,
+        PTK is .,
+        nonce is newNonce,
+      )
     ]
+
+process PlainRule =
+    [ Queued(senderThreadID is ., messageID is ., message is ., frameTag is _)
+    ]
+  --[ SendMessage(senderThreadID, messageID)
+    ]->
+    [ Out(message)
+    ]
+
+process SendPTKEncryptedPayloadRule(role) =
+    [ SenderPTK(
+        role is Auth() as role,
+        ptkID is .,
+        senderThreadID is .,
+        senderID is .,
+        PTK is KDF(<PMK, ANonce, SNonce>) as PTK,
+        nonce is <N(n), senderID, kDataFrame>,
+      )
+    ]
+  --
+    let newDfNonce = <N(n+"1"), senderID, kDataFrame> in
+    [ EncryptedWithPTK(ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is newDfNonce)
+    , EncryptedWithPTK_withRole(role is ., ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is newDfNonce)
+    , SendPTKEncryptedPayload(ptkID is ., senderThreadID is ., senderID is., PTK is., dfNonce is newDfNonce)
+    ]->
+    [ Out(snenc(<"data", $message>, PTK, newDfNonce))
+    , SenderPTK(
+        role is .,
+        ptkID is .,
+        senderThreadID is .,
+        senderID is .,
+        PTK is .,
+        nonce is newDfNonce,
+      )
+    ]
+
+process SendPTKEncryptedPayloadRuleAuth =
+  SendPTKEncryptedPayloadRule(Auth())
+
+process SendPTKEncryptedPayloadRuleSupp =
+  SendPTKEncryptedPayloadRule(Supp())
+
+process receive(
+  named role,
+  named rw 'msg,
+  named receiverThreadID,
+  named receiverID,
+) =
+  choice {
+    {
+        [ In(message)
+        , !ReceiverPTK(role is ., ptkID is ., receiverThreadID is ., receiverID is ., PTK is kNullPTK(),
+                         pointerPTK is ~pointerPTK)
+        ]
+      --[ Read(~pointerPTK) ]->
+        [ 'msg := message ]
+    };
+    {
+        [ In(snenc(message, PTK, nonce))
+        , !ReceiverPTK(role is ., ptkID is ~ptkID, receiverThreadID is ~receiverThreadID, receiverID is ., PTK is .,
+                         pointerPTK is ~pointerPTK)
+        ]
+      --[ Neq(PTK, kNullPTK())
+        , SeesNonceForPTK(ptkID is ~ptkID, receiverThreadID is ~receiverThreadID, 
+                        PTK is ., nonce is .)
+        , Read(~pointerPTK) ]->
+        [ 'msg := message ]
+    };
+  }

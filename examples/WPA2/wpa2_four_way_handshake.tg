@@ -1,62 +1,41 @@
-import Symbols
-open Symbols
+import Fun_symbols
+open Fun_symbols
 import Encryption_layer
+module Enc = Encryption_layer
 
 apred SupplicantReceivesM1 (
-  suppThreadID,
-  suppID,
-  PMK,
-  authThreadID,
-  PTK,
-  GTK,
-  ANonce,
-  SNonce,
-  ctr_m1,
+  named suppThreadID,
+  named suppID,
+  named PMK,
+  named authThreadID,
+  named PTK,
+  named GTK,
+  named ANonce,
+  named SNonce,
+  named ctr_m1,
 )
 
 apred SupplicantSeesCounter (
-  suppThreadID,
-  PMK,
-  ctr,
+  named suppThreadID,
+  named PMK,
+  named ctr,
 )
 
 apred SupplicantReceivesM1Again (
-  suppThreadID,
-  suppID,
-  PMK,
-  authThreadID,
-  PTK,
-  GTK,
-  ANonce,
-  SNonce,
-  ctr_m3,
+  named suppThreadID,
+  named suppID,
+  named PMK,
+  named authThreadID,
+  named PTK,
+  named GTK,
+  named ANonce,
+  named SNonce,
+  named ctr_m3,
 )
 
 apred SupplicantReceivesM3/9
 apred SupplicantReceivesM3Again/9
 apred SupplicantGroupKeyRekey/10
-
-apred SeesNonceForPTK (
-  ptkID,
-  receiverThreadID,
-  PTK,
-  nonce,
-)
-
-apred SeesNonceForGTK (
-  keyID,
-  receiverThreadID,
-  groupKey,
-  nonce,
-)
-
-apred ReadUnique/2
-apred AllocateUnique/2
-
-apred Free/1
-apred Read/1
-
-builtins := symmetric-encryption, multiset
 
 equation sndec =
   All message key nonce .
@@ -251,13 +230,10 @@ process sendGTKEncryptedPayload_1 =
     ]
 
 process sendGTKEncryptedPayload_2 =
-    let
-        newGTKData = <installedGTK, newGTKNonce, $index>
-	in
-    [ AuthInstalledGTK(~authID, GTK(~x) as installedGTKData)
+    [ AuthInstalledGTK(~authID, GTK(~x) as installedGTK)
     , !AuthGTKState(~authID, stateIdentifier,
                     <
-		     installedGTK,
+		     ~authID, GTK(~x),
 		     <N(n), ~authID> as installedGTKNonce,
 		     $index
 		    > as installedGTKData,

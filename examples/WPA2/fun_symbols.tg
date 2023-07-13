@@ -1,8 +1,10 @@
+builtins := symmetric-encryption, multiset
+
 fun NULL() = "NULL"
 
 // S denotes the successor function, GTK indicates that we are
 // dealing with a group key
-fun KDF/3
+fun KDF/1
 fun GTK/1
 fun N/1
 fun snenc/3
@@ -13,7 +15,7 @@ fun MIC/2
 apred Neq/2
 apred Eq/2
 
-fun kNullPTK() = KDF(NULL(), NULL(), NULL())
+fun kNullPTK() = KDF(<NULL(), NULL(), NULL()>)
 fun kNullGTK() = GTK(NULL())
 fun kNullGTKNonce() = <N(NULL()), NULL()>
 fun kNullGTKIndex() = NULL()
@@ -24,3 +26,26 @@ fun kRequestAwake() = "REQUEST_AWAKE"
 fun kAcceptAwake() = "ACCEPT_AWAKE"
 fun kDataFrame() = "DF"
 fun kManagementFrame() = "MF"
+
+fun Auth() = "Auth"
+fun Supp() = "Supp"
+
+apred ReadUnique/2
+apred AllocateUnique/2
+
+apred Free/1
+apred Read/1
+
+apred SeesNonceForPTK (
+  named ptkID,
+  named receiverThreadID,
+  named PTK,
+  named nonce,
+)
+
+apred SeesNonceForGTK (
+  named keyID,
+  named receiverThreadID,
+  named groupKey,
+  named nonce,
+)
