@@ -32,7 +32,7 @@ let pp_typ (formatter : Format.formatter) (typ : Typ.term) : unit =
     | `Fun (named_args, args, ret) -> (
         let pp_arg formatter x =
           match x with
-          | `Named (s, typ) -> Fmt.pf formatter "%s<-%a" s aux typ
+          | `Named (s, typ) -> Fmt.pf formatter "%s is %a" s aux typ
           | `Unnamed typ -> Fmt.pf formatter "%a" aux typ
         in
         match named_args, args with
@@ -226,7 +226,7 @@ let pp_term (formatter : Format.formatter) (x : Tg_ast.term) : unit =
     | T_app { path; name; named_args; args; anno } ->
       let pp_arg formatter x =
         match x with
-        | `Named (s, x) -> Fmt.pf formatter "%s<-%a" s aux x
+        | `Named (s, x) -> Fmt.pf formatter "%s is %a" s aux x
         | `Unnamed x -> Fmt.pf formatter "%a" aux x
       in
       let l =
@@ -362,7 +362,7 @@ let pp_proc (formatter : Format.formatter) (p : Tg_ast.proc) : unit =
     | P_app { path; name; named_args; args; next } -> (
         let pp_arg formatter x =
           match x with
-          | `Named (s, x) -> Fmt.pf formatter "%s<-%a" s pp_term x
+          | `Named (s, x) -> Fmt.pf formatter "%s is %a" s pp_term x
           | `Unnamed x -> Fmt.pf formatter "%a" pp_term x
         in
         let l =
