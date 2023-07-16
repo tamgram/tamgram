@@ -368,8 +368,6 @@ process Auth =
       };
       { "Auth_Snd_M1_repeat":
           let 
-              PTK = KDF(<PMK1, ANonce1, SNonce1>) 
-              ctr = S(ctr_minus_1)
               ctr_plus_1 = S(ctr)
               m1 = <ctr_plus_1, ~ANonce>
           in
@@ -379,7 +377,7 @@ process Auth =
               ~authID,
               ~PMK,
               ~suppThreadID,
-              PTK, 
+              'PTK, 
               ~ANonce,
               oldSNonce,
               ctr_plus_1
@@ -395,40 +393,65 @@ process Auth =
           frameTag is kDataFrame(),
         )
       };
-      {
+      { "Auth_Rcv_M2":
+          let 
+              ctr = S(ctr_minus_1)
+          in
+          [ 'state cas "PTK_START" ]->[];
+        Enc.InEnc(
+          role is Auth(),
+          message is .,
+          receiverThreadID is 'authThreadID,
+          receiverID is 'authID
+        );
+          [ 'message cas <<'ctr, SNonce> as m2, mic_m2> ]
+        --[ AuthenticatorReceivesM2(
+              ~authThreadID,
+              ~authID,
+              ~PMK,
+              ~suppThreadID,
+              'PTK, 
+              ~ANonce,
+              SNonce,
+              ctr
+            )
+          ]->
+          [ 'state := "PTK_CALC_NEGOTIATING"
+          , 'm2 := m2
+          , 'mic_m2 := mic_m2
+          , 'SNonce := SNonce
+          ]
+      };
+      { "Auth_Rcv_M2_repeat":
+          [ 'state cas "PKT_CALC_NEGOTIATING" ]->[];
+        Enc.InEnc(
+          role is Auth(),
+          message is .,
+          receiverThreadID is 'authThreadID,
+          receiverID is 'authID
+        );
+          [ 'm2 cas <_prev_ctr, SNonce>
+          , 'message cas <<ctr, SNonce> as m2, mic_m2> ]
+        --[ AuthenticatorReceivesM2Again(
+              ~authThreadID,
+              ~authID,
+              ~PMK,
+              ~suppThreadID,
+              'PTK,
+              ~ANonce,
+              SNonce,
+              ctr is '.
+            )
+          ]->
+          [ 'm2 := m2
+          , 'mic_m2 := mic_m2
+          , 'SNonce := SNonce
+          ]
       };
     }
   }
 
-rule Auth_Rcv_M2 [color=ddb4ff]:
-    let 
-        ctr = S(ctr_minus_1)
-        m2 = <ctr, SNonce>
-        PTK = KDF(<PMK1, ANonce1, SNonce1>) 
-    in
-    [ AuthState(~authThreadID, 'PTK_START', 
-                <~authID, ~PMK, ~suppThreadID, PTK, ~ANonce, oldSNonce, ctr>)
-	, InEnc(<!<m2, mic_m2>!>, ~authThreadID, PTK, Auth)[no_precomp] ]
-    --[ AuthenticatorReceivesM2(~authThreadID, ~authID, ~PMK, ~suppThreadID, PTK, 
-                                ~ANonce, SNonce, ctr) ]->
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING', 
-                <~authID, ~PMK, ~suppThreadID, PTK, ~ANonce, SNonce, ctr, <m2, mic_m2>>) ]
-
 rule Auth_Rcv_M2_repeat [color=ddb4ff]:
-    let 
-        PTK = KDF(<PMK1, ANonce1, SNonce1>) 
-        ctr = S(ctr_minus_1)
-        previous_ctr = S(previous_ctr_minus_1)
-        previous_m2 = <previous_ctr, SNonce>
-        m2 = <ctr, SNonce>
-    in
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING', <~authID, ~PMK, ~suppThreadID, PTK,
-                ~ANonce, oldSNonce, ctr, <previous_m2, previous_mic_m2>>)
-	, InEnc(<!<m2, mic_m2>!>, ~authThreadID, PTK, Auth)[no_precomp] ]
-    --[ AuthenticatorReceivesM2Again(~authThreadID, ~authID, ~PMK, ~suppThreadID, PTK, 
-                                     ~ANonce, SNonce, ctr) ]->
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING',
-                <~authID, ~PMK, ~suppThreadID, PTK, ~ANonce, SNonce, ctr, <m2, mic_m2>>) ]
 
 rule Auth_Check_MIC_M2_Snd_M3 [color=ddb4ff]:
     let 

@@ -155,9 +155,9 @@ process SendPTKEncryptedPayloadRuleAuth =
 process SendPTKEncryptedPayloadRuleSupp =
   SendPTKEncryptedPayloadRule(Supp())
 
-process receive(
+process InEnc(
   named role,
-  named rw 'msg,
+  named rw 'message,
   named receiverThreadID,
   named receiverID,
 ) =
@@ -168,7 +168,7 @@ process receive(
                          pointerPTK is ~pointerPTK)
         ]
       --[ Read(~pointerPTK) ]->
-        [ 'msg := message ]
+        [ 'message := message ]
     };
     {
         [ In(snenc(message, PTK, nonce))
@@ -179,6 +179,6 @@ process receive(
         , SeesNonceForPTK(ptkID is ~ptkID, receiverThreadID is ~receiverThreadID, 
                         PTK is ., nonce is .)
         , Read(~pointerPTK) ]->
-        [ 'msg := message ]
+        [ 'message := message ]
     };
   }
