@@ -51,7 +51,7 @@ pred !ReceiverPTK (
   named pointerPTK,
 )
 
-process enqueue(named authThreadID, named message, frameTag) =
+process OutEnc(named authThreadID, named message, frameTag) =
     [ Fr(~messageID) ]
   --[ EnqueueMessage(authThreadID, messageID)
     ]->
@@ -74,7 +74,13 @@ process EncryptionRule =
         nonce is <N(n), senderID, frameTag> as nonce,
       )
     ]
-  --[ EncryptedWithPTK(ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is .,)
+  --[ EncryptedWithPTK(
+        ptkID is .,
+        senderThreadID is .,
+        senderID is .,
+        PTK is .,
+        nonce is .,
+      )
     , SendMessage(senderID, messageID)
     ]->
     let newNonce = <N(n+"1"), senderID, messageID> in
@@ -109,9 +115,28 @@ process SendPTKEncryptedPayloadRule(role) =
     ]
   --
     let newDfNonce = <N(n+"1"), senderID, kDataFrame> in
-    [ EncryptedWithPTK(ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is newDfNonce)
-    , EncryptedWithPTK_withRole(role is ., ptkID is ., senderThreadID is ., senderID is ., PTK is ., nonce is newDfNonce)
-    , SendPTKEncryptedPayload(ptkID is ., senderThreadID is ., senderID is., PTK is., dfNonce is newDfNonce)
+    [ EncryptedWithPTK(
+        ptkID is .,
+        senderThreadID is .,
+        senderID is .,
+        PTK is .,
+        nonce is newDfNonce
+      )
+    , EncryptedWithPTK_withRole(
+        role is .,
+        ptkID is .,
+        senderThreadID is .,
+        senderID is .,
+        PTK is .,
+        nonce is newDfNonce
+      )
+    , SendPTKEncryptedPayload(
+        ptkID is .,
+        senderThreadID is .,
+        senderID is.,
+        PTK is.,
+        dfNonce is newDfNonce
+      )
     ]->
     [ Out(snenc(<"data", $message>, PTK, newDfNonce))
     , SenderPTK(
