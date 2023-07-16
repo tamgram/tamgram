@@ -456,10 +456,14 @@ macro_arg:
     { (`Named (key, arg) : macro_arg) }
   | SINGLE_QUOTE; key = NAME; IS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
+  | SINGLE_QUOTE; key = NAME; IS; SINGLE_QUOTE; DOT
+    { (`Named (key, T_symbol (key, `Cell)) : macro_arg) }
   | key = NAME; IS; arg = term
     { (`Named (key, arg) : macro_arg) }
   | key = NAME; IS; DOT
     { (`Named (key, T_var ([ key ], `Local 0, None)) : macro_arg) }
+  | key = NAME; IS; SINGLE_QUOTE; DOT
+    { (`Named (key, T_symbol (key, `Cell)) : macro_arg) }
   | arg = term
     { (`Unnamed arg : macro_arg) }
 
