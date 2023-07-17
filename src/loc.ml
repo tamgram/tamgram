@@ -41,4 +41,3 @@ let update_tag (loc : t option) (x : 'a tagged) = { x with loc }
 
 let update_tag_multi (loc : t option) (l : 'a tagged list) =
   List.map (update_tag loc) l
-
