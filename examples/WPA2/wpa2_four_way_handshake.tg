@@ -394,9 +394,6 @@ process Auth =
         )
       };
       { "Auth_Rcv_M2":
-          let 
-              ctr = S(ctr_minus_1)
-          in
           [ 'state cas "PTK_START" ]->[];
         Enc.InEnc(
           role is Auth(),
@@ -448,42 +445,51 @@ process Auth =
           , 'SNonce := SNonce
           ]
       };
+      { "Auth_Check_MIC_M2_Snd_M3":
+          let 
+              oldPTK = KDF(<PMK1, ANonce1, SNonce1>)
+              newPTK = KDF(<~PMK, ~ANonce, SNonce>)
+              groupKey = GTK(~x)
+              groupNonce = <N(n), ~authID>
+              shareGTKData = <groupKey, groupNonce, $index>
+              ctr = S(ctr_minus_1)
+              ctr_plus_1 = S(ctr)
+              m2 = <ctr, SNonce>
+              m3 = <ctr_plus_1, senc(<groupKey, groupNonce, $index>, newPTK)>
+          in
+          [ 'state cas "PTK_CALC_NEGOTIATING"
+          , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
+                          ~pointerGTKState)[no_precomp] 
+          ]
+        --
+          let newPTK = KDF(<'PMK, 'ANonce, 'SNonce>) in
+          [ Eq('mic_m2, MIC(newPTK, 'm2))
+          , AuthenticatorSendsInitialM3(
+              ~authThreadID,
+              ~authID,
+              ~PMK,
+              ~suppThreadID,
+              oldPTK, 
+              ~ANonce,
+              SNonce,
+              ctr_plus_1
+            )
+          , AuthenticatorRunning(~authThreadID, ~suppThreadID, 
+                                   ~PMK, ~ANonce, SNonce, newPTK)
+          , AuthenticatorUsesGTK(~authID, installedGTKData, shareGTKData)
+          , AuthenticatorSharesGTK(~authThreadID, ~authID, ~PMK, shareGTKData)
+          , ReadUnique(~pointerGTKState, ~authID) ]->
+          [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3',
+                      <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr_plus_1>)
+          , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1) ];
+        Enc.OutEnc(message is <'m3, MIC('newPTK, 'm3)>,
+                   authThreadID is '.,
+          , OutEnc(<!<m3, MIC(newPTK, m3)>!>, ~authThreadID, ~messageID, 
+                   Auth_Check_MIC_M2_Snd_M3, Auth) ]
+
+      };
     }
   }
-
-rule Auth_Rcv_M2_repeat [color=ddb4ff]:
-
-rule Auth_Check_MIC_M2_Snd_M3 [color=ddb4ff]:
-    let 
-        oldPTK = KDF(<PMK1, ANonce1, SNonce1>)
-        newPTK = KDF(<~PMK, ~ANonce, SNonce>)
-        groupKey = GTK(~x)
-        groupNonce = <N(n), ~authID>
-        shareGTKData = <groupKey, groupNonce, $index>
-        ctr = S(ctr_minus_1)
-        ctr_plus_1 = S(ctr)
-        m2 = <ctr, SNonce>
-        m3 = <ctr_plus_1, senc(<groupKey, groupNonce, $index>, newPTK)>
-    in
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING',
-                <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr, <m2, mic_m2>>)
-    , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
-                    ~pointerGTKState)[no_precomp] 
-    , Fr(~messageID) ]
-    --[ Eq(mic_m2, MIC(newPTK, m2))
-      , AuthenticatorSendsInitialM3(~authThreadID, ~authID, ~PMK, ~suppThreadID, oldPTK, 
-                                    ~ANonce, SNonce, ctr_plus_1)
-      , AuthenticatorRunning(~authThreadID, ~suppThreadID, 
-                             ~PMK, ~ANonce, SNonce, newPTK)
-      , AuthenticatorUsesGTK(~authID, installedGTKData, shareGTKData)
-      , AuthenticatorSharesGTK(~authThreadID, ~authID, ~PMK, shareGTKData)
-      , ReadUnique(~pointerGTKState, ~authID) 
-      , EnqueueMessage(~authThreadID, ~messageID) ]->
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3',
-                <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr_plus_1>)
-    , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1) 
-    , OutEnc(<!<m3, MIC(newPTK, m3)>!>, ~authThreadID, ~messageID, 
-             Auth_Check_MIC_M2_Snd_M3, Auth) ]
 
 OutEncRuleDataFrame(Auth_Check_MIC_M2_Snd_M3, Auth)
 
