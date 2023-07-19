@@ -484,14 +484,29 @@ process Auth =
           , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1) ];
         Enc.OutEnc(message is <'m3, MIC('newPTK, 'm3)>,
                    authThreadID is '.,
-          , OutEnc(<!<m3, MIC(newPTK, m3)>!>, ~authThreadID, ~messageID, 
-                   Auth_Check_MIC_M2_Snd_M3, Auth) ]
+                   frameTag is kDataFrame())
 
+      };
+      { "Auth_Snd_M3_repeat":
+          [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3', 
+                      <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr>)
+          , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
+                          ~pointerGTKState)[no_precomp] 
+          , Fr(~messageID) ]
+        --[ AuthenticatorSendsM3Again(~authThreadID, ~authID, ~PMK, ~suppThreadID, oldPTK, 
+                                      ~ANonce, SNonce, ctr_plus_1)
+          , AuthenticatorUsesGTK(~authID, installedGTKData, shareGTKData)
+          , AuthenticatorSharesGTK(~authThreadID, ~authID, ~PMK, shareGTKData)
+          , ReadUnique(~pointerGTKState, ~authID) 
+          , EnqueueMessage(~authThreadID, ~messageID) ]->
+          [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3', 
+                      <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr_plus_1>)
+          , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1)
+          , OutEnc(<!<m3, MIC(newPTK, m3)>!>, ~authThreadID, ~messageID, 
+                   Auth_Snd_M3_repeat, Auth) ]
       };
     }
   }
-
-OutEncRuleDataFrame(Auth_Check_MIC_M2_Snd_M3, Auth)
 
 rule Auth_Snd_M3_repeat [color=ddb4ff]:
     let 
@@ -504,22 +519,6 @@ rule Auth_Snd_M3_repeat [color=ddb4ff]:
         ctr_plus_1 = S(ctr)
         m3 = <ctr_plus_1, senc(<groupKey, groupNonce, $index>, newPTK)>
     in
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3', 
-                <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr>)
-    , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
-                    ~pointerGTKState)[no_precomp] 
-    , Fr(~messageID) ]
-    --[ AuthenticatorSendsM3Again(~authThreadID, ~authID, ~PMK, ~suppThreadID, oldPTK, 
-                                  ~ANonce, SNonce, ctr_plus_1)
-      , AuthenticatorUsesGTK(~authID, installedGTKData, shareGTKData)
-      , AuthenticatorSharesGTK(~authThreadID, ~authID, ~PMK, shareGTKData)
-      , ReadUnique(~pointerGTKState, ~authID) 
-      , EnqueueMessage(~authThreadID, ~messageID) ]->
-    [ AuthState(~authThreadID, 'PTK_CALC_NEGOTIATING3', 
-                <~authID, ~PMK, ~suppThreadID, oldPTK, ~ANonce, SNonce, ctr_plus_1>)
-    , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1)
-    , OutEnc(<!<m3, MIC(newPTK, m3)>!>, ~authThreadID, ~messageID, 
-             Auth_Snd_M3_repeat, Auth) ]
 
 OutEncRuleDataFrame(Auth_Snd_M3_repeat, Auth)
 
