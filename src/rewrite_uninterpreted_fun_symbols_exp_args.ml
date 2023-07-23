@@ -1,6 +1,6 @@
 open Result_syntax
 
-let check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs : (unit, Error_msg.t) result =
+let check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux (s : macro_arg_spec Binding.t Seq.t) =
     match s () with
@@ -48,7 +48,7 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
         match d with
         | D_fun_exp_args binding -> (
             let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
-            let+ () = check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs in
+            let+ () = check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs in
             let arity = List.length named_arg_and_typs + List.length arg_and_typs in
             let macro = aux_macro ~binding ~named_arg_and_typs ~arg_and_typs ~ret_typ:`Bitstring in
             [ D_fun (Binding.make (Binding.name_str binding) arity)
@@ -57,7 +57,7 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
           )
         | D_pred_exp_args binding -> (
             let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
-            let+ () = check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs in
+            let+ () = check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs in
             let arity = List.length named_arg_and_typs + List.length arg_and_typs in
             let macro = aux_macro ~binding ~named_arg_and_typs ~arg_and_typs ~ret_typ:`Fact in
             [ D_pred (Binding.make (Binding.name_str binding) { arity; options = [] })
@@ -66,7 +66,7 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
           )
         | D_ppred_exp_args binding -> (
             let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
-            let+ () = check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs in
+            let+ () = check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs in
             let arity = List.length named_arg_and_typs + List.length arg_and_typs in
             let macro = aux_macro ~binding ~named_arg_and_typs ~arg_and_typs ~ret_typ:`Pfact in
             [ D_ppred (Binding.make (Binding.name_str binding) { arity; options = [] })
@@ -75,7 +75,7 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
           )
         | D_apred_exp_args binding -> (
             let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
-            let+ () = check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs in
+            let+ () = check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs in
             let arity = List.length named_arg_and_typs + List.length arg_and_typs in
             let macro = aux_macro ~binding ~named_arg_and_typs ~arg_and_typs ~ret_typ:`Afact in
             [ D_apred (Binding.make (Binding.name_str binding) arity)
@@ -84,7 +84,7 @@ let aux_modul (modul : Tg_ast.modul) : (Tg_ast.modul, Error_msg.t) result =
           )
         | D_papred_exp_args binding -> (
             let { named_arg_and_typs; arg_and_typs } : fun_symbol_explicit_args = Binding.get binding in
-            let+ () = check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs in
+            let+ () = check_arg_markers ~binding ~named_arg_and_typs ~arg_and_typs in
             let arity = List.length named_arg_and_typs + List.length arg_and_typs in
             let macro = aux_macro ~binding ~named_arg_and_typs ~arg_and_typs ~ret_typ:`Pafact in
             [ D_papred (Binding.make (Binding.name_str binding) arity)
