@@ -67,9 +67,9 @@ let rewrite_rule_binding (x : Tg_ast.rule_binding) =
     let macro = Binding.get binding in
     R_let_macro {
       binding = Binding.update
-      { macro with body = rewrite_term macro.body }
-      binding
-      }
+          { macro with body = rewrite_term macro.body }
+          binding
+    }
 
 let rewrite_rule (rule : Tg_ast.rule) : Tg_ast.rule =
   let open Tg_ast in
