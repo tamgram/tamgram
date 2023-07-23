@@ -98,8 +98,8 @@ let rewrite_proc (proc : Tg_ast.proc) : Tg_ast.proc =
       P_let_macro { binding; next }
     | P_app { path; name; named_args; args; next } ->
       let named_args =
-        List.map (fun name x ->
-            aux x)
+        List.map (fun (name, x) ->
+            (name, rewrite_term x))
           named_args
       in
       let next = aux next in
@@ -137,15 +137,15 @@ let aux_modul (modul : Tg_ast.modul) : Tg_ast.modul =
       let d =
         match d with
         | D_process { binding } ->
-          let+ proc = rewrite_proc (Binding.get binding) in
+          let proc = rewrite_proc (Binding.get binding) in
           D_process { binding = Binding.update proc binding }
         | D_process_macro binding ->
           let macro = Binding.get binding in
-          let+ body = rewrite_proc macro.body in
+          let body = rewrite_proc macro.body in
           let macro = { macro with body } in
           D_process_macro (Binding.update macro binding)
         | D_rule { binding } ->
-          let+ rule = rewrite_rule (Binding.get binding) in
+          let rule = rewrite_rule (Binding.get binding) in
           D_rule { binding = Binding.update rule binding }
         | D_fun _ | D_fun_exp_args _
         | D_pred _ | D_pred_exp_args _
@@ -157,7 +157,7 @@ let aux_modul (modul : Tg_ast.modul) : Tg_ast.modul =
         | D_open _ | D_include _ | D_import _ | D_modul_alias _ | D_builtins _ ->
           d
         | D_modul (name, m) ->
-          let+ m = aux [] m in
+          let m = aux [] m in
           D_modul (name, m)
       in
       aux (d :: acc) ds

@@ -2,7 +2,7 @@
   open Tg_ast
   open Syntax_error_exn
 
-  let sort_through_arg_and_typs (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) =
+  let sort_through_arg_and_typs (arg_and_typs : macro_arg_spec Binding.t list) =
     let named, unnamed =
       List.fold_left (fun (named, unnamed) x ->
         let markers, _typ = Binding.get x in
@@ -16,7 +16,7 @@
     in
     (List.rev named, List.rev unnamed)
 
-  let macro (arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list) ret_typ body : Tg_ast.macro =
+  let macro (arg_and_typs : macro_arg_spec Binding.t list) ret_typ body : Tg_ast.macro =
     let named_arg_and_typs, arg_and_typs =
       sort_through_arg_and_typs arg_and_typs
     in
@@ -27,7 +27,7 @@
       body;
     }
 
-  let proc_macro (arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list) body : Tg_ast.proc_macro =
+  let proc_macro (arg_and_typs : proc_macro_arg_spec Binding.t list) body : Tg_ast.proc_macro =
     let named_arg_and_typs, arg_and_typs =
       List.fold_left (fun (named, unnamed) x ->
         let markers, _typ = Binding.get x in

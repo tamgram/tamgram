@@ -2,7 +2,7 @@ open Result_syntax
 
 let check_param_markers ~binding ~named_arg_and_typs ~arg_and_typs : (unit, Error_msg.t) result =
   let open Tg_ast in
-  let rec aux (s : (macro_param_marker list * Typ.term) Binding.t Seq.t) =
+  let rec aux (s : macro_arg_spec Binding.t Seq.t) =
     match s () with
     | Seq.Nil -> Ok ()
     | Seq.Cons (x, rest) -> (

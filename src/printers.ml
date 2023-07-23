@@ -81,7 +81,7 @@ let prefix_of_typ (typ : Typ.term) : string =
   | _ -> ""
 
 let pp_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
-    (binding : (Tg_ast.macro_param_marker list * Typ.term) Binding.t) : unit =
+    (binding : Tg_ast.macro_arg_spec Binding.t) : unit =
   let (markers, typ) = Binding.get binding in
   let named_str =
     if List.mem `Named markers then
@@ -102,7 +102,7 @@ let pp_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.forma
 let pp_macro_arg_and_typs
     ?only_prefix
     (formatter : Format.formatter)
-    ((named, unnamed) : (Tg_ast.macro_param_marker list * Typ.term) Binding.t list * (Tg_ast.macro_param_marker list * Typ.term) Binding.t list)
+    ((named, unnamed) : Tg_ast.macro_arg_spec Binding.t list * Tg_ast.macro_arg_spec Binding.t list)
   : unit =
   let pp_arg formatter x : unit =
     match x with
@@ -115,7 +115,7 @@ let pp_macro_arg_and_typs
   Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_arg) args
 
 let pp_proc_macro_param_name_and_typ ?(only_prefix = false) (formatter : Format.formatter)
-    (binding : (Tg_ast.proc_macro_param_marker list * Typ.term) Binding.t) : unit =
+    (binding : Tg_ast.proc_macro_arg_spec Binding.t) : unit =
   let (markers, typ) = Binding.get binding in
   let named_str =
     if List.mem `Named markers then

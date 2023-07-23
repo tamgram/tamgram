@@ -30,20 +30,22 @@ type value =
   | `F
   ]
 
-type macro_param_marker = [
+type macro_arg_marker = [
   | `Named
 ]
 
+type macro_arg_spec = macro_arg_marker list * Typ.term
+
 type macro = {
-  named_arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
-  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
+  named_arg_and_typs : macro_arg_spec Binding.t list;
+  arg_and_typs : macro_arg_spec Binding.t list;
   ret_typ : Typ.term;
   body : term;
 }
 
 and fun_symbol_explicit_args = {
-  named_arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
-  arg_and_typs : (macro_param_marker list * Typ.term) Binding.t list;
+  named_arg_and_typs : macro_arg_spec Binding.t list;
+  arg_and_typs : macro_arg_spec Binding.t list;
 }
 
 and fact_anno = [
@@ -153,10 +155,12 @@ type rw = [
   | `Rw
 ]
 
-type proc_macro_param_marker = [
+type proc_macro_arg_marker = [
   | rw
-  | macro_param_marker
+  | macro_arg_marker
 ]
+
+type proc_macro_arg_spec = proc_macro_arg_marker list * Typ.term
 
 type proc =
   | P_null
@@ -188,8 +192,8 @@ type proc =
   | P_continue of Loc.t option * string Loc.tagged option
 
 and proc_macro = {
-  named_arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list;
-  arg_and_typs : (proc_macro_param_marker list * Typ.term) Binding.t list;
+  named_arg_and_typs : proc_macro_arg_spec Binding.t list;
+  arg_and_typs : proc_macro_arg_spec Binding.t list;
   body : proc;
 }
 
