@@ -121,7 +121,7 @@ rule read =
   | '/'        { SLASH }
   | '-'        { MINUS }
   | '\''       { SINGLE_QUOTE }
-  | '.'        { DOT }
+  | '.'        { DOT (loc lexbuf) }
   | '#'        { HASH }
   | '@'        { AT }
   | '&'        { AND }
