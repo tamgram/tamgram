@@ -432,7 +432,10 @@ let aux_proc_macro
       result =
   let open Tg_ast in
   let { named_arg_and_typs; arg_and_typs; body } : proc_macro = Binding.get binding in
-  match check_for_dup_args (List.map Binding.name_str arg_and_typs) with
+  match
+    check_for_dup_args
+      (List.map Binding.name_str arg_and_typs @ List.map Binding.name_str named_arg_and_typs)
+  with
   | Error msg -> Error (msg, None)
   | Ok () ->
     let lexical_ctx_for_var, named_arg_and_typs =
