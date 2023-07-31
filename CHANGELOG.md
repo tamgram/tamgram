@@ -9,7 +9,7 @@
     fun f (named a, named b) = <a, b>
 
     process A =
-      []->[ Out(f(a<-"1", b<-"2")) ]
+      []->[ Out(f(a is "1", b is "2")) ]
     ```
 
   - Usage for process macro:
@@ -18,7 +18,7 @@
 
     process A =
       []->[ 'c := "1" ];
-      f('a<-'c, b<-"2")
+      f('a is 'c, b is "2")
     ```
 
 - Added read write marker to cell input in process macro syntax
@@ -26,7 +26,7 @@
   process f(rw 'a, 'b) = []->[ Out(<'a>), 'a := 'b ]
   ```
 
-- Removed module `open` and `insert`
+- Replaced module `insert` keyword with `include`
 
 - Added `import` syntax to import top level modules (other files)
 
