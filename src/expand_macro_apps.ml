@@ -136,50 +136,51 @@ let aux_proc
             let body =
               match named_args, args with
               | [], [] -> macro.body
-              | _, _ ->
-                let cell_subs, subs =
-                  List.fold_left
-                    (fun (cell_subs, subs) binding ->
-                       let arg = List.assoc (Binding.name_str_untagged binding) named_args in
-                       match Binding.get binding with
-                       | `Cell -> (
-                           match arg with
-                           | T_symbol (arg_cell, `Cell) ->
-                             ((Binding.name_str_untagged binding, arg_cell) :: cell_subs,
-                              subs)
-                           | _ -> failwith "Unexpected case"
-                         )
-                       | _ -> (
-                           (cell_subs,
-                            (Binding.name binding, arg) :: subs
+              | _, _ -> (
+                  let cell_subs, subs =
+                    List.fold_left
+                      (fun (cell_subs, subs) binding ->
+                         let arg = List.assoc (Binding.name_str_untagged binding) named_args in
+                         match Binding.get binding with
+                         | `Cell -> (
+                             match arg with
+                             | T_symbol (arg_cell, `Cell) ->
+                               ((Binding.name_str_untagged binding, arg_cell) :: cell_subs,
+                                subs)
+                             | _ -> failwith "Unexpected case"
                            )
-                         )
-                    )
-                    ([], [])
-                    (List.map (Binding.map snd) macro.named_arg_and_typs)
-                in
-                let cell_subs, subs =
-                  List.fold_left2
-                    (fun (cell_subs, subs) binding arg ->
-                       match Binding.get binding with
-                       | `Cell -> (
-                           match arg with
-                           | T_symbol (arg_cell, `Cell) ->
-                             ((Binding.name_str_untagged binding, arg_cell) :: cell_subs,
-                              subs)
-                           | _ -> failwith "Unexpected case"
-                         )
-                       | _ -> (
-                           (cell_subs,
-                            (Binding.name binding, arg) :: subs
+                         | _ -> (
+                             (cell_subs,
+                              (Binding.name binding, arg) :: subs
+                             )
                            )
-                         )
-                    )
-                    (cell_subs, subs)
-                    (List.map (Binding.map snd) macro.arg_and_typs) args
-                in
-                Proc.sub ~loc:(Path.loc path) ~cell_subs subs
-                  macro.body
+                      )
+                      ([], [])
+                      (List.map (Binding.map snd) macro.named_arg_and_typs)
+                  in
+                  let cell_subs, subs =
+                    List.fold_left2
+                      (fun (cell_subs, subs) binding arg ->
+                         match Binding.get binding with
+                         | `Cell -> (
+                             match arg with
+                             | T_symbol (arg_cell, `Cell) ->
+                               ((Binding.name_str_untagged binding, arg_cell) :: cell_subs,
+                                subs)
+                             | _ -> failwith "Unexpected case"
+                           )
+                         | _ -> (
+                             (cell_subs,
+                              (Binding.name binding, arg) :: subs
+                             )
+                           )
+                      )
+                      (cell_subs, subs)
+                      (List.map (Binding.map snd) macro.arg_and_typs) args
+                  in
+                  Proc.sub ~loc:(Path.loc path) ~cell_subs subs
+                    macro.body
+                )
             in
             let next =
               aux
