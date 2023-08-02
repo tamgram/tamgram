@@ -124,5 +124,6 @@ let from_file (file : string) : (Tg_ast.modul, Error_msg.t) result =
         (D_modul (Loc.untagged modul_name, m) :: l)
       ) (Ok []) import_list
     in
+    let imported_modul_decls = List.rev imported_modul_decls in
     Ok (imported_modul_decls @ m)
   )
