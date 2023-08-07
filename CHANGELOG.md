@@ -4,6 +4,8 @@
 
 - Fixed cell location used in missing `rw` marker error message
 
+- Disabled cell pattern analysis by default
+
 ## 0.5.0
 
 - Added named arguments to process macro and term macro

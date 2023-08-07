@@ -4,7 +4,7 @@ let debug_node = ref false
 
 let merge_branches = ref true
 
-let analyze_possible_cell_data_shapes = ref true
+let analyze_possible_cell_data_shapes = ref false
 
 let use_most_general_cell_data_shape = ref false
 
