@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- Fixed cell location used in missing `rw` marker error message
+
 ## 0.5.0
 
 - Added named arguments to process macro and term macro
