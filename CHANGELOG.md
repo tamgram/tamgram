@@ -6,6 +6,11 @@
 
 - Disabled cell pattern analysis by default
 
+- Fixed argument ordering in process macro
+
+- Added missing macro expansion in if-then-else condition
+  and while loop condition
+
 ## 0.5.0
 
 - Added named arguments to process macro and term macro
