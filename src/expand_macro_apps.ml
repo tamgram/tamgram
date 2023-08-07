@@ -74,6 +74,16 @@ and aux_terms defs terms =
 and aux_macro defs macro =
   { macro with body = aux_term defs macro.body }
 
+let aux_cond_cell_match term_macro_defs (x : Tg_ast.cond_cell_match) =
+  let open Tg_ast in
+  let { mode; cell; term; vars_in_term } = x in
+  {
+    mode;
+    cell;
+    term = aux_term term_macro_defs term;
+    vars_in_term;
+  }
+
 let aux_rule defs (rule : Tg_ast.rule) : Tg_ast.rule =
   let open Tg_ast in
   let { l; vars_in_l; bindings_before_a; a; bindings_before_r; r } = rule in
@@ -209,13 +219,17 @@ let aux_proc
     | P_loop { label; mode; proc; next } ->
       P_loop {
         label;
-        mode;
+        mode = (match mode with
+            | `While cond ->
+              `While (aux_cond_cell_match term_macro_defs cond)
+            | `Unconditional -> mode
+          );
         proc = aux term_macro_defs proc;
         next = aux term_macro_defs next;
       }
     | P_if_then_else { loc; cond; true_branch; false_branch; next } ->
       P_if_then_else { loc;
-                       cond;
+                       cond = aux_cond_cell_match term_macro_defs cond;
                        true_branch = aux term_macro_defs true_branch;
                        false_branch = aux term_macro_defs false_branch;
                        next = aux term_macro_defs next;
