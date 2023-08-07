@@ -81,7 +81,7 @@ let check_no_cell_dep_cycles (terms : Tg_ast.term list)
       | T_cell_pat_match (x, y) ->
         let* usage_y = usage_in_term y in
         let cell_deps =
-          String_tagged_map.add x (Usage.requires_cells usage_y) 
+          String_tagged_map.add x (Usage.requires_cells usage_y)
             cell_deps
         in
         if Cell_deps.a_deps_on_b ~a:x ~b:x cell_deps then

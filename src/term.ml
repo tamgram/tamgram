@@ -337,13 +337,23 @@ let rec replace_cells_in_term (subs : (string * Tg_ast.term) list)
 and replace_cells_in_terms subs (terms : Tg_ast.term list) : Tg_ast.term list =
   List.map (replace_cells_in_term subs) terms
 
-let union_cell_rw m1 m2 =
-  String_tagged_map.union (fun _ x y ->
-      match x, y with
-      | _, `Rw | `Rw, _ -> Some `Rw
-      | _ -> Some `R
+let union_cell_rw
+    (m1 : Tg_ast.rw String_tagged_map.t)
+    (m2 : Tg_ast.rw String_tagged_map.t)
+  =
+  let s1 = String_tagged_map.to_seq m1 in
+  let s2 = String_tagged_map.to_seq m2 in
+  Seq.append s1 s2
+  |> Seq.fold_left (fun m (cell, rw) ->
+      match String_tagged_map.find_opt cell m with
+      | None -> String_tagged_map.add cell rw m
+      | Some rw' -> (
+          match rw, rw' with
+          | `Rw, `R -> String_tagged_map.add cell rw m
+          | _, _ -> m
+        )
     )
-    m1 m2
+    String_tagged_map.empty
 
 let rec cells_in_term (term : Tg_ast.term) : Tg_ast.rw String_tagged_map.t =
   let open Tg_ast in
