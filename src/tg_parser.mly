@@ -39,6 +39,9 @@
       ([], [])
       arg_and_typs
     in
+    let named_arg_and_typs, arg_and_typs =
+      (List.rev named_arg_and_typs, List.rev arg_and_typs)
+    in
     {
       named_arg_and_typs;
       arg_and_typs;
