@@ -76,6 +76,17 @@ pred !PairwiseMasterKey (
   named suppThreadID,
 )
 
+apred AuthenticatorSendsM1Again (
+  named authThreadID,
+  named authID,
+  named PMK,
+  named suppThreadID,
+  named PTK,
+  named ANonce,
+  named SNonce,
+  named ctr,
+)
+
 equation sndec =
   All message key nonce .
     sndec(snenc(message, key, nonce), key) = message
@@ -158,6 +169,9 @@ module Restrictions = {
            not(Ex pointer2 #k. i < k & k < j & 
                AllocateUnique(pointer2, owner) @ k)
 }
+
+apred SupplicantCreated/1
+pred !Supplicant/1
 
 module Setup = {
   process Supp_Create =
@@ -345,14 +359,14 @@ process Auth =
         --
           let ctr_plus_1 = S(ctr) in
           [ AuthenticatorSendsM1(
-              ~authThreadID,
-              ~authID,
-              ~PMK,
-              ~suppThreadID,
-              PTK,
-              ~ANonce,
-              oldSNonce,
-              ctr_plus_1
+              authThreadID is '.,
+              authID is '.,
+              PMK is '.,
+              suppThreadID is '.,
+              PTK is '.,
+              ANonce is '.,
+              SNonce is 'oldSNonce,
+              ctr is ctr_plus_1
             )
           ]->
           [ 'state := "PTK_START"
@@ -361,26 +375,23 @@ process Auth =
           , 'm1 := <ctr_plus_1, ~ANonce>
           , !UsedCounterInPTKHandshake(~authThreadID, ~ANonce, ctr_plus_1) ];
         Enc.OutEnc(
-          authThreadID is 'authThreadID,
+          authThreadID is '.,
           message is 'm1,
           frameTag is kDataFrame(),
         )
       };
       { "Auth_Snd_M1_repeat":
-          let 
-              ctr_plus_1 = S(ctr)
-              m1 = <ctr_plus_1, ~ANonce>
-          in
           [ 'state cas "PTK_START" ]
-        --[ AuthenticatorSendsM1Again(
-              ~authThreadID,
-              ~authID,
-              ~PMK,
+        --
+          [ AuthenticatorSendsM1Again(
+              authThreadID is ~authThreadID,
+              authID is ~authID,
+              PMK is ~PMK,
               ~suppThreadID,
               'PTK, 
               ~ANonce,
               oldSNonce,
-              ctr_plus_1
+              ctr is 'ctr,
             )
           ]->
           [ AuthState(~authThreadID, 'PTK_START', 
@@ -459,7 +470,7 @@ process Auth =
           in
           [ 'state cas "PTK_CALC_NEGOTIATING"
           , !AuthGTKState(~authID, stateIdentifier, installedGTKData, shareGTKData,
-                          ~pointerGTKState)[no_precomp] 
+                          ~pointerGTKState)
           ]
         --
           let newPTK = KDF(<'PMK, 'ANonce, 'SNonce>) in
@@ -508,6 +519,7 @@ process Auth =
     }
   }
 
+/*
 rule Auth_Snd_M3_repeat [color=ddb4ff]:
     let 
         oldPTK = KDF(<PMK1, ANonce1, SNonce1>)
@@ -577,4 +589,4 @@ rule Auth_Rekey_PTK [color=a333ff]:
                  <~authID, ~PMK, ~suppThreadID, PTK, ~ANonce, SNonce, ctr>) ]
 
 // END PTK state machine for the authenticator (R1KH)
-
+*/

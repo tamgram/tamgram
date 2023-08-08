@@ -1,0 +1,21 @@
+theory fun_symbols
+begin
+
+builtins: symmetric-encryption, multiset
+
+functions: KDF_21/1
+
+functions: GTK_22/1
+
+functions: N_23/1
+
+functions: snenc_24/3
+
+functions: sndec_25/2
+
+functions: S_26/1
+
+functions: MIC_27/2
+
+end
+
