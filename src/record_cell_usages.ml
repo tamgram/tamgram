@@ -88,7 +88,7 @@ let check_no_cell_dep_cycles (terms : Tg_ast.term list)
           Error
             (Error_msg.make
                (Loc.tag x)
-               (Fmt.str "matching of cell '%s here causes dependency cycle"
+               (Fmt.str "Matching of cell '%s here causes dependency cycle"
                   (Loc.content x))
             )
         else
