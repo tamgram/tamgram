@@ -46,6 +46,6 @@ apred SeesNonceForPTK (
 apred SeesNonceForGTK (
   named keyID,
   named receiverThreadID,
-  named groupKey,
+  named GTK,
   named nonce,
 )

@@ -51,7 +51,7 @@ pred !ReceiverPTK (
   named pointerPTK,
 )
 
-process OutEnc(named senderThreadID, named message, frameTag) =
+process OutEnc(named senderThreadID, named message, named frameTag) =
     [ Fr(~messageID) ]
   --[ EnqueueMessage(senderThreadID, messageID)
     ]->

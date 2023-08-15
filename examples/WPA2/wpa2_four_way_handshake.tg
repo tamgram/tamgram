@@ -143,7 +143,7 @@ apred AuthenticatorRunning (
 )
 apred AuthenticatorSharesGTK (
   named authThreadID,
-  named installedGTKData,
+  named authID,
   named PMK,
   named shareGTKData,
 )
@@ -180,45 +180,47 @@ module Restrictions = {
 
   restriction ReplayCounterM1Again =
      All suppThreadID suppID PMK authThreadID PTK GTK ANonce SNonce ctr_m1 #i.
-     SupplicantReceivesM1Again(suppThreadID, suppID, PMK, authThreadID, PTK, 
-                                 GTK, ANonce, SNonce, ctr_m1) @ i
+     SupplicantReceivesM1Again(suppThreadID is ., suppID is ., PMK is ., authThreadID is ., PTK is ., 
+                                 GTK is ., ANonce is ., SNonce is ., ctr is ctr_m1) @ i
        ==> not Ex #j. j < i & 
-                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m1) @ j
+                      SupplicantSeesCounter(suppThreadID is ., PMK is ., ctr is ctr_m1) @ j
 
   restriction ReplayCounterM3 =
        All suppThreadID suppID PMK authThreadID PTK ANonce SNonce GTK ctr_m3 #i.
-       SupplicantReceivesM3(suppThreadID, suppID, PMK, authThreadID, PTK, 
-                            GTK, ANonce, SNonce, ctr_m3) @ i
+       SupplicantReceivesM3(suppThreadID is ., suppID is ., PMK is ., authThreadID is ., PTK is .,
+                            GTK is ., ANonce is ., SNonce is ., ctr is ctr_m3) @ i
        ==> not Ex #j. j < i & 
-                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m3) @ j
+                      SupplicantSeesCounter(suppThreadID is ., PMK is ., ctr is ctr_m3) @ j
 
   restriction ReplayCounterM3Again =
        All suppThreadID suppID PMK authThreadID PTK GTK ANonce SNonce ctr_m3 #i.
-       SupplicantReceivesM3Again(suppThreadID, suppID, PMK, authThreadID, PTK, 
-                                 GTK, ANonce, SNonce, ctr_m3) @ i
+       SupplicantReceivesM3Again(suppThreadID is ., suppID is ., PMK is ., authThreadID is ., PTK is .,
+                                 GTK is ., ANonce is ., SNonce is ., ctr is ctr_m3) @ i
        ==> not Ex #j. j < i & 
-                      SupplicantSeesCounter(suppThreadID, PMK, ctr_m3) @ j
+                      SupplicantSeesCounter(suppThreadID is ., PMK is ., ctr is ctr_m3) @ j
 
   restriction ReplayCounterGroupKeyRekey =
        All suppThreadID suppID PMK authThreadID PTK oldGTK newGTK ANonce SNonce ctr #i.
-       SupplicantGroupKeyRekey(suppThreadID, suppID, PMK, authThreadID, PTK, 
-                               oldGTK, newGTK, ANonce, SNonce, ctr) @ i
+       SupplicantGroupKeyRekey(suppThreadID is ., suppID is ., PMK is ., authThreadID is ., PTK is .,
+                               oldGTK is ., newGTK is ., ANonce is ., SNonce is ., ctr is .) @ i
        ==> not Ex #j. j < i & 
-                      SupplicantSeesCounter(suppThreadID, PMK, ctr) @ j
+                      SupplicantSeesCounter(suppThreadID is ., PMK is ., ctr is .) @ j
 
   restriction ReplayCounterPairwiseMessages =
        All ptkID receiverThreadID senderID PTK n1 n2 frameType #i #j.
-       SeesNonceForPTK(ptkID, receiverThreadID, PTK, 
-                       <N(n1), senderID, frameType>) @ i &
-       SeesNonceForPTK(ptkID, receiverThreadID, PTK, 
-                       <N(n2), senderID, frameType>) @ j & 
+       SeesNonceForPTK(ptkID is ., receiverThreadID is ., PTK is .,
+                       nonce is <N(n1), senderID, frameType>) @ i &
+       SeesNonceForPTK(ptkID is ., receiverThreadID is ., PTK is .,
+                       nonce is <N(n2), senderID, frameType>) @ j & 
        i < j
        ==>  Ex z. n1 + z = n2
 
   restriction ReplayCounterGroupPayload =
        All keyID receiverThreadID senderID groupKey n1 n2 #i #j.
-       SeesNonceForGTK(keyID, receiverThreadID, groupKey, <N(n1), senderID>) @ i &
-       SeesNonceForGTK(keyID, receiverThreadID, groupKey, <N(n2), senderID>) @ j & 
+       SeesNonceForGTK(keyID is ., receiverThreadID is ., GTK is groupKey,
+                       nonce is <N(n1), senderID>) @ i &
+       SeesNonceForGTK(keyID is ., receiverThreadID is ., GTK is groupKey,
+                       nonce is <N(n2), senderID>) @ j & 
        i < j
        ==>  Ex z. n1 + z = n2
 
@@ -255,8 +257,8 @@ pred !AuthGTKState (
   named pointerGTKState,
 )
 pred AuthInstalledGTK/2
-pred Init/1
-pred Associate (
+apred Init/1
+apred Associate (
   named authID,
   named authThreadID,
   named suppID,
@@ -280,7 +282,7 @@ pred !SuppReceiverPTK (
   named pointerSuppPTK,
 )
 pred ReceiverGTK (
-  named suppThreadID,
+  named receiverThreadID,
   named GTKID,
   named PMK,
   named GTK,
@@ -288,7 +290,6 @@ pred ReceiverGTK (
   named GTKIndex,
 )
 apred ReceiveGTKEncryptedPayload/5
-apred SeesNonceForGTK/4
 apred EncryptedWithGTK/3
 apred AuthenticatorUsesGTK/3
 apred SendGTKEncryptedPayload/3
@@ -319,8 +320,8 @@ module Setup = {
       , AllocateUnique(~pointerGTKState, ~authID)
       ]
     ->[ !Authenticator(~authID)
-      , !AuthGTKState(~authID, "SETKEYSDONE", installedGTKData, shareGTKData,
-                      ~pointerGTKState)
+      , !AuthGTKState(authID is ., state is "SETKEYSDONE", installedGTKData is ., shareGTKData is .,
+                      pointerGTKState is .)
       , AuthInstalledGTK(~authID, installedGTKData)
       , Out(~authID) ]
 
@@ -340,19 +341,19 @@ module Setup = {
       let initialPTK = kNullPTK() in
       let initialSuppGTKData = <kNullGTK(), kNullGTKNonce(), kNullGTKIndex()> in
       [ Init(~PMK)
-      , Associate(~authID, ~authThreadID, ~suppID, ~suppThreadID, ~PMK) ]->
-      [ AuthState(~authThreadID, 'INIT_R1_SA', <~authID, ~PMK, ~suppThreadID, initialPTK, 
-                  'NULL_ANonce', 'NULL_SNonce', ctr_start>)
-      , SuppState(~suppThreadID, 'INIT_R1_SA', 
+      , Associate(authID is ., authThreadID is ., suppID is ., suppThreadID is ., PMK is .) ]->
+      [ AuthState(~authThreadID, "INIT_R1_SA", <~authID, ~PMK, ~suppThreadID, initialPTK, 
+                  "NULL_ANonce", "NULL_SNonce", ctr_start>)
+      , SuppState(~suppThreadID, "INIT_R1_SA", 
                   <~suppID, ~PMK, ~authThreadID, initialPTK, initialSuppGTKData, 
-                   'NULL_ANonce', 'NULL_SNonce', S('NULL')>)
-      , !PairwiseMasterKey(~PMK, ~authID, ~authThreadID, ~suppID, ~suppThreadID)
-      , !AuthReceiverPTK(~authReceiverPtkID, ~authThreadID, ~authID, initialPTK,
-                         ~pointerAuthPTK)
-      , !SuppReceiverPTK(~suppReceiverPtkID, ~suppThreadID, ~suppID, initialPTK, 
-                         ~pointerSuppPTK)
-      , ReceiverGTK(suppThreadID is .,
-                    nullGTKID is .,
+                   "NULL_ANonce", "NULL_SNonce", S("NULL")>)
+      , !PairwiseMasterKey(PMK is ., authID is ., authThreadID is ., suppID is ., suppThreadID is .)
+      , !AuthReceiverPTK(authReceiverPtkID is ., authThreadID is ., authID is ., initialPTK is .,
+                         pointerAuthPTK is . )
+      , !SuppReceiverPTK(suppReceiverPtkID is ., suppThreadID is ., suppID is ., initialPTK is ., 
+                         pointerSuppPTK is .)
+      , ReceiverGTK(receiverThreadID is suppThreadID,
+                    GTKID is nullGTKID,
                     PMK is .,
                     GTK is kNullGTK(),
                     GTKNonce is kNullGTKNonce(),
@@ -378,18 +379,18 @@ module Enc_restrictions = {
 }
 
 process receiveGTKEncryptedPayload =
-    [ In(snenc(<'data', $message>, GTK(x) as GTK, <N(m), senderID> as incomingNonce))
-    , ReceiverGTK(~receiverThreadID, ~keyID, ~PMK,
-                  GTK(x), <N(n), senderID> as lastNonce, $index) ]
+    [ In(snenc(<"data", $message>, GTK(x) as GTK, <N(m), senderID> as incomingNonce))
+    , ReceiverGTK(receiverThreadID is ., GTKID is ~keyID, PMK is .,
+                  GTK is GTK(x), GTKNonce is <N(n), senderID> as lastNonce, GTKIndex is $index) ]
   --
-    [ ReceiveGTKEncryptedPayload(~keyID, ~receiverThreadID, ~PMK,
+    [ ReceiveGTKEncryptedPayload(~keyID, receiverThreadID, PMK,
                                   GTK, incomingNonce)
-    , SeesNonceForGTK(~keyID, ~receiverThreadID,
-                      GTK, incomingNonce)
+    , SeesNonceForGTK(keyID is ., receiverThreadID is .,
+                      GTK is ., nonce is incomingNonce)
     , Neq($index, kNullGTKIndex()) ]
   ->
-    [ ReceiverGTK(~receiverThreadID, ~keyID, ~PMK, 
-                  GTK, incomingNonce, $index) ]
+    [ ReceiverGTK(receiverThreadID is ., GTKID is keyID, PMK is .,
+                  GTK is ., GTKNonce is incomingNonce, GTKIndex is $index) ]
 
 // We have two rules for sending GTK encrypted payloads to distinguish between
 // the case where the installed GTK is also the share GTK and the case 
@@ -399,8 +400,10 @@ process sendGTKEncryptedPayload_1 =
                        <GTK(~x) as installedGTK,
                         <N(n), ~authID> as installedGTKNonce,
                         $index> as installedGTKData) 
-    , !AuthGTKState(~authID, stateIdentifier, <GTK(~x), <N(n), ~authID>, $index>, shareGTKData,
-                    ~oldPointerGTKState)
+    , !AuthGTKState(authID is ~authID, state is stateIdentifier,
+                    installedGTKData is <GTK(~x), <N(n), ~authID>, $index>,
+                    shareGTKData is .,
+                    pointerGTKState is oldPointerGTKState)
     , Fr(~newPointerGTKState)
     ]
   --
@@ -411,28 +414,29 @@ process sendGTKEncryptedPayload_1 =
     , AuthenticatorUsesGTK(~authID, newGTKData, shareGTKData)
     , SendGTKEncryptedPayload(~authID, newGTKData, newShareGTKData)
     , AllocateUnique(~newPointerGTKState, ~authID)
-    , Free(~oldPointerGTKState)
+    , Free(oldPointerGTKState)
     ]
   ->
-    [ Out(snenc(<'data', $message>, installedGTK, newGTKNonce))
+    [ Out(snenc(<"data", $message>, installedGTK, newGTKNonce))
     , AuthInstalledGTK(~authID, newGTKData) 
-    , !AuthGTKState(~authID, stateIdentifier, newGTKData, newGTKData, 
-                    ~newPointerGTKState)
+    , !AuthGTKState(authID is ., state is stateIdentifier, installedGTKData is newGTKData,
+                    shareGTKData is newGTKData, 
+                    pointerGTKState is ~newPointerGTKState)
     ]
 
 process sendGTKEncryptedPayload_2 =
     [ AuthInstalledGTK(~authID, GTK(~x) as installedGTK)
-    , !AuthGTKState(~authID, stateIdentifier,
-                    <
-		     ~authID, GTK(~x),
-		     <N(n), ~authID> as installedGTKNonce,
-		     $index
-		    > as installedGTKData,
-		    <shareGTK, shareGTKNonce, $shareIndex> as shareGTKData,
-                    ~oldPointerGTKState)
+    , !AuthGTKState(authID is ~authID, state is stateIdentifier,
+                    installedGTKData is <
+                     ~authID, GTK(~x),
+                     <N(n), ~authID> as installedGTKNonce,
+                     $index
+                    > as installedGTKData,
+                    shareGTKData is <shareGTK, shareGTKNonce, $shareIndex> as shareGTKData,
+                    pointerGTKState is ~oldPointerGTKState)
     , Fr(~newPointerGTKState) ]
   --
-    let newGTKNonce = <N(n+'1'), ~authID> in
+    let newGTKNonce = <N(n+"1"), ~authID> in
     let newGTKData = <installedGTK, newGTKNonce, $index> in
     [ EncryptedWithGTK(~authID, newGTKData, shareGTKData)
     , AuthenticatorUsesGTK(~authID, newGTKData, shareGTKData)
@@ -443,10 +447,12 @@ process sendGTKEncryptedPayload_2 =
     , Neq(installedGTK, shareGTK)
     ]
   ->
-    [ Out(snenc(<'data', $message>, installedGTK, newGTKNonce))
+    [ Out(snenc(<"data", $message>, installedGTK, newGTKNonce))
     , AuthInstalledGTK(~authID, newGTKData)
-    , !AuthGTKState(~authID, stateIdentifier, newGTKData, shareGTKData,
-                    ~newPointerGTKState)
+    , !AuthGTKState(authID is ., state is stateIdentifier,
+                    installedGTKData is newGTKData,
+                    shareGTKData is .,
+                    pointerGTKState is ~newPointerGTKState)
     ]
 
 process KeyRevealFromNonceReuse =
@@ -459,10 +465,10 @@ process KeyRevealFromNonceReuse =
 // BEGIN Reveal Pairwise Master Key
 
 process KeyRevealPMK =
-    [ !PairwiseMasterKey(~PMK, ~authID, ~authThreadID, ~suppID, ~suppThreadID) ]
-    --[ RevealPMK(~PMK)
-      , RevealPMKFor(~PMK, ~authID, ~authThreadID, ~suppID, ~suppThreadID) ]->
-    [ Out(~PMK) ]
+    [ !PairwiseMasterKey(PMK is ., authID is ., authThreadID is ., suppID is ., suppThreadID is .) ]
+    --[ RevealPMK(PMK)
+      , RevealPMKFor(PMK, authID, authThreadID, suppID, suppThreadID) ]->
+    [ Out(PMK) ]
 
 // END Reveal Pairwise Master Key
 
@@ -470,7 +476,7 @@ process KeyRevealPMK =
 
 process Auth =
   "Adapt from AuthState to cells":
-    [ AuthState(~authThreadID, 'INIT_R1_SA' as state,
+    [ AuthState(~authThreadID, "INIT_R1_SA" as state,
                 <~authID, ~PMK, ~suppThreadID, KDF(<_PMK, ~ANonce, _SNonce>) as PTK, oldANonce, oldSNonce, S(_ctr_minus_1) as ctr>) ]
   ->
     [ 'authThreadID := ~authThreadID
@@ -482,6 +488,10 @@ process Auth =
     , 'ANonce := ~ANonce
     , 'oldSNonce := oldSNonce
     , 'ctr := ctr
+    , 'm2 := "NULL"
+    , 'mic_m2 := "NULL"
+    , 'newPTK := "NULL"
+    , 'SNonce := "NULL"
     ];
   loop {
     choice {
@@ -508,7 +518,7 @@ process Auth =
           , 'm1 := <ctr_plus_1, ~ANonce>
           , !UsedCounterInPTKHandshake('authThreadID, ~ANonce, ctr_plus_1) ];
         Enc.OutEnc(
-          authThreadID is '.,
+          senderThreadID is 'authThreadID,
           message is 'm1,
           frameTag is kDataFrame(),
         )
@@ -532,7 +542,7 @@ process Auth =
           , 'm1 := <ctr_plus_1, 'ANonce>
           , !UsedCounterInPTKHandshake('authThreadID, 'ANonce, ctr_plus_1) ];
         Enc.OutEnc(
-          authThreadID is 'authThreadID,
+          senderThreadID is 'authThreadID,
           message is 'm1,
           frameTag is kDataFrame(),
         )
@@ -553,7 +563,7 @@ process Auth =
               suppThreadID is '.,
               PTK is '., 
               ANonce is '.,
-              SNonce is '.,
+              SNonce is .,
               ctr is '.,
             )
           ]->
@@ -580,7 +590,7 @@ process Auth =
               suppThreadID is '.,
               PTK is '.,
               ANonce is '.,
-              SNonce is '.,
+              SNonce is .,
               ctr is '.,
             )
           ]->
@@ -591,16 +601,19 @@ process Auth =
       };
       { "Auth_Check_MIC_M2_Snd_M3":
           [ 'state cas "PTK_CALC_NEGOTIATING"
-          , !AuthGTKState(~authID, stateIdentifier,
-                          installedGTKData,
+          , 'm2 cas <ctr, SNonce>
+          , !AuthGTKState(authID is ~authID,
+                          state is stateIdentifier,
+                          installedGTKData is .,
+                          shareGTKData is
                           <GTK(~x) as groupKey,
                            <N(n), ~authID> as groupNonce,
                            $index> as shareGTKData,
-                          ~pointerGTKState)
+                          pointerGTKState is ~pointerGTKState)
           ]
         --
           let ctr_plus_1 = S('ctr) in
-          let newPTK = KDF(<'PMK, 'ANonce, 'SNonce>) in
+          let newPTK = KDF(<'PMK, 'ANonce, SNonce>) in
           [ Eq('mic_m2, MIC(newPTK, 'm2))
           , AuthenticatorSendsInitialM3(
               authThreadID is '.,
@@ -609,30 +622,30 @@ process Auth =
               suppThreadID is '.,
               PTK is '.,
               ANonce is '.,
-              SNonce is '.,
+              SNonce is .,
               ctr is ctr_plus_1,
             )
           , AuthenticatorRunning(authThreadID is '., suppThreadID is '.,
-                                 PMK is '., ANonce is '., SNonce is '., PTK is newPTK)
-          , AuthenticatorUsesGTK(authID is '., installedGTKData, shareGTKData)
+                                 PMK is '., ANonce is '., SNonce is ., PTK is newPTK)
+          , AuthenticatorUsesGTK('authID, installedGTKData, shareGTKData)
           , AuthenticatorSharesGTK(authThreadID is '., authID is '., PMK is '., shareGTKData is .)
           , ReadUnique(~pointerGTKState, ~authID) ]->
           [ 'state := "PTK_CALC_NEGOTIATING3"
           , !UsedCounterInPTKHandshake('authThreadID, 'ANonce, ctr_plus_1)
           , 'm3 := <ctr_plus_1, senc(<groupKey, groupNonce, $index>, newPTK)> ];
         Enc.OutEnc(message is <'m3, MIC('newPTK, 'm3)>,
-                   authThreadID is '.,
+                   senderThreadID is 'authThreadID,
                    frameTag is kDataFrame())
       };
       { "Auth_Snd_M3_repeat":
           [ 'state cas "PTK_CALC_NEGOTIATING3"
-          , !AuthGTKState('authID,
-                          stateIdentifier,
-                          installedGTKData,
-                          <GTK(~x) as groupKey,
+          , !AuthGTKState(authID is '.,
+                          state is stateIdentifier,
+                          installedGTKData is  .,
+                          shareGTKData is <GTK(~x) as groupKey,
                            <N(n), ~authID> as groupNonce,
                            $index> as shareGTKData,
-                          ~pointerGTKState)
+                          pointerGTKState is ~pointerGTKState)
           , Fr(~messageID) ]
         --
           let ctr_plus_1 = S('ctr) in
@@ -640,12 +653,12 @@ process Auth =
           [ AuthenticatorSendsM3Again(authThreadID is '., authID is '., PMK is '., suppThreadID is '., PTK is '., 
                                       ANonce is '., SNonce is '., ctr is ctr_plus_1)
           , AuthenticatorUsesGTK(authID, installedGTKData, shareGTKData)
-          , AuthenticatorSharesGTK('authThreadID, 'authID, 'PMK, shareGTKData)
+          , AuthenticatorSharesGTK(authThreadID is '., authID is '., PMK is '., shareGTKData is .)
           , ReadUnique(~pointerGTKState, ~authID) ]->
           [ !UsedCounterInPTKHandshake('authThreadID, 'ANonce, ctr_plus_1)
           , 'm3 := <ctr_plus_1, senc(<groupKey, groupNonce, $index>, newPTK)> ];
         Enc.OutEnc(message is <'m3, MIC('newPTK, 'm3)>,
-                   authThreadID is '.,
+                   senderThreadID is 'authThreadID,
                    frameTag is kDataFrame())
       };
     }
