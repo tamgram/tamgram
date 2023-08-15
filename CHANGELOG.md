@@ -4,6 +4,8 @@
 
 - Made cell usage check error message clearer for singleton processes
 
+- Fixed disabling of cell data shape checking
+
 ## 0.5.2
 
 - Fixed missing cell substitution in if-then-else condition in

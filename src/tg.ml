@@ -53,8 +53,8 @@ let default_pipeline =
     ("Cell data shape analysis", Cell_data_shape_analysis.map_spec);
     ("Clean up user specified cell pattern matches",
      Clean_up_user_specified_cell_pattern_matches.map_spec);
-    ("User specified cell pattern match analysis",
-     User_specified_cell_pattern_match_analysis.map_spec);
+    (* ("User specified cell pattern match analysis",
+     User_specified_cell_pattern_match_analysis.map_spec); *)
     ("Translate to Tamarin rules", Translate.map_spec);
     ("Lexical context anaylsis", Lexical_ctx_analysis.map_spec);
   ]
