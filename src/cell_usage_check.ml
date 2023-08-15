@@ -41,7 +41,7 @@ let check_rule_bindings ~error_msg (l : Tg_ast.rule_binding list) : (unit, Error
 let check_rule
     ({ l; bindings_before_a; a; bindings_before_r; r; _ } : Tg_ast.rule) :
   (unit, Error_msg.t) result =
-  let error_msg = "Cannot use cells in a singleton process" in
+  let error_msg = "Cannot use cells in singleton processes" in
   let* () = check_terms ~error_msg l in
   let* () = check_rule_bindings ~error_msg bindings_before_a in
   let* () = check_terms ~error_msg a in

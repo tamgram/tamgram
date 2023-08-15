@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3
+
+- Made cell usage check error message clearer for singleton processes
+
 ## 0.5.2
 
 - Fixed missing cell substitution in if-then-else condition in
