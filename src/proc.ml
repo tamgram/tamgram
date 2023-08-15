@@ -10,7 +10,12 @@ let sub
     |> Term.change_cell_names_in_term cell_subs
   in
   let cond_cell_match_sub (x : Tg_ast.cond_cell_match) =
-    { x with term = term_sub x.term }
+    { x with
+      cell = (match List.assoc_opt (Loc.content x.cell) cell_subs with
+          | None -> x.cell
+          | Some c -> c);
+      term = term_sub x.term
+    }
   in
   let loop_mode_sub (x : Tg_ast.loop_mode) =
     match x with
