@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.2
+
+- Fixed missing cell substitution in if-then-else condition in
+  process macro expansion
+
 ## 0.5.1
 
 - Fixed cell location used in missing `rw` marker error message
