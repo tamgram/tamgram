@@ -51,12 +51,12 @@ pred !ReceiverPTK (
   named pointerPTK,
 )
 
-process OutEnc(named authThreadID, named message, frameTag) =
+process OutEnc(named senderThreadID, named message, frameTag) =
     [ Fr(~messageID) ]
-  --[ EnqueueMessage(authThreadID, messageID)
+  --[ EnqueueMessage(senderThreadID, messageID)
     ]->
     [ Queued(
-        senderThreadID is authThreadID,
+        senderThreadID is .,
         messageID is .,
         message is .,
         frameTag is .,
