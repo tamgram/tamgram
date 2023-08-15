@@ -1,28 +1,29 @@
 open Result_syntax
 
-let check_term (x : Tg_ast.term) : (unit, Error_msg.t) result =
+let check_term ?(error_msg = "Cannot use cells here") (x : Tg_ast.term) : (unit, Error_msg.t) result =
   let cells = Term.cells_in_term x in
   if String_tagged_map.is_empty cells then Ok ()
-  else
+  else (
     let (x, _) = String_tagged_map.choose cells in
     Error
       (Error_msg.make
          (Loc.tag x)
-         (Fmt.str "Cannot use cells here, e.g. '%s"
+         (Fmt.str "%s, e.g. '%s" error_msg
             (Loc.content x))
       )
+  )
 
-let check_terms (l : Tg_ast.term list) : (unit, Error_msg.t) result =
+let check_terms ?error_msg (l : Tg_ast.term list) : (unit, Error_msg.t) result =
   let rec aux l =
     match l with
     | [] -> Ok ()
     | x :: xs ->
-      let* () = check_term x in
+      let* () = check_term ?error_msg x in
       aux xs
   in
   aux l
 
-let check_rule_bindings (l : Tg_ast.rule_binding list) : (unit, Error_msg.t) result =
+let check_rule_bindings ~error_msg (l : Tg_ast.rule_binding list) : (unit, Error_msg.t) result =
   let open Tg_ast in
   let rec aux l =
     match l with
@@ -30,8 +31,8 @@ let check_rule_bindings (l : Tg_ast.rule_binding list) : (unit, Error_msg.t) res
     | x :: xs ->
       let* () =
         match x with
-        | R_let binding -> check_term (Binding.get binding)
-        | R_let_macro { binding; _ } -> check_term (Binding.get binding).body
+        | R_let binding -> check_term ~error_msg (Binding.get binding)
+        | R_let_macro { binding; _ } -> check_term ~error_msg (Binding.get binding).body
       in
       aux xs
   in
@@ -40,11 +41,12 @@ let check_rule_bindings (l : Tg_ast.rule_binding list) : (unit, Error_msg.t) res
 let check_rule
     ({ l; bindings_before_a; a; bindings_before_r; r; _ } : Tg_ast.rule) :
   (unit, Error_msg.t) result =
-  let* () = check_terms l in
-  let* () = check_rule_bindings bindings_before_a in
-  let* () = check_terms a in
-  let* () = check_rule_bindings bindings_before_r in
-  let+ () = check_terms r in
+  let error_msg = "Cannot use cells in a singleton process" in
+  let* () = check_terms ~error_msg l in
+  let* () = check_rule_bindings ~error_msg bindings_before_a in
+  let* () = check_terms ~error_msg a in
+  let* () = check_rule_bindings ~error_msg bindings_before_r in
+  let+ () = check_terms ~error_msg r in
   ()
 
 let check_proc_macro (macro : Tg_ast.proc_macro) : (unit, Error_msg.t) result =
