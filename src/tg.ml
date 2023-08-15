@@ -54,7 +54,7 @@ let default_pipeline =
     ("Clean up user specified cell pattern matches",
      Clean_up_user_specified_cell_pattern_matches.map_spec);
     (* ("User specified cell pattern match analysis",
-     User_specified_cell_pattern_match_analysis.map_spec); *)
+       User_specified_cell_pattern_match_analysis.map_spec); *)
     ("Translate to Tamarin rules", Translate.map_spec);
     ("Lexical context anaylsis", Lexical_ctx_analysis.map_spec);
   ]
