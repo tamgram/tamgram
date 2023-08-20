@@ -162,7 +162,7 @@ process InEnc(
   named receiverID,
 ) =
   choice {
-    {
+    { "Receive_plaintext":
         [ In(message)
         , !ReceiverPTK(role is ., ptkID is ., receiverThreadID is ., receiverID is ., PTK is kNullPTK(),
                          pointerPTK is ~pointerPTK)
@@ -170,7 +170,7 @@ process InEnc(
       --[ Read(~pointerPTK) ]->
         [ 'message := message ]
     };
-    {
+    { "Receive_ciphertext":
         [ In(snenc(message, PTK, nonce))
         , !ReceiverPTK(role is ., ptkID is ~ptkID, receiverThreadID is ~receiverThreadID, receiverID is ., PTK is .,
                          pointerPTK is ~pointerPTK)
