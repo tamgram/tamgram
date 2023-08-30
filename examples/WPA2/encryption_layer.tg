@@ -168,7 +168,7 @@ process InEnc(
                          pointerPTK is ~pointerPTK)
         ]
       --[ Read(~pointerPTK) ]->
-        [ 'message := message ]
+        [ 'message := . ]
     };
     { "Receive_ciphertext":
         [ In(snenc(message, PTK, nonce))
@@ -179,6 +179,6 @@ process InEnc(
         , SeesNonceForPTK(ptkID is ~ptkID, receiverThreadID is ~receiverThreadID, 
                         PTK is ., nonce is .)
         , Read(~pointerPTK) ]->
-        [ 'message := message ]
+        [ 'message := . ]
     };
   }

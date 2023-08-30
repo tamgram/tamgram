@@ -1,0 +1,634 @@
+theory wpa2_four_way_handshake
+begin
+
+builtins: symmetric-encryption, multiset
+
+functions: KDF_21/1
+
+functions: GTK_22/1
+
+functions: N_23/1
+
+functions: snenc_24/3
+
+functions: sndec_25/2
+
+functions: S_26/1
+
+functions: MIC_27/2
+
+rule EncryptionRule_121:
+    [ Queued_61(senderThreadID_110, messageID_115, message_116, frameTag_117)
+    , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
+    ]
+  --[ EncryptedWithPTK_75(ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
+    , SendMessage_60(senderID_111, messageID_115)
+    ]->
+    [ Out(snenc_24(message_116, PTK_118, frameTag_117))
+    , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(((n_114) + ('1'))), senderID_111, messageID_115>)
+    ]
+
+rule PlainRule_126:
+  [Queued_61(senderThreadID_122, messageID_123, message_124, u_tgany0_125)]--[SendMessage_60(
+senderThreadID_122, messageID_123)]->[Out(message_124)]
+
+rule SendPTKEncryptedPayloadRuleAuth_140:
+    [ SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
+    ]
+  --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    ]->
+    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    ]
+
+rule SendPTKEncryptedPayloadRuleSupp_141:
+    [ SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
+    ]
+  --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    ]->
+    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
+    ]
+
+equations: sndec_25(snenc_24(message_303, key_304, nonce_305), key_304) = message_303
+
+restriction Neq:
+  "All x_307 y_308 #i_309 .
+     ((Neq_28(x_307, y_308) @ #i_309) ==> (not ((x_307) = (y_308))))"
+
+restriction Equality:
+  "All x_311 y_312 #i_313 .
+     ((Eq_29(x_311, y_312) @ #i_313) ==> (((x_311) = (y_312))))"
+
+restriction ReplayCounterM1:
+  "All suppThreadID_315 suppID_316 PMK_317 authThreadID_318 PTK_319 GTK_320 ANonce_321 SNonce_322 ctr_m1_323 #i_324 .
+     ((SupplicantReceivesM1_160(suppThreadID_315, suppID_316, PMK_317, authThreadID_318, PTK_319, GTK_320, ANonce_321, SNonce_322, ctr_m1_323) @ #i_324) ==> (not 
+     Ex #j_325 .
+       ((#j_325 < #i_324) & (SupplicantSeesCounter_171(suppThreadID_315, PMK_317, ctr_m1_323) @ #j_325))))"
+
+restriction ReplayCounterM1Again:
+  "All suppThreadID_327 suppID_328 PMK_329 authThreadID_330 PTK_331 GTK_332 ANonce_333 SNonce_334 ctr_m1_335 #i_336 .
+     ((SupplicantReceivesM1Again_176(suppThreadID_327, suppID_328, PMK_329, authThreadID_330, PTK_331, GTK_332, ANonce_333, SNonce_334, ctr_m1_335) @ #i_336) ==> (not 
+     Ex #j_337 .
+       ((#j_337 < #i_336) & (SupplicantSeesCounter_171(suppThreadID_327, PMK_329, ctr_m1_335) @ #j_337))))"
+
+restriction ReplayCounterM3:
+  "All suppThreadID_339 suppID_340 PMK_341 authThreadID_342 PTK_343 ANonce_344 SNonce_345 GTK_346 ctr_m3_347 #i_348 .
+     ((SupplicantReceivesM3_187(suppThreadID_339, suppID_340, PMK_341, authThreadID_342, PTK_343, GTK_346, ANonce_344, SNonce_345, ctr_m3_347) @ #i_348) ==> (not 
+     Ex #j_349 .
+       ((#j_349 < #i_348) & (SupplicantSeesCounter_171(suppThreadID_339, PMK_341, ctr_m3_347) @ #j_349))))"
+
+restriction ReplayCounterM3Again:
+  "All suppThreadID_351 suppID_352 PMK_353 authThreadID_354 PTK_355 GTK_356 ANonce_357 SNonce_358 ctr_m3_359 #i_360 .
+     ((SupplicantReceivesM3Again_198(suppThreadID_351, suppID_352, PMK_353, authThreadID_354, PTK_355, GTK_356, ANonce_357, SNonce_358, ctr_m3_359) @ #i_360) ==> (not 
+     Ex #j_361 .
+       ((#j_361 < #i_360) & (SupplicantSeesCounter_171(suppThreadID_351, PMK_353, ctr_m3_359) @ #j_361))))"
+
+restriction ReplayCounterGroupKeyRekey:
+  "All suppThreadID_363 suppID_364 PMK_365 authThreadID_366 PTK_367 oldGTK_368 newGTK_369 ANonce_370 SNonce_371 ctr_372 #i_373 .
+     ((SupplicantGroupKeyRekey_209(suppThreadID_363, suppID_364, PMK_365, authThreadID_366, PTK_367, oldGTK_368, newGTK_369, ANonce_370, SNonce_371, ctr_372) @ #i_373) ==> (not 
+     Ex #j_374 .
+       ((#j_374 < #i_373) & (SupplicantSeesCounter_171(suppThreadID_363, PMK_365, ctr_372) @ #j_374))))"
+
+restriction ReplayCounterPairwiseMessages:
+  "All ptkID_376 receiverThreadID_377 senderID_378 PTK_379 n1_380 n2_381 frameType_382 #i_383 #j_384 .
+     ((((((SeesNonceForPTK_47(ptkID_376, receiverThreadID_377, PTK_379, <N_23(n1_380), senderID_378, frameType_382>) @ #i_383) & (SeesNonceForPTK_47(
+     ptkID_376, receiverThreadID_377, PTK_379, <N_23(n2_381), senderID_378, frameType_382>) @ #j_384))) & (#i_383 < #j_384))) ==> (
+     Ex z_385 .
+       ((((n1_380) + (z_385))) = (n2_381))))"
+
+restriction ReplayCounterGroupPayload:
+  "All keyID_387 receiverThreadID_388 senderID_389 groupKey_390 n1_391 n2_392 #i_393 #j_394 .
+     ((((((SeesNonceForGTK_53(keyID_387, receiverThreadID_388, groupKey_390, <N_23(n1_391), senderID_389>) @ #i_393) & (SeesNonceForGTK_53(
+     keyID_387, receiverThreadID_388, groupKey_390, <N_23(n2_392), senderID_389>) @ #j_394))) & (#i_393 < #j_394))) ==> (
+     Ex z_395 .
+       ((((n1_391) + (z_395))) = (n2_392))))"
+
+restriction MemoryCanBeFreedOnlyOnce:
+  "All pointer_397 #i_398 #j_399 .
+     ((((Free_45(pointer_397) @ #i_398) & (Free_45(pointer_397) @ #j_399))) ==> (#i_398 = #j_399))"
+
+restriction FreedMemoryCannotBeAccessed:
+  "All pointer_401 #i_402 #j_403 .
+     ((((Read_46(pointer_401) @ #i_402) & (Free_45(pointer_401) @ #j_403))) ==> (#i_402 < #j_403))"
+
+restriction FreedUniqueMemoryCannotBeAccessed:
+  "All pointer_405 owner_406 #i_407 #j_408 .
+     ((((ReadUnique_43(pointer_405, owner_406) @ #i_407) & (Free_45(pointer_405) @ #j_408))) ==> (#i_407 < #j_408))"
+
+restriction UniqueMemoryMustBeUnique:
+  "All pointer1_410 owner_411 #i_412 #j_413 .
+     ((((AllocateUnique_44(pointer1_410, owner_411) @ #i_412) & (ReadUnique_43(
+     pointer1_410, owner_411) @ #j_413))) ==> (((#i_412 < #j_413) & (not 
+     Ex pointer2_414 #k_415 .
+       ((((#i_412 < #k_415) & (#k_415 < #j_413))) & (AllocateUnique_44(
+       pointer2_414, owner_411) @ #k_415))))))"
+
+rule Supp_Create_471:
+    [ Fr(~suppID_470)
+    ]
+  --[ SupplicantCreated_417(~suppID_470)
+    ]->
+    [ !Supplicant_418(~suppID_470)
+    , Out(~suppID_470)
+    ]
+
+rule Auth_Create_480:
+    [ Fr(~authID_474)
+    , Fr(~pointerGTKState_473)
+    , Fr(~x_472)
+    ]
+  --[ AuthenticatorCreated_419(~authID_474)
+    , AuthenticatorInstalledGTK_420(~authID_474, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>)
+    , AuthenticatorSetsShareGTK_421(~authID_474, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>)
+    , AllocateUnique_44(~pointerGTKState_473, ~authID_474)
+    ]->
+    [ !Authenticator_422(~authID_474)
+    , !AuthGTKState_423(~authID_474, 'SETKEYSDONE', <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>, ~pointerGTKState_473)
+    , AuthInstalledGTK_430(~authID_474, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>)
+    , Out(~authID_474)
+    ]
+
+rule Auth_Associate_With_Supp_494:
+    [ Fr(~PMK_490)
+    , Fr(~authThreadID_487)
+    , Fr(~suppThreadID_481)
+    , Fr(~authReceiverPtkID_488)
+    , Fr(~suppReceiverPtkID_482)
+    , Fr(~pointerAuthPTK_485)
+    , Fr(~pointerSuppPTK_484)
+    , Fr(~nullGTKID_486)
+    , !Authenticator_422(~authID_489)
+    , !Supplicant_418(~suppID_483)
+    ]
+  --[ Init_431(~PMK_490)
+    , Associate_432(~authID_489, ~authThreadID_487, ~suppID_483, ~suppThreadID_481, ~PMK_490)
+    ]->
+    [ AuthState_439(~authThreadID_487, 'INIT_R1_SA', <~authID_489, ~PMK_490, ~suppThreadID_481, KDF_21(<'NULL', 'NULL', 'NULL'>), 'NULL_ANonce', 'NULL_SNonce', S_26('0')>)
+    , SuppState_440(~suppThreadID_481, 'INIT_R1_SA', <~suppID_483, ~PMK_490, ~authThreadID_487, KDF_21(<'NULL', 'NULL', 'NULL'>), <GTK_22('NULL'), <N_23('NULL'), 'NULL'>, 'NULL'>, 'NULL_ANonce', 'NULL_SNonce', S_26('NULL')>)
+    , !PairwiseMasterKey_221(~PMK_490, ~authID_489, ~authThreadID_487, ~suppID_483, ~suppThreadID_481)
+    , !AuthReceiverPTK_441(~authReceiverPtkID_488, ~authThreadID_487, ~authID_489, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerAuthPTK_485)
+    , !SuppReceiverPTK_448(~suppReceiverPtkID_482, ~suppThreadID_481, ~suppID_483, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerSuppPTK_484)
+    , ReceiverGTK_455(~suppThreadID_481, ~nullGTKID_486, ~PMK_490, GTK_22('NULL'), <N_23('NULL'), 'NULL'>, 'NULL')
+    , Out(~authThreadID_487)
+    , Out(~suppThreadID_481)
+    ]
+
+restriction MessagesAreSentInEnqueueOrder:
+  "All senderThreadID_495 messageID1_496 messageID2_497 #i1_498 #j1_499 #i2_500 #j2_501 .
+     ((((((((((EnqueueMessage_59(senderThreadID_495, messageID1_496) @ #i1_498) & (EnqueueMessage_59(
+     senderThreadID_495, messageID2_497) @ #j1_499))) & (SendMessage_60(
+     senderThreadID_495, messageID1_496) @ #i2_500))) & (SendMessage_60(
+     senderThreadID_495, messageID2_497) @ #j2_501))) & (#i1_498 < #j1_499))) ==> (#i2_500 < #j2_501))"
+
+rule receiveGTKEncryptedPayload_513:
+    [ In(snenc_24(<'data', $message>, GTK_22(x_503), <N_23(m_507), senderID_504>))
+    , ReceiverGTK_455(receiverThreadID_505, ~keyID_508, PMK_509, GTK_22(x_503), <N_23(n_506), senderID_504>, $index)
+    ]
+  --[ ReceiveGTKEncryptedPayload_463(~keyID_508, receiverThreadID_505, PMK_509, GTK_22(x_503), <N_23(m_507), senderID_504>)
+    , SeesNonceForGTK_53(~keyID_508, receiverThreadID_505, GTK_22(x_503), <N_23(m_507), senderID_504>)
+    , Neq_28($index, 'NULL')
+    ]->
+    [ ReceiverGTK_455(receiverThreadID_505, ~keyID_508, PMK_509, GTK_22(x_503), <N_23(m_507), senderID_504>, $index)
+    ]
+
+rule sendGTKEncryptedPayload_1_527:
+    [ AuthInstalledGTK_430(~authID_520, <GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>)
+    , !AuthGTKState_423(~authID_520, stateIdentifier_515, <GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, shareGTKData_516, oldPointerGTKState_517)
+    , Fr(~newPointerGTKState_518)
+    ]
+  --[ EncryptedWithGTK_464(~authID_520, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>)
+    , AuthenticatorUsesGTK_465(~authID_520, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, shareGTKData_516)
+    , SendGTKEncryptedPayload_466(~authID_520, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>)
+    , AllocateUnique_44(~newPointerGTKState_518, ~authID_520)
+    , Free_45(oldPointerGTKState_517)
+    ]->
+    [ Out(snenc_24(<'data', $message>, GTK_22(~x_514), <N_23(((n_519) + ('1'))), ~authID_520>))
+    , AuthInstalledGTK_430(~authID_520, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>)
+    , !AuthGTKState_423(~authID_520, stateIdentifier_515, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, ~newPointerGTKState_518)
+    ]
+
+rule sendGTKEncryptedPayload_2_542:
+    [ AuthInstalledGTK_430(~authID_535, GTK_22(~x_528))
+    , !AuthGTKState_423(~authID_535, stateIdentifier_529, <~authID_535, GTK_22(~x_528), <N_23(n_534), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>, ~oldPointerGTKState_532)
+    , Fr(~newPointerGTKState_533)
+    ]
+  --[ EncryptedWithGTK_464(~authID_535, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>)
+    , AuthenticatorUsesGTK_465(~authID_535, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>)
+    , SendGTKEncryptedPayload_466(~authID_535, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>)
+    , AllocateUnique_44(~newPointerGTKState_533, ~authID_535)
+    , AllocateUnique_44(~newPointerGTKState_533, ~authID_535)
+    , Free_45(~oldPointerGTKState_532)
+    , Neq_28(GTK_22(~x_528), shareGTK_531)
+    ]->
+    [ Out(snenc_24(<'data', $message>, GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>))
+    , AuthInstalledGTK_430(~authID_535, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>)
+    , !AuthGTKState_423(~authID_535, stateIdentifier_529, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>, ~newPointerGTKState_533)
+    ]
+
+rule KeyRevealFromNonceReuse_547:
+    [ In(<snenc_24(m1_545, key_546, nonce_543), snenc_24(m2_544, key_546, nonce_543)>)[+]
+    ]
+  --[ Neq_28(m1_545, m2_544)
+    , NonceReuse_467(key_546, nonce_543)
+    ]->
+    [ Out(key_546)
+    ]
+
+rule KeyRevealPMK_553:
+    [ !PairwiseMasterKey_221(PMK_552, authID_551, authThreadID_550, suppID_549, suppThreadID_548)
+    ]
+  --[ RevealPMK_468(PMK_552)
+    , RevealPMKFor_469(PMK_552, authID_551, authThreadID_550, suppID_549, suppThreadID_548)
+    ]->
+    [ Out(PMK_552)
+    ]
+
+rule TgRuleAuth_603_12to13:
+    [ Fr(~pid)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk13')
+    , Cell(~pid, 'pid', ~pid)
+    ]
+
+rule TgRuleAuth_603_13to14:
+    [ St(~pid, 'tgk13')
+    , AuthState_439(~authThreadID_557, 'INIT_R1_SA', <~authID_558, ~PMK_562, ~suppThreadID_554, KDF_21(<u_PMK_561, ~ANonce_563, u_SNonce_560>), oldANonce_556, oldSNonce_555, S_26(u_ctr_minus_1_559)>)
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'authThreadID', ~authThreadID_557)
+    , Cell(~pid, 'state', 'INIT_R1_SA')
+    , Cell(~pid, 'authID', ~authID_558)
+    , Cell(~pid, 'PMK', ~PMK_562)
+    , Cell(~pid, 'suppThreadID', ~suppThreadID_554)
+    , Cell(~pid, 'PTK', KDF_21(<u_PMK_561, ~ANonce_563, u_SNonce_560>))
+    , Cell(~pid, 'ANonce', ~ANonce_563)
+    , Cell(~pid, 'oldSNonce', oldSNonce_555)
+    , Cell(~pid, 'ctr', S_26(u_ctr_minus_1_559))
+    , Cell(~pid, 'm2', 'NULL')
+    , Cell(~pid, 'mic_m2', 'NULL')
+    , Cell(~pid, 'newPTK', 'NULL')
+    , Cell(~pid, 'SNonce', 'NULL')
+    ]
+
+rule TgRuleAuth_603_14to16:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk16')]
+
+rule TgRuleAuth_603_14to18:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk18')]
+
+rule TgRuleAuth_603_14to20:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk20')]
+
+rule TgRuleAuth_603_14to24:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk24')]
+
+rule TgRuleAuth_603_14to28:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk28')]
+
+rule TgRuleAuth_603_14to30:
+  [St(~pid, 'tgk14')]--[]->[St(~pid, 'tgk30')]
+
+rule TgRuleAuth_603_16to17:
+    [ St(~pid, 'tgk16')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'oldSNonce', tgc_oldSNonce_0)
+    , Cell(~pid, 'state', 'INIT_R1_SA')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Fr(~ANonce_567)
+    ]
+  --[ AuthenticatorSendsM1_228(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, tgc_oldSNonce_0, S_26(tgc_ctr_0))
+    ]->
+    [ St(~pid, 'tgk17')
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'oldSNonce', tgc_oldSNonce_0)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'state', 'PTK_START')
+    , Cell(~pid, 'ANonce', ~ANonce_567)
+    , Cell(~pid, 'ctr', S_26(tgc_ctr_0))
+    , Cell(~pid, 'm1', <S_26(tgc_ctr_0), ~ANonce_567>)
+    , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, ~ANonce_567, S_26(tgc_ctr_0))
+    ]
+
+rule TgRuleAuth_603_17to14:
+    [ St(~pid, 'tgk17')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm1', tgc_m1_0)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm1', tgc_m1_0)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
+    ]
+
+rule TgRuleAuth_603_18to19:
+    [ St(~pid, 'tgk18')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'oldSNonce', tgc_oldSNonce_0)
+    , Cell(~pid, 'state', 'PTK_START')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    ]
+  --[ AuthenticatorSendsM1Again_238(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, tgc_oldSNonce_0, tgc_ctr_0)
+    ]->
+    [ St(~pid, 'tgk19')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'oldSNonce', tgc_oldSNonce_0)
+    , Cell(~pid, 'state', 'PTK_START')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'ctr', S_26(tgc_ctr_0))
+    , Cell(~pid, 'm1', <S_26(tgc_ctr_0), tgc_ANonce_0>)
+    , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
+    ]
+
+rule TgRuleAuth_603_19to14:
+    [ St(~pid, 'tgk19')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm1', tgc_m1_0)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm1', tgc_m1_0)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
+    ]
+
+rule TgRuleAuth_603_20to21:
+    [ St(~pid, 'tgk20')
+    , Cell(~pid, 'state', 'PTK_START')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk21')
+    , Cell(~pid, 'state', 'PTK_START')
+    ]
+
+rule TgRuleAuth_603_20to22:
+    [ St(~pid, 'tgk20')
+    , Cell(~pid, 'state', 'PTK_START')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk22')
+    , Cell(~pid, 'state', 'PTK_START')
+    ]
+
+rule TgRuleAuth_603_21to23:
+    [ St(~pid, 'tgk21')
+    , In(message_150)
+    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
+    ]
+  --[ Read_46(~pointerPTK_149)
+    ]->
+    [ St(~pid, 'tgk23')
+    , Cell(~pid, 'message', message_150)
+    ]
+
+rule TgRuleAuth_603_22to23:
+    [ St(~pid, 'tgk22')
+    , In(snenc_24(message_157, PTK_158, nonce_156))
+    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
+    ]
+  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
+    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
+    , Read_46(~pointerPTK_155)
+    ]->
+    [ St(~pid, 'tgk23')
+    , Cell(~pid, 'message', message_157)
+    ]
+
+rule TgRuleAuth_603_23to14:
+    [ St(~pid, 'tgk23')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'message', <<tgc_ctr_0, SNonce_571>, mic_m2_570>)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    ]
+  --[ AuthenticatorReceivesM2_249(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_571, tgc_ctr_0)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'message', <<tgc_ctr_0, SNonce_571>, mic_m2_570>)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'state', 'PTK_CALC_NEGOTIATING')
+    , Cell(~pid, 'm2', <tgc_ctr_0, SNonce_571>)
+    , Cell(~pid, 'mic_m2', mic_m2_570)
+    , Cell(~pid, 'SNonce', SNonce_571)
+    ]
+
+rule TgRuleAuth_603_24to25:
+    [ St(~pid, 'tgk24')
+    , Cell(~pid, 'state', 'PKT_CALC_NEGOTIATING')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk25')
+    , Cell(~pid, 'state', 'PKT_CALC_NEGOTIATING')
+    ]
+
+rule TgRuleAuth_603_24to26:
+    [ St(~pid, 'tgk24')
+    , Cell(~pid, 'state', 'PKT_CALC_NEGOTIATING')
+    ]
+  --[ 
+    ]->
+    [ St(~pid, 'tgk26')
+    , Cell(~pid, 'state', 'PKT_CALC_NEGOTIATING')
+    ]
+
+rule TgRuleAuth_603_25to27:
+    [ St(~pid, 'tgk25')
+    , In(message_150)
+    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
+    ]
+  --[ Read_46(~pointerPTK_149)
+    ]->
+    [ St(~pid, 'tgk27')
+    , Cell(~pid, 'message', message_150)
+    ]
+
+rule TgRuleAuth_603_26to27:
+    [ St(~pid, 'tgk26')
+    , In(snenc_24(message_157, PTK_158, nonce_156))
+    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
+    ]
+  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
+    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
+    , Read_46(~pointerPTK_155)
+    ]->
+    [ St(~pid, 'tgk27')
+    , Cell(~pid, 'message', message_157)
+    ]
+
+rule TgRuleAuth_603_27to14:
+    [ St(~pid, 'tgk27')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'm2', <u_prev_ctr_575, SNonce_576>)
+    , Cell(~pid, 'message', <<ctr_574, SNonce_576>, mic_m2_573>)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    ]
+  --[ AuthenticatorReceivesM2Again_259(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_576, tgc_ctr_0)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'message', <<ctr_574, SNonce_576>, mic_m2_573>)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'm2', <ctr_574, SNonce_576>)
+    , Cell(~pid, 'mic_m2', mic_m2_573)
+    , Cell(~pid, 'SNonce', SNonce_576)
+    ]
+
+rule TgRuleAuth_603_28to29:
+    [ St(~pid, 'tgk28')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'm2', <ctr_583, SNonce_585>)
+    , Cell(~pid, 'mic_m2', tgc_mic_m2_0)
+    , Cell(~pid, 'state', 'PTK_CALC_NEGOTIATING')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , !AuthGTKState_423(~authID_584, stateIdentifier_579, installedGTKData_582, <GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>, ~pointerGTKState_580)
+    ]
+  --[ Eq_29(tgc_mic_m2_0, MIC_27(KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>), <ctr_583, SNonce_585>))
+    , AuthenticatorSendsInitialM3_269(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_585, S_26(tgc_ctr_0))
+    , AuthenticatorRunning_279(tgc_authThreadID_0, tgc_PMK_0, tgc_suppThreadID_0, KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>), tgc_ANonce_0, SNonce_585)
+    , AuthenticatorUsesGTK_465(tgc_authID_0, installedGTKData_582, <GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>)
+    , AuthenticatorSharesGTK_287(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, <GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>)
+    , ReadUnique_43(~pointerGTKState_580, ~authID_584)
+    ]->
+    [ St(~pid, 'tgk29')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'm2', <ctr_583, SNonce_585>)
+    , Cell(~pid, 'mic_m2', tgc_mic_m2_0)
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'state', 'PTK_CALC_NEGOTIATING3')
+    , Cell(~pid, 'm3', <S_26(tgc_ctr_0), senc(<GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>))>)
+    , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
+    ]
+
+rule TgRuleAuth_603_29to14:
+    [ St(~pid, 'tgk29')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm3', tgc_m3_0)
+    , Cell(~pid, 'newPTK', tgc_newPTK_0)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm3', tgc_m3_0)
+    , Cell(~pid, 'newPTK', tgc_newPTK_0)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
+    ]
+
+rule TgRuleAuth_603_30to31:
+    [ St(~pid, 'tgk30')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'SNonce', tgc_SNonce_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'state', 'PTK_CALC_NEGOTIATING3')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , !AuthGTKState_423(tgc_authID_0, stateIdentifier_592, installedGTKData_596, <GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>, ~pointerGTKState_593)
+    , Fr(~messageID_595)
+    ]
+  --[ AuthenticatorSendsM3Again_293(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, tgc_SNonce_0, S_26(tgc_ctr_0))
+    , AuthenticatorUsesGTK_465(~authID_597, installedGTKData_596, <GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>)
+    , AuthenticatorSharesGTK_287(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, <GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>)
+    , ReadUnique_43(~pointerGTKState_593, ~authID_597)
+    ]->
+    [ St(~pid, 'tgk31')
+    , Cell(~pid, 'ANonce', tgc_ANonce_0)
+    , Cell(~pid, 'PMK', tgc_PMK_0)
+    , Cell(~pid, 'PTK', tgc_PTK_0)
+    , Cell(~pid, 'SNonce', tgc_SNonce_0)
+    , Cell(~pid, 'authID', tgc_authID_0)
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'ctr', tgc_ctr_0)
+    , Cell(~pid, 'state', 'PTK_CALC_NEGOTIATING3')
+    , Cell(~pid, 'suppThreadID', tgc_suppThreadID_0)
+    , Cell(~pid, 'm3', <S_26(tgc_ctr_0), senc(<GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, tgc_SNonce_0>))>)
+    , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
+    ]
+
+rule TgRuleAuth_603_31to14:
+    [ St(~pid, 'tgk31')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm3', tgc_m3_0)
+    , Cell(~pid, 'newPTK', tgc_newPTK_0)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk14')
+    , Cell(~pid, 'authThreadID', tgc_authThreadID_0)
+    , Cell(~pid, 'm3', tgc_m3_0)
+    , Cell(~pid, 'newPTK', tgc_newPTK_0)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
+    ]
+
+rule TgEndAuth_603_15:
+  []--[]->[]
+
+end
+
