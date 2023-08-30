@@ -274,6 +274,9 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
               }
             in
             let* proc_g = enter_loop loop_skeleton proc in
+            let at_least_one_break =
+              Int_set.cardinal (Graph.pred after_loop_rule_id proc_g) > 0
+            in
             let true_branch_leaves =
               Graph.leaves proc_g
               |> Seq.filter (fun k ->
@@ -286,9 +289,16 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
               g
               |> Graph.union proc_g
               |> link_backward ~last_ids:true_branch_leaves true_branch_guard_rule_id
-              |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
             in
-            aux labelled_loops loop_stack [after_loop_rule_id] g next
+            if at_least_one_break then (
+              let g =
+                g
+                |> Graph.add_vertex_with_id after_loop_rule_id empty_rule
+              in
+              aux labelled_loops loop_stack [after_loop_rule_id] g next
+            ) else (
+              Ok g
+            )
           )
       )
     | P_break (loc, label) -> (

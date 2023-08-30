@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.4
+
+- Fixed CFG construction of unconditional loop
+
+    - Graph of the subsequent process is no longer constructed
+      if the loop body doesn't contain any breaks
+
+    - Previously graph of subsequent process was always constructed,
+      but is unreachable if the loop body doesn't contain any breaks
+
+        - This introduced false positives in cell lifetime analysis and at least the `frame-minimal-backward0` translation style
+
 ## 0.5.3
 
 - Made cell usage check error message clearer for singleton processes
