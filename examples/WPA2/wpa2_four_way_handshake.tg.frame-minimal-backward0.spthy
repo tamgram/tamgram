@@ -248,153 +248,51 @@ rule KeyRevealPMK_553:
     [ Out(PMK_552)
     ]
 
-rule TgRuleAuth_603_12to13:
-  [Fr(~pid)]--[]->[St(~pid, 'tgk13', 'empty_tuple')]
+rule TgStartAuth_603_12:
+  [Fr(~pid)]--[]->[St(~pid, 'tgk12', 'empty_tuple')]
 
-rule TgRuleAuth_603_13to14:
-    [ St(~pid, 'tgk13', 'empty_tuple')
+rule TgRuleAuth_603_12to13:
+    [ St(~pid, 'tgk12', 'empty_tuple')
     , AuthState_439(~authThreadID_557, 'INIT_R1_SA', <~authID_558, ~PMK_562, ~suppThreadID_554, KDF_21(<u_PMK_561, ~ANonce_563, u_SNonce_560>), oldANonce_556, oldSNonce_555, S_26(u_ctr_minus_1_559)>)
     ]
   --[ 
     ]->
-    [ St(~pid, 'tgk14', <~ANonce_563, ~PMK_562, KDF_21(<u_PMK_561, ~ANonce_563, u_SNonce_560>), 'NULL', ~authID_558, ~authThreadID_557, S_26(u_ctr_minus_1_559), 'NULL', 'NULL', 'NULL', oldSNonce_555, 'INIT_R1_SA', ~suppThreadID_554>)
+    [ St(~pid, 'tgk13', <~ANonce_563, ~PMK_562, KDF_21(<u_PMK_561, ~ANonce_563, u_SNonce_560>), 'NULL', ~authID_558, ~authThreadID_557, S_26(u_ctr_minus_1_559), 'NULL', 'NULL', 'NULL', oldSNonce_555, 'INIT_R1_SA', ~suppThreadID_554>)
     ]
 
+rule TgRuleAuth_603_13to14:
+  [St(~pid, 'tgk13', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
 rule TgRuleAuth_603_14to16:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk16', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_14to18:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk18', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_14to20:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_14to24:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_14to28:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk28', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_14to30:
-  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk30', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_16to17:
-    [ St(~pid, 'tgk16', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'INIT_R1_SA', tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'INIT_R1_SA', tgc_suppThreadID_0>)
     , Fr(~ANonce_567)
     ]
   --[ AuthenticatorSendsM1_228(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, tgc_oldSNonce_0, S_26(tgc_ctr_0))
     ]->
-    [ St(~pid, 'tgk17', <~ANonce_567, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, S_26(tgc_ctr_0), <S_26(tgc_ctr_0), ~ANonce_567>, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk16', <~ANonce_567, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, S_26(tgc_ctr_0), <S_26(tgc_ctr_0), ~ANonce_567>, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
     , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, ~ANonce_567, S_26(tgc_ctr_0))
     ]
 
-rule TgRuleAuth_603_17to14:
-    [ St(~pid, 'tgk17', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m1_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Fr(~messageID_108)
-    ]
-  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
-    ]->
-    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
-    ]
-
-rule TgRuleAuth_603_18to19:
-    [ St(~pid, 'tgk18', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
+rule TgRuleAuth_603_14to18:
+    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
     ]
   --[ AuthenticatorSendsM1Again_238(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, tgc_oldSNonce_0, tgc_ctr_0)
     ]->
-    [ St(~pid, 'tgk19', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, S_26(tgc_ctr_0), <S_26(tgc_ctr_0), tgc_ANonce_0>, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk18', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, S_26(tgc_ctr_0), <S_26(tgc_ctr_0), tgc_ANonce_0>, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)
     , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
     ]
 
-rule TgRuleAuth_603_19to14:
-    [ St(~pid, 'tgk19', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m1_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Fr(~messageID_108)
-    ]
-  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
-    ]->
-    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
-    ]
+rule TgRuleAuth_603_14to20:
+  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]
 
-rule TgRuleAuth_603_20to21:
-  [St(~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk21', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]
+rule TgRuleAuth_603_14to24:
+  [St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
 
-rule TgRuleAuth_603_20to22:
-  [St(~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_START', tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk22', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_21to23:
-    [ St(~pid, 'tgk21', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
-    , In(message_150)
-    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
-    ]
-  --[ Read_46(~pointerPTK_149)
-    ]->
-    [ St(~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, message_150, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
-    ]
-
-rule TgRuleAuth_603_22to23:
-    [ St(~pid, 'tgk22', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
-    , In(snenc_24(message_157, PTK_158, nonce_156))
-    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
-    ]
-  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
-    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
-    , Read_46(~pointerPTK_155)
-    ]->
-    [ St(~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, message_157, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
-    ]
-
-rule TgRuleAuth_603_23to14:
-  [St(~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <<tgc_ctr_0, SNonce_571>, mic_m2_570>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2_249(
-tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_571, tgc_ctr_0)]->[St(
-~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_571, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <tgc_ctr_0, SNonce_571>, mic_m2_570, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_24to25:
-  [St(~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk25', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_24to26:
-  [St(~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]--[]->[St(
-~pid, 'tgk26', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PKT_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_25to27:
-    [ St(~pid, 'tgk25', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , In(message_150)
-    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
-    ]
-  --[ Read_46(~pointerPTK_149)
-    ]->
-    [ St(~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, message_150, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    ]
-
-rule TgRuleAuth_603_26to27:
-    [ St(~pid, 'tgk26', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , In(snenc_24(message_157, PTK_158, nonce_156))
-    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
-    ]
-  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
-    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
-    , Read_46(~pointerPTK_155)
-    ]->
-    [ St(~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, message_157, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    ]
-
-rule TgRuleAuth_603_27to14:
-  [St(~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <u_prev_ctr_575, SNonce_576>, <<ctr_574, SNonce_576>, mic_m2_573>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2Again_259(
-tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_576, tgc_ctr_0)]->[St(
-~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_576, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_574, SNonce_576>, mic_m2_573, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
-
-rule TgRuleAuth_603_28to29:
-    [ St(~pid, 'tgk28', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_583, SNonce_585>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING', tgc_suppThreadID_0>)
+rule TgRuleAuth_603_14to28:
+    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_583, SNonce_585>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING', tgc_suppThreadID_0>)
     , !AuthGTKState_423(~authID_584, stateIdentifier_579, installedGTKData_582, <GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>, ~pointerGTKState_580)
     ]
   --[ Eq_29(tgc_mic_m2_0, MIC_27(KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>), <ctr_583, SNonce_585>))
@@ -404,22 +302,12 @@ rule TgRuleAuth_603_28to29:
     , AuthenticatorSharesGTK_287(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, <GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>)
     , ReadUnique_43(~pointerGTKState_580, ~authID_584)
     ]->
-    [ St(~pid, 'tgk29', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_583, SNonce_585>, <S_26(tgc_ctr_0), senc(<GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>))>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk28', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_583, SNonce_585>, <S_26(tgc_ctr_0), senc(<GTK_22(~x_578), <N_23(n_581), ~authID_584>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, SNonce_585>))>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
     , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
     ]
 
-rule TgRuleAuth_603_29to14:
-    [ St(~pid, 'tgk29', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_m3_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Fr(~messageID_108)
-    ]
-  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
-    ]->
-    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
-    , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
-    ]
-
-rule TgRuleAuth_603_30to31:
-    [ St(~pid, 'tgk30', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
+rule TgRuleAuth_603_14to30:
+    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
     , !AuthGTKState_423(tgc_authID_0, stateIdentifier_592, installedGTKData_596, <GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>, ~pointerGTKState_593)
     , Fr(~messageID_595)
     ]
@@ -428,19 +316,137 @@ rule TgRuleAuth_603_30to31:
     , AuthenticatorSharesGTK_287(tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, <GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>)
     , ReadUnique_43(~pointerGTKState_593, ~authID_597)
     ]->
-    [ St(~pid, 'tgk31', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, <S_26(tgc_ctr_0), senc(<GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, tgc_SNonce_0>))>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk30', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, <S_26(tgc_ctr_0), senc(<GTK_22(~x_591), <N_23(n_594), ~authID_597>, $index>, KDF_21(<tgc_PMK_0, tgc_ANonce_0, tgc_SNonce_0>))>, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING3', tgc_suppThreadID_0>)
     , !UsedCounterInPTKHandshake_248(tgc_authThreadID_0, tgc_ANonce_0, S_26(tgc_ctr_0))
     ]
 
-rule TgRuleAuth_603_31to14:
-    [ St(~pid, 'tgk31', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_m3_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+rule TgRuleAuth_603_16to17:
+    [ St(~pid, 'tgk16', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m1_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
     , Fr(~messageID_108)
     ]
   --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
     ]->
-    [ St(~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    [ St(~pid, 'tgk17', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
+    ]
+
+rule TgRuleAuth_603_17to14:
+  [St(~pid, 'tgk17', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_18to19:
+    [ St(~pid, 'tgk18', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m1_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk19', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, tgc_m1_0, 'DF')
+    ]
+
+rule TgRuleAuth_603_19to14:
+  [St(~pid, 'tgk19', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_20to21:
+    [ St(~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
+    , In(message_150)
+    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
+    ]
+  --[ Read_46(~pointerPTK_149)
+    ]->
+    [ St(~pid, 'tgk21', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, message_150, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
+    ]
+
+rule TgRuleAuth_603_20to22:
+    [ St(~pid, 'tgk20', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
+    , In(snenc_24(message_157, PTK_158, nonce_156))
+    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
+    ]
+  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
+    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
+    , Read_46(~pointerPTK_155)
+    ]->
+    [ St(~pid, 'tgk22', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, message_157, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)
+    ]
+
+rule TgRuleAuth_603_21to23:
+  [St(~pid, 'tgk21', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <<tgc_ctr_0, SNonce_571>, mic_m2_570>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2_249(
+tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_571, tgc_ctr_0)]->[St(
+~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_571, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <tgc_ctr_0, SNonce_571>, mic_m2_570, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_22to23:
+  [St(~pid, 'tgk22', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <<tgc_ctr_0, SNonce_571>, mic_m2_570>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2_249(
+tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_571, tgc_ctr_0)]->[St(
+~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_571, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <tgc_ctr_0, SNonce_571>, mic_m2_570, tgc_newPTK_0, tgc_oldSNonce_0, 'PTK_CALC_NEGOTIATING', tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_23to14:
+  [St(~pid, 'tgk23', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_24to25:
+    [ St(~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , In(message_150)
+    , !ReceiverPTK_97(role_145, ptkID_148, receiverThreadID_146, receiverID_147, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerPTK_149)
+    ]
+  --[ Read_46(~pointerPTK_149)
+    ]->
+    [ St(~pid, 'tgk25', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, message_150, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    ]
+
+rule TgRuleAuth_603_24to26:
+    [ St(~pid, 'tgk24', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , In(snenc_24(message_157, PTK_158, nonce_156))
+    , !ReceiverPTK_97(role_151, ~ptkID_154, ~receiverThreadID_152, receiverID_153, PTK_158, ~pointerPTK_155)
+    ]
+  --[ Neq_28(PTK_158, KDF_21(<'NULL', 'NULL', 'NULL'>))
+    , SeesNonceForPTK_47(~ptkID_154, ~receiverThreadID_152, PTK_158, nonce_156)
+    , Read_46(~pointerPTK_155)
+    ]->
+    [ St(~pid, 'tgk26', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, message_157, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    ]
+
+rule TgRuleAuth_603_25to27:
+  [St(~pid, 'tgk25', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <u_prev_ctr_575, SNonce_576>, <<ctr_574, SNonce_576>, mic_m2_573>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2Again_259(
+tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_576, tgc_ctr_0)]->[St(
+~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_576, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_574, SNonce_576>, mic_m2_573, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_26to27:
+  [St(~pid, 'tgk26', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <u_prev_ctr_575, SNonce_576>, <<ctr_574, SNonce_576>, mic_m2_573>, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[AuthenticatorReceivesM2Again_259(
+tgc_authThreadID_0, tgc_authID_0, tgc_PMK_0, tgc_suppThreadID_0, tgc_PTK_0, tgc_ANonce_0, SNonce_576, tgc_ctr_0)]->[St(
+~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, SNonce_576, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, <ctr_574, SNonce_576>, mic_m2_573, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_27to14:
+  [St(~pid, 'tgk27', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_28to29:
+    [ St(~pid, 'tgk28', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_m3_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk29', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
     , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
     ]
+
+rule TgRuleAuth_603_29to14:
+  [St(~pid, 'tgk29', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
+
+rule TgRuleAuth_603_30to31:
+    [ St(~pid, 'tgk30', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_m3_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Fr(~messageID_108)
+    ]
+  --[ EnqueueMessage_59(tgc_authThreadID_0, ~messageID_108)
+    ]->
+    [ St(~pid, 'tgk31', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)
+    , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
+    ]
+
+rule TgRuleAuth_603_31to14:
+  [St(~pid, 'tgk31', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]--[]->[St(
+~pid, 'tgk14', <tgc_ANonce_0, tgc_PMK_0, tgc_PTK_0, tgc_SNonce_0, tgc_authID_0, tgc_authThreadID_0, tgc_ctr_0, tgc_m2_0, tgc_mic_m2_0, tgc_newPTK_0, tgc_oldSNonce_0, tgc_state_0, tgc_suppThreadID_0>)]
 
 end
 

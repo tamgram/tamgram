@@ -627,8 +627,5 @@ rule TgRuleAuth_603_31to14:
     , Queued_61(tgc_authThreadID_0, ~messageID_108, <tgc_m3_0, MIC_27(tgc_newPTK_0, tgc_m3_0)>, 'DF')
     ]
 
-rule TgEndAuth_603_15:
-  []--[]->[]
-
 end
 
