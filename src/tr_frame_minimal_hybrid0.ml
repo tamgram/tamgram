@@ -185,13 +185,14 @@ let compute_possible_exit_facts spec g k : (int option * Tg_ast.term) Seq.t =
   in
   match exit_bias spec g k with
   | `Empty -> Seq.empty
-  | `Forward ->
-    Graph.succ_seq k g
-    |> Seq.filter (fun x -> exit_bias spec g x <> `Empty)
-    |> Seq.map (fun succ ->
-        (Some succ, Forward_biased.exit_fact spec g k ~succ)
-      )
-    |> Seq.append empty_rule_exit_facts
+  | `Forward -> (
+      Graph.succ_seq k g
+      |> Seq.filter (fun x -> exit_bias spec g x <> `Empty)
+      |> Seq.map (fun succ ->
+          (Some succ, Forward_biased.exit_fact spec g k ~succ)
+        )
+      |> Seq.append empty_rule_exit_facts
+    )
   | `Backward ->
     Seq.cons (None, Backward_biased.exit_fact spec g k)
       empty_rule_exit_facts
