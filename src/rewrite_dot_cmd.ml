@@ -1,3 +1,6 @@
+open Cmdliner
+open Cli_utils
+
 let debug_arg = Arg.(value & flag & info [ "debug" ])
 
 let run
