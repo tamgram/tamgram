@@ -2,7 +2,7 @@
 
 ## 0.5.5
 
-- Fixed CFG construction of empty processes in branching primitives
+- Fixed CFG construction when dealing with empty sub-CFGs in branching primitives
 
 ## 0.5.4
 
