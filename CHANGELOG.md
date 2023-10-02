@@ -1,8 +1,28 @@
 # Changelog
 
+## 0.5.6
+
+- Fixed translation of a chain of empty rules by adjusting definition of empty bias
+  in hybrid translation
+
+    - Previously a chain of empty rules will lead to parts of process becoming disconnected
+
+- Fixed branch merging heuristics
+
+    - Previously only `choice` followed by `choice` or `if-then-else` followed by `choice`
+      will trigger a branch merge
+
+    - Now if two consecutive steps are both branching primitives (`choice` or `if-then-else`)
+      a branch merge is triggered
+
 ## 0.5.5
 
 - Fixed CFG construction when dealing with empty sub-CFGs in branching primitives
+
+    - If union of all sub-CFGs of `choice` is an empty graph, then the `choice` segment is ignored
+
+    - If any of the two branches of `if-then-else` is an empty graph, then it is replaced by
+      a singleton graph with an empty rule
 
 ## 0.5.4
 
