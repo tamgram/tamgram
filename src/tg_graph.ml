@@ -149,17 +149,11 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         let* gs =
           aux_list labelled_loops loop_stack last_ids Graph.empty [] procs
         in
-        let last_ids =
-          CCList.flat_map (fun g ->
-              Graph.leaves g
-              |> List.of_seq
-            )
-            gs
-        in
         let g' = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
         if Graph.is_empty g' then (
           aux labelled_loops loop_stack last_ids g next
         ) else (
+          let last_ids = Graph.leaves g' in
           let g = Graph.union g' g in
           let default () =
             aux labelled_loops loop_stack last_ids g next
