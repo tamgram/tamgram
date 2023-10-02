@@ -179,7 +179,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
           | [_] -> default ()
           | _ -> (
               match next with
-              | P_branch _ ->
+              | P_branch _ | P_if_then_else _ ->
                 if !Params.merge_branches then (
                   let id = Graph.get_id () in
                   let g =
@@ -416,7 +416,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         | [_] -> default ()
         | _ -> (
             match next with
-            | P_branch _ ->
+            | P_branch _ | P_if_then_else _ ->
               if !Params.merge_branches then (
                 let id = Graph.get_id () in
                 let g =
