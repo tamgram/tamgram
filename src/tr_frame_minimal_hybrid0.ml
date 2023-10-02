@@ -166,6 +166,7 @@ module Backward_biased = struct
 end
 
 let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
+  let rule_is_empty x = rule_is_empty spec g x in
   let pred = Graph.pred k g in
   let succ = Graph.succ k g in
   let no_pred_is_empty () =
@@ -174,7 +175,7 @@ let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
   let no_succ_is_empty () =
     not (Int_set.exists rule_is_empty succ)
   in
-  if rule_is_empty spec g k && no_pred_is_empty && no_succ_is_empty then
+  if rule_is_empty k && no_pred_is_empty () && no_succ_is_empty () then
     `Empty
   else (
     if Int_set.cardinal succ <= 1 then

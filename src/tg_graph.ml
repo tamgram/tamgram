@@ -153,7 +153,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         if Graph.is_empty g' then (
           aux labelled_loops loop_stack last_ids g next
         ) else (
-          let last_ids = Graph.leaves g' in
+          let last_ids = Graph.leaves g' |> List.of_seq in
           let g = Graph.union g' g in
           let default () =
             aux labelled_loops loop_stack last_ids g next
