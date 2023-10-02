@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.5
+
+- Fixed CFG construction of empty processes in branching primitives
+
 ## 0.5.4
 
 - Fixed CFG construction of unconditional loop

@@ -4,6 +4,8 @@ val get_id : unit -> int
 
 val empty : 'a t
 
+val is_empty : 'a t -> bool
+
 val union : 'a t -> 'a t -> 'a t
 
 val vertices : 'a t -> 'a Int_map.t

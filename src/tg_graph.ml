@@ -156,40 +156,45 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
             )
             gs
         in
-        let g = List.fold_left (fun acc x -> Graph.union acc x) g gs in
-        let default () =
+        let g' = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
+        if Graph.is_empty g' then (
           aux labelled_loops loop_stack last_ids g next
-        in
-        match last_ids with
-        | [] -> (
-            match next with
-            | P_null ->
-              aux labelled_loops loop_stack last_ids g next
-            | _ ->
-              Error (
-                Error_msg.make
-                  loc
-                  "The process after choice here is not reachable"
-              )
-          )
-        | [_] -> default ()
-        | _ -> (
-            match next with
-            | P_branch _ ->
-              if !Params.merge_branches then (
-                let id = Graph.get_id () in
-                let g =
-                  g
-                  |> link_backward ~last_ids id
-                  |> Graph.add_vertex_with_id id empty_rule
-                in
-                aux labelled_loops loop_stack [id] g next
-              )
-              else (
-                default ()
-              )
-            | _ -> default ()
-          )
+        ) else (
+          let g = Graph.union g' g in
+          let default () =
+            aux labelled_loops loop_stack last_ids g next
+          in
+          match last_ids with
+          | [] -> (
+              match next with
+              | P_null ->
+                aux labelled_loops loop_stack last_ids g next
+              | _ ->
+                Error (
+                  Error_msg.make
+                    loc
+                    "The process after choice here is not reachable"
+                )
+            )
+          | [_] -> default ()
+          | _ -> (
+              match next with
+              | P_branch _ ->
+                if !Params.merge_branches then (
+                  let id = Graph.get_id () in
+                  let g =
+                    g
+                    |> link_backward ~last_ids id
+                    |> Graph.add_vertex_with_id id empty_rule
+                  in
+                  aux labelled_loops loop_stack [id] g next
+                )
+                else (
+                  default ()
+                )
+              | _ -> default ()
+            )
+        )
       )
     | P_loop { label; mode; proc; next } -> (
         let enter_loop (loop_skeleton : loop_skeleton) (proc : Tg_ast.proc) =
@@ -362,6 +367,26 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
         in
         let* false_branch_g =
           aux labelled_loops loop_stack [false_branch_guard_rule_id] Graph.empty false_branch
+        in
+        let true_branch_g =
+          if Graph.is_empty true_branch_g then (
+            let id = Graph.get_id () in
+            Graph.empty
+            |> link_backward ~last_ids:[true_branch_guard_rule_id] id
+            |> Graph.add_vertex_with_id id empty_rule
+          ) else (
+            true_branch_g
+          )
+        in
+        let false_branch_g =
+          if Graph.is_empty false_branch_g then (
+            let id = Graph.get_id () in
+            Graph.empty
+            |> link_backward ~last_ids:[false_branch_guard_rule_id] id
+            |> Graph.add_vertex_with_id id empty_rule
+          ) else (
+            false_branch_g
+          )
         in
         let true_branch_leaves = Graph.leaves true_branch_g in
         let false_branch_leaves = Graph.leaves false_branch_g in

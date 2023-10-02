@@ -18,6 +18,9 @@ let empty = {
   vertices = Int_map.empty
 }
 
+let is_empty (t : 'a t) =
+  Int_map.is_empty t.vertices
+
 let union (t1 : 'a t) (t2 : 'a t) =
   {
     succ = Int_map.union
