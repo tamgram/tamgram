@@ -21,7 +21,7 @@
 
     - If union of all sub-CFGs of `choice` is an empty graph, then the `choice` segment is ignored
 
-    - If any of the two branches of `if-then-else` is an empty graph, then it is replaced by
+    - If any of the two branches of `if-then-else` is an empty graph, then the branch is replaced by
       a singleton graph with an empty rule
 
 ## 0.5.4
