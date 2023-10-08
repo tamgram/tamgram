@@ -5,3 +5,4 @@ RUN opam install menhir
 RUN opam install utop ocp-indent
 RUN opam install ansiterminal
 RUN opam install oseq
+RUN opam install angstrom

@@ -19,6 +19,7 @@ release-static :
 	OCAMLPARAM='_,ccopt=-static' dune build --release src/tamgram.exe
 	mkdir -p statically-linked
 	cp -f _build/default/src/tamgram.exe statically-linked/tamgram
+	cp -f _build/default/src/tamgram_rewrite_dot.exe statically-linked/tamgram_rewrite_dot
 
 .PHONY: debug-draft
 debug-draft:
