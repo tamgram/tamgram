@@ -1,6 +1,6 @@
 open Cmdliner
 
-let cmds = [ Debug_tg_cmd.cmd; Compile_tg_cmd.cmd; Rewrite_dot_cmd.cmd ]
+let cmds = [ Debug_tg_cmd.cmd; Compile_tg_cmd.cmd; ]
 
 let default =
   Term.(ret (const (`Help (`Pager, None))))
