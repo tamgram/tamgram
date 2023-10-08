@@ -8,9 +8,29 @@ let is_space c =
   | '\r' -> true
   | _ -> false
 
-let spaces = skip_while is_space
-
-let spaces1 = take_while1 is_space *> return ()
+let spaces =
+  fix (fun p ->
+      peek_char >>= fun c ->
+      match c with
+      | None -> return ()
+      | Some c -> (
+          if is_space c then (
+            any_char *> p
+          ) else if c = '\\' then (
+            (peek_string 2 >>= fun s ->
+             match s with
+             | "\\l" -> (
+                 take 2 *> many (string "&nbsp;") *> return ()
+               )
+             | _ -> return ()
+            )
+            <|>
+            return ()
+          ) else (
+            return ()
+          )
+        )
+    )
 
 let any_string : string t = take_while1 (fun _ -> true)
 

@@ -1,6 +1,9 @@
 type rule = {
+  name : string;
   l : (string * Tg_ast.term) list;
-  a : (string * Tg_ast.term) list;
+  a_sub_node_name : string;
+  a_timepoint : string;
+  a : Tg_ast.term list;
   r : (string * Tg_ast.term) list;
 }
 
@@ -75,17 +78,46 @@ module Parsers = struct
     let open Tg_ast in
     fix (fun p ->
         choice [
-          (char '~' *> name_p >>| fun name ->
-           T_var ([name], `Local 0, Some `Fresh)
-          );
-          (char '$' *> name_p >>| fun name ->
-           T_symbol (name, `Pub)
-          );
           (single_quoted_p >>| fun s ->
            T_value (Loc.untagged (`Str s))
           );
+          (char '$' *> spaces *> name_p >>| fun name ->
+           T_symbol (name, `Pub)
+          );
+          (char '~' *> spaces *> name_p >>| fun name ->
+           T_var ([name], `Local 0, Some `Fresh)
+          );
+          (char 'T' *>
+           return (T_value (Loc.untagged `T))
+          );
+          (char 'F' *>
+           return (T_value (Loc.untagged `F))
+          );
+          (name_p >>= fun f ->
+           spaces *> char '(' *> spaces *>
+           sep_by (char ',' *> spaces) p >>= fun args ->
+           spaces *> char ')' *>
+           return (T_app {
+               path = [ f ];
+               name = `Local 0;
+               named_args = [];
+               args;
+               anno = None
+             })
+          );
         ]
+        <* spaces
       )
+
+  let fact_p =
+    let open Tg_ast in
+    choice [
+      (char '!' *> spaces *> term_p >>| fun term ->
+       T_unary_op (`Persist, term)
+      );
+      term_p
+    ]
+    <* spaces
 
   let node_setting_p =
     string "node" *> spaces *> square_bracket_kv_list_p >>| fun l ->
@@ -96,18 +128,30 @@ module Parsers = struct
     Node_settings l
 
   let rule_p : rule t =
-    let sub_node_p =
+    let sub_node_prefix_p =
       char '<' *> alphanum_string >>= fun sub_node_name ->
-      char '>' *> spaces *> term_p >>= fun term ->
-      spaces *> return (sub_node_name, term)
+      char '>' *> spaces *> return sub_node_name
     in
-    let row_p =
-      char '{' *> spaces *> many sub_node_p >>= fun l -> spaces *> return l
+    let sub_node_p =
+      sub_node_prefix_p >>= fun sub_node_name ->
+      fact_p >>= fun fact ->
+      spaces *> return (sub_node_name, fact)
     in
-    char '{' *> spaces *> row_p >>= fun l ->
-    char '|' *> spaces *> row_p >>= fun a ->
-    char '|' *> spaces *> row_p >>= fun r ->
-    return { l; a; r }
+    let l_r_row_p =
+      char '{' *> spaces *> many sub_node_p >>= fun l -> char '}' *> spaces *> return l
+    in
+    let a_row_p =
+      char '{' *> sub_node_prefix_p >>= fun sub_node_name ->
+      char '#' *> spaces *> alphanum_string >>= fun timepoint ->
+      spaces *> char ':' *> spaces *> alphanum_string >>= fun name ->
+      spaces *> char '[' *> many fact_p >>= fun facts ->
+      char ']' *> spaces *>
+      return (sub_node_name, timepoint, name, facts)
+    in
+    char '{' *> spaces *> l_r_row_p >>= fun l ->
+    char '|' *> spaces *> a_row_p >>= fun (a_sub_node_name, a_timepoint, name, a) ->
+    char '|' *> spaces *> l_r_row_p >>= fun r ->
+    return { name; a_sub_node_name; a_timepoint; l; a; r }
 
   let node_p =
     alphanum_string >>= fun name ->
