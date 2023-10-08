@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0
+
+- Added companion binary `tamgram-rewrite-dot` for rewriting proof graph in
+  Tamarin interactive mode
+
 ## 0.5.6
 
 - Fixed translation of a chain of empty rules by adjusting definition of empty bias
