@@ -1,10 +1,12 @@
+type exit_bias = Tr_frame_minimal_hybrid0.exit_bias
+
 type rule = {
   name : string;
-  l : (string * Tg_ast.term) list;
+  l : (string * Tg_ast.term list) list;
   a_sub_node_name : string;
   a_timepoint : string;
   a : Tg_ast.term list;
-  r : (string * Tg_ast.term) list;
+  r : (string * Tg_ast.term list) list;
 }
 
 type rule_node = {
@@ -155,7 +157,7 @@ module Parsers = struct
     let sub_node_p =
       sub_node_prefix_p >>= fun sub_node_name ->
       fact_p >>= fun fact ->
-      spaces *> return (sub_node_name, fact)
+      spaces *> return (sub_node_name, [fact])
     in
     let l_r_row_p =
       char '{' *> spaces *> sep_by (char '|') sub_node_p >>= fun l ->
@@ -227,10 +229,164 @@ module Parsers = struct
     <* string "}" <* spaces
 end
 
-let () =
-  CCIO.with_in "examples/test.dot" (fun ic ->
+(* let () =
+   CCIO.with_in "examples/test.dot" (fun ic ->
       let s = CCIO.read_all ic in
       match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.p s with
       | Error msg -> Printf.printf "Error: %s\n" msg
       | Ok l -> Printf.printf "item count: %d\n" (List.length l)
+    ) *)
+
+let load_dot_file file : (item list, Error_msg.t) result =
+  CCIO.with_in file (fun ic ->
+      let s = CCIO.read_all ic in
+      match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.p s with
+      | Error msg -> Error (Error_msg.make_msg_only msg)
+      | Ok l -> Ok l
+    )
+
+let call_dot (args : string list) =
+  Sys.command (Fmt.str "dot %s" (String.concat " " args))
+
+module Rewrite = struct
+  type row = [ `L | `R ]
+
+  let rewrite_frame
+      (spec : Spec.t)
+      (row : row)
+      ~k
+      (exit_bias : exit_bias)
+      (frame : Tg_ast.term list)
+    : Tg_ast.term list =
+    let open Tg_ast in
+    let cell_usage = Int_map.find k spec.cell_usages in
+    let cells_defined = Cell_lifetime.Usage.defines_cells cell_usage in
+    let cells_undefined = Cell_lifetime.Usage.defines_cells cell_usage in
+    match row with
+    | `L -> (
+        match exit_bias with
+        | `Forward -> (
+            []
+          )
+        | `Backward -> (
+            []
+          )
+        | `Empty -> (
+            []
+          )
+      )
+    | `R -> (
+        Seq.append
+          (cells_defined
+           |> String_tagged_set.to_seq
+           |> Seq.map (fun cell ->
+               T_cell_assign (cell, T_value (Loc.untagged `T))
+             ))
+          (cells_undefined
+           |> String_tagged_set.to_seq
+           |> Seq.map (fun cell ->
+               T_cell_assign (cell, T_value (Loc.untagged `T))
+             ))
+        |> List.of_seq
+      )
+
+  let rewrite_state_fact (spec : Spec.t) (row : row) (x : Tg_ast.term) : Tg_ast.term list =
+    let open Tg_ast in
+    let default = [ x ] in
+    match x with
+    | T_app { path; args; _ } -> (
+        match path with
+        | [ name ] -> (
+            let name = Loc.content name in
+            if List.mem name [ "StF"; "StB"; "St" ] then (
+              let exit_bias =
+                match name with
+                | "StF" -> `Forward
+                | "StB" -> `Backward
+                | "St" -> `Empty
+                | _ -> failwith "Unexpected case"
+              in
+              match args with
+              | [ pid; T_value vertex; T_tuple (_loc, frame) ] -> (
+                  let vertex = Loc.content vertex in
+                  match vertex with
+                  | `Str vertex -> (
+                      if String.length vertex > 3
+                      && StringLabels.sub ~pos:0 ~len:3 vertex = Params.graph_vertex_label_prefix
+                      then (
+                        match
+                          int_of_string_opt
+                            (StringLabels.sub ~pos:3 ~len:(String.length vertex-3) vertex)
+                        with
+                        | None -> default
+                        | Some k -> (
+                            rewrite_frame spec row ~k exit_bias frame
+                          )
+                      ) else (
+                        default
+                      )
+                    )
+                  | _ -> default
+                )
+              | _ -> default
+            ) else (
+              default
+            )
+          )
+        | _ -> default
+      )
+    | _ -> default
+
+  let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
+    let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
+      CCList.map (fun (sub_node, terms) ->
+          (sub_node,
+           CCList.flat_map (fun term ->
+               rewrite_state_fact spec `L term
+             ) terms
+          )
+        )
+        sub_nodes
+    in
+    let l = rewrite_sub_nodes `L rule.l in
+    let r = rewrite_sub_nodes `R rule.r in
+    { rule with l; r }
+
+  let item (spec : Spec.t) (x : item) : item =
+    match x with
+    | Rule_node { name; rule; attrs } -> (
+        Rule_node { name; rule = rewrite_rule spec rule; attrs }
+      )
+    | _ -> x
+end
+
+let run () =
+  let open Result_syntax in
+  let argv = Array.to_list Sys.argv in
+  let call () =
+    exit (call_dot argv)
+  in
+  match Sys.getenv_opt "TG_FILE" with
+  | None -> call ()
+  | Some tg_file -> (
+      match argv with
+      | [] | [ "-V" ] -> call ()
+      | _ -> (
+          match List.filter (fun s -> Filename.extension s = ".dot") argv with
+          | [] -> call ()
+          | dot_file :: _ -> (
+              let* root = Modul_load.from_file tg_file in
+              let* spec =  Tg.run_pipeline (Spec.make root) in
+              let+ items = load_dot_file dot_file in
+              List.map (Rewrite.item spec) items
+            )
+        )
+    )
+
+let () =
+  match run () with
+  | Error msg -> (
+      Error_msg.print String_map.empty msg
+    )
+  | Ok items -> (
     )
