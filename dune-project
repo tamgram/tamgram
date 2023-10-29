@@ -19,6 +19,8 @@
     dune
     cmdliner
     (containers (>= "3.6"))
+    (angstrom (>= "0.15.0"))
+    oseq
     menhir
     fmt
     ANSITerminal

@@ -1,8 +1,19 @@
-FROM docker.io/ocaml/opam:alpine-ocaml-4.14
-RUN opam init --disable-sandboxing
-RUN opam install dune containers fmt
-RUN opam install menhir
-RUN opam install utop ocp-indent
-RUN opam install ansiterminal
-RUN opam install oseq
-RUN opam install angstrom
+FROM docker.io/ocaml/opam:alpine-ocaml-5.1
+
+USER root
+RUN apk add linux-headers
+
+USER opam
+RUN opam-2.2 init --disable-sandboxing
+SHELL ["/bin/bash", "--login" , "-c"]
+RUN opam-2.2 install dune
+RUN opam-2.2 install utop ocp-indent
+
+USER root
+COPY . /home/opam/tamgram
+RUN chown -R opam:opam /home/opam/tamgram
+
+USER opam
+WORKDIR /home/opam/tamgram
+RUN dune build tamgram.opam
+RUN opam-2.2 install . --deps-only
