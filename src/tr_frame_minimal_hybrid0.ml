@@ -208,40 +208,41 @@ let compute_possible_exit_facts spec g k : (int option * Tg_ast.term) Seq.t =
 let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
   match exit_bias spec g k with
   | `Empty -> Seq.empty
-  | _ ->
-    let
-      forward_biased_exit_preds,
-      backward_biased_exit_preds,
-      empty_rule_exit_preds
-      =
-      Int_set.fold (fun x (f, b, e) ->
-          match exit_bias spec g x with
-          | `Forward -> (Int_set.add x f, b, e)
-          | `Backward -> (f, Int_set.add x b, e)
-          | `Empty -> (f, b, Int_set.add x e)
-        )
-        (Graph.pred k g)
-        (Int_set.empty, Int_set.empty, Int_set.empty)
-    in
-    [
-      (if Int_set.is_empty forward_biased_exit_preds then Seq.empty
-       else (
-         Seq.return (None, Forward_biased.entry_fact spec g k)
-       )
-      );
-      (Int_set.to_seq backward_biased_exit_preds
-       |> Seq.map (fun pred ->
-           (Some pred, Backward_biased.entry_fact spec g k ~pred)
+  | _ -> (
+      let
+        forward_biased_exit_preds,
+        backward_biased_exit_preds,
+        empty_rule_exit_preds
+        =
+        Int_set.fold (fun x (f, b, e) ->
+            match exit_bias spec g x with
+            | `Forward -> (Int_set.add x f, b, e)
+            | `Backward -> (f, Int_set.add x b, e)
+            | `Empty -> (f, b, Int_set.add x e)
+          )
+          (Graph.pred k g)
+          (Int_set.empty, Int_set.empty, Int_set.empty)
+      in
+      [
+        (if Int_set.is_empty forward_biased_exit_preds then Seq.empty
+         else (
+           Seq.return (None, Forward_biased.entry_fact spec g k)
          )
-      );
-      (Int_set.to_seq empty_rule_exit_preds
-       |> Seq.map (fun empty_rule ->
-           (Some empty_rule, entry_fact_from_empty_rule spec g k ~empty_rule)
-         )
-      );
-    ]
-    |> List.to_seq
-    |> Seq.flat_map Fun.id
+        );
+        (Int_set.to_seq backward_biased_exit_preds
+         |> Seq.map (fun pred ->
+             (Some pred, Backward_biased.entry_fact spec g k ~pred)
+           )
+        );
+        (Int_set.to_seq empty_rule_exit_preds
+         |> Seq.map (fun empty_rule ->
+             (Some empty_rule, entry_fact_from_empty_rule spec g k ~empty_rule)
+           )
+        );
+      ]
+      |> List.to_seq
+      |> Seq.flat_map Fun.id
+    )
 
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let open Tg_ast in
