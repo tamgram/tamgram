@@ -24,5 +24,6 @@
     menhir
     fmt
     ANSITerminal
+    yojson
   )
 )

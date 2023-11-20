@@ -8,6 +8,7 @@
             ANSITerminal
             oseq
             angstrom
+            yojson
             )
  )
 
