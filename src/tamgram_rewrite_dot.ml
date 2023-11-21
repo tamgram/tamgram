@@ -572,20 +572,23 @@ let run () =
   in
   CCIO.with_out_a "tamgram-test.log" (fun oc ->
       let formatter = Format.formatter_of_out_channel oc in
-      Fmt.pf formatter "argv: %s@," (String.concat " " argv)
+      Fmt.pf formatter "argv: @[%s@,@]" (String.concat " " argv)
     );
   let call () =
+    exit 1;
     exit (call_dot argv)
   in
   match Sys.getenv_opt "TG_FILE" with
-  | None -> call ()
+  | None -> exit 1
   | Some tg_file -> (
       match argv with
-      | [] | [ "-V" ] -> call ()
+      | [] | [ "-V" ] -> exit 1
       | _ -> (
           match List.filter (fun s -> Filename.extension s = ".dot") argv with
-          | [] -> call ()
+          | [] -> exit 1
           | dot_file :: _ -> (
+              Sys.command (Fmt.str "cp %s %s" dot_file "tamgram-test0.dot");
+              exit 0;
               let res =
                 let* root = Modul_load.from_file tg_file in
                 let* spec =  Tg.run_pipeline (Spec.make root) in
@@ -595,7 +598,6 @@ let run () =
               match res with
               | Error _ -> call ()
               | Ok items -> (
-                  Sys.command (Fmt.str "cp %s %s" dot_file "tamgram-test0.dot");
                   CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
                       let formatter = Format.formatter_of_out_channel oc in
                       Fmt.pf formatter "%a@." Printers.pp_full items

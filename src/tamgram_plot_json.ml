@@ -1,236 +1,346 @@
 type exit_bias = Tr_frame_minimal_hybrid0.exit_bias
 
-  type rule = {
-    name : string;
-    l : (string * Tg_ast.term list) list;
-    a_sub_node_name : string;
-    a_timepoint : string;
-    a : Tg_ast.term list;
-    r : (string * Tg_ast.term list) list;
-  }
+let counter = ref 0
 
-  type rule_node = {
-    name : string;
-    rule : rule;
-    attrs : (string * string) list;
-  }
+let get_counter () =
+  let x = !counter in
+  counter := x + 1;
+  x
 
-  type node = {
-    name : string;
-    attrs : (string * string) list;
-  }
+type rule = {
+  name : string;
+  l : (string * Tg_ast.term list) list;
+  a_sub_node_name : string;
+  a_timepoint : string;
+  a : Tg_ast.term list;
+  r : (string * Tg_ast.term list) list;
+}
 
-  type edge = {
-    src : string * string option;
-    dst : string * string option;
-    attrs : (string * string) list;
-  }
+type rule_node = {
+  name : string;
+  rule : rule;
+  attrs : (string * string) list;
+}
 
-  type item =
-    | Kv of (string * string)
-    | Node_settings of (string * string) list
-    | Edge_settings of (string * string) list
-    | Rule_node of rule_node
-    | Node of node
-    | Edge of edge
+type node = {
+  name : string;
+  attrs : (string * string) list;
+}
 
-  module Dot_printers = struct
-    let bar formatter _ =
-      Fmt.pf formatter "|"
+type edge = {
+  src : string * string option;
+  dst : string * string option;
+  attrs : (string * string) list;
+}
 
-    let pp_path formatter (path : string Loc.tagged list) : unit =
-      let s = Loc.content (List.hd (List.rev path)) in
-      Fmt.pf formatter "%s" s
+type item =
+  | Kv of (string * string)
+  | Node_settings of (string * string) list
+  | Edge_settings of (string * string) list
+  | Rule_node of rule_node
+  | Node of node
+  | Edge of edge
 
-    let pp_term formatter (x : Tg_ast.term) =
-      let open Tg_ast in
-      let rec aux formatter x =
-        match x with
-        | T_value x -> (
-            match Loc.content x with
-            | `Str s -> Fmt.pf formatter "'%s'" s
-            | `T -> Fmt.pf formatter "T"
-            | `F -> Fmt.pf formatter "F")
-        | T_symbol (name, symbol_sort) ->
-          Fmt.pf formatter "%s%s"
-            (match symbol_sort with
-             | `Pub -> "$"
-             | `Cell ->
-               failwith (Fmt.str "Unexpected case: sees cell '%s at %a\n "
-                           (Loc.content name)
-                           Loc.pp_loc_of_tagged name ))
-            (Loc.content name)
-        | T_var (path, _name, typ) -> (
-            let prefix =
-              match typ with
-              | None -> ""
-              | Some typ -> Printers.prefix_of_typ typ
-            in
-            Fmt.pf formatter "%s%a" prefix pp_path
-              path
-          )
-        | T_app { path; args; _ } -> (
-            Fmt.pf formatter "%a(@[<h>%a@])" pp_path path
-              Fmt.(list ~sep:comma aux)
-              args
-          )
-        | T_tuple (_loc, l) -> (
-            match l with
-            | [] -> Fmt.pf formatter "'empty_tuple'"
-            | _ -> (
-                Fmt.pf formatter "@[<h>\\<%a\\>@]" Fmt.(list ~sep:comma aux) l
-              )
-          )
-        | T_unary_op (op, x) ->
-          Fmt.pf formatter "%s%a"
-            (match op with `Persist -> "!" | `Not -> "not ")
-            aux x
-        | T_binary_op (op, x, y) -> (
-            Fmt.pf formatter "((%a) %s (%a))" aux x
-              (match op with
-               | `Exp -> "^"
-               | `Eq -> "="
-               | `Iff -> "<=>"
-               | `Imp -> "==>"
-               | `Or -> "|"
-               | `And -> "&"
-               | `Plus -> "+"
-               | `Xor -> "XOR"
-              )
-              aux y
-          )
-        | _ -> failwith "Unexpected case"
-      in
-      aux formatter x
+module Dot_printers = struct
+  let bar formatter _ =
+    Fmt.pf formatter "|"
 
-    let pp_sub_node formatter ((sub_node, terms) : (string * Tg_ast.term list)) =
-      Fmt.pf formatter "<%s> %a" sub_node
-        (fun formatter terms ->
-           match terms with
-           | [] -> Fmt.pf formatter "ctx"
-           | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
+  let pp_path formatter (path : string Loc.tagged list) : unit =
+    let s = Loc.content (List.hd (List.rev path)) in
+    Fmt.pf formatter "%s" s
 
-    let pp_l_r_row formatter (l : (string * Tg_ast.term list) list) =
-      Fmt.pf formatter "%a"
-        Fmt.(list ~sep:bar pp_sub_node)
-        l
-
-    let pp_a_row formatter (rule : rule) =
-      let sep formatter () =
-        Fmt.pf formatter ",\\l"
-      in
-      Fmt.pf formatter "<%s> #%s : %s[%a]"
-        rule.a_sub_node_name
-        rule.a_timepoint
-        rule.name
-        Fmt.(list ~sep pp_term)
-        rule.a
-
-    let pp_rule formatter (rule : rule) =
-      Fmt.pf formatter "{{%a}|{%a}|{%a}}"
-        pp_l_r_row rule.l
-        pp_a_row rule
-        pp_l_r_row rule.r
-
-    let pp_kv formatter ((k, v) : string * string) =
-      Fmt.pf formatter "%s=\"%s\"" k v
-
-    let pp_attrs formatter (attrs : (string * string) list) =
-      Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_kv) attrs
-
-    let pp_attrs_prefix_with_comma formatter (attrs : (string * string) list) =
-      match attrs with
-      | [] -> ()
-      | _ -> (
-          Fmt.pf formatter ",%a" pp_attrs attrs
+  let pp_term formatter (x : Tg_ast.term) =
+    let open Tg_ast in
+    let rec aux formatter x =
+      match x with
+      | T_value x -> (
+          match Loc.content x with
+          | `Str s -> Fmt.pf formatter "'%s'" s
+          | `T -> Fmt.pf formatter "T"
+          | `F -> Fmt.pf formatter "F")
+      | T_symbol (name, symbol_sort) ->
+        Fmt.pf formatter "%s%s"
+          (match symbol_sort with
+           | `Pub -> "$"
+           | `Cell ->
+             failwith (Fmt.str "Unexpected case: sees cell '%s at %a\n "
+                         (Loc.content name)
+                         Loc.pp_loc_of_tagged name ))
+          (Loc.content name)
+      | T_var (path, _name, typ) -> (
+          let prefix =
+            match typ with
+            | None -> ""
+            | Some typ -> Printers.prefix_of_typ typ
+          in
+          Fmt.pf formatter "%s%a" prefix pp_path
+            path
         )
+      | T_app { path; args; _ } -> (
+          Fmt.pf formatter "%a(@[<h>%a@])" pp_path path
+            Fmt.(list ~sep:comma aux)
+            args
+        )
+      | T_tuple (_loc, l) -> (
+          match l with
+          | [] -> Fmt.pf formatter "'empty_tuple'"
+          | _ -> (
+              Fmt.pf formatter "@[<h>\\<%a\\>@]" Fmt.(list ~sep:comma aux) l
+            )
+        )
+      | T_unary_op (op, x) ->
+        Fmt.pf formatter "%s%a"
+          (match op with `Persist -> "!" | `Not -> "not ")
+          aux x
+      | T_binary_op (op, x, y) -> (
+          Fmt.pf formatter "((%a) %s (%a))" aux x
+            (match op with
+             | `Exp -> "^"
+             | `Eq -> "="
+             | `Iff -> "<=>"
+             | `Imp -> "==>"
+             | `Or -> "|"
+             | `And -> "&"
+             | `Plus -> "+"
+             | `Xor -> "XOR"
+            )
+            aux y
+        )
+      | _ -> failwith "Unexpected case"
+    in
+    aux formatter x
 
-    let pp_rule_node formatter (x : rule_node) =
-      Fmt.pf formatter "%s[label=\"%a\"%a]"
-        x.name
-        pp_rule x.rule
-        pp_attrs_prefix_with_comma
-        x.attrs
+  let pp_sub_node formatter ((sub_node, terms) : (string * Tg_ast.term list)) =
+    Fmt.pf formatter "<%s> %a" sub_node
+      (fun formatter terms ->
+         match terms with
+         | [] -> Fmt.pf formatter "ctx"
+         | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
 
-    let pp_node formatter (x : node) =
-      Fmt.pf formatter "%s[%a]"
-        x.name
-        pp_attrs x.attrs
+  let pp_l_r_row formatter (l : (string * Tg_ast.term list) list) =
+    Fmt.pf formatter "%a"
+      Fmt.(list ~sep:bar pp_sub_node)
+      l
 
-    let pp_edge_target formatter ((node, sub_node) : string * string option) =
-      match sub_node with
-      | None -> Fmt.pf formatter "%s" node
-      | Some sub_node -> Fmt.pf formatter "%s:%s" node sub_node
+  let pp_a_row formatter (rule : rule) =
+    let sep formatter () =
+      Fmt.pf formatter ",\\l"
+    in
+    Fmt.pf formatter "<%s> #%s : %s[%a]"
+      rule.a_sub_node_name
+      rule.a_timepoint
+      rule.name
+      Fmt.(list ~sep pp_term)
+      rule.a
 
-    let pp_edge formatter (x : edge) =
-      Fmt.pf formatter "%a -> %a[%a]"
-        pp_edge_target
-        x.src
-        pp_edge_target
-        x.dst
-        pp_attrs x.attrs
+  let pp_rule formatter (rule : rule) =
+    Fmt.pf formatter "{{%a}|{%a}|{%a}}"
+      pp_l_r_row rule.l
+      pp_a_row rule
+      pp_l_r_row rule.r
 
-    let pp_item formatter (item : item) =
-      Fmt.pf formatter "@[<h>";
-      (match item with
-       | Kv (k, v) -> (
-           pp_kv formatter (k, v)
-         )
-       | Node_settings attrs -> (
-           Fmt.pf formatter "node[%a]"
-             pp_attrs attrs
-         )
-       | Edge_settings attrs -> (
-           Fmt.pf formatter "edge[%a]"
-             pp_attrs attrs
-         )
-       | Rule_node rule_node -> (
-           pp_rule_node formatter rule_node
-         )
-       | Node node -> (
-           pp_node formatter node
-         )
-       | Edge edge -> (
-           pp_edge formatter edge
-         )
-      );
-      Fmt.pf formatter ";@,@]"
+  let pp_kv formatter ((k, v) : string * string) =
+    Fmt.pf formatter "%s=\"%s\"" k v
 
-    let pp_full formatter (items : item list) =
-      Fmt.pf formatter "@[<v>digraph G {@,@]";
-      Fmt.pf formatter "  @[<v>%a"
-        Fmt.(list pp_item) items;
-      Fmt.pf formatter "@]@,}@]"
-  end
+  let pp_attrs formatter (attrs : (string * string) list) =
+    Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_kv) attrs
+
+  let pp_attrs_prefix_with_comma formatter (attrs : (string * string) list) =
+    match attrs with
+    | [] -> ()
+    | _ -> (
+        Fmt.pf formatter ",%a" pp_attrs attrs
+      )
+
+  let pp_rule_node formatter (x : rule_node) =
+    Fmt.pf formatter "%s[label=\"%a\"%a]"
+      x.name
+      pp_rule x.rule
+      pp_attrs_prefix_with_comma
+      x.attrs
+
+  let pp_node formatter (x : node) =
+    Fmt.pf formatter "%s[%a]"
+      x.name
+      pp_attrs x.attrs
+
+  let pp_edge_target formatter ((node, sub_node) : string * string option) =
+    match sub_node with
+    | None -> Fmt.pf formatter "%s" node
+    | Some sub_node -> Fmt.pf formatter "%s:%s" node sub_node
+
+  let pp_edge formatter (x : edge) =
+    Fmt.pf formatter "%a -> %a[%a]"
+      pp_edge_target
+      x.src
+      pp_edge_target
+      x.dst
+      pp_attrs x.attrs
+
+  let pp_item formatter (item : item) =
+    Fmt.pf formatter "@[<h>";
+    (match item with
+     | Kv (k, v) -> (
+         pp_kv formatter (k, v)
+       )
+     | Node_settings attrs -> (
+         Fmt.pf formatter "node[%a]"
+           pp_attrs attrs
+       )
+     | Edge_settings attrs -> (
+         Fmt.pf formatter "edge[%a]"
+           pp_attrs attrs
+       )
+     | Rule_node rule_node -> (
+         pp_rule_node formatter rule_node
+       )
+     | Node node -> (
+         pp_node formatter node
+       )
+     | Edge edge -> (
+         pp_edge formatter edge
+       )
+    );
+    Fmt.pf formatter ";@,@]"
+
+  let pp_full formatter (items : item list) =
+    Fmt.pf formatter "@[<v>digraph G {@,@]";
+    Fmt.pf formatter "  @[<v>%a"
+      Fmt.(list pp_item) items;
+    Fmt.pf formatter "@]@,}@]"
+end
 
 let call_dot (args : string list) =
   Sys.command (Fmt.str "dot %s" (String.concat " " args))
 
-module JSON_parsers = struct
-  let get_string_under_key ~k (l : (string * Yojson.Safe.t) list) : string =
-    match List.assoc k l with
-    | `String v -> v
-    | _ -> invalid_arg (Fmt.str "get_string_under_key: Value under key %s is not string" k)
+module Parsers = struct
+  open Angstrom
+  open Parser_components
 
-  let fact_of_json (x : Yojson.Safe.t) : Tg_ast.term =
+  let ident_string =
+    take_while1 (fun c ->
+        is_alphanum c || c = '_' || c = '.')
+
+  let quoted_p =
+    char '"' *> take_while (fun c -> c <> '"') >>= fun s ->
+    char '"' *> spaces *> return s
+
+  let single_quoted_p =
+    char '\'' *> take_while (fun c -> c <> '\'') >>= fun s ->
+    char '\'' *> spaces *> return s
+
+  let name_p =
+    ident_string >>| fun name ->
+    Loc.untagged name
+
+  let simple_term_p =
+    let open Tg_ast in
+    choice [
+            (single_quoted_p >>| fun s ->
+             T_value (Loc.untagged (`Str s))
+            );
+            (char '$' *> spaces *> name_p >>| fun name ->
+             T_symbol (name, `Pub)
+            );
+            (char '~' *> spaces *> name_p >>| fun name ->
+             T_var ([name], `Local 0, Some `Fresh)
+            );
+            (name_p >>| fun name ->
+             match Loc.content name with
+             | "F" -> T_value (Loc.untagged `F)
+             | "T" -> T_value (Loc.untagged `T)
+             | _ -> T_var ([name], `Local 0, None)
+            );
+    ]
+end
+
+module JSON_parsers = struct
+  let get_string (x : Yojson.Safe.t) : string =
     match x with
-    | `Assoc l -> (
-      let f = List.assoc "jgnFactName" l in
-    )
-    | _ -> invalid_arg "fact_of_json: Expected input to be an assoc list"
+    | `String v -> v
+    | _ -> invalid_arg "get_string"
+
+  let get_list (x : Yojson.Safe.t) : Yojson.Safe.t list =
+    match x with
+    | `List v -> v
+    | _ -> invalid_arg "get_list"
+
+  let get_assoc (x : Yojson.Safe.t) : (string * Yojson.Safe.t) list =
+    match x with
+    | `Assoc v -> v
+    | _ -> invalid_arg "get_assoc"
+
+  let rec term_of_json (x : Yojson.Safe.t) : Tg_ast.term =
+    let l = get_assoc x in
+        match List.assoc_opt "jgnFactName" l with
+        | Some f -> (
+          let f = get_string f in
+            let args = List.assoc "jgnFactTerms" l
+        |> get_list
+                       |> List.map term_of_json
+            in
+            T_app { path = [ Loc.untagged f ]; name = `Local 0; named_args = []; args; anno = None }
+          )
+        | None -> (
+            match List.assoc_opt "jgnFunct" l with
+            | Some f -> (
+              let f = get_string f in
+            let args = List.assoc "jgnFactTerms" l
+        |> get_list
+                       |> List.map term_of_json
+            in
+            match f with
+            | "pair" -> (
+              T_tuple (None, args)
+            )
+            | _ -> (
+            T_app { path = [ Loc.untagged f ]; name = `Local 0; named_args = []; args; anno = None }
+            )
+            )
+            | None -> (
+              match List.assoc_opt "jgnConst" l with
+              | Some s -> (
+                let s = get_string s in
+                match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.simple_term_p s with
+                | Error msg -> invalid_arg msg
+                | Ok x -> x
+              )
+              | None -> invalid_arg (Fmt.str "term_of_json: Unrecognized term structure %a" Yojson.Safe.pp x)
+            )
+          )
 
   let rule_of_json (x : Yojson.Safe.t) : rule =
     match x with
     | `Assoc l -> (
-      let jgn_metadata = List.assoc "jgnMetadata" l in
-      match jgn_metadata with
-      | `Assoc l -> (
-        let row_a = List.assoc "jgnActs" l in
-        let row_r = List.assoc "jgnConcs" l in
-        let row_l = List.assoc "jgnPrems" l in
+        let jgn_metadata = List.assoc "jgnMetadata" l in
+        match jgn_metadata with
+        | `Assoc l -> (
+            let row_a = List.assoc "jgnActs" l
+        |> get_list
+            |> List.map term_of_json
+            in
+            let row_r = List.assoc "jgnConcs" l
+        |> get_list
+            |> List.map (fun x ->
+                (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ term_of_json x ])
+            )
+            in
+            let row_l = List.assoc "jgnPrems" l
+        |> get_list
+            |> List.map (fun x ->
+                (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ term_of_json x ])
+            )
+            in
+            { name = get_string @@ List.assoc "jgnLabel" l;
+            l = row_l;
+            a_sub_node_name = Fmt.str "n%d" (get_counter ());
+            a_timepoint = get_string @@ List.assoc "jgnId" l;
+            a = row_a;
+            r = row_r;
+            }
+          )
+        | _ -> invalid_arg "rule_of_json: Expected jgnMetadata to be an assoc list"
       )
-      | _ -> invalid_arg "rule_of_json: Expected jgnMetadata to be an assoc list"
-    )
     | _ -> invalid_arg "rule_of_json: Expected an assoc list"
 end
 
@@ -365,7 +475,7 @@ module Rewrite = struct
     | Fail -> default
 
   (* let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
-    let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
+     let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
       CCList.map (fun (sub_node, terms) ->
           (sub_node,
            CCList.flat_map (fun term ->
@@ -374,17 +484,17 @@ module Rewrite = struct
           )
         )
         sub_nodes
-    in
-    let l = rewrite_sub_nodes `L rule.l in
-    let r = rewrite_sub_nodes `R rule.r in
-    { rule with l; r } *)
+     in
+     let l = rewrite_sub_nodes `L rule.l in
+     let r = rewrite_sub_nodes `R rule.r in
+     { rule with l; r } *)
 
   (* let item (spec : Spec.t) (x : item) : item =
-    match x with
-    | Rule_node { name; rule; attrs } -> (
+     match x with
+     | Rule_node { name; rule; attrs } -> (
         Rule_node { name; rule = rewrite_rule spec rule; attrs }
       )
-    | _ -> x *)
+     | _ -> x *)
 end
 
 let run () =
@@ -396,22 +506,17 @@ let run () =
   in
   CCIO.with_out_a "tamgram-test.log" (fun oc ->
       let formatter = Format.formatter_of_out_channel oc in
-      Fmt.pf formatter "argv: %s@," (String.concat " " argv)
+      Fmt.pf formatter "argv: @[%s@,@]" (String.concat " " argv)
     );
   let call () =
     exit (call_dot argv)
   in
-  match Sys.getenv_opt "TG_FILE" with
-  | None -> call ()
-  | Some tg_file -> (
-      match argv with
-      | [] | [ "-V" ] -> call ()
-      | _ -> (
           match List.filter (fun s -> Filename.extension s = ".json") argv with
           | [] -> call ()
           | json_file :: _ -> (
-              Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore
-              (* let res =
+            Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore;
+            let tg_file = "examples/csf18-xor/CH07.tg" in
+              let res =
                  let* root = Modul_load.from_file tg_file in
                  let* spec =  Tg.run_pipeline (Spec.make root) in
                  let+ items = load_dot_file dot_file in
@@ -431,9 +536,6 @@ let run () =
                     );
                   call ()
                  )
-              *)
             )
-        )
-    )
 
 let () = run ()
