@@ -62,10 +62,8 @@ module Dot_printers = struct
         Fmt.pf formatter "%s%s"
           (match symbol_sort with
            | `Pub -> "$"
-           | `Cell ->
-             failwith (Fmt.str "Unexpected case: sees cell '%s at %a\n "
-                         (Loc.content name)
-                         Loc.pp_loc_of_tagged name ))
+           | `Cell -> "'"
+          )
           (Loc.content name)
       | T_var (path, _name, typ) -> (
           let prefix =
@@ -106,7 +104,10 @@ module Dot_printers = struct
             )
             aux y
         )
-      | _ -> failwith "Unexpected case"
+      | T_cell_assign (cell, term) -> (
+          Fmt.pf formatter "'%s := %a" (Loc.content cell) aux term
+        )
+      | _ -> failwith (Fmt.str "Unexpected case: %a" Printers.pp_term x)
     in
     aux formatter x
 
@@ -253,8 +254,8 @@ module Parsers = struct
                  anno = None
                })
             );
-            (string "\\<" *> spaces *> sep_by comma exp >>= fun terms ->
-             string "\\>" *>
+            (string "<" *> spaces *> sep_by comma exp >>= fun terms ->
+             string ">" *>
              return (T_tuple (None, terms))
             );
             (char '(' *> spaces *> exp <* spaces <* char ')');
@@ -388,8 +389,8 @@ module JSON_parsers = struct
     let s = List.assoc "jgnFactShow" x
             |> get_string
     in
-    match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.term_p s with
-    | Error msg -> invalid_arg msg
+    match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.fact_p s with
+    | Error msg -> invalid_arg (Fmt.str "Failed to parse fact string: %s: %s" msg s)
     | Ok x -> x
 
   let rule_of_json (x : Yojson.Safe.t) : rule =
@@ -397,17 +398,17 @@ module JSON_parsers = struct
     let metadata = List.assoc "jgnMetadata" x
                    |> get_assoc
     in
-    let row_a = List.assoc "jgnActs" x
+    let row_a = List.assoc "jgnActs" metadata
                 |> get_list
                 |> List.map fact_of_json
     in
-    let row_r = List.assoc "jgnConcs" x
+    let row_r = List.assoc "jgnConcs" metadata
                 |> get_list
                 |> List.map (fun x ->
                     (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
                   )
     in
-    let row_l = List.assoc "jgnPrems" x
+    let row_l = List.assoc "jgnPrems" metadata
                 |> get_list
                 |> List.map (fun x ->
                     (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
@@ -470,9 +471,13 @@ module JSON_parsers = struct
           in
           match typ with
           | "isProtocolRule" -> (
-            let name = List.assoc "jgnId" x |> get_string in
-            let rule = rule_of_json x' in
-            Rule_node { name; rule; attrs = [] }
+              let name = List.assoc "jgnId" x |> get_string in
+              let rule = rule_of_json x' in
+              Rule_node { name; rule; attrs = [] }
+            )
+          | "unsolvedActionAtom" -> (
+              let name = List.assoc "jgnLabel" x |> get_string in
+              Node { name; attrs = [] }
             )
           | _ -> (
               match label with
@@ -647,7 +652,7 @@ module Rewrite = struct
     | Fail -> default
 
   let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
-     let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
+    let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
       CCList.map (fun (sub_node, terms) ->
           (sub_node,
            CCList.flat_map (fun term ->
@@ -656,17 +661,17 @@ module Rewrite = struct
           )
         )
         sub_nodes
-     in
-     let l = rewrite_sub_nodes `L rule.l in
-     let r = rewrite_sub_nodes `R rule.r in
-     { rule with l; r }
+    in
+    let l = rewrite_sub_nodes `L rule.l in
+    let r = rewrite_sub_nodes `R rule.r in
+    { rule with l; r }
 
   let item (spec : Spec.t) (x : item) : item =
-     match x with
-     | Rule_node { name; rule; attrs } -> (
+    match x with
+    | Rule_node { name; rule; attrs } -> (
         Rule_node { name; rule = rewrite_rule spec rule; attrs }
       )
-     | _ -> x
+    | _ -> x
 end
 
 let run () =
@@ -681,15 +686,15 @@ let run () =
       Fmt.pf formatter "argv: @[%s@,@]" (String.concat " " argv)
     );
   match List.filter (fun s -> Filename.extension s = ".json") argv with
-  | [] -> exit 1
+  | [] -> invalid_arg "No JSON file provided"
   | json_file :: _ -> (
-      Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore;
+      (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore; *)
       let tg_file = "examples/csf18-xor/CH07.tg" in
       let json =
         CCIO.with_in json_file (fun ic ->
-          CCIO.read_all ic
-  |> Yojson.Safe.from_string
-        )
+            CCIO.read_all ic
+            |> Yojson.Safe.from_string
+          )
       in
       let res =
         let* root = Modul_load.from_file tg_file in
@@ -698,14 +703,14 @@ let run () =
         List.map (Rewrite.item spec) items
       in
       match res with
-      | Error _ -> exit 1
+      | Error _ -> invalid_arg "Failed to parse Tamgram file"
       | Ok items -> (
           (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json"); *)
           CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
               let formatter = Format.formatter_of_out_channel oc in
               Fmt.pf formatter "%a@." Dot_printers.pp_full items
             );
-            exit (call_dot [ "-Tpng"; "tamgram-test1.png"; "tamgram-test1.dot" ])
+          exit (call_dot [ "-Tpng"; "-o"; "tamgram-test1.png"; "tamgram-test1.dot" ])
         )
     )
 
