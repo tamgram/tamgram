@@ -41,6 +41,8 @@ type item =
   | Node of node
   | Edge of edge
 
+type row = [ `L | `R ]
+
 module Dot_printers = struct
   let bar formatter _ =
     Fmt.pf formatter "|"
@@ -100,29 +102,39 @@ module Dot_printers = struct
              | `Or -> "|"
              | `And -> "&"
              | `Plus -> "+"
-             | `Xor -> "XOR"
+             | `Xor -> "⊕"
             )
             aux y
         )
       | T_cell_assign (cell, term) -> (
           Fmt.pf formatter "'%s := %a" (Loc.content cell) aux term
         )
+      | T_cell_pat_match (cell, term) -> (
+          Fmt.pf formatter "'%s cas %a" (Loc.content cell) aux term
+        )
       | _ -> failwith (Fmt.str "Unexpected case: %a" Printers.pp_term x)
     in
     aux formatter x
 
-  let pp_sub_node formatter ((sub_node, terms) : (string * Tg_ast.term list)) =
+  let pp_sub_node (row : row) formatter ((sub_node, terms) : (string * Tg_ast.term list)) =
     Fmt.pf formatter "<%s> %a" sub_node
       (fun formatter terms ->
          match terms with
-         | [] -> Fmt.pf formatter "ctx"
+         | [] -> (match row with
+         | `L -> Fmt.pf formatter "..."
+         | `R -> Fmt.pf formatter "unchanged proc ctx"
+         )
          | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
 
-  let pp_l_r_row formatter (l : (string * Tg_ast.term list) list) =
+  let pp_l_row formatter (l : (string * Tg_ast.term list) list) =
     Fmt.pf formatter "%a"
-      Fmt.(list ~sep:bar pp_sub_node)
+      Fmt.(list ~sep:bar (pp_sub_node `L))
       l
 
+  let pp_r_row formatter (l : (string * Tg_ast.term list) list) =
+    Fmt.pf formatter "%a"
+      Fmt.(list ~sep:bar (pp_sub_node `R))
+      l
   let pp_a_row formatter (rule : rule) =
     let sep formatter () =
       Fmt.pf formatter ",\\l"
@@ -136,9 +148,9 @@ module Dot_printers = struct
 
   let pp_rule formatter (rule : rule) =
     Fmt.pf formatter "{{%a}|{%a}|{%a}}"
-      pp_l_r_row rule.l
+      pp_l_row rule.l
       pp_a_row rule
-      pp_l_r_row rule.r
+      pp_r_row rule.r
 
   let pp_kv formatter ((k, v) : string * string) =
     Fmt.pf formatter "%s=\"%s\"" k v
@@ -297,6 +309,17 @@ module Parsers = struct
     ]
     <* spaces
 end
+
+  let rule_index_of_rule_name (s : string) =
+    let parts = String.split_on_char '_' s in
+    let rec aux parts =
+      match parts with
+      | [] | [_] -> invalid_arg "Unexpected case"
+      | x :: y :: xs -> (
+        match int_of_string_opt x, 
+      )
+    in
+    aux parts
 
 let dot_node_name_of_json_node_id : string -> string * string option =
   let tbl : (string, string * string option) Hashtbl.t = Hashtbl.create 1024 in
@@ -534,8 +557,6 @@ module JSON_parsers = struct
 end
 
 module Rewrite = struct
-  type row = [ `L | `R ]
-
   let write_cell_operations
       (spec : Spec.t)
       (row : row)
@@ -546,18 +567,13 @@ module Rewrite = struct
     let cell_usage = Int_map.find k spec.cell_usages in
     let cells_defined = Cell_lifetime.Usage.defines_cells cell_usage in
     let cells_undefined = Cell_lifetime.Usage.undefines_cells cell_usage in
+    let user_specified_pat_matches = Int_map.find k spec.user_specified_cell_pat_matches in
     match row with
     | `L -> (
-        match exit_bias with
-        | `Forward -> (
-            []
-          )
-        | `Backward -> (
-            []
-          )
-        | `Empty -> (
-            []
-          )
+user_specified_pat_matches
+    |> List.map (fun (cell, term) ->
+        T_cell_pat_match (cell, term)
+        )
       )
     | `R -> (
         Seq.append
@@ -581,7 +597,7 @@ module Rewrite = struct
       )
 
 
-  let rewrite_state_fact (spec : Spec.t) (row : row) (x : Tg_ast.term) : Tg_ast.term list =
+  let rewrite_state_fact (spec : Spec.t) ~k (row : row) (x : Tg_ast.term) : Tg_ast.term list =
     let open Tg_ast in
     CCIO.with_out_a "tamgram-test.log" (fun oc ->
         let formatter = Format.formatter_of_out_channel oc in
@@ -641,7 +657,7 @@ module Rewrite = struct
           )
         | _ -> raise Fail
       in
-      let k =
+      (* let k =
         if String.length vertex > 3
         && StringLabels.sub ~pos:0 ~len:3 vertex = Params.graph_vertex_label_prefix
         then (
@@ -654,7 +670,7 @@ module Rewrite = struct
         ) else (
           raise Fail
         )
-      in
+      in *)
       CCIO.with_out_a "tamgram-test.log" (fun oc ->
           let formatter = Format.formatter_of_out_channel oc in
           Fmt.pf formatter "vertex: %s@," vertex
@@ -664,11 +680,13 @@ module Rewrite = struct
     | Fail -> default
 
   let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
+    let k =
+    in
     let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
       CCList.map (fun (sub_node, terms) ->
           (sub_node,
            CCList.flat_map (fun term ->
-               rewrite_state_fact spec row term
+               rewrite_state_fact spec ~k row term
              ) terms
           )
         )
