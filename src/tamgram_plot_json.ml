@@ -298,7 +298,7 @@ module Parsers = struct
     <* spaces
 end
 
-let dot_node_name_of_json_node_name : string -> string * string option =
+let dot_node_name_of_json_node_id : string -> string * string option =
   let tbl : (string, string * string option) Hashtbl.t = Hashtbl.create 1024 in
   fun s ->
     let (node, sub_node) =
@@ -398,6 +398,15 @@ module JSON_parsers = struct
     let metadata = List.assoc "jgnMetadata" x
                    |> get_assoc
     in
+    let calc_sub_node_name x =
+      x
+      |> get_assoc
+      |> List.assoc "jgnFactId"
+      |> get_string
+      |> dot_node_name_of_json_node_id
+      |> snd
+      |> Option.get
+    in
     let row_a = List.assoc "jgnActs" metadata
                 |> get_list
                 |> List.map fact_of_json
@@ -405,13 +414,13 @@ module JSON_parsers = struct
     let row_r = List.assoc "jgnConcs" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
+                    (calc_sub_node_name x, [ fact_of_json x ])
                   )
     in
     let row_l = List.assoc "jgnPrems" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
+                    (calc_sub_node_name x, [ fact_of_json x ])
                   )
     in
     { name = get_string @@ List.assoc "jgnLabel" x;
@@ -436,11 +445,11 @@ module JSON_parsers = struct
           let x = get_assoc x in
           let src = List.assoc "jgeSource" x
                     |> get_string
-                    |> dot_node_name_of_json_node_name
+                    |> dot_node_name_of_json_node_id
           in
           let dst = List.assoc "jgeTarget" x
                     |> get_string
-                    |> dot_node_name_of_json_node_name
+                    |> dot_node_name_of_json_node_id
           in
           let attrs =
             match get_string @@ List.assoc "jgeRelation" x with
@@ -464,28 +473,31 @@ module JSON_parsers = struct
       |> get_list
       |> List.map (fun x' ->
           let x = get_assoc x' in
-          let label = List.assoc "jgnLabel" x |> get_string in
           let typ = List.assoc "jgnType" x |> get_string in
           let metadata = List.assoc "jgnMetadata" x
                          |> get_assoc
           in
+          let jgn_label = List.assoc "jgnLabel" x |> get_string in
+          let name = List.assoc "jgnId" x
+                     |> get_string
+                     |> dot_node_name_of_json_node_id
+                     |> fst
+          in
           match typ with
-          | "isProtocolRule" -> (
-              let name = List.assoc "jgnId" x |> get_string in
+          | "isProtocolRule" | "isIntruderRule" | "isFreshRule" -> (
               let rule = rule_of_json x' in
-              Rule_node { name; rule; attrs = [] }
+              Rule_node { name; rule; attrs = [ ("shape", "record") ] }
             )
           | "unsolvedActionAtom" -> (
-              let name = List.assoc "jgnLabel" x |> get_string in
-              Node { name; attrs = [] }
+              Node { name; attrs = [ ("label", jgn_label) ] }
             )
           | _ -> (
-              match label with
-              | "Send" -> Node { name = "send"; attrs = [] }
-              | "Recv" -> Node { name = "recv"; attrs = [] }
-              | "Coerce" -> Node { name = "send"; attrs = [] }
-              | "FreshRule" -> (
-                  let name = List.assoc "jgnConcs" metadata
+              match jgn_label with
+              (* | "Send" -> Node { name; attrs = [ ("label", "send") ] }
+                 | "Recv" -> Node { name; attrs = [ ("label", "recv") ] }
+                 | "Coerce" -> Node { name; attrs = [ ("label", "coerce") ] } *)
+              (* | "FreshRule" -> (
+                  let label = List.assoc "jgnConcs" metadata
                              |> get_list
                              |> List.hd
                              |> get_assoc
@@ -493,28 +505,28 @@ module JSON_parsers = struct
                              |> get_string
                   in
                   Node { name; attrs = [] }
-                )
+                 ) *)
               | x when CCString.prefix ~pre:"Constrc_" x -> (
-                  let name = List.assoc "jgnConcs" metadata
-                             |> get_list
-                             |> List.hd
-                             |> get_assoc
-                             |> List.assoc "jgnFactShow"
-                             |> get_string
+                  let label = List.assoc "jgnConcs" metadata
+                              |> get_list
+                              |> List.hd
+                              |> get_assoc
+                              |> List.assoc "jgnFactShow"
+                              |> get_string
                   in
-                  Node { name; attrs = [] }
+                  Node { name; attrs = [ ("label", label) ] }
                 )
               | x when CCString.prefix ~pre:"Destrd_" x -> (
-                  let name = List.assoc "jgnConcs" metadata
-                             |> get_list
-                             |> List.hd
-                             |> get_assoc
-                             |> List.assoc "jgnFactShow"
-                             |> get_string
+                  let label = List.assoc "jgnConcs" metadata
+                              |> get_list
+                              |> List.hd
+                              |> get_assoc
+                              |> List.assoc "jgnFactShow"
+                              |> get_string
                   in
-                  Node { name; attrs = [] }
+                  Node { name; attrs = [ ("label", label) ] }
                 )
-              | _ -> invalid_arg (Fmt.str "Unrecognized label: %s" label)
+              | _ -> invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
             )
         )
     in
