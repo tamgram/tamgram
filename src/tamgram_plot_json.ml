@@ -1,11 +1,11 @@
 type exit_bias = Tr_frame_minimal_hybrid0.exit_bias
 
-let counter = ref 0
-
-let get_counter () =
-  let x = !counter in
-  counter := x + 1;
-  x
+let get_num : unit -> int =
+  let counter = ref 0 in
+  fun () ->
+    let x = !counter in
+    counter := x + 1;
+    x
 
 type rule = {
   name : string;
@@ -233,12 +233,31 @@ module Parsers = struct
     ident_string >>| fun name ->
     Loc.untagged name
 
-  let simple_term_p =
+  let term_p =
     let open Tg_ast in
-    choice [
+    fix (fun exp ->
+        let base =
+          choice [
             (single_quoted_p >>| fun s ->
              T_value (Loc.untagged (`Str s))
             );
+            (name_p >>= fun f ->
+             spaces *> char '(' *> spaces *>
+             sep_by comma exp >>= fun args ->
+             spaces *> char ')' *>
+             return (T_app {
+                 path = [ f ];
+                 name = `Local 0;
+                 named_args = [];
+                 args;
+                 anno = None
+               })
+            );
+            (string "\\<" *> spaces *> sep_by comma exp >>= fun terms ->
+             string "\\>" *>
+             return (T_tuple (None, terms))
+            );
+            (char '(' *> spaces *> exp <* spaces <* char ')');
             (char '$' *> spaces *> name_p >>| fun name ->
              T_symbol (name, `Pub)
             );
@@ -251,8 +270,43 @@ module Parsers = struct
              | "T" -> T_value (Loc.untagged `T)
              | _ -> T_var ([name], `Local 0, None)
             );
+          ]
+          <* spaces
+        in
+        let exp_op =
+          char '^' *> spaces *>
+          return (fun x y -> T_binary_op (`Exp, x, y))
+        in
+        let xor_op =
+          string "\xc3\xa2\xc2\x8a\xc2\x95" *> spaces *>
+          return (fun x y -> T_binary_op (`Xor, x, y))
+        in
+        let lvl1 = chainl1 base exp_op in
+        let lvl2 = chainl1 lvl1 xor_op in
+        lvl2 <* spaces
+      )
+
+  let fact_p =
+    let open Tg_ast in
+    choice [
+      (char '!' *> spaces *> term_p >>| fun term ->
+       T_unary_op (`Persist, term)
+      );
+      term_p
     ]
+    <* spaces
 end
+
+let dot_node_name_of_json_node_name : string -> string =
+  let tbl = Hashtbl.create 1024 in
+  fun s ->
+    match Hashtbl.find_opt tbl s with
+    | None -> (
+        let name = Fmt.str "n%d" (get_num ()) in
+        Hashtbl.add tbl s name;
+        name
+      )
+    | Some name -> name
 
 module JSON_parsers = struct
   let get_string (x : Yojson.Safe.t) : string =
@@ -270,8 +324,8 @@ module JSON_parsers = struct
     | `Assoc v -> v
     | _ -> invalid_arg "get_assoc"
 
-  let rec term_of_json (x : Yojson.Safe.t) : Tg_ast.term =
-    let l = get_assoc x in
+  (* let rec term_of_json (x : Yojson.Safe.t) : Tg_ast.term =
+     let l = get_assoc x in
         match List.assoc_opt "jgnFactName" l with
         | Some f -> (
           let f = get_string f in
@@ -307,41 +361,133 @@ module JSON_parsers = struct
               )
               | None -> invalid_arg (Fmt.str "term_of_json: Unrecognized term structure %a" Yojson.Safe.pp x)
             )
-          )
+          ) *)
+
+  let fact_of_json (x : Yojson.Safe.t) : Tg_ast.term =
+    let x = get_assoc x in
+    let s = List.assoc "jgnFactShow" x
+    |> get_string
+    in
+    match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.term_p s with
+    | Error msg -> invalid_arg msg
+    | Ok x -> x
 
   let rule_of_json (x : Yojson.Safe.t) : rule =
-    match x with
-    | `Assoc l -> (
-        let jgn_metadata = List.assoc "jgnMetadata" l in
-        match jgn_metadata with
-        | `Assoc l -> (
-            let row_a = List.assoc "jgnActs" l
-        |> get_list
-            |> List.map term_of_json
-            in
-            let row_r = List.assoc "jgnConcs" l
-        |> get_list
-            |> List.map (fun x ->
-                (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ term_of_json x ])
+    let x = get_assoc x in
+    let metadata = List.assoc "jgnMetadata" x
+                   |> get_assoc
+    in
+    let row_a = List.assoc "jgnActs" x
+                |> get_list
+                |> List.map fact_of_json
+    in
+    let row_r = List.assoc "jgnConcs" x
+                |> get_list
+                |> List.map (fun x ->
+                    (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
+                  )
+    in
+    let row_l = List.assoc "jgnPrems" x
+                |> get_list
+                |> List.map (fun x ->
+                    (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ fact_of_json x ])
+                  )
+    in
+    { name = get_string @@ List.assoc "jgnLabel" x;
+      l = row_l;
+      a_sub_node_name = Fmt.str "n%d" (get_num ());
+      a_timepoint = get_string @@ List.assoc "jgnId" x;
+      a = row_a;
+      r = row_r;
+    }
+
+  let items_of_json (x : Yojson.Safe.t) : item list =
+    let x = get_assoc x in
+    let graph = List.assoc "graphs" x
+                |> get_list
+                |> List.hd
+    in
+    let edges =
+      List.assoc "jgEdges" graph
+      |> get_list
+      |> List.map (fun x ->
+          let x = get_assoc x in
+          let src = List.assoc "jgeSource" x
+      |> get_string
+      |> dot_node_name_of_json_node_name
+          in
+          let dst = List.assoc "jgeTarget" x
+      |> get_string
+      |> dot_node_name_of_json_node_name
+          in
+          let attrs =
+            match get_string @@ List.assoc "jgeRelation" x with
+            | "default" ->
+              [ ("color", "gray30"); ("style", "dashed") ]
+            | "KFact" ->
+              [ ("color", "oranged2"); ("style", "dashed") ]
+            | "ProtoFact" ->
+              [ ("style", "bold"); ("weight", "10.0") ]
+            | "PersistentFact" ->
+              [ ("style", "bold"); ("weight", "10.0"); ("color", "gray50") ]
+            | "LessAtoms" ->
+              [ ("color", "red"); ("style", "dashed")]
+            | any -> invalid_arg (Fmt.str "items_of_json: Unrecognized jgeRelation: %s" any)
+          in
+          Edge { src; dst; attrs; }
+        )
+    in
+    let nodes =
+      List.assoc "jgNodes" graph
+      |> get_list
+      |> List.map (fun x ->
+          let x = get_assoc x in
+          let label = List.assoc "jgnLabel" x in
+          let typ = List.assoc "jgnType" x in
+          let metadata = List.assoc "jgnMetadata" x
+                         |> get_assoc
+          in
+          match typ with
+          | "isProtocolRule" -> (
+              Rule_node (rule_of_json x)
             )
-            in
-            let row_l = List.assoc "jgnPrems" l
-        |> get_list
-            |> List.map (fun x ->
-                (x |> get_assoc |> List.assoc "jgnFactId" |> get_string, [ term_of_json x ])
+          | _ -> (
+              match label with
+              | "Send" -> Node { name = "send"; attrs = [] }
+              | "Recv" -> Node { name = "recv"; attrs = [] }
+              | "Coerce" -> Node { name = "send"; attrs = [] }
+              | "FreshRule" -> (
+                  let name = List.assoc "jgnConcs" metadata
+                             |> get_list
+                             |> List.hd
+                             |> get_assoc
+                             |> List.assoc "jgnFactShow"
+                  in
+                  Node { name; attrs = [] }
+                )
+              | x when CCString.prefix ~pre:"Constrc_" x -> (
+                  let name = List.assoc "jgnConcs" metadata
+                             |> get_list
+                             |> List.hd
+                             |> get_assoc
+                             |> List.assoc "jgnFactShow"
+                  in
+                  Node { name; attrs = [] }
+              )
+              | x when CCString.prefix ~pre:"Destrd_" x -> (
+                  let name = List.assoc "jgnConcs" metadata
+                             |> get_list
+                             |> List.hd
+                             |> get_assoc
+                             |> List.assoc "jgnFactShow"
+                  in
+                  Node { name; attrs = [] }
+              )
+              | _ -> invalid_arg (Fmt.str "Unrecognized label: %s" label)
             )
-            in
-            { name = get_string @@ List.assoc "jgnLabel" l;
-            l = row_l;
-            a_sub_node_name = Fmt.str "n%d" (get_counter ());
-            a_timepoint = get_string @@ List.assoc "jgnId" l;
-            a = row_a;
-            r = row_r;
-            }
-          )
-        | _ -> invalid_arg "rule_of_json: Expected jgnMetadata to be an assoc list"
-      )
-    | _ -> invalid_arg "rule_of_json: Expected an assoc list"
+        )
+    in
+    nodes @@ edges
 end
 
 module Rewrite = struct
@@ -508,34 +654,31 @@ let run () =
       let formatter = Format.formatter_of_out_channel oc in
       Fmt.pf formatter "argv: @[%s@,@]" (String.concat " " argv)
     );
-  let call () =
-    exit (call_dot argv)
-  in
-          match List.filter (fun s -> Filename.extension s = ".json") argv with
-          | [] -> call ()
-          | json_file :: _ -> (
-            Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore;
-            let tg_file = "examples/csf18-xor/CH07.tg" in
-              let res =
-                 let* root = Modul_load.from_file tg_file in
-                 let* spec =  Tg.run_pipeline (Spec.make root) in
-                 let+ items = load_dot_file dot_file in
-                 List.map (Rewrite.item spec) items
-                 in
-                 match res with
-                 | Error _ -> call ()
-                 | Ok items -> (
-                  Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json");
-                  CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
-                      let formatter = Format.formatter_of_out_channel oc in
-                      Fmt.pf formatter "%a@." Printers.pp_full items
-                    );
-                  CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
-                      let formatter = Format.formatter_of_out_channel oc in
-                      Fmt.pf formatter "%a@." Printers.pp_full items
-                    );
-                  call ()
-                 )
-            )
+  match List.filter (fun s -> Filename.extension s = ".json") argv with
+  | [] -> exit 1
+  | json_file :: _ -> (
+      Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore;
+      let tg_file = "examples/csf18-xor/CH07.tg" in
+      let res =
+        let* root = Modul_load.from_file tg_file in
+        let* spec =  Tg.run_pipeline (Spec.make root) in
+        let+ items = load_dot_file dot_file in
+        List.map (Rewrite.item spec) items
+      in
+      match res with
+      | Error _ -> call ()
+      | Ok items -> (
+          (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json"); *)
+          CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
+              let formatter = Format.formatter_of_out_channel oc in
+              Fmt.pf formatter "%a@." Printers.pp_full items
+            );
+          CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
+              let formatter = Format.formatter_of_out_channel oc in
+              Fmt.pf formatter "%a@." Printers.pp_full items
+            );
+          call ()
+        )
+    )
 
 let () = run ()
