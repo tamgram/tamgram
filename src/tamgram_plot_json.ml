@@ -545,7 +545,7 @@ module Rewrite = struct
     let open Tg_ast in
     let cell_usage = Int_map.find k spec.cell_usages in
     let cells_defined = Cell_lifetime.Usage.defines_cells cell_usage in
-    let cells_undefined = Cell_lifetime.Usage.defines_cells cell_usage in
+    let cells_undefined = Cell_lifetime.Usage.undefines_cells cell_usage in
     match row with
     | `L -> (
         match exit_bias with
