@@ -3,10 +3,10 @@ begin
 
 builtins: multiset, symmetric-encryption
 
-rule S_27_0to1:
+rule S_27_NoneTo0To1:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule S_27_manyto1tomany:
+rule S_27_ManyTo1ToMany:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Init_21(role_22, ka_24, kb_23)
     ]
@@ -15,10 +15,10 @@ rule S_27_manyto1tomany:
     [ StB(~pid, 'tgk1', <ka_24, kb_23, role_22>)
     ]
 
-rule S_27_1to2to3_role_A:
+rule S_27_1To2To3_role_A:
   [StB(~pid, 'tgk1', <tgc_ka_0, tgc_kb_0, 'A'>)]--[]->[St(~pid, 'tgk3', <tgc_ka_0>)]
 
-rule S_27_3to5to3:
+rule S_27_3To5To3:
     [ St(~pid, 'tgk3', <tgc_ka_0>)
     , In(m_25)
     ]
@@ -28,24 +28,24 @@ rule S_27_3to5to3:
     , Out(senc(m_25, tgc_ka_0))
     ]
 
-rule S_27_1to6tomany_role_B:
+rule S_27_1To6ToMany_role_B:
   [StB(~pid, 'tgk1', <tgc_ka_0, tgc_kb_0, 'B'>)]--[]->[StB(~pid, 'tgk6', <'0', tgc_kb_0>)]
 
-rule S_27_6to7to10:
+rule S_27_6To7To10:
   [StB(~pid, 'tgk6', <tgc_i_0, tgc_kb_0>)]--[TgCellNeq(tgc_i_0, '5')]->[StF(
 ~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]
 
-rule S_27_10to7to10:
+rule S_27_10To7To10:
   [StB(~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]--[TgCellNeq(tgc_i_0, '5')]->[StF(
 ~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)]
 
-rule S_27_6to8to9:
+rule S_27_6To8To9:
   [StB(~pid, 'tgk6', <'5', tgc_kb_0>)]--[]->[St(~pid, 'tgk9', 'empty_tuple')]
 
-rule S_27_10to8to9:
+rule S_27_10To8To9:
   [StB(~pid, 'tgk10', <'5', tgc_kb_0>)]--[]->[St(~pid, 'tgk9', 'empty_tuple')]
 
-rule S_27_manyto10tomany:
+rule S_27_ManyTo10ToMany:
     [ StF(~pid, 'tgk10', <tgc_i_0, tgc_kb_0>)
     , In(m_26)
     ]

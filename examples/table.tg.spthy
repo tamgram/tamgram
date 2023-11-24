@@ -1,0 +1,15 @@
+theory table
+begin
+
+restriction Equality_Checks_Succeed:
+  "All x_22 y_23 #i_24 .
+     ((Eq_21(x_22, y_23) @ #i_24) ==> (((x_22) = (y_23))))"
+
+restriction r0:
+  "All pid k_27 #i_28 .
+     ((Unrecorded_20(pid, k_27) @ #i_28) ==> (All #j_29 .
+                                                ((#j_29 < #i_28) ==> (not Add_19(
+                                                pid, k_27) @ #j_29))))"
+
+end
+

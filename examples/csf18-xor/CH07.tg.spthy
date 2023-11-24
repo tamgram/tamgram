@@ -19,10 +19,10 @@ rule Setup_33:
     , !Tag_21(~k_31, ~id_32)
     ]
 
-rule reader_40_1to2:
+rule reader_40_NoneTo1To2:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
 
-rule reader_40_manyto2to3_reader1:
+rule reader_40_ManyTo2To3_reader1:
     [ StF(~pid, 'tgk2', 'empty_tuple')
     , Fr(~r1_34)
     ]
@@ -32,7 +32,7 @@ rule reader_40_manyto2to3_reader1:
     , Out(~r1_34)
     ]
 
-rule reader_40_manyto3_reader2:
+rule reader_40_ManyTo3ToNone_reader2:
     [ StF(~pid, 'tgk3', <~u_tgany0_39>)
     , !Reader_20(~k_36, ~id_37)
     , In(<r2_35, lh_29(((rot_28(~id_37, hash_38)) XOR (hash_38)))>)
@@ -46,10 +46,10 @@ rule reader_40_manyto3_reader2:
     [ Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
     ]
 
-rule tag_49_4to5:
+rule tag_49_NoneTo4To5:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
 
-rule tag_49_manyto5to6_tag1:
+rule tag_49_ManyTo5To6_tag1:
     [ StF(~pid, 'tgk5', 'empty_tuple')
     , In(r1_42)
     , Fr(~r2_41)
@@ -63,7 +63,7 @@ rule tag_49_manyto5to6_tag1:
     , Out(<~r2_41, lh_29(((rot_28(~id_44, h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))) XOR (h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))))>)
     ]
 
-rule tag_49_manyto6_tag2:
+rule tag_49_ManyTo6ToNone_tag2:
     [ StF(~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46>)
     , In(rh_30(((rot_28(~u_id_48, tgc_hash_0)) XOR (tgc_hash_0))))
     , !Tag_21(~u_tgany1_47, ~u_id_48)

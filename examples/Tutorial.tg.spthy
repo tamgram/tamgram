@@ -18,10 +18,10 @@ rule Get_pk_28:
 rule Reveal_ltk_32:
   [!Ltk_22(A_31, ltk_30)]--[LtkReveal_29(A_31)]->[Out(ltk_30)]
 
-rule Client_36_3to4:
+rule Client_36_NoneTo3To4:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
-rule Client_36_manyto4to5:
+rule Client_36_ManyTo4To5:
     [ StF(~pid, 'tgk4', 'empty_tuple')
     , Fr(~k_35)
     , !Pk_23($S, pkS_34)
@@ -32,7 +32,7 @@ rule Client_36_manyto4to5:
     , Out(aenc(<'1', ~k_35>, pkS_34))
     ]
 
-rule Client_36_manyto5:
+rule Client_36_ManyTo5ToNone:
     [ StF(~pid, 'tgk5', <tgc_k_0, tgc_server_0>)
     , In(h(tgc_k_0))
     ]
