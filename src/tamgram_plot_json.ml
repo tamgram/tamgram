@@ -121,9 +121,9 @@ module Dot_printers = struct
       (fun formatter terms ->
          match terms with
          | [] -> (match row with
-         | `L -> Fmt.pf formatter "..."
-         | `R -> Fmt.pf formatter "unchanged proc ctx"
-         )
+             | `L -> Fmt.pf formatter "..."
+             | `R -> Fmt.pf formatter "unchanged proc ctx"
+           )
          | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
 
   let pp_l_row formatter (l : (string * Tg_ast.term list) list) =
@@ -310,16 +310,23 @@ module Parsers = struct
     <* spaces
 end
 
-  let rule_index_of_rule_name (s : string) =
-    let parts = String.split_on_char '_' s in
-    let rec aux parts =
-      match parts with
-      | [] | [_] -> invalid_arg "Unexpected case"
-      | x :: y :: xs -> (
-        match int_of_string_opt x, 
+let rule_index_of_rule_name (s : string) : int option =
+  let parts = String.split_on_char '_' s in
+  let parse_rule_id (s : string) =
+    match CCString.split ~by:"To" s with
+    | [ _; k; _ ] -> int_of_string_opt k
+    | _ -> None
+  in
+  let rec aux possible_k parts =
+    match parts with
+    | [] | [_] -> possible_k
+    | x :: y :: xs -> (
+        match int_of_string_opt x, parse_rule_id y with
+        | Some _, Some k -> aux (Some k) (y :: xs)
+        | _, _ -> aux possible_k (y :: xs)
       )
-    in
-    aux parts
+  in
+  aux None parts
 
 let dot_node_name_of_json_node_id : string -> string * string option =
   let tbl : (string, string * string option) Hashtbl.t = Hashtbl.create 1024 in
@@ -421,7 +428,7 @@ module JSON_parsers = struct
     let metadata = List.assoc "jgnMetadata" x
                    |> get_assoc
     in
-    let calc_sub_node_name x =
+    let compute_sub_node_name x =
       x
       |> get_assoc
       |> List.assoc "jgnFactId"
@@ -437,13 +444,13 @@ module JSON_parsers = struct
     let row_r = List.assoc "jgnConcs" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (calc_sub_node_name x, [ fact_of_json x ])
+                    (compute_sub_node_name x, [ fact_of_json x ])
                   )
     in
     let row_l = List.assoc "jgnPrems" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (calc_sub_node_name x, [ fact_of_json x ])
+                    (compute_sub_node_name x, [ fact_of_json x ])
                   )
     in
     { name = get_string @@ List.assoc "jgnLabel" x;
@@ -570,10 +577,10 @@ module Rewrite = struct
     let user_specified_pat_matches = Int_map.find k spec.user_specified_cell_pat_matches in
     match row with
     | `L -> (
-user_specified_pat_matches
-    |> List.map (fun (cell, term) ->
-        T_cell_pat_match (cell, term)
-        )
+        user_specified_pat_matches
+        |> List.map (fun (cell, term) ->
+            T_cell_pat_match (cell, term)
+          )
       )
     | `R -> (
         Seq.append
@@ -658,19 +665,19 @@ user_specified_pat_matches
         | _ -> raise Fail
       in
       (* let k =
-        if String.length vertex > 3
-        && StringLabels.sub ~pos:0 ~len:3 vertex = Params.graph_vertex_label_prefix
-        then (
+         if String.length vertex > 3
+         && StringLabels.sub ~pos:0 ~len:3 vertex = Params.graph_vertex_label_prefix
+         then (
           match
             int_of_string_opt
               (StringLabels.sub ~pos:3 ~len:(String.length vertex-3) vertex)
           with
           | None -> raise Fail
           | Some k -> k
-        ) else (
+         ) else (
           raise Fail
-        )
-      in *)
+         )
+         in *)
       CCIO.with_out_a "tamgram-test.log" (fun oc ->
           let formatter = Format.formatter_of_out_channel oc in
           Fmt.pf formatter "vertex: %s@," vertex
@@ -680,21 +687,23 @@ user_specified_pat_matches
     | Fail -> default
 
   let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
-    let k =
-    in
-    let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
-      CCList.map (fun (sub_node, terms) ->
-          (sub_node,
-           CCList.flat_map (fun term ->
-               rewrite_state_fact spec ~k row term
-             ) terms
-          )
-        )
-        sub_nodes
-    in
-    let l = rewrite_sub_nodes `L rule.l in
-    let r = rewrite_sub_nodes `R rule.r in
-    { rule with l; r }
+    match rule_index_of_rule_name rule.name with
+    | None -> rule
+    | Some k -> (
+        let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
+          CCList.map (fun (sub_node, terms) ->
+              (sub_node,
+               CCList.flat_map (fun term ->
+                   rewrite_state_fact spec ~k row term
+                 ) terms
+              )
+            )
+            sub_nodes
+        in
+        let l = rewrite_sub_nodes `L rule.l in
+        let r = rewrite_sub_nodes `R rule.r in
+        { rule with l; r }
+      )
 
   let item (spec : Spec.t) (x : item) : item =
     match x with
