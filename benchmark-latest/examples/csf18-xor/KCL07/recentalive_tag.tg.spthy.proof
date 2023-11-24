@@ -8,7 +8,13 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
 /* looping facts with injective instances: StF/3 */
+
+
+
+
 
 rule (modulo E) Setup_25:
    [ Fr( ~k_23 ), Fr( ~id_24 ) ]
@@ -17,19 +23,19 @@ rule (modulo E) Setup_25:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_1to2:
+rule (modulo E) reader_34_NoneTo1To2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_manyto2to3_reader1:
+rule (modulo E) reader_34_ManyTo2To3_reader1:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~r1_29 ) ]
   --[ Challenge_26( ~r1_29, 'Reader' ) ]->
    [ StF( ~pid, 'tgk3', ~r1_29 ), Out( ~r1_29 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_manyto3_reader2:
+rule (modulo E) reader_34_ManyTo3ToNone_reader2:
    [
    StF( ~pid, 'tgk3', ~u_tgany0_33 ), !Reader_21( ~k_31, ~id_32 ),
    In( xoredhash_30 )
@@ -97,7 +103,7 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
-  case reader_34_manyto2to3_reader1
+  case reader_34_ManyTo2To3_reader1
   solve( !Reader_21( ~k_31, ~id_32 ) ▶₁ #i_49 )
     case Setup_25
     solve( !KU( (~id_32⊕h(<~u_tgany0_33, ~k_31>)) ) @ #vk )
@@ -114,17 +120,14 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
             by solve( !KU( ~k_31 ) @ #vk.8 )
           next
             case tag_40
-            solve( !KU( ~u_tgany0_33 ) @ #vk.6 )
-              case reader_34_manyto2to3_reader1
-              by contradiction /* cyclic */
-            qed
+            by contradiction /* from formulas */
           qed
         qed
       qed
     next
       case coerce
       solve( !KD( (~id_32⊕h(<~u_tgany0_33, ~k_31>)) ) ▶₀ #vk )
-        case reader_34_manyto2to3_reader1
+        case reader_34_ManyTo2To3_reader1
         by contradiction /* impossible chain */
       next
         case tag_40
@@ -154,10 +157,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                             by solve( !KU( ~k_31 ) @ #vk.11 )
                           next
                             case tag_40
-                            solve( !KU( ~u_tgany0_33 ) @ #vk.9 )
-                              case reader_34_manyto2to3_reader1
-                              by contradiction /* cyclic */
-                            qed
+                            by contradiction /* from formulas */
                           qed
                         qed
                       qed
@@ -168,16 +168,13 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                         by solve( !KU( ~k_31 ) @ #vk.8 )
                       next
                         case tag_40
-                        solve( !KU( ~u_tgany0_33 ) @ #vk.6 )
-                          case reader_34_manyto2to3_reader1
-                          by contradiction /* cyclic */
-                        qed
+                        by contradiction /* from formulas */
                       qed
                     qed
                   next
                     case coerce
                     solve( !KD( (~r2_36⊕h(<~u_tgany0_33, ~k_31>)) ) ▶₀ #vk.1 )
-                      case reader_34_manyto2to3_reader1
+                      case reader_34_ManyTo2To3_reader1
                       by contradiction /* impossible chain */
                     next
                       case tag_40
@@ -209,10 +206,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                         case d_0_snd
                         solve( (#vr.7, 0) ~~> (#vk.1, 0) )
                           case Xor
-                          solve( !KU( ~u_tgany0_33 ) @ #vk.2 )
-                            case reader_34_manyto2to3_reader1
-                            by contradiction /* cyclic */
-                          qed
+                          by contradiction /* cyclic */
                         next
                           case d_xor_case_1
                           solve( (#vr.8, 0) ~~> (#vk.1, 0) )
@@ -238,10 +232,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                                         by solve( !KU( ~k_38 ) @ #vk.13 )
                                       next
                                         case tag_40
-                                        solve( !KU( ~u_tgany0_33 ) @ #vk.11 )
-                                          case reader_34_manyto2to3_reader1
-                                          by contradiction /* cyclic */
-                                        qed
+                                        by contradiction /* from formulas */
                                       qed
                                     qed
                                   qed
@@ -253,7 +244,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                             next
                               case coerce
                               solve( !KD( (h(<~u_tgany0_33, ~k_38>)⊕h(<r1_37, ~k_38>)) ) ▶₀ #vk.2 )
-                                case reader_34_manyto2to3_reader1
+                                case reader_34_ManyTo2To3_reader1
                                 by contradiction /* impossible chain */
                               next
                                 case tag_40
@@ -307,10 +298,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                                                     by solve( !KU( ~k_38 ) @ #vk.13 )
                                                   next
                                                     case tag_40
-                                                    solve( !KU( ~u_tgany0_33 ) @ #vk.11 )
-                                                      case reader_34_manyto2to3_reader1
-                                                      by contradiction /* cyclic */
-                                                    qed
+                                                    by contradiction /* from formulas */
                                                   qed
                                                 qed
                                               qed
@@ -321,16 +309,13 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                                                 by solve( !KU( ~k_38 ) @ #vk.10 )
                                               next
                                                 case tag_40
-                                                solve( !KU( ~u_tgany0_33 ) @ #vk.8 )
-                                                  case reader_34_manyto2to3_reader1
-                                                  by contradiction /* cyclic */
-                                                qed
+                                                by contradiction /* from formulas */
                                               qed
                                             qed
                                           next
                                             case coerce
                                             solve( !KD( (~r2_36.1⊕h(<~u_tgany0_33, ~k_38>)) ) ▶₀ #vk.3 )
-                                              case reader_34_manyto2to3_reader1
+                                              case reader_34_ManyTo2To3_reader1
                                               by contradiction /* impossible chain */
                                             next
                                               case tag_40
@@ -370,13 +355,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                                                   case d_xor_case_2
                                                   solve( (#vr.13, 0) ~~> (#vk.3, 0) )
                                                     case Xor
-                                                    solve( !Tag_22( ~k_38, ~id_39 ) ▶₂ #vr.11 )
-                                                      case Setup_25
-                                                      solve( !KU( ~u_tgany0_33 ) @ #vk.5 )
-                                                        case reader_34_manyto2to3_reader1
-                                                        by contradiction /* cyclic */
-                                                      qed
-                                                    qed
+                                                    by contradiction /* from formulas */
                                                   qed
                                                 next
                                                   case d_xor_case_3
@@ -392,13 +371,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                                       qed
                                     next
                                       case Xor_case_2
-                                      solve( !Tag_22( ~k_38, ~id_39 ) ▶₂ #vr.8 )
-                                        case Setup_25
-                                        solve( !KU( ~u_tgany0_33 ) @ #vk.4 )
-                                          case reader_34_manyto2to3_reader1
-                                          by contradiction /* cyclic */
-                                        qed
-                                      qed
+                                      by contradiction /* from formulas */
                                     qed
                                   next
                                     case d_xor_case_3
@@ -415,13 +388,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
                           case d_xor_case_2
                           solve( (#vr.8, 0) ~~> (#vk.1, 0) )
                             case Xor
-                            solve( !Tag_22( ~k_31, ~id_39 ) ▶₂ #vr.6 )
-                              case Setup_25
-                              solve( !KU( ~u_tgany0_33 ) @ #vk.3 )
-                                case reader_34_manyto2to3_reader1
-                                by contradiction /* cyclic */
-                              qed
-                            qed
+                            by contradiction /* from formulas */
                           qed
                         next
                           case d_xor_case_3
@@ -455,13 +422,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_49 )
             case d_xor_case_2
             solve( (#vr.5, 0) ~~> (#vk, 0) )
               case Xor
-              solve( !Tag_22( ~k_31, ~id_39 ) ▶₂ #vr.3 )
-                case Setup_25
-                solve( !KU( ~u_tgany0_33 ) @ #vk.1 )
-                  case reader_34_manyto2to3_reader1
-                  by contradiction /* cyclic */
-                qed
-              qed
+              by contradiction /* from formulas */
             qed
           next
             case d_xor_case_3
@@ -491,6 +452,22 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

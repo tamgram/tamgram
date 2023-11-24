@@ -8,7 +8,13 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
 /* looping facts with injective instances: StF/3 */
+
+
+
+
 
 rule (modulo E) Setup_33:
    [ Fr( ~k_31 ), Fr( ~id_32 ) ]
@@ -17,19 +23,19 @@ rule (modulo E) Setup_33:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_40_1to2:
+rule (modulo E) reader_40_NoneTo1To2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_40_manyto2to3_reader1:
+rule (modulo E) reader_40_ManyTo2To3_reader1:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~r1_34 ) ]
   --[ Challenge_22( ~r1_34, 'Reader' ) ]->
    [ StF( ~pid, 'tgk3', ~r1_34 ), Out( ~r1_34 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_40_manyto3_reader2:
+rule (modulo E) reader_40_ManyTo3ToNone_reader2:
    [
    StF( ~pid, 'tgk3', ~u_tgany0_39 ), !Reader_20( ~k_36, ~id_37 ),
    In( <r2_35, lh_29((hash_38⊕rot_28(~id_37, hash_38)))> )
@@ -43,7 +49,7 @@ rule (modulo E) reader_40_manyto3_reader2:
    [ Out( rh_30((hash_38⊕rot_28(~id_37, hash_38))) ) ]
 
   /*
-  rule (modulo AC) reader_40_manyto3_reader2:
+  rule (modulo AC) reader_40_ManyTo3ToNone_reader2:
      [
      StF( ~pid, 'tgk3', ~u_tgany0_39 ), !Reader_20( ~k_36, ~id_37 ),
      In( <r2_35, lh_29(z)> )
@@ -254,12 +260,12 @@ rule (modulo E) reader_40_manyto3_reader2:
         z.1   = (~u_tgany0_39.72⊕x.136)
   */
 
-rule (modulo E) tag_49_4to5:
+rule (modulo E) tag_49_NoneTo4To5:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk5', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) tag_49_manyto5to6_tag1:
+rule (modulo E) tag_49_ManyTo5To6_tag1:
    [
    StF( ~pid, 'tgk5', 'empty_tuple' ), In( r1_42 ), Fr( ~r2_41 ),
    !Tag_21( ~k_43, ~id_44 )
@@ -276,7 +282,7 @@ rule (modulo E) tag_49_manyto5to6_tag1:
    ]
 
   /*
-  rule (modulo AC) tag_49_manyto5to6_tag1:
+  rule (modulo AC) tag_49_ManyTo5To6_tag1:
      [
      StF( ~pid, 'tgk5', 'empty_tuple' ), In( r1_42 ), Fr( ~r2_41 ),
      !Tag_21( ~k_43, ~id_44 )
@@ -345,7 +351,7 @@ rule (modulo E) tag_49_manyto5to6_tag1:
        z     = (~r2_41.238⊕x.469)
   */
 
-rule (modulo E) tag_49_manyto6_tag2:
+rule (modulo E) tag_49_ManyTo6ToNone_tag2:
    [
    StF( ~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46> ),
    In( rh_30((tgc_hash_0⊕rot_28(~u_id_48, tgc_hash_0))) ),
@@ -358,7 +364,7 @@ rule (modulo E) tag_49_manyto6_tag2:
    [ ]
 
   /*
-  rule (modulo AC) tag_49_manyto6_tag2:
+  rule (modulo AC) tag_49_ManyTo6ToNone_tag2:
      [
      StF( ~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46> ),
      In( rh_30(z) ), !Tag_21( ~u_tgany1_47, ~u_id_48 )
@@ -663,11 +669,11 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( Commit_27( <'T', 'R', t_66> ) @ #i_67 )
-  case tag_49_manyto6_tag2
+  case tag_49_ManyTo6ToNone_tag2
   solve( StF( ~pid, 'tgk6',
               <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46>
          ) ▶₀ #i_67 )
-    case tag_49_manyto5to6_tag1
+    case tag_49_ManyTo5To6_tag1
     solve( !Tag_21( ~u_tgany1_47, ~u_id_48 ) ▶₂ #i_67 )
       case Setup_33
       solve( !KU( rh_30((h(z)⊕rot_28(~id_44, h(z)))) ) @ #vk )
@@ -681,13 +687,13 @@ solve( Commit_27( <'T', 'R', t_66> ) @ #i_67 )
         next
           case coerce
           solve( !KD( (h(z)⊕rot_28(~id_44, h(z))) ) ▶₀ #vk.1 )
-            case reader_40_manyto2to3_reader1
+            case reader_40_ManyTo2To3_reader1
             by contradiction /* impossible chain */
           next
-            case reader_40_manyto3_reader2
+            case reader_40_ManyTo3ToNone_reader2
             by solve( (#vl, 0) ~~> (#vk.1, 0) )
           next
-            case tag_49_manyto5to6_tag1
+            case tag_49_ManyTo5To6_tag1
             solve( (#vl, 0) ~~> (#vk.1, 0) )
               case d_0_fst
               by contradiction /* impossible chain */
@@ -698,10 +704,10 @@ solve( Commit_27( <'T', 'R', t_66> ) @ #i_67 )
           qed
         qed
       next
-        case reader_40_manyto3_reader2
+        case reader_40_ManyTo3ToNone_reader2
         solve( splitEqs(0) )
           case split_case_1
-          by contradiction /* from formulas */
+          by contradiction /* cyclic */
         next
           case split_case_2
           by contradiction /* from formulas */
@@ -765,6 +771,38 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+WARNING: the following wellformedness checks failed!
+
+Message Derivation Checks
+=========================
+
+  The variables of the follwing rule(s) are not derivable from their premises, you may be performing unintended pattern matching.
+
+Rule reader_40_ManyTo3ToNone_reader2: 
+Failed to derive Variable(s): hash_38
+*/
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

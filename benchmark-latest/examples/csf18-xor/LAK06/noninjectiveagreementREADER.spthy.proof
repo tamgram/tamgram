@@ -8,6 +8,12 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
+
+
+
+
 rule (modulo E) setup:
    [ Fr( ~k ) ]
   --[ OnlyOnce( 'setup' ), Create( ~k ) ]->
@@ -290,6 +296,22 @@ induction
   qed
 qed
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

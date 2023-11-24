@@ -8,6 +8,12 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
+
+
+
+
 rule (modulo E) Setup:
    [ Fr( ~k ), Fr( ~id ) ]
   --[ OnlyOnce( ) ]->
@@ -94,10 +100,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
             by solve( !KU( ~k ) @ #vk.8 )
           next
             case tag1
-            solve( !KU( ~r1 ) @ #vk.6 )
-              case reader1
-              by contradiction /* cyclic */
-            qed
+            by contradiction /* from formulas */
           qed
         qed
       qed
@@ -134,10 +137,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                             by solve( !KU( ~k ) @ #vk.11 )
                           next
                             case tag1
-                            solve( !KU( ~r1 ) @ #vk.9 )
-                              case reader1
-                              by contradiction /* cyclic */
-                            qed
+                            by contradiction /* from formulas */
                           qed
                         qed
                       qed
@@ -148,10 +148,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                         by solve( !KU( ~k ) @ #vk.8 )
                       next
                         case tag1
-                        solve( !KU( ~r1 ) @ #vk.6 )
-                          case reader1
-                          by contradiction /* cyclic */
-                        qed
+                        by contradiction /* from formulas */
                       qed
                     qed
                   next
@@ -189,10 +186,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                         case d_0_snd
                         solve( (#vr.6, 0) ~~> (#vk.1, 0) )
                           case Xor
-                          solve( !KU( ~r1 ) @ #vk.2 )
-                            case reader1
-                            by contradiction /* cyclic */
-                          qed
+                          by contradiction /* cyclic */
                         next
                           case d_xor_case_1
                           solve( (#vr.7, 0) ~~> (#vk.1, 0) )
@@ -218,10 +212,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                                         by solve( !KU( ~k ) @ #vk.13 )
                                       next
                                         case tag1
-                                        solve( !KU( ~r1 ) @ #vk.11 )
-                                          case reader1
-                                          by contradiction /* cyclic */
-                                        qed
+                                        by contradiction /* from formulas */
                                       qed
                                     qed
                                   qed
@@ -287,10 +278,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                                                     by solve( !KU( ~k ) @ #vk.13 )
                                                   next
                                                     case tag1
-                                                    solve( !KU( ~r1 ) @ #vk.11 )
-                                                      case reader1
-                                                      by contradiction /* cyclic */
-                                                    qed
+                                                    by contradiction /* from formulas */
                                                   qed
                                                 qed
                                               qed
@@ -301,10 +289,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                                                 by solve( !KU( ~k ) @ #vk.10 )
                                               next
                                                 case tag1
-                                                solve( !KU( ~r1 ) @ #vk.8 )
-                                                  case reader1
-                                                  by contradiction /* cyclic */
-                                                qed
+                                                by contradiction /* from formulas */
                                               qed
                                             qed
                                           next
@@ -350,13 +335,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                                                   case d_xor_case_2
                                                   solve( (#vr.12, 0) ~~> (#vk.3, 0) )
                                                     case Xor
-                                                    solve( !Tag( ~k, ~id.1 ) ▶₂ #vr.10 )
-                                                      case Setup
-                                                      solve( !KU( ~r1 ) @ #vk.5 )
-                                                        case reader1
-                                                        by contradiction /* cyclic */
-                                                      qed
-                                                    qed
+                                                    by contradiction /* from formulas */
                                                   qed
                                                 next
                                                   case d_xor_case_3
@@ -372,13 +351,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                                       qed
                                     next
                                       case Xor_case_2
-                                      solve( !Tag( ~k, ~id.1 ) ▶₂ #vr.7 )
-                                        case Setup
-                                        solve( !KU( ~r1 ) @ #vk.4 )
-                                          case reader1
-                                          by contradiction /* cyclic */
-                                        qed
-                                      qed
+                                      by contradiction /* from formulas */
                                     qed
                                   next
                                     case d_xor_case_3
@@ -395,13 +368,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
                           case d_xor_case_2
                           solve( (#vr.7, 0) ~~> (#vk.1, 0) )
                             case Xor
-                            solve( !Tag( ~k, ~id.1 ) ▶₂ #vr.5 )
-                              case Setup
-                              solve( !KU( ~r1 ) @ #vk.3 )
-                                case reader1
-                                by contradiction /* cyclic */
-                              qed
-                            qed
+                            by contradiction /* from formulas */
                           qed
                         next
                           case d_xor_case_3
@@ -435,13 +402,7 @@ solve( Initiated( ~r1 ) ▶₀ #i )
             case d_xor_case_2
             solve( (#vr.4, 0) ~~> (#vk, 0) )
               case Xor
-              solve( !Tag( ~k, ~id.1 ) ▶₂ #vr.2 )
-                case Setup
-                solve( !KU( ~r1 ) @ #vk.1 )
-                  case reader1
-                  by contradiction /* cyclic */
-                qed
-              qed
+              by contradiction /* from formulas */
             qed
           next
             case d_xor_case_3
@@ -470,6 +431,22 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

@@ -8,7 +8,13 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
 /* looping facts with injective instances: StF/3 */
+
+
+
+
 
 rule (modulo E) Setup_25:
    [ Fr( ~k_23 ), Fr( ~id_24 ) ]
@@ -17,19 +23,19 @@ rule (modulo E) Setup_25:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_1to2:
+rule (modulo E) reader_34_NoneTo1To2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_manyto2to3_reader1:
+rule (modulo E) reader_34_ManyTo2To3_reader1:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~r1_29 ) ]
   --[ Challenge_26( ~r1_29, 'Reader' ) ]->
    [ StF( ~pid, 'tgk3', ~r1_29 ), Out( ~r1_29 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) reader_34_manyto3_reader2:
+rule (modulo E) reader_34_ManyTo3ToNone_reader2:
    [
    StF( ~pid, 'tgk3', ~u_tgany0_33 ), !Reader_21( ~k_31, ~id_32 ),
    In( xoredhash_30 )
@@ -112,7 +118,7 @@ guarded formula characterizing all satisfying traces:
 */
 simplify
 solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_55 )
-  case reader_34_manyto2to3_reader1
+  case reader_34_ManyTo2To3_reader1
   solve( !Reader_21( ~k_31, ~id_32 ) ▶₁ #i_55 )
     case Setup_25
     solve( !Tag_22( ~k_31, ~id_39 ) ▶₂ #j_56 )
@@ -140,7 +146,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_55 )
                           solve( (#vr.6, 0) ~~> (#vk.1, 0) )
                             case Xor
                             solve( !KU( ~u_tgany0_33 ) @ #vk.2 )
-                              case reader_34_manyto2to3_reader1
+                              case reader_34_ManyTo2To3_reader1
                               SOLVED // trace found
                             qed
                           qed
@@ -158,6 +164,22 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_33 ) ▶₀ #i_55 )
   qed
 qed
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

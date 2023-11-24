@@ -8,7 +8,13 @@ equations: fst(<x.1, x.2>) = x.1, snd(<x.1, x.2>) = x.2
 
 
 
+
+
 /* looping facts with injective instances: StF/3 */
+
+
+
+
 
 rule (modulo E) Setup_30:
    [ Fr( ~k_29 ) ]
@@ -17,19 +23,19 @@ rule (modulo E) Setup_30:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_36_1to2:
+rule (modulo E) initiator_36_NoneTo1To2:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk2', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_36_manyto2to3_initiator:
+rule (modulo E) initiator_36_ManyTo2To3_initiator:
    [ StF( ~pid, 'tgk2', 'empty_tuple' ), Fr( ~na_31 ) ]
   --[ Challenge_27( ~na_31 ) ]->
    [ StF( ~pid, 'tgk3', ~na_31 ), Out( ~na_31 ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) initiator_36_manyto3_initiator2:
+rule (modulo E) initiator_36_ManyTo3ToNone_initiator2:
    [
    StF( ~pid, 'tgk3', ~u_tgany0_35 ), !InitLTK_21( ~k_34 ),
    In( <m_33, nb_32> )
@@ -41,7 +47,7 @@ rule (modulo E) initiator_36_manyto3_initiator2:
    [ ]
 
   /*
-  rule (modulo AC) initiator_36_manyto3_initiator2:
+  rule (modulo AC) initiator_36_ManyTo3ToNone_initiator2:
      [
      StF( ~pid, 'tgk3', ~u_tgany0_35 ), !InitLTK_21( ~k_34 ),
      In( <m_33, nb_32> )
@@ -221,7 +227,7 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( StF( ~pid, 'tgk3', ~u_tgany0_35 ) ▶₀ #i_58 )
-  case initiator_36_manyto2to3_initiator
+  case initiator_36_ManyTo2To3_initiator
   solve( !InitLTK_21( ~k_34 ) ▶₁ #i_58 )
     case Setup_30
     solve( splitEqs(0) )
@@ -235,7 +241,7 @@ solve( StF( ~pid, 'tgk3', ~u_tgany0_35 ) ▶₀ #i_58 )
             solve( !KU( (~nb_37⊕na_38) ) @ #vk.4 )
               case c_xor
               solve( !KU( ~u_tgany0_35 ) @ #vk.5 )
-                case initiator_36_manyto2to3_initiator
+                case initiator_36_ManyTo2To3_initiator
                 solve( !KU( ~nb_37 ) @ #vk.6 )
                   case responder_40
                   SOLVED // trace found
@@ -265,6 +271,22 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

@@ -11,6 +11,12 @@ equations:
 
 
 
+
+
+
+
+
+
 rule (modulo E) Register_pk:
    [ Fr( ~ltkA ) ]
   --[ Register( $A ) ]->
@@ -242,6 +248,26 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end

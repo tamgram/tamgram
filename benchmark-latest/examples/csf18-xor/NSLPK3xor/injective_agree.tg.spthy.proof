@@ -11,7 +11,13 @@ equations:
 
 
 
+
+
 /* looping facts with injective instances: StF/3 */
+
+
+
+
 
 rule (modulo E) Register_pk_26:
    [ Fr( ~ltkA_25 ) ]
@@ -27,12 +33,12 @@ rule (modulo E) Reveal_ltk_30:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_45_2to3:
+rule (modulo E) I_45_NoneTo2To3:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk3', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_45_manyto3to4_I_1:
+rule (modulo E) I_45_ManyTo3To4_I_1:
    [ StF( ~pid, 'tgk3', 'empty_tuple' ), Fr( ~ni_37 ), !Pk_23( $R, pkR_36 )
    ]
   --[ OUT_I_1_34( aenc(<'1', ~ni_37, $I>, pkR_36) ) ]->
@@ -43,7 +49,7 @@ rule (modulo E) I_45_manyto3to4_I_1:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) I_45_manyto4_I_2:
+rule (modulo E) I_45_ManyTo4ToNone_I_2:
    [
    StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
    !Ltk_22( tgc_I_0, ltkI_41 ),
@@ -61,7 +67,7 @@ rule (modulo E) I_45_manyto4_I_2:
    ]
 
   /*
-  rule (modulo AC) I_45_manyto4_I_2:
+  rule (modulo AC) I_45_ManyTo4ToNone_I_2:
      [
      StF( ~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0> ),
      !Ltk_22( tgc_I_0, ltkI_41 ),
@@ -113,12 +119,12 @@ rule (modulo E) I_45_manyto4_I_2:
        z     = z.21
   */
 
-rule (modulo E) R_56_5to6:
+rule (modulo E) R_56_NoneTo5To6:
    [ Fr( ~pid ) ] --> [ StF( ~pid, 'tgk6', 'empty_tuple' ) ]
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_56_manyto6to7_R_1:
+rule (modulo E) R_56_ManyTo6To7_R_1:
    [
    StF( ~pid, 'tgk6', 'empty_tuple' ), !Ltk_22( $R, ltkR_51 ),
    In( aenc(<'1', ni_50, I_52>, pk(ltkR_51)) ), !Pk_23( I_52, pkI_48 ),
@@ -136,7 +142,7 @@ rule (modulo E) R_56_manyto6to7_R_1:
 
   /* has exactly the trivial AC variant */
 
-rule (modulo E) R_56_manyto7_R_2:
+rule (modulo E) R_56_ManyTo7ToNone_R_2:
    [
    StF( ~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0> ),
    !Ltk_22( tgc_R_0, ltkR_55 ), In( aenc(<'3', tgc_nr_0>, pk(ltkR_55)) )
@@ -235,26 +241,26 @@ guarded formula characterizing all counter-examples:
 */
 simplify
 solve( Commit_31( actor_85, peer_86, params_87 ) @ #i_88 )
-  case R_56_manyto7_R_2
+  case R_56_ManyTo7ToNone_R_2
   solve( StF( ~pid, 'tgk7', <peer_86, actor_85, tgc_ni_0, tgc_nr_0>
          ) ▶₀ #i_88 )
-    case R_56_manyto6to7_R_1
+    case R_56_ManyTo6To7_R_1
     solve( !Ltk_22( $R, ltkR_55 ) ▶₁ #i_88 )
       case Register_pk_26
       solve( !KU( aenc(<'3', ~nr_49>, pk(~ltkA_25)) ) @ #vk )
         case c_aenc
         solve( !KU( ~nr_49 ) @ #vk.5 )
-          case I_45_manyto4_I_2_case_1
+          case I_45_ManyTo4ToNone_I_2_case_1
           solve( !KU( ~ltkA_25.2 ) @ #vk.7 )
             case Reveal_ltk_30
             solve( !KU( aenc(<'1', ~ni_37, $A>, pk(~ltkA_25)) ) @ #vk.4 )
               case c_aenc
               solve( !KU( ~ni_37 ) @ #vk.12 )
-                case I_45_manyto3to4_I_1
+                case I_45_ManyTo3To4_I_1
                 solve( !KU( pk(~ltkA_25) ) @ #vk.6 )
                   case Register_pk_26
                   solve( !KU( aenc(<'2', ~ni_37, ($R⊕~nr_49)>, pk(~ltkA_25.2)) ) @ #vk.9 )
-                    case R_56_manyto6to7_R_1
+                    case R_56_ManyTo6To7_R_1
                     solve( !KU( ($R⊕$R.1) ) @ #vk.11 )
                       case c_xor
                       SOLVED // trace found
@@ -286,6 +292,26 @@ guarded formula characterizing all satisfying traces:
 */
 by sorry
 
-/* All well-formedness checks were successful. */
+
+
+
+
+
+
+
+
+
+
+
+
+/* All wellformedness checks were successful. */
+
+/*
+Generated from:
+Tamarin version 1.8.0
+Maude version 3.1
+Git revision: UNKNOWN, branch: UNKNOWN
+Compiled at: 2023-09-06 07:55:08.336840989 UTC
+*/
 
 end
