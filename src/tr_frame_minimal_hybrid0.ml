@@ -244,6 +244,26 @@ let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
       |> Seq.flat_map Fun.id
     )
 
+let pp_rule_id
+    ~(pred : [ `None | `Many | `Index of int ])
+    ~k
+    ~(succ: [ `None | `Many | `Index of int ])
+    formatter
+    ()
+  =
+  Fmt.pf formatter "%sTo%dTo%s"
+    (match pred with
+     | `None -> "None"
+     | `Many -> "Many"
+     | `Index x -> string_of_int x
+    )
+    k
+    (match succ with
+     | `None -> "None"
+     | `Many -> "Many"
+     | `Index x -> string_of_int x
+    )
+
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
@@ -260,10 +280,14 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq
       |> Seq.map (fun (dst, exit_fact) ->
           let r = exit_fact :: r in
           let rule_name =
-            Fmt.str "%a_%dto%s%s" pp_name_of_proc binding k
-              (match dst with
-               | None -> "many"
-               | Some d -> string_of_int d)
+            Fmt.str "%a_%a%s" pp_name_of_proc binding
+              (pp_rule_id
+                 ~pred:`None
+                 ~k
+                 ~succ:(match dst with
+                     | None -> `Many
+                     | Some x -> `Index x))
+              ()
               (match Int_map.find_opt k spec.rule_tags with
                | None -> ""
                | Some s -> "_" ^ s
@@ -304,14 +328,16 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
           |> Seq.map (fun (src, entry_fact) ->
               let l = entry_fact :: l in
               let rule_name =
-                Fmt.str "%a_%sto%dto%s%s" pp_name_of_proc binding
-                  (match src with
-                   | None -> "many"
-                   | Some s -> string_of_int s)
-                  k
-                  (match dst with
-                   | None -> "many"
-                   | Some d -> string_of_int d)
+                Fmt.str "%a_%a%s" pp_name_of_proc binding
+                  (pp_rule_id
+                     ~pred:(match src with
+                         | None -> `Many
+                         | Some x -> `Index x)
+                     ~k
+                     ~succ:(match dst with
+                         | None -> `Many
+                         | Some x -> `Index x))
+                  ()
                   (match Int_map.find_opt k spec.rule_tags with
                    | None -> ""
                    | Some s -> "_" ^ s
@@ -350,11 +376,14 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
       |> Seq.map (fun (src, entry_fact) ->
           let l = entry_fact :: l in
           let rule_name =
-            Fmt.str "%a_%sto%d%s" pp_name_of_proc binding
-              (match src with
-               | None -> "many"
-               | Some s -> string_of_int s)
-              k
+            Fmt.str "%a_%a%s" pp_name_of_proc binding
+              (pp_rule_id
+                 ~pred:(match src with
+                     | None -> `Many
+                     | Some x -> `Index x)
+                 ~k
+                 ~succ:`None)
+              ()
               (match Int_map.find_opt k spec.rule_tags with
                | None -> ""
                | Some s -> "_" ^ s
