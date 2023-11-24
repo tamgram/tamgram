@@ -122,7 +122,7 @@ module Dot_printers = struct
          match terms with
          | [] -> (match row with
              | `L -> Fmt.pf formatter "..."
-             | `R -> Fmt.pf formatter "unchanged proc ctx"
+             | `R -> Fmt.pf formatter "..."
            )
          | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
 
@@ -310,20 +310,42 @@ module Parsers = struct
     <* spaces
 end
 
-let rule_index_of_rule_name (s : string) : int option =
+let rule_indices_of_rule_name (s : string) : (int option * int * int option) option =
   let parts = String.split_on_char '_' s in
   let parse_rule_id (s : string) =
-    match CCString.split ~by:"To" s with
-    | [ _; k; _ ] -> int_of_string_opt k
-    | _ -> None
+    let exception Fail in
+    let parse_int s =
+      match int_of_string_opt s with
+      | None -> raise Fail
+      | Some x -> x
+    in
+    try
+      match CCString.split ~by:"To" s with
+      | [ pred; k; succ ] -> (
+          let k = parse_int k in
+          let pred =
+            match pred with
+            | "None" | "Many" -> None
+            | s -> Some (parse_int s)
+          in
+          let succ =
+            match succ with
+            | "None" | "Many" -> None
+            | s -> Some (parse_int s)
+          in
+          Some (pred, k, succ)
+        )
+      | _ -> raise Fail
+    with
+    | Fail -> None
   in
-  let rec aux possible_k parts =
+  let rec aux possible parts =
     match parts with
-    | [] | [_] -> possible_k
+    | [] | [_] -> possible
     | x :: y :: xs -> (
         match int_of_string_opt x, parse_rule_id y with
         | Some _, Some k -> aux (Some k) (y :: xs)
-        | _, _ -> aux possible_k (y :: xs)
+        | _, _ -> aux possible (y :: xs)
       )
   in
   aux None parts
@@ -453,10 +475,15 @@ module JSON_parsers = struct
                     (compute_sub_node_name x, [ fact_of_json x ])
                   )
     in
+    let a_timepoint = List.assoc "jgnId" x
+                      |> get_string
+                      |> (fun s ->
+                          Option.value ~default:s (CCString.chop_prefix ~pre:"#" s))
+    in
     { name = get_string @@ List.assoc "jgnLabel" x;
       l = row_l;
       a_sub_node_name = Fmt.str "n%d" (get_num ());
-      a_timepoint = get_string @@ List.assoc "jgnId" x;
+      a_timepoint;
       a = row_a;
       r = row_r;
     }
@@ -567,8 +594,11 @@ module Rewrite = struct
   let write_cell_operations
       (spec : Spec.t)
       (row : row)
+      ~pred
       ~k
+      ~succ
       (exit_bias : exit_bias)
+      ~(cell_contents : Tg_ast.term list)
     : Tg_ast.term list =
     let open Tg_ast in
     let cell_usage = Int_map.find k spec.cell_usages in
@@ -583,11 +613,33 @@ module Rewrite = struct
           )
       )
     | `R -> (
+        let ctx =
+          (match exit_bias with
+           | `Forward -> (
+               match succ with
+               | None -> String_tagged_set.empty
+               | Some succ -> (
+                   Int_map.find succ spec.cells_to_carry_over_before
+                 )
+             )
+           | `Backward -> (
+               Int_map.find k spec.cells_to_carry_over_after
+             )
+           | `Empty -> String_tagged_set.empty)
+        in
+        let assigns =
+          List.combine
+            (ctx
+             |> String_tagged_set.to_seq
+             |> Seq.map Loc.content
+             |> List.of_seq)
+            cell_contents
+        in
         Seq.append
-          (cells_defined
+          (String_tagged_set.inter cells_defined ctx
            |> String_tagged_set.to_seq
            |> Seq.map (fun cell ->
-               T_cell_assign (cell, T_value (Loc.untagged `T))
+               T_cell_assign (cell, List.assoc (Loc.content cell) assigns)
              ))
           (cells_undefined
            |> String_tagged_set.to_seq
@@ -603,8 +655,7 @@ module Rewrite = struct
         |> List.of_seq
       )
 
-
-  let rewrite_state_fact (spec : Spec.t) ~k (row : row) (x : Tg_ast.term) : Tg_ast.term list =
+  let rewrite_state_fact (spec : Spec.t) ~pred ~k ~succ (row : row) (x : Tg_ast.term) : Tg_ast.term list =
     let open Tg_ast in
     CCIO.with_out_a "tamgram-test.log" (fun oc ->
         let formatter = Format.formatter_of_out_channel oc in
@@ -634,7 +685,7 @@ module Rewrite = struct
         | "StF" -> `Forward
         | "StB" -> `Backward
         | "St" -> `Empty
-        | _ -> raise Fail
+        | x -> raise Fail
       in
       (* let (pid, vertex, frame) =
          match args with
@@ -657,44 +708,44 @@ module Rewrite = struct
          in *)
       let vertex =
         match args with
-        | [ pid; T_value vertex; frame ] -> (
+        | [ _pid; T_value vertex; _frame ] -> (
             match Loc.content vertex with
             | `Str vertex -> vertex
             | _ -> raise Fail
           )
         | _ -> raise Fail
       in
-      (* let k =
-         if String.length vertex > 3
-         && StringLabels.sub ~pos:0 ~len:3 vertex = Params.graph_vertex_label_prefix
-         then (
-          match
-            int_of_string_opt
-              (StringLabels.sub ~pos:3 ~len:(String.length vertex-3) vertex)
-          with
-          | None -> raise Fail
-          | Some k -> k
-         ) else (
-          raise Fail
-         )
-         in *)
+      let cell_contents =
+        match args with
+        | [ _pid; _vertex; frame ] -> (
+            match frame with
+            | T_value v -> (
+                match Loc.content v with
+                | `Str "empty_tuple" -> []
+                | _ -> raise Fail
+              )
+            | T_tuple (_loc, l) -> l
+            | x -> [ x ]
+          )
+        | _ -> raise Fail
+      in
       CCIO.with_out_a "tamgram-test.log" (fun oc ->
           let formatter = Format.formatter_of_out_channel oc in
           Fmt.pf formatter "vertex: %s@," vertex
         );
-      write_cell_operations spec row ~k exit_bias
+      write_cell_operations spec row ~pred ~k ~succ exit_bias ~cell_contents
     with
     | Fail -> default
 
   let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
-    match rule_index_of_rule_name rule.name with
+    match rule_indices_of_rule_name rule.name with
     | None -> rule
-    | Some k -> (
+    | Some (pred, k, succ) -> (
         let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
           CCList.map (fun (sub_node, terms) ->
               (sub_node,
                CCList.flat_map (fun term ->
-                   rewrite_state_fact spec ~k row term
+                   rewrite_state_fact spec ~pred ~k ~succ row term
                  ) terms
               )
             )
