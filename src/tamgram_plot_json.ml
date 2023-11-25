@@ -140,18 +140,38 @@ module Dot_printers = struct
     let pp_pat_match formatter ((cell, term) : string * Tg_ast.term) =
       Fmt.pf formatter "%s cas %a" cell pp_term term
     in
-    Fmt.pf formatter {|<td port="%s" border="1">%a</td>|} sub_node
+    let pp_prop formatter ((k, v) : string * string) =
+      Fmt.pf formatter "%s=\"%s\"" k v
+    in
+    let pp_props formatter l =
+      Fmt.pf formatter "%a" Fmt.(list ~sep:sp pp_prop) l
+    in
+    let props =
+      match row_element with
+      | `Empty_init_ctx -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
+      | `Defs_and_undefs _ -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
+      | `Pat_matches _ -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
+      | `Term _ -> [ ("port", sub_node); ("border", "1") ]
+    in
+    Fmt.pf formatter {|<td %a>%a</td>|}
+      pp_props props
       (fun formatter row_element ->
          match row_element with
-         | `Empty_init_ctx -> Fmt.pf formatter "Empty init ctx"
+         | `Empty_init_ctx -> (
+             Fmt.pf formatter "Empty init ctx"
+           )
          | `Defs_and_undefs (defs, undefs) -> (
              match defs, undefs with
-             | [], [] -> Fmt.pf formatter "Unchanged ctx"
+             | [], [] -> (
+                 Fmt.pf formatter "Unchanged ctx"
+               )
              | _, [] -> (
-                 Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_def) defs
+                 Fmt.pf formatter "%a"
+                   Fmt.(list ~sep:comma pp_def) defs
                )
              | [], _ -> (
-                 Fmt.pf formatter "undefs: %a" Fmt.(list ~sep:comma string) undefs
+                 Fmt.pf formatter "undefs: %a"
+                   Fmt.(list ~sep:comma string) undefs
                )
              | _, _ -> (
                  Fmt.pf formatter "%a | undefs: %a"
