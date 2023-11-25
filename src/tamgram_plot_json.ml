@@ -100,7 +100,8 @@ module Dot_printers = struct
           (match op with `Persist -> "!" | `Not -> "not ")
           aux x
       | T_binary_op (op, x, y) -> (
-          Fmt.pf formatter "((%a) %s (%a))" aux x
+          Fmt.pf formatter "%a %s %a"
+            pp_binary_op_sub_term x
             (match op with
              | `Exp -> "^"
              | `Eq -> "="
@@ -111,7 +112,7 @@ module Dot_printers = struct
              | `Plus -> "+"
              | `Xor -> "⊕"
             )
-            aux y
+            pp_binary_op_sub_term y
         )
       | T_cell_assign (cell, term) -> (
           Fmt.pf formatter "'%s := %a" (Loc.content cell) aux term
@@ -120,6 +121,15 @@ module Dot_printers = struct
           Fmt.pf formatter "'%s cas %a" (Loc.content cell) aux term
         )
       | _ -> failwith (Fmt.str "Unexpected case: %a" Printers.pp_term x)
+    and pp_binary_op_sub_term formatter (x : Tg_ast.term) =
+      match x with
+      | T_value _
+      | T_symbol _
+      | T_var _
+      | T_app _
+      | T_tuple _
+      | T_unary_op _ -> Fmt.pf formatter "%a" aux x
+      | _ -> Fmt.pf formatter "(%a)" aux x
     in
     aux formatter x
 
