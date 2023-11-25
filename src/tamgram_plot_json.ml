@@ -7,13 +7,20 @@ let get_num : unit -> int =
     counter := x + 1;
     x
 
+type row_element = [
+  | `Empty_init_ctx
+  | `Defs_and_undefs of (string * Tg_ast.term) list * string list
+  | `Pat_matches of (string * Tg_ast.term) list
+  | `Term of Tg_ast.term
+]
+
 type rule = {
   name : string;
-  l : (string * Tg_ast.term list) list;
+  l : (string * row_element) list;
   a_sub_node_name : string;
   a_timepoint : string;
   a : Tg_ast.term list;
-  r : (string * Tg_ast.term list) list;
+  r : (string * row_element) list;
 }
 
 type rule_node = {
@@ -116,25 +123,53 @@ module Dot_printers = struct
     in
     aux formatter x
 
-  let pp_sub_node (row : row) formatter ((sub_node, terms) : (string * Tg_ast.term list)) =
+  let pp_row_element (row : row) formatter ((sub_node, row_element) : (string * row_element)) =
+    let pp_def formatter ((cell, term) : string * Tg_ast.term) =
+      Fmt.pf formatter "%s := %a" cell pp_term term
+    in
+    let pp_pat_match formatter ((cell, term) : string * Tg_ast.term) =
+      Fmt.pf formatter "%s cas %a" cell pp_term term
+    in
     Fmt.pf formatter "<%s> %a" sub_node
-      (fun formatter terms ->
-         match terms with
-         | [] -> (match row with
-             | `L -> Fmt.pf formatter "..."
-             | `R -> Fmt.pf formatter "..."
+      (fun formatter row_element ->
+         match row_element with
+         | `Empty_init_ctx -> Fmt.pf formatter "Empty init ctx"
+         | `Defs_and_undefs (defs, undefs) -> (
+             match defs, undefs with
+             | [], [] -> Fmt.pf formatter "Unchanged ctx"
+             | _, [] -> (
+                 Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_def) defs
+               )
+             | [], _ -> (
+                 Fmt.pf formatter "undefs: %a" Fmt.(list ~sep:comma string) undefs
+               )
+             | _, _ -> (
+                 Fmt.pf formatter "%a | undefs: %a"
+                   Fmt.(list ~sep:comma pp_def) defs
+                   Fmt.(list ~sep:comma string) undefs
+               )
            )
-         | _ -> Fmt.(list ~sep:comma pp_term) formatter terms) terms
+         | `Pat_matches l -> (
+             match l with
+             | [] -> Fmt.pf formatter "..."
+             | _ -> Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_pat_match) l
+           )
+         | `Term x -> (
+             Fmt.pf formatter "%a" pp_term x
+           )
+      )
+      row_element
 
-  let pp_l_row formatter (l : (string * Tg_ast.term list) list) =
+  let pp_l_row formatter (l : (string * row_element) list) =
     Fmt.pf formatter "%a"
-      Fmt.(list ~sep:bar (pp_sub_node `L))
+      Fmt.(list ~sep:bar (pp_row_element `L))
       l
 
-  let pp_r_row formatter (l : (string * Tg_ast.term list) list) =
+  let pp_r_row formatter (l : (string * row_element) list) =
     Fmt.pf formatter "%a"
-      Fmt.(list ~sep:bar (pp_sub_node `R))
+      Fmt.(list ~sep:bar (pp_row_element `R))
       l
+
   let pp_a_row formatter (rule : rule) =
     let sep formatter () =
       Fmt.pf formatter ",\\l"
@@ -466,13 +501,13 @@ module JSON_parsers = struct
     let row_r = List.assoc "jgnConcs" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (compute_sub_node_name x, [ fact_of_json x ])
+                    (compute_sub_node_name x, `Term (fact_of_json x))
                   )
     in
     let row_l = List.assoc "jgnPrems" metadata
                 |> get_list
                 |> List.map (fun x ->
-                    (compute_sub_node_name x, [ fact_of_json x ])
+                    (compute_sub_node_name x, `Term (fact_of_json x))
                   )
     in
     let a_timepoint = List.assoc "jgnId" x
@@ -599,7 +634,7 @@ module Rewrite = struct
       ~succ
       (exit_bias : exit_bias)
       ~(cell_contents : Tg_ast.term list)
-    : Tg_ast.term list =
+    : row_element =
     let open Tg_ast in
     let cell_usage = Int_map.find k spec.cell_usages in
     let cells_defined = Cell_lifetime.Usage.defines_cells cell_usage in
@@ -607,9 +642,9 @@ module Rewrite = struct
     let user_specified_pat_matches = Int_map.find k spec.user_specified_cell_pat_matches in
     match row with
     | `L -> (
-        user_specified_pat_matches
-        |> List.map (fun (cell, term) ->
-            T_cell_pat_match (cell, term)
+        `Pat_matches
+          (user_specified_pat_matches
+           |> List.map (fun (cell, pat) -> (Loc.content cell, pat))
           )
       )
     | `R -> (
@@ -635,36 +670,42 @@ module Rewrite = struct
              |> List.of_seq)
             cell_contents
         in
-        Seq.append
-          (String_tagged_set.inter cells_defined ctx
-           |> String_tagged_set.to_seq
-           |> Seq.map (fun cell ->
-               T_cell_assign (cell, List.assoc (Loc.content cell) assigns)
-             ))
-          (cells_undefined
-           |> String_tagged_set.to_seq
-           |> Seq.map (fun cell ->
-               T_app {
-                 path = [ Loc.untagged "undef" ];
-                 name = `Local 0;
-                 named_args = [];
-                 args = [T_symbol (cell, `Cell)];
-                 anno = None;
-               }
-             ))
-        |> List.of_seq
+        let defs = String_tagged_set.inter cells_defined ctx
+                   |> String_tagged_set.to_seq
+                   |> Seq.map (fun cell ->
+                       (Loc.content cell, List.assoc (Loc.content cell) assigns)
+                     )
+                   |> List.of_seq
+        in
+        let undefs = cells_undefined
+                     |> String_tagged_set.to_seq
+                     |> Seq.map Loc.content
+                     |> List.of_seq
+        in
+        match defs, undefs with
+        | [], [] -> (
+            match pred with
+            | None -> `Empty_init_ctx
+            | _ -> `Defs_and_undefs (defs, undefs)
+          )
+        | _, _ -> `Defs_and_undefs (defs, undefs)
       )
 
-  let rewrite_state_fact (spec : Spec.t) ~pred ~k ~succ (row : row) (x : Tg_ast.term) : Tg_ast.term list =
+  let rewrite_state_fact (spec : Spec.t) ~pred ~k ~succ (row : row) (x : row_element) : row_element =
     let open Tg_ast in
-    CCIO.with_out_a "tamgram-test.log" (fun oc ->
+    (* CCIO.with_out_a "tamgram-test.log" (fun oc ->
         let formatter = Format.formatter_of_out_channel oc in
         Fmt.pf formatter "@[<v>%a@,@]@." Printers.pp_term x;
         flush oc
-      );
-    let default = [ x ] in
+       ); *)
+    let default = x in
     let exception Fail in
     try
+      let x =
+        match x with
+        | `Term x -> x
+        | _ -> raise Fail
+      in
       let (path, args) =
         match x with
         | T_app { path; args; _ } -> (path, args)
@@ -685,7 +726,7 @@ module Rewrite = struct
         | "StF" -> `Forward
         | "StB" -> `Backward
         | "St" -> `Empty
-        | x -> raise Fail
+        | _ -> raise Fail
       in
       (* let (pid, vertex, frame) =
          match args with
@@ -741,12 +782,10 @@ module Rewrite = struct
     match rule_indices_of_rule_name rule.name with
     | None -> rule
     | Some (pred, k, succ) -> (
-        let rewrite_sub_nodes (row : row) (sub_nodes : (string * Tg_ast.term list) list) =
-          CCList.map (fun (sub_node, terms) ->
+        let rewrite_sub_nodes (row : row) (sub_nodes : (string * row_element) list) =
+          List.map (fun (sub_node, row_element) ->
               (sub_node,
-               CCList.flat_map (fun term ->
-                   rewrite_state_fact spec ~pred ~k ~succ row term
-                 ) terms
+               rewrite_state_fact spec ~pred ~k ~succ row row_element
               )
             )
             sub_nodes
