@@ -355,6 +355,11 @@ module Parsers = struct
     <* spaces
 end
 
+let term_of_string (s : string) : Tg_ast.term =
+  match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.fact_p s with
+  | Error msg -> invalid_arg (Fmt.str "Failed to parse fact string: %s: %s" msg s)
+  | Ok x -> x
+
 let rule_indices_of_rule_name (s : string) : (int option * int * int option) option =
   let parts = String.split_on_char '_' s in
   let parse_rule_id (s : string) =
@@ -486,9 +491,7 @@ module JSON_parsers = struct
     let s = List.assoc "jgnFactShow" x
             |> get_string
     in
-    match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.fact_p s with
-    | Error msg -> invalid_arg (Fmt.str "Failed to parse fact string: %s: %s" msg s)
-    | Ok x -> x
+    term_of_string s
 
   let rule_of_json (x : Yojson.Safe.t) : rule =
     let x = get_assoc x in
@@ -558,7 +561,7 @@ module JSON_parsers = struct
             | "default" ->
               [ ("color", "gray30"); ("style", "dashed") ]
             | "KFact" ->
-              [ ("color", "oranged2"); ("style", "dashed") ]
+              [ ("color", "orangered2"); ("style", "dashed") ]
             | "ProtoFact" ->
               [ ("style", "bold"); ("weight", "10.0") ]
             | "PersistentFact" ->
@@ -569,6 +572,11 @@ module JSON_parsers = struct
           in
           Edge { src; dst; attrs; }
         )
+    in
+    let clean_up_fact_label label =
+      label
+      |> term_of_string
+      |> Fmt.str "%a" Dot_printers.pp_term
     in
     let nodes =
       List.assoc "jgNodes" graph
@@ -591,7 +599,7 @@ module JSON_parsers = struct
               Rule_node { name; rule; attrs = [ ("shape", "record") ] }
             )
           | "unsolvedActionAtom" -> (
-              Node { name; attrs = [ ("label", jgn_label) ] }
+              Node { name; attrs = [ ("label", clean_up_fact_label jgn_label) ] }
             )
           | _ -> (
               match jgn_label with
@@ -616,7 +624,7 @@ module JSON_parsers = struct
                               |> List.assoc "jgnFactShow"
                               |> get_string
                   in
-                  Node { name; attrs = [ ("label", label) ] }
+                  Node { name; attrs = [ ("label", clean_up_fact_label label) ] }
                 )
               | x when CCString.prefix ~pre:"Destrd_" x -> (
                   let label = List.assoc "jgnConcs" metadata
@@ -626,7 +634,7 @@ module JSON_parsers = struct
                               |> List.assoc "jgnFactShow"
                               |> get_string
                   in
-                  Node { name; attrs = [ ("label", label) ] }
+                  Node { name; attrs = [ ("label", clean_up_fact_label label) ] }
                 )
               | _ -> invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
             )
