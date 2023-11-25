@@ -92,7 +92,7 @@ module Dot_printers = struct
           match l with
           | [] -> Fmt.pf formatter "'empty_tuple'"
           | _ -> (
-              Fmt.pf formatter "@[<h>\\<%a\\>@]" Fmt.(list ~sep:comma aux) l
+              Fmt.pf formatter "@[<h>&lt;%a&gt;@]" Fmt.(list ~sep:comma aux) l
             )
         )
       | T_unary_op (op, x) ->
@@ -140,7 +140,7 @@ module Dot_printers = struct
     let pp_pat_match formatter ((cell, term) : string * Tg_ast.term) =
       Fmt.pf formatter "%s cas %a" cell pp_term term
     in
-    Fmt.pf formatter "<%s> %a" sub_node
+    Fmt.pf formatter {|<td port="%s" border="1">%a</td>|} sub_node
       (fun formatter row_element ->
          match row_element with
          | `Empty_init_ctx -> Fmt.pf formatter "Empty init ctx"
@@ -171,20 +171,28 @@ module Dot_printers = struct
       row_element
 
   let pp_l_row formatter (l : (string * row_element) list) =
-    Fmt.pf formatter "%a"
-      Fmt.(list ~sep:bar (pp_row_element `L))
-      l
+    match l with
+    | [] -> Fmt.pf formatter "<td></td>"
+    | _ -> (
+        Fmt.pf formatter "%a"
+          Fmt.(list (pp_row_element `L))
+          l
+      )
 
   let pp_r_row formatter (l : (string * row_element) list) =
-    Fmt.pf formatter "%a"
-      Fmt.(list ~sep:bar (pp_row_element `R))
-      l
+    match l with
+    | [] -> Fmt.pf formatter "<td></td>"
+    | _ -> (
+        Fmt.pf formatter "%a"
+          Fmt.(list (pp_row_element `R))
+          l
+      )
 
   let pp_a_row formatter (rule : rule) =
     let sep formatter () =
       Fmt.pf formatter ",\\l"
     in
-    Fmt.pf formatter "<%s> #%s : %s[%a]"
+    Fmt.pf formatter {|<td port="%s">#%s : %s[%a]</td>|}
       rule.a_sub_node_name
       rule.a_timepoint
       rule.name
@@ -192,7 +200,31 @@ module Dot_printers = struct
       rule.a
 
   let pp_rule formatter (rule : rule) =
-    Fmt.pf formatter "{{%a}|{%a}|{%a}}"
+    Fmt.pf formatter
+      {|
+      <table border="0" cellspacing="0">
+          <tr>
+              <td>
+                  <table border="0">
+                      <tr>%a</tr>
+                  </table>
+              </td>
+          </tr>
+          <tr>
+              <td>
+                  <table border="0">
+                      <tr>%a</tr>
+                  </table>
+              </td>
+          </tr>
+          <tr>
+              <td>
+                  <table border="0">
+                      <tr>%a</tr>
+                  </table>
+              </td>
+          </tr>
+      </table>|}
       pp_l_row rule.l
       pp_a_row rule
       pp_r_row rule.r
@@ -211,7 +243,7 @@ module Dot_printers = struct
       )
 
   let pp_rule_node formatter (x : rule_node) =
-    Fmt.pf formatter "%s[label=\"%a\"%a]"
+    Fmt.pf formatter "%s[label=<%a>%a]"
       x.name
       pp_rule x.rule
       pp_attrs_prefix_with_comma
@@ -596,7 +628,7 @@ module JSON_parsers = struct
           match typ with
           | "isProtocolRule" | "isIntruderRule" | "isFreshRule" -> (
               let rule = rule_of_json x' in
-              Rule_node { name; rule; attrs = [ ("shape", "record") ] }
+              Rule_node { name; rule; attrs = [ ("shape", "none") ] }
             )
           | "unsolvedActionAtom" -> (
               Node { name; attrs = [ ("label", clean_up_fact_label jgn_label) ] }
