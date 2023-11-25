@@ -189,14 +189,31 @@ module Dot_printers = struct
       )
 
   let pp_a_row formatter (rule : rule) =
-    let sep formatter () =
-      Fmt.pf formatter ",\\l"
+    let pp_term formatter x =
+      Fmt.pf formatter
+        {|<tr><td>%a</td></tr>|}
+        pp_term x
     in
-    Fmt.pf formatter {|<td port="%s" border="1">#%s : %s[%a]</td>|}
+    let pp_terms formatter l =
+      match l with
+      | [] -> Fmt.pf formatter "<tr><td></td></tr>"
+      | _ -> Fmt.pf formatter "%a" Fmt.(list pp_term) l
+    in
+    Fmt.pf formatter
+      {|
+      <td port="%s" border="1">
+          #%s : %s
+      </td>
+      <td border="1">
+          <table border="0" cellborder="0" cellspacing="0" cellpadding="0">
+              %a
+          </table>
+      </td>
+      |}
       rule.a_sub_node_name
       rule.a_timepoint
       rule.name
-      Fmt.(list ~sep pp_term)
+      pp_terms
       rule.a
 
   let pp_rule formatter (rule : rule) =
@@ -225,7 +242,7 @@ module Dot_printers = struct
               </td>
           </tr>
       </table>
-    |}
+      |}
       pp_l_row rule.l
       pp_a_row rule
       pp_r_row rule.r
