@@ -77,7 +77,7 @@ module Graph = struct
     key_values : string String_map.t;
     root_nodes : node String_map.t;
     sub_nodes_of_root_node : String_set.t String_map.t;
-    edges : (node_name * (string * string) list) Node_name_map.t;
+    edges : ((string * string) list) Node_name_map.t Node_name_map.t;
   }
 
   let empty : t =
@@ -109,8 +109,12 @@ module Graph = struct
             |> record_node_name src
             |> record_node_name dst
     in
+    let destinations = Option.value ~default:Node_name_map.empty
+        (Node_name_map.find_opt src t.edges)
+                       |> Node_name_map.add dst attrs
+    in
     { t with
-      edges = Node_name_map.add src (dst, attrs) t.edges;
+      edges = Node_name_map.add src destinations t.edges;
     }
 
   let add_rule_node (name : string) (rule : rule) (t : t) : t =
@@ -436,8 +440,10 @@ module Dot_printers = struct
         | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
       )
       g.root_nodes;
-    Node_name_map.iter (fun src (dst, attrs) ->
-        Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
+    Node_name_map.iter (fun src dsts ->
+        Node_name_map.iter (fun dst attrs ->
+            Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
+          ) dsts
       ) 
       g.edges;
     Fmt.pf formatter "@]@,}@]"
