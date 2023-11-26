@@ -14,8 +14,15 @@ type row_element = [
   | `Term of Tg_ast.term
 ]
 
+type rule_typ = [
+  | `Protocol
+  | `Intruder
+  | `Fresh
+]
+
 type rule = {
   name : string;
+  typ : rule_typ;
   l : (string * row_element) list;
   a_sub_node_name : string;
   a_timepoint : string;
@@ -166,6 +173,22 @@ module Graph = struct
       root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
     }
 
+  let children (x : node_name) t : node_name Seq.t =
+    match Node_name_map.find_opt x t.edges with
+    | None -> Seq.empty
+    | Some dsts -> (
+        Node_name_map.to_seq dsts
+        |> Seq.map fst
+      )
+
+  let parents (x : node_name) t : node_name Seq.t =
+    match Node_name_map.find_opt x t.edges_backward with
+    | None -> Seq.empty
+    | Some srcs -> (
+        Node_name_map.to_seq srcs
+        |> Seq.map fst
+      )
+
   let edges_from (src : node_name) t : edge Seq.t =
     match Node_name_map.find_opt src t.edges with
     | None -> Seq.empty
@@ -213,20 +236,35 @@ module Graph = struct
           )
       ) t
 
-  let remove_root_node (root : string) (t : t) : t =
+  let remove_root_node ~bridge_over (root : string) (t : t) : t =
     t
     |> move_sub_node_edges_to_root_node root
     |> (fun t ->
-        edges_from (root, None) t
-        |> Seq.fold_left (fun t edge ->
-            remove_edge' edge t
-          ) t
+        let parents = parents (root, None) t in
+        let children = children (root, None) t in
+        (if bridge_over then (
+            Seq.fold_left (fun (t : t) { src = parent; attrs; _ } ->
+                Seq.fold_left (fun (t : t) child ->
+                    add_edge parent child attrs t
+                  ) t children
+              ) t
+              (edges_to (root, None) t)
+          ) else (
+           t
+         ))
+        |> (fun t ->
+            Seq.fold_left (fun t parent ->
+                remove_edge parent (root, None) t
+              ) t parents
+          )
+        |> (fun t ->
+            Seq.fold_left (fun t child ->
+                remove_edge (root, None) child t
+              ) t children
+          )
       )
     |> (fun t ->
-        edges_to (root, None) t
-        |> Seq.fold_left (fun t edge ->
-            remove_edge' edge t
-          ) t
+        { t with root_nodes = String_map.remove root t.root_nodes }
       )
 end
 
@@ -238,6 +276,8 @@ module Params = struct
   let in_fact_color = "skyblue"
 
   let out_fact_color = "orange"
+
+  let fr_fact_color = "darkseagreen2"
 end
 
 module Dot_printers = struct
@@ -354,6 +394,7 @@ module Dot_printers = struct
                match name with
                | "In" -> [ ("bgcolor", Params.in_fact_color) ]
                | "Out" -> [ ("bgcolor", Params.out_fact_color) ]
+               | "Fr" -> [ ("bgcolor", Params.fr_fact_color) ]
                | _ -> []
              )
            | _ -> []
@@ -749,45 +790,6 @@ module JSON_parsers = struct
     | `Assoc v -> v
     | _ -> invalid_arg "get_assoc"
 
-  (* let rec term_of_json (x : Yojson.Safe.t) : Tg_ast.term =
-     let l = get_assoc x in
-        match List.assoc_opt "jgnFactName" l with
-        | Some f -> (
-          let f = get_string f in
-            let args = List.assoc "jgnFactTerms" l
-        |> get_list
-                       |> List.map term_of_json
-            in
-            T_app { path = [ Loc.untagged f ]; name = `Local 0; named_args = []; args; anno = None }
-          )
-        | None -> (
-            match List.assoc_opt "jgnFunct" l with
-            | Some f -> (
-              let f = get_string f in
-            let args = List.assoc "jgnFactTerms" l
-        |> get_list
-                       |> List.map term_of_json
-            in
-            match f with
-            | "pair" -> (
-              T_tuple (None, args)
-            )
-            | _ -> (
-            T_app { path = [ Loc.untagged f ]; name = `Local 0; named_args = []; args; anno = None }
-            )
-            )
-            | None -> (
-              match List.assoc_opt "jgnConst" l with
-              | Some s -> (
-                let s = get_string s in
-                match Angstrom.parse_string ~consume:Angstrom.Consume.All Parsers.simple_term_p s with
-                | Error msg -> invalid_arg msg
-                | Ok x -> x
-              )
-              | None -> invalid_arg (Fmt.str "term_of_json: Unrecognized term structure %a" Yojson.Safe.pp x)
-            )
-          ) *)
-
   let fact_of_json (x : Yojson.Safe.t) : Tg_ast.term =
     let x = get_assoc x in
     let s = List.assoc "jgnFactShow" x
@@ -799,6 +801,13 @@ module JSON_parsers = struct
     let x = get_assoc x in
     let metadata = List.assoc "jgnMetadata" x
                    |> get_assoc
+    in
+    let typ =
+      match List.assoc "jgnType" x |> get_string with
+      | "isProtocolRule" -> `Protocol
+      | "isIntruderRule" -> `Intruder
+      | "isFreshRule" -> `Fresh
+      | x -> invalid_arg (Fmt.str "rule_of_json: Invalid jgnType for rule: %s" x)
     in
     let compute_sub_node_name x =
       x
@@ -831,6 +840,7 @@ module JSON_parsers = struct
                           Option.value ~default:s (CCString.chop_prefix ~pre:"#" s))
     in
     { name = get_string @@ List.assoc "jgnLabel" x;
+      typ;
       l = row_l;
       a_sub_node_name = Fmt.str "n%d" (get_num ());
       a_timepoint;
@@ -905,27 +915,28 @@ module JSON_parsers = struct
               Graph.add_text_node name (clean_up_fact_label jgn_label) graph
             )
           | _ -> (
-              if CCString.prefix ~pre:"Constrc_" jgn_label then (
-                let label = List.assoc "jgnConcs" metadata
+              (* if CCString.prefix ~pre:"Constrc_" jgn_label then (
+                 let label = List.assoc "jgnConcs" metadata
                             |> get_list
                             |> List.hd
                             |> get_assoc
                             |> List.assoc "jgnFactShow"
                             |> get_string
-                in
-                Graph.add_text_node name (clean_up_fact_label label) graph
-              ) else if CCString.prefix ~pre:"Destrd_" jgn_label then (
-                let label = List.assoc "jgnConcs" metadata
+                 in
+                 Graph.add_text_node name (clean_up_fact_label label) graph
+                 ) else if CCString.prefix ~pre:"Destrd_" jgn_label then (
+                 let label = List.assoc "jgnConcs" metadata
                             |> get_list
                             |> List.hd
                             |> get_assoc
                             |> List.assoc "jgnFactShow"
                             |> get_string
-                in
-                Graph.add_text_node name (clean_up_fact_label label) graph
-              ) else (
-                invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
-              )
+                 in
+                 Graph.add_text_node name (clean_up_fact_label label) graph
+                 ) else (
+                 invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
+                 ) *)
+              invalid_arg (Fmt.str "Unrecognized jgnType: %s" typ)
             )
         )
         graph
@@ -1036,25 +1047,6 @@ module Rewrite = struct
         | "St" -> `Empty
         | _ -> raise Fail
       in
-      (* let (pid, vertex, frame) =
-         match args with
-         | [ pid; T_value vertex; frame ] -> (
-            (pid,
-             (match Loc.content vertex with
-              | `Str vertex -> vertex
-              | _ -> raise Fail),
-             (match frame with
-              | T_value x -> (
-                  match Loc.content x with
-                  | `Str "empty_tuple" -> []
-                  | _ -> raise Fail
-                )
-              | T_tuple (_loc, l) -> l
-              | _ -> raise Fail)
-            )
-          )
-         | _ -> raise Fail
-         in *)
       let vertex =
         match args with
         | [ _pid; T_value vertex; _frame ] -> (
@@ -1103,17 +1095,44 @@ module Rewrite = struct
         { rule with l; r }
       )
 
-  let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
-    let root_nodes =
-      String_map.map (fun node ->
+  module Stages = struct
+    let rewrite_rules (spec : Spec.t) (g : Graph.t) : Graph.t =
+      let root_nodes =
+        String_map.map (fun node ->
+            match node with
+            | `Rule { name; rule; attrs } ->
+              `Rule { name; rule = rewrite_rule spec rule; attrs }
+            | _ -> node
+          )
+          g.root_nodes
+      in
+      { g with root_nodes }
+
+    let simplify (g : Graph.t) : Graph.t =
+      String_map.to_seq g.root_nodes
+      |> Seq.fold_left (fun g (name, node) ->
           match node with
-          | `Rule { name; rule; attrs } ->
-            `Rule { name; rule = rewrite_rule spec rule; attrs }
-          | _ -> node
+          | `Rule { name; rule; attrs } -> (
+              match rule.typ with
+              | `Protocol -> (
+                  g
+                )
+              | `Intruder -> (
+                  g
+                )
+              | `Fresh -> (
+                  Graph.remove_root_node ~bridge_over:false name g
+                )
+            )
+          | `Text _ -> g
         )
-        g.root_nodes
-    in
-    { g with root_nodes }
+        g
+  end
+
+  let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
+    g
+    |> Stages.rewrite_rules spec
+    |> Stages.simplify
 end
 
 let run () =
