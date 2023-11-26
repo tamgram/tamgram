@@ -29,10 +29,16 @@ type rule_node = {
   attrs : (string * string) list;
 }
 
-type node = {
+type text_node = {
   name : string;
+  value : string;
   attrs : (string * string) list;
 }
+
+type node = [
+  | `Rule of rule_node
+  | `Text of text_node
+]
 
 type edge = {
   src : string * string option;
@@ -40,13 +46,85 @@ type edge = {
   attrs : (string * string) list;
 }
 
-type item =
+(* type item =
   | Kv of (string * string)
   | Node_settings of (string * string) list
   | Edge_settings of (string * string) list
   | Rule_node of rule_node
   | Node of node
-  | Edge of edge
+  | Edge of edge *)
+
+type node_name = string * string option
+
+module Node_name_map = CCMap.Make (struct
+  type t = node_name
+
+  let compare ((x_root, x_sub) : t) ((y_root, y_sub) : t) =
+    let r = String.compare x_root y_root in
+    if r = 0 then (
+    match x_sub, y_sub with
+    | None, None -> String.compare x_root y_root
+    | Some _, None -> -1
+    | None, Some _ -> 1
+    | Some x, Some y -> String.compare x y
+    ) else (
+      r
+    )
+end)
+
+module Graph = struct
+type t = {
+  key_values : string String_map.t;
+  root_nodes : node String_map.t;
+  sub_nodes_of_root_node : String_set.t String_map.t;
+  edges : (node_name * (string * string) list) Node_name_map.t;
+}
+
+let empty : t =
+  { key_values = String_map.empty;
+  root_nodes = String_map.empty;
+  sub_nodes_of_root_node = String_map.empty;
+  edges = Node_name_map.empty;
+  }
+
+let record_node_name ((root, sub) : node_name) (t : t) : t =
+  match sub with
+  | None -> t
+  | Some sub -> (
+  let sub_nodes =
+    Option.value ~default:String_set.empty
+    (String_map.find_opt root t.sub_nodes_of_root_node)
+    |> String_set.add sub
+  in
+  { t with
+    sub_nodes_of_root_node = String_map.add root sub_nodes t.sub_nodes_of_root_node
+  }
+  )
+
+let add_kv (k : string) (v : string) (t : t) : t =
+  { t with key_values = String_map.add k v t.key_values }
+
+let add_edge (src : node_name) (dst : node_name) (attrs : (string * string) list) (t : t) : t =
+  let t = t
+  |> record_node_name src
+  |> record_node_name dst
+  in
+  { t with
+    edges = Node_name_map.add src (dst, attrs) t.edges;
+  }
+
+let add_rule_node (name : string) (rule : rule) (t : t) : t =
+  let attrs = [ ("shape", "none") ] in
+  { t with
+    root_nodes = String_map.add name (`Rule { name; rule; attrs }) t.root_nodes
+  }
+
+let add_text_node (name : string) (value : string) (t : t) : t =
+  let attrs = [] in
+  { t with
+    root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
+  }
+end
 
 type row = [ `L | `R ]
 
@@ -327,10 +405,10 @@ module Dot_printers = struct
       pp_attrs_prefix_with_comma
       x.attrs
 
-  let pp_node formatter (x : node) =
+  let pp_text_node formatter (x : text_node) =
     Fmt.pf formatter "%s[%a]"
       x.name
-      pp_attrs x.attrs
+      pp_attrs (("label", x.value) :: x.attrs)
 
   let pp_edge_target formatter ((node, sub_node) : string * string option) =
     match sub_node with
@@ -345,20 +423,28 @@ module Dot_printers = struct
       x.dst
       pp_attrs x.attrs
 
-  let pp_item formatter (item : item) =
+  let pp_graph formatter (g : Graph.t) =
+    Fmt.pf formatter "@[<v>digraph G {@,@]";
+    Fmt.pf formatter "  @[<v>";
+    String_map.iter (fun k v ->
+      Fmt.pf formatter "@[<h>%a@]@," pp_kv (k, v)
+    )
+    g.key_values;
+    String_map.iter (fun _name node ->
+      match node with
+      | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
+      | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
+    )
+    g.root_nodes;
+    Node_name_map.iter (fun src (dst, attrs) ->
+      Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
+    ) 
+    g.edges;
+    Fmt.pf formatter "@]@,}@]"
+
+  (* let pp_item formatter (item : item) =
     Fmt.pf formatter "@[<h>";
     (match item with
-     | Kv (k, v) -> (
-         pp_kv formatter (k, v)
-       )
-     | Node_settings attrs -> (
-         Fmt.pf formatter "node[%a]"
-           pp_attrs attrs
-       )
-     | Edge_settings attrs -> (
-         Fmt.pf formatter "edge[%a]"
-           pp_attrs attrs
-       )
      | Rule_node rule_node -> (
          pp_rule_node formatter rule_node
        )
@@ -369,13 +455,13 @@ module Dot_printers = struct
          pp_edge formatter edge
        )
     );
-    Fmt.pf formatter ";@,@]"
+    Fmt.pf formatter ";@,@]" *)
 
-  let pp_full formatter (items : item list) =
+  (* let pp_full formatter (items : item list) =
     Fmt.pf formatter "@[<v>digraph G {@,@]";
     Fmt.pf formatter "  @[<v>%a"
       Fmt.(list pp_item) items;
-    Fmt.pf formatter "@]@,}@]"
+    Fmt.pf formatter "@]@,}@]" *)
 end
 
 let call_dot (args : string list) =
@@ -510,7 +596,7 @@ let rule_indices_of_rule_name (s : string) : (int option * int * int option) opt
   in
   aux None parts
 
-let dot_node_name_of_json_node_id : string -> string * string option =
+let node_name_of_json_node_id : string -> node_name =
   let tbl : (string, string * string option) Hashtbl.t = Hashtbl.create 1024 in
   fun s ->
     let (node, sub_node) =
@@ -613,7 +699,7 @@ module JSON_parsers = struct
       |> get_assoc
       |> List.assoc "jgnFactId"
       |> get_string
-      |> dot_node_name_of_json_node_id
+      |> node_name_of_json_node_id
       |> snd
       |> Option.get
     in
@@ -646,25 +732,26 @@ module JSON_parsers = struct
       r = row_r;
     }
 
-  let items_of_json (x : Yojson.Safe.t) : item list =
+  let graph_of_json (x : Yojson.Safe.t) : Graph.t =
     let x = get_assoc x in
-    let graph = List.assoc "graphs" x
+    let json_graph = List.assoc "graphs" x
                 |> get_list
                 |> List.hd
                 |> get_assoc
     in
-    let edges =
-      List.assoc "jgEdges" graph
+    let graph = Graph.empty in
+    let graph =
+      List.assoc "jgEdges" json_graph
       |> get_list
-      |> List.map (fun x ->
+      |> List.fold_left (fun graph x ->
           let x = get_assoc x in
           let src = List.assoc "jgeSource" x
                     |> get_string
-                    |> dot_node_name_of_json_node_id
+                    |> node_name_of_json_node_id
           in
           let dst = List.assoc "jgeTarget" x
                     |> get_string
-                    |> dot_node_name_of_json_node_id
+                    |> node_name_of_json_node_id
           in
           let attrs =
             match get_string @@ List.assoc "jgeRelation" x with
@@ -680,18 +767,19 @@ module JSON_parsers = struct
               [ ("color", "red"); ("style", "dashed")]
             | any -> invalid_arg (Fmt.str "items_of_json: Unrecognized jgeRelation: %s" any)
           in
-          Edge { src; dst; attrs; }
+          Graph.add_edge src dst attrs graph
         )
+      graph
     in
     let clean_up_fact_label label =
       label
       |> term_of_string
       |> Fmt.str "%a" Dot_printers.pp_term
     in
-    let nodes =
-      List.assoc "jgNodes" graph
+    let graph =
+      List.assoc "jgNodes" json_graph
       |> get_list
-      |> List.map (fun x' ->
+      |> List.fold_left (fun graph x' ->
           let x = get_assoc x' in
           let typ = List.assoc "jgnType" x |> get_string in
           let metadata = List.assoc "jgnMetadata" x
@@ -700,33 +788,18 @@ module JSON_parsers = struct
           let jgn_label = List.assoc "jgnLabel" x |> get_string in
           let name = List.assoc "jgnId" x
                      |> get_string
-                     |> dot_node_name_of_json_node_id
+                     |> node_name_of_json_node_id
                      |> fst
           in
           match typ with
           | "isProtocolRule" | "isIntruderRule" | "isFreshRule" -> (
-              let rule = rule_of_json x' in
-              Rule_node { name; rule; attrs = [ ("shape", "none") ] }
+              Graph.add_rule_node name (rule_of_json x') graph
             )
           | "unsolvedActionAtom" -> (
-              Node { name; attrs = [ ("label", clean_up_fact_label jgn_label) ] }
+            Graph.add_text_node name (clean_up_fact_label jgn_label) graph
             )
           | _ -> (
-              match jgn_label with
-              (* | "Send" -> Node { name; attrs = [ ("label", "send") ] }
-                 | "Recv" -> Node { name; attrs = [ ("label", "recv") ] }
-                 | "Coerce" -> Node { name; attrs = [ ("label", "coerce") ] } *)
-              (* | "FreshRule" -> (
-                  let label = List.assoc "jgnConcs" metadata
-                             |> get_list
-                             |> List.hd
-                             |> get_assoc
-                             |> List.assoc "jgnFactShow"
-                             |> get_string
-                  in
-                  Node { name; attrs = [] }
-                 ) *)
-              | x when CCString.prefix ~pre:"Constrc_" x -> (
+            if CCString.prefix ~pre:"Constrc_" jgn_label then (
                   let label = List.assoc "jgnConcs" metadata
                               |> get_list
                               |> List.hd
@@ -734,9 +807,8 @@ module JSON_parsers = struct
                               |> List.assoc "jgnFactShow"
                               |> get_string
                   in
-                  Node { name; attrs = [ ("label", clean_up_fact_label label) ] }
-                )
-              | x when CCString.prefix ~pre:"Destrd_" x -> (
+                  Graph.add_text_node name (clean_up_fact_label label) graph
+            ) else if CCString.prefix ~pre:"Destrd_" jgn_label then (
                   let label = List.assoc "jgnConcs" metadata
                               |> get_list
                               |> List.hd
@@ -744,13 +816,15 @@ module JSON_parsers = struct
                               |> List.assoc "jgnFactShow"
                               |> get_string
                   in
-                  Node { name; attrs = [ ("label", clean_up_fact_label label) ] }
-                )
-              | _ -> invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
+                  Graph.add_text_node name (clean_up_fact_label label) graph
+            ) else (
+              invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
+            )
             )
         )
+      graph
     in
-    nodes @ edges
+    graph
 end
 
 module Rewrite = struct
@@ -923,12 +997,17 @@ module Rewrite = struct
         { rule with l; r }
       )
 
-  let item (spec : Spec.t) (x : item) : item =
-    match x with
-    | Rule_node { name; rule; attrs } -> (
-        Rule_node { name; rule = rewrite_rule spec rule; attrs }
-      )
-    | _ -> x
+  let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
+    let root_nodes =
+    String_map.map (fun node ->
+      match node with
+      | `Rule { name; rule; attrs } ->
+        `Rule { name; rule = rewrite_rule spec rule; attrs }
+      | _ -> node
+    )
+    g.root_nodes
+    in
+    { g with root_nodes }
 end
 
 let run () =
@@ -956,20 +1035,19 @@ let run () =
       let res =
         let* root = Modul_load.from_file tg_file in
         let+ spec =  Tg.run_pipeline (Spec.make root) in
-        let items = JSON_parsers.items_of_json json
-                    |> (fun l ->
-                        [ Kv ("nodesep", "0.3"); Kv ("ranksep", "0.3") ] @ l
-                      )
+        let graph = JSON_parsers.graph_of_json json
+                    |> Graph.add_kv "nodesep" "0.3"
+                    |> Graph.add_kv "ranksep" "0.3"
         in
-        List.map (Rewrite.item spec) items
+        Rewrite.graph spec graph
       in
       match res with
       | Error _ -> invalid_arg "Failed to parse Tamgram file"
-      | Ok items -> (
+      | Ok graph -> (
           (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json"); *)
           CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
               let formatter = Format.formatter_of_out_channel oc in
-              Fmt.pf formatter "%a@." Dot_printers.pp_full items
+              Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
             );
           exit (call_dot [ "-Tpng"; "-o"; "tamgram-test1.png"; "tamgram-test1.dot" ])
         )
