@@ -47,83 +47,83 @@ type edge = {
 }
 
 (* type item =
-  | Kv of (string * string)
-  | Node_settings of (string * string) list
-  | Edge_settings of (string * string) list
-  | Rule_node of rule_node
-  | Node of node
-  | Edge of edge *)
+   | Kv of (string * string)
+   | Node_settings of (string * string) list
+   | Edge_settings of (string * string) list
+   | Rule_node of rule_node
+   | Node of node
+   | Edge of edge *)
 
 type node_name = string * string option
 
 module Node_name_map = CCMap.Make (struct
-  type t = node_name
+    type t = node_name
 
-  let compare ((x_root, x_sub) : t) ((y_root, y_sub) : t) =
-    let r = String.compare x_root y_root in
-    if r = 0 then (
-    match x_sub, y_sub with
-    | None, None -> String.compare x_root y_root
-    | Some _, None -> -1
-    | None, Some _ -> 1
-    | Some x, Some y -> String.compare x y
-    ) else (
-      r
-    )
-end)
+    let compare ((x_root, x_sub) : t) ((y_root, y_sub) : t) =
+      let r = String.compare x_root y_root in
+      if r = 0 then (
+        match x_sub, y_sub with
+        | None, None -> String.compare x_root y_root
+        | Some _, None -> -1
+        | None, Some _ -> 1
+        | Some x, Some y -> String.compare x y
+      ) else (
+        r
+      )
+  end)
 
 module Graph = struct
-type t = {
-  key_values : string String_map.t;
-  root_nodes : node String_map.t;
-  sub_nodes_of_root_node : String_set.t String_map.t;
-  edges : (node_name * (string * string) list) Node_name_map.t;
-}
-
-let empty : t =
-  { key_values = String_map.empty;
-  root_nodes = String_map.empty;
-  sub_nodes_of_root_node = String_map.empty;
-  edges = Node_name_map.empty;
+  type t = {
+    key_values : string String_map.t;
+    root_nodes : node String_map.t;
+    sub_nodes_of_root_node : String_set.t String_map.t;
+    edges : (node_name * (string * string) list) Node_name_map.t;
   }
 
-let record_node_name ((root, sub) : node_name) (t : t) : t =
-  match sub with
-  | None -> t
-  | Some sub -> (
-  let sub_nodes =
-    Option.value ~default:String_set.empty
-    (String_map.find_opt root t.sub_nodes_of_root_node)
-    |> String_set.add sub
-  in
-  { t with
-    sub_nodes_of_root_node = String_map.add root sub_nodes t.sub_nodes_of_root_node
-  }
-  )
+  let empty : t =
+    { key_values = String_map.empty;
+      root_nodes = String_map.empty;
+      sub_nodes_of_root_node = String_map.empty;
+      edges = Node_name_map.empty;
+    }
 
-let add_kv (k : string) (v : string) (t : t) : t =
-  { t with key_values = String_map.add k v t.key_values }
+  let record_node_name ((root, sub) : node_name) (t : t) : t =
+    match sub with
+    | None -> t
+    | Some sub -> (
+        let sub_nodes =
+          Option.value ~default:String_set.empty
+            (String_map.find_opt root t.sub_nodes_of_root_node)
+          |> String_set.add sub
+        in
+        { t with
+          sub_nodes_of_root_node = String_map.add root sub_nodes t.sub_nodes_of_root_node
+        }
+      )
 
-let add_edge (src : node_name) (dst : node_name) (attrs : (string * string) list) (t : t) : t =
-  let t = t
-  |> record_node_name src
-  |> record_node_name dst
-  in
-  { t with
-    edges = Node_name_map.add src (dst, attrs) t.edges;
-  }
+  let add_kv (k : string) (v : string) (t : t) : t =
+    { t with key_values = String_map.add k v t.key_values }
 
-let add_rule_node (name : string) (rule : rule) (t : t) : t =
-  let attrs = [ ("shape", "none") ] in
-  { t with
-    root_nodes = String_map.add name (`Rule { name; rule; attrs }) t.root_nodes
-  }
+  let add_edge (src : node_name) (dst : node_name) (attrs : (string * string) list) (t : t) : t =
+    let t = t
+            |> record_node_name src
+            |> record_node_name dst
+    in
+    { t with
+      edges = Node_name_map.add src (dst, attrs) t.edges;
+    }
 
-let add_text_node (name : string) (value : string) (t : t) : t =
-  let attrs = [] in
-  { t with
-    root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
-  }
+  let add_rule_node (name : string) (rule : rule) (t : t) : t =
+    let attrs = [ ("shape", "none") ] in
+    { t with
+      root_nodes = String_map.add name (`Rule { name; rule; attrs }) t.root_nodes
+    }
+
+  let add_text_node (name : string) (value : string) (t : t) : t =
+    let attrs = [] in
+    { t with
+      root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
+    }
 end
 
 type row = [ `L | `R ]
@@ -427,24 +427,24 @@ module Dot_printers = struct
     Fmt.pf formatter "@[<v>digraph G {@,@]";
     Fmt.pf formatter "  @[<v>";
     String_map.iter (fun k v ->
-      Fmt.pf formatter "@[<h>%a@]@," pp_kv (k, v)
-    )
-    g.key_values;
+        Fmt.pf formatter "@[<h>%a@]@," pp_kv (k, v)
+      )
+      g.key_values;
     String_map.iter (fun _name node ->
-      match node with
-      | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
-      | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
-    )
-    g.root_nodes;
+        match node with
+        | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
+        | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
+      )
+      g.root_nodes;
     Node_name_map.iter (fun src (dst, attrs) ->
-      Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
-    ) 
-    g.edges;
+        Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
+      ) 
+      g.edges;
     Fmt.pf formatter "@]@,}@]"
 
   (* let pp_item formatter (item : item) =
-    Fmt.pf formatter "@[<h>";
-    (match item with
+     Fmt.pf formatter "@[<h>";
+     (match item with
      | Rule_node rule_node -> (
          pp_rule_node formatter rule_node
        )
@@ -454,14 +454,14 @@ module Dot_printers = struct
      | Edge edge -> (
          pp_edge formatter edge
        )
-    );
-    Fmt.pf formatter ";@,@]" *)
+     );
+     Fmt.pf formatter ";@,@]" *)
 
   (* let pp_full formatter (items : item list) =
-    Fmt.pf formatter "@[<v>digraph G {@,@]";
-    Fmt.pf formatter "  @[<v>%a"
+     Fmt.pf formatter "@[<v>digraph G {@,@]";
+     Fmt.pf formatter "  @[<v>%a"
       Fmt.(list pp_item) items;
-    Fmt.pf formatter "@]@,}@]" *)
+     Fmt.pf formatter "@]@,}@]" *)
 end
 
 let call_dot (args : string list) =
@@ -735,9 +735,9 @@ module JSON_parsers = struct
   let graph_of_json (x : Yojson.Safe.t) : Graph.t =
     let x = get_assoc x in
     let json_graph = List.assoc "graphs" x
-                |> get_list
-                |> List.hd
-                |> get_assoc
+                     |> get_list
+                     |> List.hd
+                     |> get_assoc
     in
     let graph = Graph.empty in
     let graph =
@@ -769,7 +769,7 @@ module JSON_parsers = struct
           in
           Graph.add_edge src dst attrs graph
         )
-      graph
+        graph
     in
     let clean_up_fact_label label =
       label
@@ -796,33 +796,33 @@ module JSON_parsers = struct
               Graph.add_rule_node name (rule_of_json x') graph
             )
           | "unsolvedActionAtom" -> (
-            Graph.add_text_node name (clean_up_fact_label jgn_label) graph
+              Graph.add_text_node name (clean_up_fact_label jgn_label) graph
             )
           | _ -> (
-            if CCString.prefix ~pre:"Constrc_" jgn_label then (
-                  let label = List.assoc "jgnConcs" metadata
-                              |> get_list
-                              |> List.hd
-                              |> get_assoc
-                              |> List.assoc "jgnFactShow"
-                              |> get_string
-                  in
-                  Graph.add_text_node name (clean_up_fact_label label) graph
-            ) else if CCString.prefix ~pre:"Destrd_" jgn_label then (
-                  let label = List.assoc "jgnConcs" metadata
-                              |> get_list
-                              |> List.hd
-                              |> get_assoc
-                              |> List.assoc "jgnFactShow"
-                              |> get_string
-                  in
-                  Graph.add_text_node name (clean_up_fact_label label) graph
-            ) else (
-              invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
-            )
+              if CCString.prefix ~pre:"Constrc_" jgn_label then (
+                let label = List.assoc "jgnConcs" metadata
+                            |> get_list
+                            |> List.hd
+                            |> get_assoc
+                            |> List.assoc "jgnFactShow"
+                            |> get_string
+                in
+                Graph.add_text_node name (clean_up_fact_label label) graph
+              ) else if CCString.prefix ~pre:"Destrd_" jgn_label then (
+                let label = List.assoc "jgnConcs" metadata
+                            |> get_list
+                            |> List.hd
+                            |> get_assoc
+                            |> List.assoc "jgnFactShow"
+                            |> get_string
+                in
+                Graph.add_text_node name (clean_up_fact_label label) graph
+              ) else (
+                invalid_arg (Fmt.str "Unrecognized jgnLabel: %s" jgn_label)
+              )
             )
         )
-      graph
+        graph
     in
     graph
 end
@@ -999,13 +999,13 @@ module Rewrite = struct
 
   let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
     let root_nodes =
-    String_map.map (fun node ->
-      match node with
-      | `Rule { name; rule; attrs } ->
-        `Rule { name; rule = rewrite_rule spec rule; attrs }
-      | _ -> node
-    )
-    g.root_nodes
+      String_map.map (fun node ->
+          match node with
+          | `Rule { name; rule; attrs } ->
+            `Rule { name; rule = rewrite_rule spec rule; attrs }
+          | _ -> node
+        )
+        g.root_nodes
     in
     { g with root_nodes }
 end
