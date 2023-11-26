@@ -50,6 +50,14 @@ type item =
 
 type row = [ `L | `R ]
 
+module Params = struct
+  let proc_ctx_color = "gray80"
+
+  let in_fact_color = "skyblue"
+
+  let out_fact_color = "orange"
+end
+
 module Dot_printers = struct
   let bar formatter _ =
     Fmt.pf formatter "|"
@@ -135,10 +143,13 @@ module Dot_printers = struct
 
   let pp_row_element (row : row) formatter ((sub_node, row_element) : (string * row_element)) =
     let pp_def formatter ((cell, term) : string * Tg_ast.term) =
-      Fmt.pf formatter "%s := %a" cell pp_term term
+      Fmt.pf formatter {|<tr><td align="left">'%s := %a</td></tr>|} cell pp_term term
+    in
+    let pp_undef formatter (cell : string) =
+      Fmt.pf formatter {|<tr><td align="left">undef('%s)</td></tr>|} cell
     in
     let pp_pat_match formatter ((cell, term) : string * Tg_ast.term) =
-      Fmt.pf formatter "%s cas %a" cell pp_term term
+      Fmt.pf formatter "<tr><td>'%s cas %a</td></tr>" cell pp_term term
     in
     let pp_prop formatter ((k, v) : string * string) =
       Fmt.pf formatter "%s=\"%s\"" k v
@@ -148,10 +159,26 @@ module Dot_printers = struct
     in
     let props =
       match row_element with
-      | `Empty_init_ctx -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
-      | `Defs_and_undefs _ -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
-      | `Pat_matches _ -> [ ("port", sub_node); ("border", "1"); ("bgcolor", "#b4db99") ]
-      | `Term _ -> [ ("port", sub_node); ("border", "1") ]
+      | `Empty_init_ctx
+      | `Defs_and_undefs _
+      | `Pat_matches _ ->
+        [ ("port", sub_node)
+        ; ("border", "1")
+        ; ("bgcolor", Params.proc_ctx_color) ]
+      | `Term x -> (
+          (match x with
+           | T_app { path = [ name ]; args; _ } -> (
+               let name = Loc.content name in
+               match name with
+               | "In" -> [ ("bgcolor", Params.in_fact_color) ]
+               | "Out" -> [ ("bgcolor", Params.out_fact_color) ]
+               | _ -> []
+             )
+           | _ -> []
+          )
+          @
+          [ ("port", sub_node); ("border", "1") ]
+        )
     in
     Fmt.pf formatter {|<td %a>%a</td>|}
       pp_props props
@@ -165,24 +192,28 @@ module Dot_printers = struct
              | [], [] -> (
                  Fmt.pf formatter "Unchanged ctx"
                )
-             | _, [] -> (
-                 Fmt.pf formatter "%a"
-                   Fmt.(list ~sep:comma pp_def) defs
-               )
-             | [], _ -> (
-                 Fmt.pf formatter "undefs: %a"
-                   Fmt.(list ~sep:comma string) undefs
-               )
              | _, _ -> (
-                 Fmt.pf formatter "%a | undefs: %a"
+                 Fmt.pf formatter {|<table %a>|}
+                   pp_props
+                   [ ("border", "0")
+                   ; ("cellborder", "0")
+                   ; ("cellspacing", "0")
+                   ; ("cellpadding", "0")
+                   ];
+                 Fmt.pf formatter "%a%a"
                    Fmt.(list ~sep:comma pp_def) defs
-                   Fmt.(list ~sep:comma string) undefs
+                   Fmt.(list ~sep:comma pp_undef) undefs;
+                 Fmt.pf formatter "</table>"
                )
            )
          | `Pat_matches l -> (
              match l with
              | [] -> Fmt.pf formatter "..."
-             | _ -> Fmt.pf formatter "%a" Fmt.(list ~sep:comma pp_pat_match) l
+             | _ -> (
+                 Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
+                 Fmt.pf formatter "%a" Fmt.(list pp_pat_match) l;
+                 Fmt.pf formatter "</table>"
+               )
            )
          | `Term x -> (
              Fmt.pf formatter "%a" pp_term x
@@ -224,48 +255,57 @@ module Dot_printers = struct
       <td port="%s" border="1">
           #%s : %s
       </td>
+      |}
+      rule.a_sub_node_name
+      rule.a_timepoint
+      rule.name
+    ;
+    (match rule.a with
+     | [] -> ()
+     | _ -> (
+         Fmt.pf formatter
+           {|
       <td border="1">
           <table border="0" cellborder="0" cellspacing="0" cellpadding="0">
               %a
           </table>
       </td>
       |}
-      rule.a_sub_node_name
-      rule.a_timepoint
-      rule.name
-      pp_terms
-      rule.a
+           pp_terms
+           rule.a
+       )
+    )
 
   let pp_rule formatter (rule : rule) =
+    Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
     Fmt.pf formatter
-      {|
-      <table border="0" cellborder="0" cellspacing="0" cellpadding="0">
-          <tr>
+      {|<tr>
               <td>
                   <table border="0" cellspacing="0">
                       <tr>%a</tr>
                   </table>
               </td>
-          </tr>
-          <tr>
+        </tr>|}
+      pp_l_row rule.l;
+    Fmt.pf formatter
+      {|<tr>
               <td>
                   <table border="0" cellspacing="0">
                       <tr>%a</tr>
                   </table>
               </td>
-          </tr>
-          <tr>
+        </tr>|}
+      pp_a_row rule;
+    Fmt.pf formatter
+      {|<tr>
               <td>
                   <table border="0" cellspacing="0">
                       <tr>%a</tr>
                   </table>
               </td>
-          </tr>
-      </table>
-      |}
-      pp_l_row rule.l
-      pp_a_row rule
-      pp_r_row rule.r
+        </tr>|}
+      pp_r_row rule.r;
+    Fmt.pf formatter {|</table>|}
 
   let pp_kv formatter ((k, v) : string * string) =
     Fmt.pf formatter "%s=\"%s\"" k v
@@ -916,7 +956,11 @@ let run () =
       let res =
         let* root = Modul_load.from_file tg_file in
         let+ spec =  Tg.run_pipeline (Spec.make root) in
-        let items = JSON_parsers.items_of_json json in
+        let items = JSON_parsers.items_of_json json
+                    |> (fun l ->
+                        [ Kv ("nodesep", "0.3"); Kv ("ranksep", "0.3") ] @ l
+                      )
+        in
         List.map (Rewrite.item spec) items
       in
       match res with
