@@ -78,6 +78,7 @@ module Graph = struct
     root_nodes : node String_map.t;
     sub_nodes_of_root_node : String_set.t String_map.t;
     edges : ((string * string) list) Node_name_map.t Node_name_map.t;
+    edges_backward : ((string * string) list) Node_name_map.t Node_name_map.t;
   }
 
   let empty : t =
@@ -85,6 +86,7 @@ module Graph = struct
       root_nodes = String_map.empty;
       sub_nodes_of_root_node = String_map.empty;
       edges = Node_name_map.empty;
+      edges_backward = Node_name_map.empty;
     }
 
   let record_node_name ((root, sub) : node_name) (t : t) : t =
@@ -109,13 +111,48 @@ module Graph = struct
             |> record_node_name src
             |> record_node_name dst
     in
-    let destinations = Option.value ~default:Node_name_map.empty
-        (Node_name_map.find_opt src t.edges)
-                       |> Node_name_map.add dst attrs
+    let edges =
+      let destinations =
+        Option.value ~default:Node_name_map.empty
+          (Node_name_map.find_opt src t.edges)
+        |> Node_name_map.add dst attrs
+      in
+      Node_name_map.add src destinations t.edges
+    in
+    let edges_backward =
+      let sources =
+        Option.value ~default:Node_name_map.empty
+          (Node_name_map.find_opt dst t.edges_backward)
+        |> Node_name_map.add src attrs
+      in
+      Node_name_map.add dst sources t.edges_backward
     in
     { t with
-      edges = Node_name_map.add src destinations t.edges;
+      edges;
+      edges_backward;
     }
+
+  let remove_edge (src : node_name) (dst : node_name) (t : t) : t =
+    t
+    |> (fun t ->
+        match Node_name_map.find_opt src t.edges with
+        | None -> t
+        | Some dsts -> (
+            let dsts = Node_name_map.remove dst dsts in
+            { t with edges = Node_name_map.add src dsts t.edges }
+          )
+      )
+    |> (fun t ->
+        match Node_name_map.find_opt dst t.edges_backward with
+        | None -> t
+        | Some srcs -> (
+            let srcs = Node_name_map.remove src srcs in
+            { t with edges_backward = Node_name_map.add dst srcs t.edges_backward }
+          )
+      )
+
+  let remove_edge' ({ src; dst; _ } : edge) (t : t) : t =
+    remove_edge src dst t
 
   let add_rule_node (name : string) (rule : rule) (t : t) : t =
     let attrs = [ ("shape", "none") ] in
@@ -128,6 +165,69 @@ module Graph = struct
     { t with
       root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
     }
+
+  let edges_from (src : node_name) t : edge Seq.t =
+    match Node_name_map.find_opt src t.edges with
+    | None -> Seq.empty
+    | Some dsts -> (
+        Node_name_map.to_seq dsts
+        |> Seq.map (fun (dst, attrs) ->
+            { src; dst; attrs }
+          )
+      )
+
+  let edges_to (dst : node_name) t : edge Seq.t =
+    match Node_name_map.find_opt dst t.edges_backward with
+    | None -> Seq.empty
+    | Some srcs -> (
+        Node_name_map.to_seq srcs
+        |> Seq.map (fun (src, attrs) ->
+            { src; dst; attrs }
+          )
+      )
+
+  let move_sub_node_edges_to_root_node (root : string) (t : t) : t =
+    let sub_nodes = Option.value ~default:String_set.empty
+        (String_map.find_opt root t.sub_nodes_of_root_node)
+    in
+    String_set.to_seq sub_nodes
+    |> Seq.fold_left (fun t sub_node ->
+        t
+        |> (fun t ->
+            edges_from (root, Some sub_node) t
+            |> Seq.fold_left (fun t { src; dst; attrs } ->
+                t
+                |> remove_edge src dst
+                |> add_edge (root, None) dst attrs
+              )
+              t
+          )
+        |> (fun t ->
+            edges_to (root, Some sub_node) t
+            |> Seq.fold_left (fun t { src; dst; attrs } ->
+                t
+                |> remove_edge src dst
+                |> add_edge src (root, None) attrs
+              )
+              t
+          )
+      ) t
+
+  let remove_root_node (root : string) (t : t) : t =
+    t
+    |> move_sub_node_edges_to_root_node root
+    |> (fun t ->
+        edges_from (root, None) t
+        |> Seq.fold_left (fun t edge ->
+            remove_edge' edge t
+          ) t
+      )
+    |> (fun t ->
+        edges_to (root, None) t
+        |> Seq.fold_left (fun t edge ->
+            remove_edge' edge t
+          ) t
+      )
 end
 
 type row = [ `L | `R ]
