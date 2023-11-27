@@ -457,7 +457,7 @@ module Dot_printers = struct
            | _ -> []
           )
           @
-          [ ("port", sub_node); ("border", "1") ]
+          [ ("port", sub_node) ]
         )
     in
     Fmt.pf formatter {|<td %a>%a</td>|}
@@ -530,24 +530,43 @@ module Dot_printers = struct
       | [] -> Fmt.pf formatter "<tr><td></td></tr>"
       | _ -> Fmt.pf formatter "%a" Fmt.(list pp_term) l
     in
+    (* Fmt.pf formatter
+       {|<td port="%s"><table border="1" cellborder="0" cellspacing="0" cellpadding="0"><tr>|}
+       rule.a_sub_node_name; *)
+    (match rule.proc_step_info with
+     | None -> ()
+     | Some { step_tag; _ } -> (
+         if step_tag <> "" then (
+           Fmt.pf formatter {|
+      <td>
+          %s
+      </td>
+      |}
+             step_tag
+         )
+       )
+    );
     Fmt.pf formatter
       {|
-      <td port="%s" border="1">
+      <td>
           #%s : %a
       </td>
       |}
-      rule.a_sub_node_name
       rule.a_timepoint
       (fun formatter rule ->
          match rule.proc_step_info with
          | None -> Fmt.string formatter rule.name
          | Some { proc_name; pred; k; succ; step_tag } -> (
-             Fmt.pf formatter "%s %aTo%dTo%a %s"
-               proc_name
+             Fmt.pf formatter {|<font>%s</font>|}
+               proc_name;
+             Fmt.pf formatter {|<font color="lightslategray">%aTo%dTo%a</font>|}
                pp_link_target pred
                k
-               pp_link_target succ
-               step_tag
+               pp_link_target succ;
+             if step_tag <> "" then (
+               Fmt.pf formatter {|<font>%s</font>|}
+                 step_tag
+             );
            )
       )
       rule;
@@ -556,8 +575,8 @@ module Dot_printers = struct
      | _ -> (
          Fmt.pf formatter
            {|
-      <td border="1">
-          <table border="0" cellborder="0" cellspacing="0" cellpadding="0">
+      <td>
+          <table cellborder="0" cellspacing="0" cellpadding="0">
               %a
           </table>
       </td>
@@ -566,13 +585,16 @@ module Dot_printers = struct
            rule.a
        )
     )
+  (*Fmt.pf formatter {|
+    </tr></table></td>
+    |}*)
 
   let pp_rule formatter (rule : rule) =
     Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
     Fmt.pf formatter
       {|<tr>
               <td>
-                  <table border="0" cellspacing="0">
+                  <table border="0" cellspacing="0" cellborder="1" cellpadding="0">
                       <tr>%a</tr>
                   </table>
               </td>
@@ -580,17 +602,18 @@ module Dot_printers = struct
       pp_l_row rule.l;
     Fmt.pf formatter
       {|<tr>
-              <td>
-                  <table border="0" cellspacing="0">
+              <td port="%s">
+                  <table border="0" cellspacing="0" cellborder="1" cellpadding="0">
                       <tr>%a</tr>
                   </table>
               </td>
         </tr>|}
+      rule.a_sub_node_name
       pp_a_row rule;
     Fmt.pf formatter
       {|<tr>
               <td>
-                  <table border="0" cellspacing="0">
+                  <table border="0" cellspacing="0" cellborder="1" cellpadding="0">
                       <tr>%a</tr>
                   </table>
               </td>
