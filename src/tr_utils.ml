@@ -1,6 +1,6 @@
 let pp_name_of_proc formatter (binding : 'a Binding.t) =
   Fmt.pf formatter "%s_%d"
-    (Loc.content @@ Binding.name_str binding)
+    (Misc_utils.normalize_user_provided_string @@ Loc.content @@ Binding.name_str binding)
     (match Binding.name binding with
      | `Global x -> x
      | _ -> failwith "Unexpected case")

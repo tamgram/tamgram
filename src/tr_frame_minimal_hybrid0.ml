@@ -280,7 +280,7 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq
       |> Seq.map (fun (dst, exit_fact) ->
           let r = exit_fact :: r in
           let rule_name =
-            Fmt.str "%a_%a%s" pp_name_of_proc binding
+            Fmt.str "%a___%a%s" pp_name_of_proc binding
               (pp_rule_id
                  ~pred:`None
                  ~k
@@ -290,7 +290,7 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq
               ()
               (match Int_map.find_opt k spec.rule_tags with
                | None -> ""
-               | Some s -> "_" ^ s
+               | Some s -> "___" ^ s
               )
           in
           D_rule {
@@ -328,7 +328,7 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
           |> Seq.map (fun (src, entry_fact) ->
               let l = entry_fact :: l in
               let rule_name =
-                Fmt.str "%a_%a%s" pp_name_of_proc binding
+                Fmt.str "%a___%a%s" pp_name_of_proc binding
                   (pp_rule_id
                      ~pred:(match src with
                          | None -> `Many
@@ -340,7 +340,7 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
                   ()
                   (match Int_map.find_opt k spec.rule_tags with
                    | None -> ""
-                   | Some s -> "_" ^ s
+                   | Some s -> "___" ^ s
                   )
               in
               D_rule {
@@ -376,7 +376,7 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
       |> Seq.map (fun (src, entry_fact) ->
           let l = entry_fact :: l in
           let rule_name =
-            Fmt.str "%a_%a%s" pp_name_of_proc binding
+            Fmt.str "%a___%a%s" pp_name_of_proc binding
               (pp_rule_id
                  ~pred:(match src with
                      | None -> `Many
@@ -386,7 +386,7 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
               ()
               (match Int_map.find_opt k spec.rule_tags with
                | None -> ""
-               | Some s -> "_" ^ s
+               | Some s -> "___" ^ s
               )
           in
           D_rule {

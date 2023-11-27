@@ -23,17 +23,6 @@ let empty_rule =
            r = [];
          }
 
-let normalize_rule_tag (s : string) =
-  CCString.map (fun c ->
-      match c with
-      | 'A' .. 'Z'
-      | 'a' .. 'z'
-      | '0' .. '9'
-      | '_'
-        -> c
-      | _ -> '_'
-    ) s
-
 let loop_find
     ~(keyword : string Loc.tagged)
     ~(label : string Loc.tagged option)
@@ -137,7 +126,7 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
       let id = Graph.get_id () in
       (match tag with
        | None -> ()
-       | Some tag -> tags := Int_map.add id (normalize_rule_tag @@ Loc.content tag) !tags
+       | Some tag -> tags := Int_map.add id (Misc_utils.normalize_user_provided_string @@ Loc.content tag) !tags
       );
       let g =
         g

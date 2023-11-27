@@ -20,9 +20,22 @@ type rule_typ = [
   | `Fresh
 ]
 
+type proc_step_info = {
+  proc_name : string;
+  step_id : string;
+  step_tag : string;
+}
+
+let proc_step_info_of_string (s : string) =
+  match CCString.split ~by:"___" s with
+  | [ proc_name; step_id ] -> Some { proc_name; step_id; step_tag = "" }
+  | [ proc_name; step_id; step_tag ] -> Some { proc_name; step_id; step_tag }
+  | _ -> None
+
 type rule = {
   name : string;
   typ : rule_typ;
+  proc_step_info : proc_step_info option;
   l : (string * row_element) list;
   a_sub_node_name : string;
   a_timepoint : string;
@@ -839,7 +852,9 @@ module JSON_parsers = struct
                       |> (fun s ->
                           Option.value ~default:s (CCString.chop_prefix ~pre:"#" s))
     in
-    { name = get_string @@ List.assoc "jgnLabel" x;
+    let jgn_label = get_string @@ List.assoc "jgnLabel" x in
+    { name = jgn_label;
+      proc_step_info = proc_step_info_of_string jgn_label;
       typ;
       l = row_l;
       a_sub_node_name = Fmt.str "n%d" (get_num ());
@@ -1162,7 +1177,7 @@ let run () =
         let+ spec =  Tg.run_pipeline (Spec.make root) in
         let graph = JSON_parsers.graph_of_json json
                     |> Graph.add_kv "nodesep" "0.3"
-                    |> Graph.add_kv "ranksep" "0.3"
+                    |> Graph.add_kv "ranksep" "0.5"
         in
         Rewrite.graph spec graph
       in

@@ -1,3 +1,32 @@
+let normalize_user_provided_string (s : string) =
+  let rec aux (acc : char list) (l : char list) : char list =
+    match l with
+    | [] -> acc
+    | c :: rest -> (
+        match c with
+        | '_' -> (
+            match acc with
+            | '_' :: '_' :: _acc_rest -> aux acc rest
+            | _ -> aux (c :: acc) rest
+          )
+        | _ -> (
+            aux (c :: acc) rest
+          )
+      )
+  in
+  CCString.to_list s
+  |> List.map (fun c ->
+      match c with
+      | 'A' .. 'Z'
+      | 'a' .. 'z'
+      | '0' .. '9'
+      | '_'
+        -> c
+      | _ -> '_'
+    )
+  |> aux []
+  |> CCString.of_list
+
 let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
   let open Tg_ast in
   let rec aux proc =
@@ -84,4 +113,3 @@ let available_files_in_dir ~dir : (string String_map.t, Error_msg.t) result =
     Error (Error_msg.make_msg_only (Printf.sprintf "Failed to read directory %s" dir))
   | Ambiguous_modul_name name ->
     Error (Error_msg.make_msg_only (Printf.sprintf "Module name %s matches multiple files" name))
-
