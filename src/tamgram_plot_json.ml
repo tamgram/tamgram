@@ -1,3 +1,5 @@
+open Option_syntax
+
 type exit_bias = Tr_frame_minimal_hybrid0.exit_bias
 
 let get_num : unit -> int =
@@ -22,14 +24,50 @@ type rule_typ = [
 
 type proc_step_info = {
   proc_name : string;
-  step_id : string;
+  pred : int option;
+  k : int;
+  succ : int option;
   step_tag : string;
 }
 
+let rule_indices_of_step_id (s : string) : (int option * int * int option) option =
+  let parts = String.split_on_char '_' s in
+  let exception Fail in
+  let parse_int s =
+    match int_of_string_opt s with
+    | None -> raise Fail
+    | Some x -> x
+  in
+  try
+    match CCString.split ~by:"To" s with
+    | [ pred; k; succ ] -> (
+        let k = parse_int k in
+        let pred =
+          match pred with
+          | "None" | "Many" -> None
+          | s -> Some (parse_int s)
+        in
+        let succ =
+          match succ with
+          | "None" | "Many" -> None
+          | s -> Some (parse_int s)
+        in
+        Some (pred, k, succ)
+      )
+    | _ -> raise Fail
+  with
+  | Fail -> None
+
 let proc_step_info_of_string (s : string) =
   match CCString.split ~by:"___" s with
-  | [ proc_name; step_id ] -> Some { proc_name; step_id; step_tag = "" }
-  | [ proc_name; step_id; step_tag ] -> Some { proc_name; step_id; step_tag }
+  | [ proc_name; step_id ] -> (
+      let+ (pred, k, succ) = rule_indices_of_step_id step_id in
+      { proc_name; pred; k; succ; step_tag = "" }
+    )
+  | [ proc_name; step_id; step_tag ] -> (
+      let+ (pred, k, succ) = rule_indices_of_step_id step_id in
+      { proc_name; pred; k; succ; step_tag }
+    )
   | _ -> None
 
 type rule = {
@@ -716,46 +754,6 @@ let term_of_string (s : string) : Tg_ast.term =
   | Error msg -> invalid_arg (Fmt.str "Failed to parse fact string: %s: %s" msg s)
   | Ok x -> x
 
-let rule_indices_of_rule_name (s : string) : (int option * int * int option) option =
-  let parts = String.split_on_char '_' s in
-  let parse_rule_id (s : string) =
-    let exception Fail in
-    let parse_int s =
-      match int_of_string_opt s with
-      | None -> raise Fail
-      | Some x -> x
-    in
-    try
-      match CCString.split ~by:"To" s with
-      | [ pred; k; succ ] -> (
-          let k = parse_int k in
-          let pred =
-            match pred with
-            | "None" | "Many" -> None
-            | s -> Some (parse_int s)
-          in
-          let succ =
-            match succ with
-            | "None" | "Many" -> None
-            | s -> Some (parse_int s)
-          in
-          Some (pred, k, succ)
-        )
-      | _ -> raise Fail
-    with
-    | Fail -> None
-  in
-  let rec aux possible parts =
-    match parts with
-    | [] | [_] -> possible
-    | x :: y :: xs -> (
-        match int_of_string_opt x, parse_rule_id y with
-        | Some _, Some k -> aux (Some k) (y :: xs)
-        | _, _ -> aux possible (y :: xs)
-      )
-  in
-  aux None parts
-
 let node_name_of_json_node_id : string -> node_name =
   let tbl : (string, string * string option) Hashtbl.t = Hashtbl.create 1024 in
   fun s ->
@@ -1094,9 +1092,9 @@ module Rewrite = struct
     | Fail -> default
 
   let rewrite_rule (spec : Spec.t) (rule : rule) : rule =
-    match rule_indices_of_rule_name rule.name with
+    match rule.proc_step_info with
     | None -> rule
-    | Some (pred, k, succ) -> (
+    | Some { pred; k; succ; _ } -> (
         let rewrite_sub_nodes (row : row) (sub_nodes : (string * row_element) list) =
           List.map (fun (sub_node, row_element) ->
               (sub_node,
@@ -1184,7 +1182,6 @@ let run () =
       match res with
       | Error _ -> invalid_arg "Failed to parse Tamgram file"
       | Ok graph -> (
-          (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json"); *)
           CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
               let formatter = Format.formatter_of_out_channel oc in
               Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
