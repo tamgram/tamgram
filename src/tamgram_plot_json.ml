@@ -540,9 +540,9 @@ module Dot_printers = struct
           <font point-size="%f">%s</font><font color="%s">(step tag)</font>
       </td>
       |}
-      Params.step_tag_font_size
+             Params.step_tag_font_size
              step_tag
-      Params.additional_info_color
+             Params.additional_info_color
          )
        )
     );
@@ -560,7 +560,7 @@ module Dot_printers = struct
              Fmt.pf formatter {|<font>%s</font>|}
                proc_name;
              Fmt.pf formatter {|<font color="%s">%aTo%dTo%a</font>|}
-             Params.additional_info_color
+               Params.additional_info_color
                pp_link_target pred
                k
                pp_link_target succ;
@@ -661,7 +661,7 @@ module Dot_printers = struct
       )
       g.key_values;
     String_map.iter (fun k v ->
-      Fmt.pf formatter "node[@[<h>%a@]]@," pp_kv (k, v)
+        Fmt.pf formatter "node[@[<h>%a@]]@," pp_kv (k, v)
       )
       g.node_settings;
     String_map.iter (fun _name node ->
