@@ -110,14 +110,6 @@ type edge = {
   attrs : (string * string) list;
 }
 
-(* type item =
-   | Kv of (string * string)
-   | Node_settings of (string * string) list
-   | Edge_settings of (string * string) list
-   | Rule_node of rule_node
-   | Node of node
-   | Edge of edge *)
-
 type node_name = string * string option
 
 module Node_name_map = CCMap.Make (struct
@@ -139,6 +131,7 @@ module Node_name_map = CCMap.Make (struct
 module Graph = struct
   type t = {
     key_values : string String_map.t;
+    node_settings : string String_map.t;
     root_nodes : node String_map.t;
     sub_nodes_of_root_node : String_set.t String_map.t;
     edges : ((string * string) list) Node_name_map.t Node_name_map.t;
@@ -147,6 +140,7 @@ module Graph = struct
 
   let empty : t =
     { key_values = String_map.empty;
+      node_settings = String_map.empty;
       root_nodes = String_map.empty;
       sub_nodes_of_root_node = String_map.empty;
       edges = Node_name_map.empty;
@@ -169,6 +163,9 @@ module Graph = struct
 
   let add_kv (k : string) (v : string) (t : t) : t =
     { t with key_values = String_map.add k v t.key_values }
+
+  let add_node_setting k v (t : t) =
+    { t with node_settings = String_map.add k v t.node_settings }
 
   let add_edge (src : node_name) (dst : node_name) (attrs : (string * string) list) (t : t) : t =
     let t = t
@@ -329,6 +326,10 @@ type row = [ `L | `R ]
 
 module Params = struct
   let proc_ctx_color = "gray80"
+
+  let additional_info_color = "lightslategray"
+
+  let step_tag_font_size = 20.0
 
   let in_fact_color = "skyblue"
 
@@ -530,19 +531,18 @@ module Dot_printers = struct
       | [] -> Fmt.pf formatter "<tr><td></td></tr>"
       | _ -> Fmt.pf formatter "%a" Fmt.(list pp_term) l
     in
-    (* Fmt.pf formatter
-       {|<td port="%s"><table border="1" cellborder="0" cellspacing="0" cellpadding="0"><tr>|}
-       rule.a_sub_node_name; *)
     (match rule.proc_step_info with
      | None -> ()
      | Some { step_tag; _ } -> (
          if step_tag <> "" then (
            Fmt.pf formatter {|
       <td>
-          %s
+          <font point-size="%f">%s</font><font color="%s">(step tag)</font>
       </td>
       |}
+      Params.step_tag_font_size
              step_tag
+      Params.additional_info_color
          )
        )
     );
@@ -559,14 +559,11 @@ module Dot_printers = struct
          | Some { proc_name; pred; k; succ; step_tag } -> (
              Fmt.pf formatter {|<font>%s</font>|}
                proc_name;
-             Fmt.pf formatter {|<font color="lightslategray">%aTo%dTo%a</font>|}
+             Fmt.pf formatter {|<font color="%s">%aTo%dTo%a</font>|}
+             Params.additional_info_color
                pp_link_target pred
                k
                pp_link_target succ;
-             if step_tag <> "" then (
-               Fmt.pf formatter {|<font>%s</font>|}
-                 step_tag
-             );
            )
       )
       rule;
@@ -585,9 +582,6 @@ module Dot_printers = struct
            rule.a
        )
     )
-  (*Fmt.pf formatter {|
-    </tr></table></td>
-    |}*)
 
   let pp_rule formatter (rule : rule) =
     Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
@@ -666,6 +660,10 @@ module Dot_printers = struct
         Fmt.pf formatter "@[<h>%a@]@," pp_kv (k, v)
       )
       g.key_values;
+    String_map.iter (fun k v ->
+      Fmt.pf formatter "node[@[<h>%a@]]@," pp_kv (k, v)
+      )
+      g.node_settings;
     String_map.iter (fun _name node ->
         match node with
         | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
@@ -1217,6 +1215,7 @@ let run () =
         let graph = JSON_parsers.graph_of_json json
                     |> Graph.add_kv "nodesep" "0.3"
                     |> Graph.add_kv "ranksep" "0.5"
+                    |> Graph.add_node_setting "fontsize" "14"
         in
         Rewrite.graph spec graph
       in
