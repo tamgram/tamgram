@@ -2,6 +2,10 @@ open Option_syntax
 
 type exit_bias = Tr_frame_minimal_hybrid0.exit_bias
 
+type link_target = Tr_frame_minimal_hybrid0.link_target
+
+let pp_link_target = Tr_frame_minimal_hybrid0.pp_link_target
+
 let get_num : unit -> int =
   let counter = ref 0 in
   fun () ->
@@ -24,13 +28,13 @@ type rule_typ = [
 
 type proc_step_info = {
   proc_name : string;
-  pred : int option;
+  pred : link_target;
   k : int;
-  succ : int option;
+  succ : link_target;
   step_tag : string;
 }
 
-let rule_indices_of_step_id (s : string) : (int option * int * int option) option =
+let rule_indices_of_step_id (s : string) : (link_target * int * link_target) option =
   let parts = String.split_on_char '_' s in
   let exception Fail in
   let parse_int s =
@@ -44,13 +48,15 @@ let rule_indices_of_step_id (s : string) : (int option * int * int option) optio
         let k = parse_int k in
         let pred =
           match pred with
-          | "None" | "Many" -> None
-          | s -> Some (parse_int s)
+          | "None" -> `None
+          | "Many" -> `Many
+          | s -> `Index (parse_int s)
         in
         let succ =
           match succ with
-          | "None" | "Many" -> None
-          | s -> Some (parse_int s)
+          | "None" -> `None
+          | "Many" -> `Many
+          | s -> `Index (parse_int s)
         in
         Some (pred, k, succ)
       )
@@ -527,13 +533,24 @@ module Dot_printers = struct
     Fmt.pf formatter
       {|
       <td port="%s" border="1">
-          #%s : %s
+          #%s : %a
       </td>
       |}
       rule.a_sub_node_name
       rule.a_timepoint
-      rule.name
-    ;
+      (fun formatter rule ->
+         match rule.proc_step_info with
+         | None -> Fmt.string formatter rule.name
+         | Some { proc_name; pred; k; succ; step_tag } -> (
+             Fmt.pf formatter "%s %aTo%dTo%a %s"
+               proc_name
+               pp_link_target pred
+               k
+               pp_link_target succ
+               step_tag
+           )
+      )
+      rule;
     (match rule.a with
      | [] -> ()
      | _ -> (
@@ -984,8 +1001,9 @@ module Rewrite = struct
           (match exit_bias with
            | `Forward -> (
                match succ with
-               | None -> String_tagged_set.empty
-               | Some succ -> (
+               | `None -> String_tagged_set.empty
+               | `Many -> invalid_arg "write_cell_operations: Invalid combination of exit_bias and succ link target"
+               | `Index succ -> (
                    Int_map.find succ spec.cells_to_carry_over_before
                  )
              )
@@ -1017,7 +1035,7 @@ module Rewrite = struct
         match defs, undefs with
         | [], [] -> (
             match pred with
-            | None -> `Empty_init_ctx
+            | `None -> `Empty_init_ctx
             | _ -> `Defs_and_undefs (defs, undefs)
           )
         | _, _ -> `Defs_and_undefs (defs, undefs)

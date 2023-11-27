@@ -244,25 +244,29 @@ let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
       |> Seq.flat_map Fun.id
     )
 
+type link_target = [
+  | `None
+  | `Many
+  | `Index of int
+]
+
+let pp_link_target formatter (x : link_target) =
+  match x with
+  | `Many -> Fmt.pf formatter "Many"
+  | `None -> Fmt.pf formatter "None"
+  | `Index x -> Fmt.pf formatter "%d" x
+
 let pp_rule_id
-    ~(pred : [ `None | `Many | `Index of int ])
+    ~(pred : link_target)
     ~k
-    ~(succ: [ `None | `Many | `Index of int ])
+    ~(succ: link_target)
     formatter
     ()
   =
-  Fmt.pf formatter "%sTo%dTo%s"
-    (match pred with
-     | `None -> "None"
-     | `Many -> "Many"
-     | `Index x -> string_of_int x
-    )
+  Fmt.pf formatter "%aTo%dTo%a"
+    pp_link_target pred
     k
-    (match succ with
-     | `None -> "None"
-     | `Many -> "Many"
-     | `Index x -> string_of_int x
-    )
+    pp_link_target succ
 
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let open Tg_ast in
