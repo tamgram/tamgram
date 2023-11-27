@@ -25,6 +25,7 @@ let normalize_user_provided_string (s : string) =
       | _ -> '_'
     )
   |> aux []
+  |> List.rev
   |> CCString.of_list
 
 let replace_proc_end ~replace_with (proc : Tg_ast.proc) : Tg_ast.proc =
