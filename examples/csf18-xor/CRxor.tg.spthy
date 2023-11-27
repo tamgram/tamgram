@@ -12,10 +12,10 @@ rule Setup_30:
     , !RespLTK_22(~k_29)
     ]
 
-rule initiator_36_NoneTo1To2:
+rule initiator_36___NoneTo1To2:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
 
-rule initiator_36_ManyTo2To3_initiator:
+rule initiator_36___ManyTo2To3___initiator:
     [ StF(~pid, 'tgk2', 'empty_tuple')
     , Fr(~na_31)
     ]
@@ -25,7 +25,7 @@ rule initiator_36_ManyTo2To3_initiator:
     , Out(~na_31)
     ]
 
-rule initiator_36_ManyTo3ToNone_initiator2:
+rule initiator_36___ManyTo3ToNone___initiator2:
     [ StF(~pid, 'tgk3', <~u_tgany0_35>)
     , !InitLTK_21(~k_34)
     , In(<m_33, nb_32>)

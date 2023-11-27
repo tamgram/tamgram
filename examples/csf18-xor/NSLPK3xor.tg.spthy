@@ -16,10 +16,10 @@ rule Register_pk_26:
 rule Reveal_ltk_30:
   [!Ltk_22(A_29, ltkA_28)]--[RevLtk_27(A_29)]->[Out(ltkA_28)]
 
-rule I_45_NoneTo2To3:
+rule I_45___NoneTo2To3:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk3', 'empty_tuple')]
 
-rule I_45_ManyTo3To4_I_1:
+rule I_45___ManyTo3To4___I_1:
     [ StF(~pid, 'tgk3', 'empty_tuple')
     , Fr(~ni_37)
     , !Pk_23($R, pkR_36)
@@ -30,7 +30,7 @@ rule I_45_ManyTo3To4_I_1:
     , Out(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]
 
-rule I_45_ManyTo4ToNone_I_2:
+rule I_45___ManyTo4ToNone___I_2:
     [ StF(~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0>)
     , !Ltk_22(tgc_I_0, ltkI_41)
     , In(aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)))
@@ -45,10 +45,10 @@ rule I_45_ManyTo4ToNone_I_2:
     , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
 
-rule R_56_NoneTo5To6:
+rule R_56___NoneTo5To6:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk6', 'empty_tuple')]
 
-rule R_56_ManyTo6To7_R_1:
+rule R_56___ManyTo6To7___R_1:
     [ StF(~pid, 'tgk6', 'empty_tuple')
     , !Ltk_22($R, ltkR_51)
     , In(aenc(<'1', ni_50, I_52>, pk(ltkR_51)))
@@ -63,7 +63,7 @@ rule R_56_ManyTo6To7_R_1:
     , Out(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
     ]
 
-rule R_56_ManyTo7ToNone_R_2:
+rule R_56___ManyTo7ToNone___R_2:
     [ StF(~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0>)
     , !Ltk_22(tgc_R_0, ltkR_55)
     , In(aenc(<'3', tgc_nr_0>, pk(ltkR_55)))

@@ -3,19 +3,19 @@ begin
 
 functions: f_18/1
 
-rule A_20_NoneTo0To1:
+rule A_20___NoneTo0To1:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule A_20_ManyTo1ToMany:
+rule A_20___ManyTo1ToMany:
   [StF(~pid, 'tgk1', 'empty_tuple')]--[]->[StB(~pid, 'tgk1', <f_18('2')>)]
 
-rule A_20_1To3To6:
+rule A_20___1To3To6:
   [StB(~pid, 'tgk1', <f_18(u_tgany0_19)>)]--[]->[StF(~pid, 'tgk6', <f_18(u_tgany0_19)>)]
 
-rule A_20_1To4To5:
+rule A_20___1To4To5:
   [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[St(~pid, 'tgk5', <tgc_a_0>)]
 
-rule A_20_ManyTo6To7:
+rule A_20___ManyTo6To7:
     [ StF(~pid, 'tgk6', <tgc_a_0>)
     ]
   --[ 
@@ -24,10 +24,10 @@ rule A_20_ManyTo6To7:
     , Out(<'while', tgc_a_0>)
     ]
 
-rule A_20_ManyTo7To5:
+rule A_20___ManyTo7To5:
   [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[St(~pid, 'tgk5', <f_18(tgc_a_0)>)]
 
-rule A_20_5To8ToNone:
+rule A_20___5To8ToNone:
   [St(~pid, 'tgk5', <tgc_a_0>)]--[]->[Out(<'done', tgc_a_0>)]
 
 restriction tg_cell_pat_match_restriction2:
