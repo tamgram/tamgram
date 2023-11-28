@@ -21,11 +21,9 @@ podman-build:
 release-static :
 	./update-version-string.sh
 	OCAMLPARAM='_,ccopt=-static' dune build --release src/tamgram.exe
-	OCAMLPARAM='_,ccopt=-static' dune build --release src/tamgram_rewrite_dot.exe
 	OCAMLPARAM='_,ccopt=-static' dune build --release src/tamgram_plot_json.exe
 	mkdir -p statically-linked
 	cp -f _build/default/src/tamgram.exe statically-linked/tamgram
-	cp -f _build/default/src/tamgram_rewrite_dot.exe statically-linked/tamgram-rewrite-dot
 	cp -f _build/default/src/tamgram_plot_json.exe statically-linked/tamgram-plot-json
 
 .PHONY: debug-draft
