@@ -112,10 +112,7 @@ type edge = {
 
 type node_name = string * string option
 
-module Node_name_map = CCMap.Make (struct
-    type t = node_name
-
-    let compare ((x_root, x_sub) : t) ((y_root, y_sub) : t) =
+    let compare_node_name ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name) =
       let r = String.compare x_root y_root in
       if r = 0 then (
         match x_sub, y_sub with
@@ -126,7 +123,18 @@ module Node_name_map = CCMap.Make (struct
       ) else (
         r
       )
+
+module Node_name_map = CCMap.Make (struct
+    type t = node_name
+
+    let compare = compare_node_name
   end)
+
+module Node_name_set = CCSet.Make (struct
+  type t = node_name
+
+  let compare = compare_node_name
+end)
 
 module Graph = struct
   type t = {
@@ -134,8 +142,8 @@ module Graph = struct
     node_settings : string String_map.t;
     root_nodes : node String_map.t;
     sub_nodes_of_root_node : String_set.t String_map.t;
-    edges : ((string * string) list) Node_name_map.t Node_name_map.t;
-    edges_backward : ((string * string) list) Node_name_map.t Node_name_map.t;
+    edges : Node_name_set.t Node_name_map.t;
+    edges_backward : Node_name_set.t Node_name_map.t;
   }
 
   let empty : t =
@@ -167,24 +175,24 @@ module Graph = struct
   let add_node_setting k v (t : t) =
     { t with node_settings = String_map.add k v t.node_settings }
 
-  let add_edge (src : node_name) (dst : node_name) (attrs : (string * string) list) (t : t) : t =
+  let add_edge (src : node_name) (dst : node_name) (t : t) : t =
     let t = t
             |> record_node_name src
             |> record_node_name dst
     in
     let edges =
       let destinations =
-        Option.value ~default:Node_name_map.empty
+        Option.value ~default:Node_name_set.empty
           (Node_name_map.find_opt src t.edges)
-        |> Node_name_map.add dst attrs
+        |> Node_name_set.add dst
       in
       Node_name_map.add src destinations t.edges
     in
     let edges_backward =
       let sources =
-        Option.value ~default:Node_name_map.empty
+        Option.value ~default:Node_name_set.empty
           (Node_name_map.find_opt dst t.edges_backward)
-        |> Node_name_map.add src attrs
+        |> Node_name_set.add src
       in
       Node_name_map.add dst sources t.edges_backward
     in
@@ -199,7 +207,7 @@ module Graph = struct
         match Node_name_map.find_opt src t.edges with
         | None -> t
         | Some dsts -> (
-            let dsts = Node_name_map.remove dst dsts in
+            let dsts = Node_name_set.remove dst dsts in
             { t with edges = Node_name_map.add src dsts t.edges }
           )
       )
@@ -207,7 +215,7 @@ module Graph = struct
         match Node_name_map.find_opt dst t.edges_backward with
         | None -> t
         | Some srcs -> (
-            let srcs = Node_name_map.remove src srcs in
+            let srcs = Node_name_set.remove src srcs in
             { t with edges_backward = Node_name_map.add dst srcs t.edges_backward }
           )
       )
@@ -231,36 +239,14 @@ module Graph = struct
     match Node_name_map.find_opt x t.edges with
     | None -> Seq.empty
     | Some dsts -> (
-        Node_name_map.to_seq dsts
-        |> Seq.map fst
+        Node_name_set.to_seq dsts
       )
 
   let parents (x : node_name) t : node_name Seq.t =
     match Node_name_map.find_opt x t.edges_backward with
     | None -> Seq.empty
     | Some srcs -> (
-        Node_name_map.to_seq srcs
-        |> Seq.map fst
-      )
-
-  let edges_from (src : node_name) t : edge Seq.t =
-    match Node_name_map.find_opt src t.edges with
-    | None -> Seq.empty
-    | Some dsts -> (
-        Node_name_map.to_seq dsts
-        |> Seq.map (fun (dst, attrs) ->
-            { src; dst; attrs }
-          )
-      )
-
-  let edges_to (dst : node_name) t : edge Seq.t =
-    match Node_name_map.find_opt dst t.edges_backward with
-    | None -> Seq.empty
-    | Some srcs -> (
-        Node_name_map.to_seq srcs
-        |> Seq.map (fun (src, attrs) ->
-            { src; dst; attrs }
-          )
+        Node_name_set.to_seq srcs
       )
 
   let move_sub_node_edges_to_root_node (root : string) (t : t) : t =
@@ -269,22 +255,24 @@ module Graph = struct
     in
     String_set.to_seq sub_nodes
     |> Seq.fold_left (fun t sub_node ->
+        let self = (root, Some sub_node) in
+        let upper = (root, None) in
         t
         |> (fun t ->
-            edges_from (root, Some sub_node) t
-            |> Seq.fold_left (fun t { src; dst; attrs } ->
+            children self t
+            |> Seq.fold_left (fun t child ->
                 t
-                |> remove_edge src dst
-                |> add_edge (root, None) dst attrs
+                |> remove_edge self child
+                |> add_edge upper child
               )
               t
           )
         |> (fun t ->
-            edges_to (root, Some sub_node) t
-            |> Seq.fold_left (fun t { src; dst; attrs } ->
+            parents self t
+            |> Seq.fold_left (fun t parent ->
                 t
-                |> remove_edge src dst
-                |> add_edge src (root, None) attrs
+                |> remove_edge parent self
+                |> add_edge parent upper
               )
               t
           )
@@ -297,12 +285,12 @@ module Graph = struct
         let parents = parents (root, None) t in
         let children = children (root, None) t in
         (if bridge_over then (
-            Seq.fold_left (fun (t : t) { src = parent; attrs; _ } ->
+            Seq.fold_left (fun (t : t) parent ->
                 Seq.fold_left (fun (t : t) child ->
-                    add_edge parent child attrs t
+                    add_edge parent child t
                   ) t children
               ) t
-              (edges_to (root, None) t)
+              parents
           ) else (
            t
          ))
@@ -320,6 +308,9 @@ module Graph = struct
     |> (fun t ->
         { t with root_nodes = String_map.remove root t.root_nodes }
       )
+
+  let attributes_of_edge (src : node_name) (dst : node_name) (t : t) : (string * string) list =
+    []
 end
 
 type row = [ `L | `R ]
@@ -537,7 +528,7 @@ module Dot_printers = struct
          if step_tag <> "" then (
            Fmt.pf formatter {|
       <td>
-          <font point-size="%f">%s</font><font color="%s">(step tag)</font>
+          <font point-size="%f">%s</font><font color="%s">(step label)</font>
       </td>
       |}
              Params.step_tag_font_size
@@ -640,18 +631,10 @@ module Dot_printers = struct
       x.name
       pp_attrs (("label", x.value) :: x.attrs)
 
-  let pp_edge_target formatter ((node, sub_node) : string * string option) =
+  let pp_node_name formatter ((node, sub_node) : node_name) =
     match sub_node with
     | None -> Fmt.pf formatter "%s" node
     | Some sub_node -> Fmt.pf formatter "%s:%s" node sub_node
-
-  let pp_edge formatter (x : edge) =
-    Fmt.pf formatter "%a -> %a[%a]"
-      pp_edge_target
-      x.src
-      pp_edge_target
-      x.dst
-      pp_attrs x.attrs
 
   let pp_graph formatter (g : Graph.t) =
     Fmt.pf formatter "@[<v>digraph G {@,@]";
@@ -671,10 +654,14 @@ module Dot_printers = struct
       )
       g.root_nodes;
     Node_name_map.iter (fun src dsts ->
-        Node_name_map.iter (fun dst attrs ->
-            Fmt.pf formatter "@[<h>%a@]@," pp_edge { src; dst; attrs }
+        Node_name_set.iter (fun dst ->
+          let attrs = Graph.attributes_of_edge src dst g in
+          Fmt.pf formatter "@[<h>%a -> %a[%a]@]@,"
+          pp_node_name src
+          pp_node_name dst
+          pp_attrs attrs
           ) dsts
-      ) 
+      )
       g.edges;
     Fmt.pf formatter "@]@,}@]"
 
@@ -920,7 +907,7 @@ module JSON_parsers = struct
                     |> get_string
                     |> node_name_of_json_node_id
           in
-          let attrs =
+          (* let attrs =
             match get_string @@ List.assoc "jgeRelation" x with
             | "default" ->
               [ ("color", "gray30"); ("style", "dashed") ]
@@ -933,8 +920,8 @@ module JSON_parsers = struct
             | "LessAtoms" ->
               [ ("color", "red"); ("style", "dashed")]
             | any -> invalid_arg (Fmt.str "items_of_json: Unrecognized jgeRelation: %s" any)
-          in
-          Graph.add_edge src dst attrs graph
+          in *)
+          Graph.add_edge src dst graph
         )
         graph
     in
