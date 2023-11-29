@@ -93,15 +93,15 @@ type rule_node = {
   attrs : (string * string) list;
 }
 
-type text_node = {
+type fact_node = {
   name : string;
-  value : string;
+  fact : Tg_ast.term;
   attrs : (string * string) list;
 }
 
 type node = [
   | `Rule of rule_node
-  | `Text of text_node
+  | `Fact of fact_node
 ]
 
 type edge = {
@@ -112,17 +112,17 @@ type edge = {
 
 type node_name = string * string option
 
-    let compare_node_name ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name) =
-      let r = String.compare x_root y_root in
-      if r = 0 then (
-        match x_sub, y_sub with
-        | None, None -> String.compare x_root y_root
-        | Some _, None -> -1
-        | None, Some _ -> 1
-        | Some x, Some y -> String.compare x y
-      ) else (
-        r
-      )
+let compare_node_name ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name) =
+  let r = String.compare x_root y_root in
+  if r = 0 then (
+    match x_sub, y_sub with
+    | None, None -> String.compare x_root y_root
+    | Some _, None -> -1
+    | None, Some _ -> 1
+    | Some x, Some y -> String.compare x y
+  ) else (
+    r
+  )
 
 module Node_name_map = CCMap.Make (struct
     type t = node_name
@@ -131,10 +131,10 @@ module Node_name_map = CCMap.Make (struct
   end)
 
 module Node_name_set = CCSet.Make (struct
-  type t = node_name
+    type t = node_name
 
-  let compare = compare_node_name
-end)
+    let compare = compare_node_name
+  end)
 
 module Graph = struct
   type t = {
@@ -229,10 +229,10 @@ module Graph = struct
       root_nodes = String_map.add name (`Rule { name; rule; attrs }) t.root_nodes
     }
 
-  let add_text_node (name : string) (value : string) (t : t) : t =
+  let add_fact_node (name : string) (fact : Tg_ast.term) (t : t) : t =
     let attrs = [] in
     { t with
-      root_nodes = String_map.add name (`Text { name; value; attrs }) t.root_nodes
+      root_nodes = String_map.add name (`Fact { name; fact; attrs }) t.root_nodes
     }
 
   let children (x : node_name) t : node_name Seq.t =
@@ -309,7 +309,33 @@ module Graph = struct
         { t with root_nodes = String_map.remove root t.root_nodes }
       )
 
-  let attributes_of_edge (src : node_name) (dst : node_name) (t : t) : (string * string) list =
+  let row_element_of_node ((root, sub) : node_name) (t : t) : row_element option =
+    match String_map.find_opt root t.root_nodes with
+    | None -> None
+    | Some x -> (
+        match x with
+        | `Fact x -> (
+            match sub with
+            | None -> Some (`Term x.fact)
+            | Some _ -> None
+          )
+        | `Rule x -> (
+            let rule = x.rule in
+            match sub with
+            | None -> None
+            | Some sub -> (
+                List.fold_left (fun res row ->
+                    match res with
+                    | None -> List.assoc_opt sub row
+                    | Some _ -> res
+                  )
+                  None
+                  [ rule.l; rule.r ]
+              )
+          )
+      )
+
+  let attrs_of_edge (src : node_name) (dst : node_name) (t : t) : (string * string) list =
     []
 end
 
@@ -434,7 +460,6 @@ module Dot_printers = struct
       | `Defs_and_undefs _
       | `Pat_matches _ ->
         [ ("port", sub_node)
-        ; ("border", "1")
         ; ("bgcolor", Params.proc_ctx_color) ]
       | `Term x -> (
           (match x with
@@ -564,7 +589,7 @@ module Dot_printers = struct
          Fmt.pf formatter
            {|
       <td>
-          <table cellborder="0" cellspacing="0" cellpadding="0">
+          <table border="0" cellborder="0" cellspacing="0" cellpadding="0">
               %a
           </table>
       </td>
@@ -626,10 +651,11 @@ module Dot_printers = struct
       pp_attrs_prefix_with_comma
       x.attrs
 
-  let pp_text_node formatter (x : text_node) =
-    Fmt.pf formatter "%s[%a]"
+  let pp_fact_node formatter (x : fact_node) =
+    Fmt.pf formatter {|%s["label"="%a"%a]|}
       x.name
-      pp_attrs (("label", x.value) :: x.attrs)
+      pp_term x.fact
+      pp_attrs_prefix_with_comma x.attrs
 
   let pp_node_name formatter ((node, sub_node) : node_name) =
     match sub_node with
@@ -650,16 +676,16 @@ module Dot_printers = struct
     String_map.iter (fun _name node ->
         match node with
         | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
-        | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
+        | `Fact node -> Fmt.pf formatter "@[<h>%a@]@," pp_fact_node node
       )
       g.root_nodes;
     Node_name_map.iter (fun src dsts ->
         Node_name_set.iter (fun dst ->
-          let attrs = Graph.attributes_of_edge src dst g in
-          Fmt.pf formatter "@[<h>%a -> %a[%a]@]@,"
-          pp_node_name src
-          pp_node_name dst
-          pp_attrs attrs
+            let attrs = Graph.attrs_of_edge src dst g in
+            Fmt.pf formatter "@[<h>%a -> %a[%a]@]@,"
+              pp_node_name src
+              pp_node_name dst
+              pp_attrs attrs
           ) dsts
       )
       g.edges;
@@ -908,28 +934,28 @@ module JSON_parsers = struct
                     |> node_name_of_json_node_id
           in
           (* let attrs =
-            match get_string @@ List.assoc "jgeRelation" x with
-            | "default" ->
+             match get_string @@ List.assoc "jgeRelation" x with
+             | "default" ->
               [ ("color", "gray30"); ("style", "dashed") ]
-            | "KFact" ->
+             | "KFact" ->
               [ ("color", "orangered2"); ("style", "dashed") ]
-            | "ProtoFact" ->
+             | "ProtoFact" ->
               [ ("style", "bold"); ("weight", "10.0") ]
-            | "PersistentFact" ->
+             | "PersistentFact" ->
               [ ("style", "bold"); ("weight", "10.0"); ("color", "gray50") ]
-            | "LessAtoms" ->
+             | "LessAtoms" ->
               [ ("color", "red"); ("style", "dashed")]
-            | any -> invalid_arg (Fmt.str "items_of_json: Unrecognized jgeRelation: %s" any)
-          in *)
+             | any -> invalid_arg (Fmt.str "items_of_json: Unrecognized jgeRelation: %s" any)
+             in *)
           Graph.add_edge src dst graph
         )
         graph
     in
-    let clean_up_fact_label label =
+    (*let clean_up_fact_label label =
       label
       |> term_of_string
       |> Fmt.str "%a" Dot_printers.pp_term
-    in
+      in*)
     let graph =
       List.assoc "jgNodes" json_graph
       |> get_list
@@ -950,7 +976,7 @@ module JSON_parsers = struct
               Graph.add_rule_node name (rule_of_json x') graph
             )
           | "unsolvedActionAtom" -> (
-              Graph.add_text_node name (clean_up_fact_label jgn_label) graph
+              Graph.add_fact_node name (term_of_string jgn_label) graph
             )
           | _ -> (
               (* if CCString.prefix ~pre:"Constrc_" jgn_label then (
@@ -1163,7 +1189,7 @@ module Rewrite = struct
                   Graph.remove_root_node ~bridge_over:false name g
                 )
             )
-          | `Text _ -> g
+          | `Fact _ -> g
         )
         g
   end
