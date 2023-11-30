@@ -88,20 +88,27 @@ type rule = {
 }
 
 type rule_node = {
-  name : string;
+  root_node_name : string;
   rule : rule;
   attrs : (string * string) list;
 }
 
 type fact_node = {
-  name : string;
+  root_node_name : string;
   fact : Tg_ast.term;
+  attrs : (string * string) list;
+}
+
+type text_node = {
+  root_node_name : string;
+  value : string;
   attrs : (string * string) list;
 }
 
 type node = [
   | `Rule of rule_node
   | `Fact of fact_node
+  | `Text of text_node
 ]
 
 type edge = {
@@ -116,7 +123,7 @@ let compare_node_name ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name
   let r = String.compare x_root y_root in
   if r = 0 then (
     match x_sub, y_sub with
-    | None, None -> String.compare x_root y_root
+    | None, None -> 0
     | Some _, None -> -1
     | None, Some _ -> 1
     | Some x, Some y -> String.compare x y
@@ -223,16 +230,22 @@ module Graph = struct
   let remove_edge' ({ src; dst; _ } : edge) (t : t) : t =
     remove_edge src dst t
 
-  let add_rule_node (name : string) (rule : rule) (t : t) : t =
+  let add_rule_node (root_node_name : string) (rule : rule) (t : t) : t =
     let attrs = [ ("shape", "none") ] in
     { t with
-      root_nodes = String_map.add name (`Rule { name; rule; attrs }) t.root_nodes
+      root_nodes = String_map.add root_node_name (`Rule { root_node_name; rule; attrs }) t.root_nodes
     }
 
-  let add_fact_node (name : string) (fact : Tg_ast.term) (t : t) : t =
+  let add_fact_node (root_node_name : string) (fact : Tg_ast.term) (t : t) : t =
     let attrs = [] in
     { t with
-      root_nodes = String_map.add name (`Fact { name; fact; attrs }) t.root_nodes
+      root_nodes = String_map.add root_node_name (`Fact { root_node_name; fact; attrs }) t.root_nodes
+    }
+
+  let add_text_node (root_node_name : string) (value : string) (t : t) : t =
+    let attrs = [] in
+    { t with
+      root_nodes = String_map.add root_node_name (`Text { root_node_name; value; attrs }) t.root_nodes
     }
 
   let children (x : node_name) t : node_name Seq.t =
@@ -314,6 +327,7 @@ module Graph = struct
     | None -> None
     | Some x -> (
         match x with
+        | `Text _ -> None
         | `Fact x -> (
             match sub with
             | None -> Some (`Term x.fact)
@@ -646,15 +660,21 @@ module Dot_printers = struct
 
   let pp_rule_node formatter (x : rule_node) =
     Fmt.pf formatter "%s[label=<%a>%a]"
-      x.name
+      x.root_node_name
       pp_rule x.rule
       pp_attrs_prefix_with_comma
       x.attrs
 
   let pp_fact_node formatter (x : fact_node) =
     Fmt.pf formatter {|%s["label"="%a"%a]|}
-      x.name
+      x.root_node_name
       pp_term x.fact
+      pp_attrs_prefix_with_comma x.attrs
+
+  let pp_text_node formatter (x : text_node) =
+    Fmt.pf formatter {|%s["label"="%s"%a]|}
+      x.root_node_name
+      x.value
       pp_attrs_prefix_with_comma x.attrs
 
   let pp_node_name formatter ((node, sub_node) : node_name) =
@@ -677,6 +697,7 @@ module Dot_printers = struct
         match node with
         | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
         | `Fact node -> Fmt.pf formatter "@[<h>%a@]@," pp_fact_node node
+        | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
       )
       g.root_nodes;
     Node_name_map.iter (fun src dsts ->
@@ -1165,31 +1186,44 @@ module Rewrite = struct
       let root_nodes =
         String_map.map (fun node ->
             match node with
-            | `Rule { name; rule; attrs } ->
-              `Rule { name; rule = rewrite_rule spec rule; attrs }
+            | `Rule { root_node_name; rule; attrs } ->
+              `Rule { root_node_name; rule = rewrite_rule spec rule; attrs }
             | _ -> node
           )
           g.root_nodes
       in
       { g with root_nodes }
 
-    let simplify (g : Graph.t) : Graph.t =
+    let simplify_intruder_nodes (g : Graph.t) : Graph.t =
       String_map.to_seq g.root_nodes
-      |> Seq.fold_left (fun g (name, node) ->
+      |> Seq.fold_left (fun g (_root_node_name, node) ->
           match node with
-          | `Rule { name; rule; attrs } -> (
+          | `Rule { root_node_name; rule; attrs } -> (
               match rule.typ with
               | `Protocol -> (
                   g
                 )
               | `Intruder -> (
-                  g
+                  match rule.name with
+                  | "Send" -> (
+                      g
+                      |> Graph.move_sub_node_edges_to_root_node root_node_name
+                      |> Graph.add_text_node root_node_name
+                        (Fmt.str "#%s : Isend" rule.a_timepoint)
+                    )
+                  | "Recv" -> (
+                      g
+                      |> Graph.move_sub_node_edges_to_root_node root_node_name
+                      |> Graph.add_text_node root_node_name
+                        (Fmt.str "#%s : Irecv" rule.a_timepoint)
+                    )
+                  | _ -> g
                 )
               | `Fresh -> (
-                  Graph.remove_root_node ~bridge_over:false name g
+                  Graph.remove_root_node ~bridge_over:false root_node_name g
                 )
             )
-          | `Fact _ -> g
+          | `Fact _ | `Text _ -> g
         )
         g
   end
@@ -1197,7 +1231,7 @@ module Rewrite = struct
   let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
     g
     |> Stages.rewrite_rules spec
-    |> Stages.simplify
+    |> Stages.simplify_intruder_nodes
 end
 
 let run () =
