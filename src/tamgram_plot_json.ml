@@ -1226,12 +1226,38 @@ module Rewrite = struct
           | `Fact _ | `Text _ -> g
         )
         g
+
+    let clean_up_root_node_edges (g : Graph.t) : Graph.t =
+      Node_name_map.to_seq g.edges
+      |> Seq.flat_map (fun (src, dsts) ->
+          Node_name_set.to_seq dsts
+          |> Seq.map (fun dst ->
+              (src, dst)
+            )
+        )
+      |> Seq.fold_left
+        (fun g ((x_root, x_sub), (y_root, y_sub)) ->
+           let g =
+             match x_sub with
+             | None -> g
+             | Some _ -> (
+                 Graph.remove_edge (x_root, None) (y_root, y_sub) g
+               )
+           in
+           match y_sub with
+           | None -> g
+           | Some _ -> (
+               Graph.remove_edge (x_root, x_sub) (y_root, None) g
+             )
+        )
+        g
   end
 
   let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
     g
     |> Stages.rewrite_rules spec
     |> Stages.simplify_intruder_nodes
+    |> Stages.clean_up_root_node_edges
 end
 
 let run () =
