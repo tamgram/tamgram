@@ -1209,13 +1209,13 @@ module Rewrite = struct
                       g
                       |> Graph.move_sub_node_edges_to_root_node root_node_name
                       |> Graph.add_text_node root_node_name
-                        (Fmt.str "#%s : Isend" rule.a_timepoint)
+                        (Fmt.str "#%s : isend" rule.a_timepoint)
                     )
                   | "Recv" -> (
                       g
                       |> Graph.move_sub_node_edges_to_root_node root_node_name
                       |> Graph.add_text_node root_node_name
-                        (Fmt.str "#%s : Irecv" rule.a_timepoint)
+                        (Fmt.str "#%s : irecv" rule.a_timepoint)
                     )
                   | _ -> g
                 )
