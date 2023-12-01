@@ -395,6 +395,8 @@ module Params = struct
 
   let step_tag_font_size = 20.0
 
+  let proc_name_font_size = 18.0
+
   let in_fact_color = "skyblue"
 
   let out_fact_color = "orange"
@@ -603,9 +605,12 @@ module Dot_printers = struct
       rule.a_timepoint
       (fun formatter rule ->
          match rule.proc_step_info with
-         | None -> Fmt.string formatter rule.name
+         | None -> Fmt.pf formatter {|<font point-size="%f">%s</font>|}
+                     Params.proc_name_font_size
+                     rule.name
          | Some { proc_name; pred; k; succ; step_tag } -> (
-             Fmt.pf formatter {|<font>%s</font>|}
+             Fmt.pf formatter {|<font point-size="%f">%s</font>|}
+               Params.proc_name_font_size
                proc_name;
              Fmt.pf formatter {|<font color="%s">%aTo%dTo%a</font>|}
                Params.additional_info_color
@@ -640,13 +645,20 @@ module Dot_printers = struct
     );
     if proc_step_info.step_tag <> "" then (
       Fmt.pf formatter {|
-      <tr><td>
-          <font point-size="%f">%s</font><font color="%s">(step label)</font>
+      <tr><td bgcolor="greenyellow">
+          <font point-size="%f">"%s"</font>
       </td></tr>
       |}
         Params.step_tag_font_size
         proc_step_info.step_tag
-        Params.additional_info_color
+        (*Fmt.pf formatter {|
+          <tr><td>
+            <font point-size="%f">"%s"</font><font color="%s">(step label)</font>
+          </td></tr>
+          |}
+          Params.step_tag_font_size
+          proc_step_info.step_tag
+          Params.additional_info_color*)
     );
     (match bottom with
      | None -> Fmt.pf formatter {|<tr><td>Terminate</td></tr>|}
