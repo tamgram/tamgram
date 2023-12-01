@@ -375,8 +375,8 @@ module Graph = struct
             | Some (`Pat_matches _), _ ->
               [ ("color", "black")
               ; ("penwidth", "2.0")
-              ; ("tailport", Fmt.str "%s:w" x_sub')
-              ; ("headport", Fmt.str "%s:w" y_sub')
+              ; ("tailport", Fmt.str "%s:s" x_sub')
+              ; ("headport", Fmt.str "%s:n" y_sub')
               ; ("weight", "1000.0")
               ]
             | Some (`Term _), _ -> []
@@ -567,7 +567,7 @@ module Dot_printers = struct
 
   let pp_l_row formatter (l : (string * row_element) list) =
     match l with
-    | [] -> Fmt.pf formatter "<td></td>"
+    | [] -> Fmt.pf formatter "<td> </td>"
     | _ -> (
         Fmt.pf formatter "%a"
           Fmt.(list (pp_row_element `L))
@@ -576,7 +576,7 @@ module Dot_printers = struct
 
   let pp_r_row formatter (l : (string * row_element) list) =
     match l with
-    | [] -> Fmt.pf formatter "<td></td>"
+    | [] -> Fmt.pf formatter "<td> </td>"
     | _ -> (
         Fmt.pf formatter "%a"
           Fmt.(list (pp_row_element `R))
@@ -594,21 +594,6 @@ module Dot_printers = struct
       | [] -> Fmt.pf formatter "<tr><td></td></tr>"
       | _ -> Fmt.pf formatter "%a" Fmt.(list pp_term) l
     in
-    (match rule.proc_step_info with
-     | None -> ()
-     | Some { step_tag; _ } -> (
-         if step_tag <> "" then (
-           Fmt.pf formatter {|
-      <td>
-          <font point-size="%f">%s</font><font color="%s">(step label)</font>
-      </td>
-      |}
-             Params.step_tag_font_size
-             step_tag
-             Params.additional_info_color
-         )
-       )
-    );
     Fmt.pf formatter
       {|
       <td>
@@ -646,7 +631,40 @@ module Dot_printers = struct
        )
     )
 
-  let pp_rule formatter (rule : rule) =
+  let pp_proc_ctx ~top ~bottom (proc_step_info : proc_step_info) formatter () =
+    Fmt.pf formatter {|<table border="0" cellborder="1" cellspacing="0" cellpadding="0">|};
+    (match top with
+     | None -> Fmt.pf formatter {|<tr><td>Start</td></tr>|}
+     | Some x ->
+       Fmt.pf formatter {|<tr>%a</tr>|} (pp_row_element `L) x
+    );
+    if proc_step_info.step_tag <> "" then (
+      Fmt.pf formatter {|
+      <tr><td>
+          <font point-size="%f">%s</font><font color="%s">(step label)</font>
+      </td></tr>
+      |}
+        Params.step_tag_font_size
+        proc_step_info.step_tag
+        Params.additional_info_color
+    );
+    (match bottom with
+     | None -> Fmt.pf formatter {|<tr><td>Terminate</td></tr>|}
+     | Some x ->
+       Fmt.pf formatter {|<tr>%a</tr>|} (pp_row_element `R) x
+    );
+    Fmt.pf formatter {|</table>|}
+
+  let pp_other_elements formatter (rule : rule) =
+    let f (node_name, x) =
+      match x with
+      | `Empty_init_ctx
+      | `Defs_and_undefs _
+      | `Pat_matches _ -> false
+      | `Term _ -> true
+    in
+    let l = List.filter f rule.l in
+    let r = List.filter f rule.r in
     Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
     Fmt.pf formatter
       {|<tr>
@@ -656,7 +674,7 @@ module Dot_printers = struct
                   </table>
               </td>
         </tr>|}
-      pp_l_row rule.l;
+      pp_l_row l;
     Fmt.pf formatter
       {|<tr>
               <td port="%s">
@@ -675,8 +693,43 @@ module Dot_printers = struct
                   </table>
               </td>
         </tr>|}
-      pp_r_row rule.r;
+      pp_r_row r;
     Fmt.pf formatter {|</table>|}
+
+  let pp_rule formatter (rule : rule) =
+    let get_proc_ctx_element acc (node_name, x) =
+      match acc with
+      | None -> (
+          match x with
+          | `Empty_init_ctx
+          | `Defs_and_undefs _
+          | `Pat_matches _ -> Some (node_name, x)
+          | `Term _ -> None
+        )
+      | Some _ -> acc
+    in
+    let top : (string * row_element) option =
+      rule.l
+      |> List.to_seq
+      |> Seq.fold_left get_proc_ctx_element None
+    in
+    let bottom : (string * row_element) option =
+      rule.r
+      |> List.to_seq
+      |> Seq.fold_left get_proc_ctx_element None
+    in
+    match top, bottom with
+    | None, None -> (
+        pp_other_elements formatter rule
+      )
+    | _, _ -> (
+        Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
+        Fmt.pf formatter {|<tr>|};
+        Fmt.pf formatter {|<td>%a</td>|} (pp_proc_ctx ~top ~bottom (Option.get rule.proc_step_info)) ();
+        Fmt.pf formatter {|<td>%a</td>|} pp_other_elements rule;
+        Fmt.pf formatter {|</tr>|};
+        Fmt.pf formatter {|</table>|}
+      )
 
   let pp_kv formatter ((k, v) : string * string) =
     Fmt.pf formatter "%s=\"%s\"" k v
