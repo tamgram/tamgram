@@ -107,8 +107,8 @@ type text_node = {
 
 type node = [
   | `Rule of rule_node
-  | `Fact of fact_node
-  | `Text of text_node
+  | `Intruder_fact of fact_node
+  | `Intruder_text of text_node
 ]
 
 type edge = {
@@ -236,16 +236,16 @@ module Graph = struct
       root_nodes = String_map.add root_node_name (`Rule { root_node_name; rule; attrs }) t.root_nodes
     }
 
-  let add_fact_node (root_node_name : string) (fact : Tg_ast.term) (t : t) : t =
+  let add_intruder_fact_node (root_node_name : string) (fact : Tg_ast.term) (t : t) : t =
     let attrs = [] in
     { t with
-      root_nodes = String_map.add root_node_name (`Fact { root_node_name; fact; attrs }) t.root_nodes
+      root_nodes = String_map.add root_node_name (`Intruder_fact { root_node_name; fact; attrs }) t.root_nodes
     }
 
-  let add_text_node (root_node_name : string) (value : string) (t : t) : t =
+  let add_intruder_text_node (root_node_name : string) (value : string) (t : t) : t =
     let attrs = [] in
     { t with
-      root_nodes = String_map.add root_node_name (`Text { root_node_name; value; attrs }) t.root_nodes
+      root_nodes = String_map.add root_node_name (`Intruder_text { root_node_name; value; attrs }) t.root_nodes
     }
 
   let children (x : node_name) t : node_name Seq.t =
@@ -327,8 +327,8 @@ module Graph = struct
     | None -> None
     | Some x -> (
         match x with
-        | `Text _ -> None
-        | `Fact x -> (
+        | `Intruder_text _ -> None
+        | `Intruder_fact x -> (
             match sub with
             | None -> Some (`Term x.fact)
             | Some _ -> None
@@ -349,8 +349,32 @@ module Graph = struct
           )
       )
 
-  let attrs_of_edge (src : node_name) (dst : node_name) (t : t) : (string * string) list =
-    []
+  let attrs_of_edge ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name) (t : t) : (string * string) list =
+    let x_root_node = String_map.find x_root t.root_nodes in
+    let y_root_node = String_map.find y_root t.root_nodes in
+    match x_root_node, y_root_node with
+    | _, `Intruder_fact _
+    | _, `Intruder_text _ -> [ ("color", "orangered2"); ]
+    | `Intruder_fact _, _
+    | `Intruder_text _, _ -> [ ]
+    | `Rule x_rule_node, `Rule y_rule_node -> (
+        match x_sub, y_sub with
+        | None, None -> [ ("color", "gray60"); ("style", "dashed") ]
+        | _, _ -> (
+            match
+              row_element_of_node (x_root, x_sub) t,
+              row_element_of_node (y_root, y_sub) t
+            with
+            | Some `Empty_init_ctx, _
+            | Some (`Defs_and_undefs _), _
+            | Some (`Pat_matches _), _ ->
+              [ ("color", "black")
+              ; ("penwidth", "2.0")
+              ]
+            | Some (`Term _), _ -> []
+            | _, _ -> []
+          )
+      )
 end
 
 type row = [ `L | `R ]
@@ -696,8 +720,8 @@ module Dot_printers = struct
     String_map.iter (fun _name node ->
         match node with
         | `Rule node -> Fmt.pf formatter "@[<h>%a@]@," pp_rule_node node
-        | `Fact node -> Fmt.pf formatter "@[<h>%a@]@," pp_fact_node node
-        | `Text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
+        | `Intruder_fact node -> Fmt.pf formatter "@[<h>%a@]@," pp_fact_node node
+        | `Intruder_text node -> Fmt.pf formatter "@[<h>%a@]@," pp_text_node node
       )
       g.root_nodes;
     Node_name_map.iter (fun src dsts ->
@@ -997,7 +1021,7 @@ module JSON_parsers = struct
               Graph.add_rule_node name (rule_of_json x') graph
             )
           | "unsolvedActionAtom" -> (
-              Graph.add_fact_node name (term_of_string jgn_label) graph
+              Graph.add_intruder_fact_node name (term_of_string jgn_label) graph
             )
           | _ -> (
               (* if CCString.prefix ~pre:"Constrc_" jgn_label then (
@@ -1204,26 +1228,30 @@ module Rewrite = struct
                   g
                 )
               | `Intruder -> (
-                  match rule.name with
-                  | "Send" -> (
-                      g
-                      |> Graph.move_sub_node_edges_to_root_node root_node_name
-                      |> Graph.add_text_node root_node_name
-                        (Fmt.str "#%s : isend" rule.a_timepoint)
-                    )
-                  | "Recv" -> (
-                      g
-                      |> Graph.move_sub_node_edges_to_root_node root_node_name
-                      |> Graph.add_text_node root_node_name
-                        (Fmt.str "#%s : irecv" rule.a_timepoint)
-                    )
-                  | _ -> g
+                  if CCString.equal rule.name "Send" then (
+                    g
+                    |> Graph.move_sub_node_edges_to_root_node root_node_name
+                    |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : isend" rule.a_timepoint)
+                  ) else if CCString.equal rule.name "Recv" then (
+                    g
+                    |> Graph.move_sub_node_edges_to_root_node root_node_name
+                    |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : irecv" rule.a_timepoint)
+                  ) else if CCString.prefix ~pre:"Destrd" rule.name then (
+                    g
+                    |> Graph.remove_root_node ~bridge_over:true root_node_name
+                  ) else if CCString.prefix ~pre:"Constrc" rule.name then (
+                    g
+                  ) else (
+                    g
+                  )
                 )
               | `Fresh -> (
                   Graph.remove_root_node ~bridge_over:false root_node_name g
                 )
             )
-          | `Fact _ | `Text _ -> g
+          | `Intruder_fact _ | `Intruder_text _ -> g
         )
         g
 
@@ -1241,13 +1269,17 @@ module Rewrite = struct
              match x_sub with
              | None -> g
              | Some _ -> (
-                 Graph.remove_edge (x_root, None) (y_root, y_sub) g
+                 g
+                 |> Graph.remove_edge (x_root, None) (y_root, y_sub)
+                 |> Graph.remove_edge (x_root, None) (y_root, None)
                )
            in
            match y_sub with
            | None -> g
            | Some _ -> (
-               Graph.remove_edge (x_root, x_sub) (y_root, None) g
+               g
+               |> Graph.remove_edge (x_root, x_sub) (y_root, None)
+               |> Graph.remove_edge (x_root, None) (y_root, None)
              )
         )
         g
