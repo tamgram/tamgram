@@ -119,6 +119,11 @@ type edge = {
 
 type node_name = string * string option
 
+let pp_node_name formatter ((node, sub_node) : node_name) =
+  match sub_node with
+  | None -> Fmt.pf formatter "%s" node
+  | Some sub_node -> Fmt.pf formatter "%s:%s" node sub_node
+
 let compare_node_name ((x_root, x_sub) : node_name) ((y_root, y_sub) : node_name) =
   let r = String.compare x_root y_root in
   if r = 0 then (
@@ -360,7 +365,7 @@ module Graph = struct
     | `Rule x_rule_node, `Rule y_rule_node -> (
         match x_sub, y_sub with
         | None, None -> [ ("color", "gray60"); ("style", "dashed") ]
-        | _, _ -> (
+        | Some x_sub', Some y_sub' -> (
             match
               row_element_of_node (x_root, x_sub) t,
               row_element_of_node (y_root, y_sub) t
@@ -370,10 +375,14 @@ module Graph = struct
             | Some (`Pat_matches _), _ ->
               [ ("color", "black")
               ; ("penwidth", "2.0")
+              ; ("tailport", Fmt.str "%s:w" x_sub')
+              ; ("headport", Fmt.str "%s:w" y_sub')
+              ; ("weight", "1000.0")
               ]
             | Some (`Term _), _ -> []
             | _, _ -> []
           )
+        | _, _ -> []
       )
 end
 
@@ -700,11 +709,6 @@ module Dot_printers = struct
       x.root_node_name
       x.value
       pp_attrs_prefix_with_comma x.attrs
-
-  let pp_node_name formatter ((node, sub_node) : node_name) =
-    match sub_node with
-    | None -> Fmt.pf formatter "%s" node
-    | Some sub_node -> Fmt.pf formatter "%s:%s" node sub_node
 
   let pp_graph formatter (g : Graph.t) =
     Fmt.pf formatter "@[<v>digraph G {@,@]";
@@ -1230,19 +1234,38 @@ module Rewrite = struct
               | `Intruder -> (
                   if CCString.equal rule.name "Send" then (
                     g
-                    |> Graph.move_sub_node_edges_to_root_node root_node_name
-                    |> Graph.add_intruder_text_node root_node_name
-                      (Fmt.str "#%s : isend" rule.a_timepoint)
+                    |> Graph.remove_root_node ~bridge_over:true root_node_name
+                    (*|> Graph.move_sub_node_edges_to_root_node root_node_name
+                      |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : isend" rule.a_timepoint) *)
                   ) else if CCString.equal rule.name "Recv" then (
+                    g
+                    |> Graph.remove_root_node ~bridge_over:true root_node_name
+                    (*|> Graph.move_sub_node_edges_to_root_node root_node_name
+                      |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : irecv" rule.a_timepoint)*)
+                  ) else if CCString.equal rule.name "Coerce" then (
                     g
                     |> Graph.move_sub_node_edges_to_root_node root_node_name
                     |> Graph.add_intruder_text_node root_node_name
-                      (Fmt.str "#%s : irecv" rule.a_timepoint)
+                      (Fmt.str "#%s : coerce[%a]"
+                         rule.a_timepoint
+                         Dot_printers.pp_term (List.hd rule.a))
                   ) else if CCString.prefix ~pre:"Destrd" rule.name then (
                     g
                     |> Graph.remove_root_node ~bridge_over:true root_node_name
+                    (*|> Graph.move_sub_node_edges_to_root_node root_node_name
+                      |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : destr"
+                      rule.a_timepoint)*)
                   ) else if CCString.prefix ~pre:"Constrc" rule.name then (
                     g
+                    |> Graph.move_sub_node_edges_to_root_node root_node_name
+                    |> Graph.add_intruder_text_node root_node_name
+                      (Fmt.str "#%s : %s[%a]"
+                         rule.a_timepoint
+                         (CCString.replace ~which:`Left ~sub:"Constrc_" ~by:"c_" rule.name)
+                         Dot_printers.pp_term (List.hd rule.a))
                   ) else (
                     g
                   )
