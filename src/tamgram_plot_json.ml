@@ -401,6 +401,8 @@ module Params = struct
 
   let rule_name_font_size = 15.0
 
+  let rule_name_font_name = "Courier"
+
   let in_fact_color = "skyblue"
 
   let out_fact_color = "orange"
@@ -499,7 +501,7 @@ module Dot_printers = struct
       Fmt.pf formatter {|<tr><td align="left">undef('%s)</td></tr>|} cell
     in
     let pp_pat_match formatter ((cell, term) : string * Tg_ast.term) =
-      Fmt.pf formatter "<tr><td>'%s cas %a</td></tr>" cell pp_term term
+      Fmt.pf formatter {|<tr><td align="left">'%s cas %a</td></tr>|} cell pp_term term
     in
     let pp_prop formatter ((k, v) : string * string) =
       Fmt.pf formatter "%s=\"%s\"" k v
@@ -558,7 +560,7 @@ module Dot_printers = struct
            )
          | `Pat_matches l -> (
              match l with
-             | [] -> Fmt.pf formatter "..."
+             | [] -> Fmt.pf formatter " "
              | _ -> (
                  Fmt.pf formatter {|<table border="0" cellborder="0" cellspacing="0" cellpadding="0">|};
                  Fmt.pf formatter "%a" Fmt.(list pp_pat_match) l;
@@ -609,12 +611,14 @@ module Dot_printers = struct
       rule.a_timepoint
       (fun formatter rule ->
          match rule.proc_step_info with
-         | None -> Fmt.pf formatter {|<font point-size="%f">%s</font>|}
+         | None -> Fmt.pf formatter {|<font point-size="%f" face="%s">%s</font>|}
                      Params.rule_name_font_size
+                     Params.rule_name_font_name
                      rule.name
          | Some { proc_name; pred; k; succ; step_tag } -> (
-             Fmt.pf formatter {|<font point-size="%f">%s</font>|}
+             Fmt.pf formatter {|<font point-size="%f" face="%s">%s</font>|}
                Params.rule_name_font_size
+               Params.rule_name_font_name
                proc_name;
              Fmt.pf formatter {|<font color="%s">%aTo%dTo%a</font>|}
                Params.additional_info_color
