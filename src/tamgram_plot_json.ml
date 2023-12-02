@@ -359,9 +359,9 @@ module Graph = struct
     let y_root_node = String_map.find y_root t.root_nodes in
     match x_root_node, y_root_node with
     | _, `Intruder_fact _
-    | _, `Intruder_text _ -> [ ("color", "orangered2"); ]
+    | _, `Intruder_text _ -> [ ("color", "orangered2") ]
     | `Intruder_fact _, _
-    | `Intruder_text _, _ -> [ ]
+    | `Intruder_text _, _ -> [ ("color", "orangered2") ]
     | `Rule x_rule_node, `Rule y_rule_node -> (
         match x_sub, y_sub with
         | None, None -> [ ("color", "gray60"); ("style", "dashed") ]
@@ -395,7 +395,11 @@ module Params = struct
 
   let step_tag_font_size = 20.0
 
-  let proc_name_font_size = 18.0
+  let proc_name_font_size = 15.0
+
+  let proc_name_font_name = "Courier"
+
+  let rule_name_font_size = 15.0
 
   let in_fact_color = "skyblue"
 
@@ -606,11 +610,11 @@ module Dot_printers = struct
       (fun formatter rule ->
          match rule.proc_step_info with
          | None -> Fmt.pf formatter {|<font point-size="%f">%s</font>|}
-                     Params.proc_name_font_size
+                     Params.rule_name_font_size
                      rule.name
          | Some { proc_name; pred; k; succ; step_tag } -> (
              Fmt.pf formatter {|<font point-size="%f">%s</font>|}
-               Params.proc_name_font_size
+               Params.rule_name_font_size
                proc_name;
              Fmt.pf formatter {|<font color="%s">%aTo%dTo%a</font>|}
                Params.additional_info_color
@@ -643,12 +647,24 @@ module Dot_printers = struct
      | Some x ->
        Fmt.pf formatter {|<tr>%a</tr>|} (pp_row_element `L) x
     );
-    if proc_step_info.step_tag <> "" then (
+    if proc_step_info.step_tag = "" then (
       Fmt.pf formatter {|
       <tr><td bgcolor="greenyellow">
-          <font point-size="%f">"%s"</font>
+          <font point-size="%f" face="%s">%s</font>
       </td></tr>
       |}
+        Params.proc_name_font_size
+        Params.proc_name_font_name
+        proc_step_info.proc_name
+    ) else (
+      Fmt.pf formatter {|
+      <tr><td bgcolor="greenyellow">
+          <font point-size="%f" face="%s">%s : </font><font point-size="%f">"%s"</font>
+      </td></tr>
+      |}
+        Params.proc_name_font_size
+        Params.proc_name_font_name
+        proc_step_info.proc_name
         Params.step_tag_font_size
         proc_step_info.step_tag
         (*Fmt.pf formatter {|
@@ -1343,7 +1359,7 @@ module Rewrite = struct
         )
         g
 
-    let clean_up_root_node_edges (g : Graph.t) : Graph.t =
+    let remove_root_node_edges_if_sub_node_already_connected (g : Graph.t) : Graph.t =
       Node_name_map.to_seq g.edges
       |> Seq.flat_map (fun (src, dsts) ->
           Node_name_set.to_seq dsts
@@ -1371,13 +1387,51 @@ module Rewrite = struct
              )
         )
         g
+
+    let clean_up_direct_root_level_edges_if_indirectly_connected_already (g : Graph.t) : Graph.t =
+      let simplified_g = String_map.to_seq g.root_nodes
+                         |> Seq.fold_left (fun g (root_node_name, _) ->
+                             Graph.move_sub_node_edges_to_root_node root_node_name g
+                           )
+                           g
+      in
+      let g = ref g in
+      let rec dfs (parents_and_grand_parents : String_set.t) (node : string) : unit =
+        match Node_name_map.find_opt (node, None) simplified_g.edges with
+        | None -> ()
+        | Some children -> (
+            Node_name_set.to_seq children
+            |> Seq.map fst
+            |> Seq.iter (fun child ->
+                String_set.to_seq parents_and_grand_parents
+                |> Seq.iter (fun parent ->
+                    g := Graph.remove_edge (parent, None) (child, None) !g
+                  );
+                dfs (String_set.add node parents_and_grand_parents) child
+              );
+          )
+      in
+      String_map.to_seq simplified_g.root_nodes
+      |> Seq.filter_map (fun (node_name, _) ->
+          match Node_name_map.find_opt (node_name, None) simplified_g.edges_backward with
+          | None -> Some node_name
+          | Some s -> (
+              if Node_name_set.is_empty s then
+                Some node_name
+              else
+                None
+            )
+        )
+      |> Seq.iter (fun root -> dfs String_set.empty root);
+      !g
   end
 
   let graph (spec : Spec.t) (g : Graph.t) : Graph.t =
     g
     |> Stages.rewrite_rules spec
     |> Stages.simplify_intruder_nodes
-    |> Stages.clean_up_root_node_edges
+    |> Stages.remove_root_node_edges_if_sub_node_already_connected
+    |> Stages.clean_up_direct_root_level_edges_if_indirectly_connected_already
 end
 
 let run () =
