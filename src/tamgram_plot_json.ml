@@ -395,13 +395,13 @@ module Params = struct
 
   let additional_info_color = "lightslategray"
 
-  let step_tag_font_size = 20.0
+  let step_tag_font_size = 12.0
 
-  let proc_name_font_size = 15.0
+  let proc_name_font_size = 10.0
 
   let proc_name_font_name = "Courier"
 
-  let rule_name_font_size = 15.0
+  let rule_name_font_size = 10.0
 
   let rule_name_font_name = "Courier"
 
@@ -1495,36 +1495,39 @@ let run () =
       let formatter = Format.formatter_of_out_channel oc in
       Fmt.pf formatter "argv: @[%s@,@]" (String.concat " " argv)
     );
-  match List.filter (fun s -> Filename.extension s = ".json") argv with
-  | [] -> invalid_arg "No JSON file provided"
-  | json_file :: _ -> (
-      (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore; *)
-      let json =
-        CCIO.with_in json_file (fun ic ->
-            CCIO.read_all ic
-            |> Yojson.Safe.from_string
-          )
-      in
-      let graph = JSON_parsers.graph_of_json json
-                  |> Graph.add_kv "nodesep" "0.3"
-                  |> Graph.add_kv "ranksep" "0.5"
-                  |> Graph.add_node_setting "fontsize" "14"
-      in
-      let tg_file = Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name) in
-      let spec =
-        let* root = Modul_load.from_file tg_file in
-        Tg.run_pipeline (Spec.make root)
-      in
-      match spec with
-      | Error _ -> invalid_arg "Failed to parse Tamgram file"
-      | Ok spec -> (
-          let graph = Rewrite.graph spec graph in
-          CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
-              let formatter = Format.formatter_of_out_channel oc in
-              Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
-            );
-          exit (call_dot [ "-Tpng"; "-o"; "tamgram-test1.png"; "tamgram-test1.dot" ])
-        )
+  let image_file =
+    List.hd (List.filter (fun s -> Filename.extension s = ".png") argv)
+  in
+  let json_file =
+    List.hd (List.filter (fun s -> Filename.extension s = ".json") argv)
+  in
+  (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore; *)
+  let json =
+    CCIO.with_in json_file (fun ic ->
+        CCIO.read_all ic
+        |> Yojson.Safe.from_string
+      )
+  in
+  let graph = JSON_parsers.graph_of_json json
+              |> Graph.add_kv "nodesep" "0.3"
+              |> Graph.add_kv "ranksep" "0.5"
+              |> Graph.add_node_setting "fontsize" "8"
+  in
+  let tg_file = Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name) in
+  let spec =
+    let* root = Modul_load.from_file tg_file in
+    Tg.run_pipeline (Spec.make root)
+  in
+  match spec with
+  | Error _ -> invalid_arg "Failed to parse Tamgram file"
+  | Ok spec -> (
+      let graph = Rewrite.graph spec graph in
+      let dot_file = json_file ^ ".dot" in
+      CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
+          let formatter = Format.formatter_of_out_channel oc in
+          Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
+        );
+      exit (call_dot [ "-Tpng"; "-o"; image_file; dot_file ])
     )
 
 let () = run ()
