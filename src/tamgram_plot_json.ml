@@ -150,6 +150,7 @@ module Node_name_set = CCSet.Make (struct
 
 module Graph = struct
   type t = {
+    theory_name : string;
     key_values : string String_map.t;
     node_settings : string String_map.t;
     root_nodes : node String_map.t;
@@ -159,7 +160,8 @@ module Graph = struct
   }
 
   let empty : t =
-    { key_values = String_map.empty;
+    { theory_name = "";
+      key_values = String_map.empty;
       node_settings = String_map.empty;
       root_nodes = String_map.empty;
       sub_nodes_of_root_node = String_map.empty;
@@ -1053,7 +1055,16 @@ module JSON_parsers = struct
                      |> List.hd
                      |> get_assoc
     in
-    let graph = Graph.empty in
+    let theory_name = List.assoc "jgLabel" json_graph
+                      |> get_string
+                      |> String.split_on_char ' '
+                      |> (fun l ->
+                          match l with
+                          | "Theory:" :: name :: _ -> name
+                          | _ -> invalid_arg "graph_of_json: Invalid jgLabel"
+                        )
+    in
+    let graph = Graph.{ empty with theory_name } in
     let graph =
       List.assoc "jgEdges" json_graph
       |> get_list
@@ -1438,6 +1449,41 @@ module Rewrite = struct
     |> Stages.clean_up_direct_root_level_edges_if_indirectly_connected_already
 end
 
+let find_tg_file_recursive ~dir (theory_name : string) =
+  let rec aux (path_so_far : string) dir : string option =
+    let path_so_far =
+      if path_so_far = "" then dir
+      else Filename.concat path_so_far dir
+    in
+    match Sys.readdir path_so_far with
+    | arr -> (
+        Array.fold_left (fun res file ->
+            match res with
+            | None -> (
+                if String.get file 0 = '.' then (
+                  res
+                ) else (
+                  let path = Filename.concat path_so_far file in
+                  if Sys.is_regular_file path then (
+                    if String.equal file (theory_name ^ ".tg") then (
+                      Some path
+                    ) else (
+                      res
+                    )
+                  ) else (
+                    aux path_so_far file
+                  )
+                )
+              )
+            | Some _ -> res
+          )
+          None
+          arr
+      )
+    | exception _ -> None
+  in
+  aux "" dir
+
 let run () =
   let open Result_syntax in
   let argv =
@@ -1460,19 +1506,20 @@ let run () =
             |> Yojson.Safe.from_string
           )
       in
-      let res =
-        let* root = Modul_load.from_file tg_file in
-        let+ spec =  Tg.run_pipeline (Spec.make root) in
-        let graph = JSON_parsers.graph_of_json json
-                    |> Graph.add_kv "nodesep" "0.3"
-                    |> Graph.add_kv "ranksep" "0.5"
-                    |> Graph.add_node_setting "fontsize" "14"
-        in
-        Rewrite.graph spec graph
+      let graph = JSON_parsers.graph_of_json json
+                  |> Graph.add_kv "nodesep" "0.3"
+                  |> Graph.add_kv "ranksep" "0.5"
+                  |> Graph.add_node_setting "fontsize" "14"
       in
-      match res with
+      let tg_file = Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name) in
+      let spec =
+        let* root = Modul_load.from_file tg_file in
+        Tg.run_pipeline (Spec.make root)
+      in
+      match spec with
       | Error _ -> invalid_arg "Failed to parse Tamgram file"
-      | Ok graph -> (
+      | Ok spec -> (
+          let graph = Rewrite.graph spec graph in
           CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] "tamgram-test1.dot" (fun oc ->
               let formatter = Format.formatter_of_out_channel oc in
               Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
