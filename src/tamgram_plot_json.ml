@@ -1499,7 +1499,6 @@ let run () =
   | [] -> invalid_arg "No JSON file provided"
   | json_file :: _ -> (
       (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore; *)
-      let tg_file = "examples/csf18-xor/CH07.tg" in
       let json =
         CCIO.with_in json_file (fun ic ->
             CCIO.read_all ic
