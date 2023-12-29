@@ -34,7 +34,7 @@ let default_pipeline =
      Rewrite_uninterpreted_fun_symbols_exp_args.map_spec);
     ("Pattern matching syntax check", Pattern_matching_syntax_check.map_spec);
     ("Rewrite wildcard character", Rewrite_wildcard_char.map_spec);
-    ("Rewrte term name as", Rewrite_term_name_as.map_spec);
+    ("Rewrite term name as", Rewrite_term_name_as.map_spec);
     ("Lexical context anaylsis", Lexical_ctx_analysis.map_spec);
     ("Type checking", Typ_check.map_spec);
     ("Unused name check", Unused_name_check.map_spec);
