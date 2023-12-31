@@ -1189,7 +1189,7 @@ module Rewrite = struct
            | `Backward -> (
                Int_map.find k spec.cells_to_carry_over_after
              )
-           | `Empty -> String_tagged_set.empty)
+          )
         in
         let assigns =
           List.combine
@@ -1254,7 +1254,6 @@ module Rewrite = struct
         match name with
         | "StF" -> `Forward
         | "StB" -> `Backward
-        | "St" -> `Empty
         | _ -> raise Fail
       in
       let vertex =
@@ -1510,7 +1509,7 @@ let run () =
   in
   let graph = JSON_parsers.graph_of_json json
               |> Graph.add_kv "nodesep" "0.3"
-              |> Graph.add_kv "ranksep" "0.5"
+              |> Graph.add_kv "ranksep" "0.3"
               |> Graph.add_node_setting "fontsize" "8"
   in
   let tg_file = Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name) in

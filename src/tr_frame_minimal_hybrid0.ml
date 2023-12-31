@@ -3,7 +3,6 @@ open Tr_utils
 type exit_bias = [
   | `Forward
   | `Backward
-  | `Empty
 ]
 
 let rule_is_empty (spec : Spec.t) (g : Tg_graph.t) (k : int) =
@@ -169,15 +168,7 @@ let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
   let rule_is_empty x = rule_is_empty spec g x in
   let pred = Graph.pred k g in
   let succ = Graph.succ k g in
-  let no_pred_is_empty () =
-    not (Int_set.exists rule_is_empty pred)
-  in
-  let no_succ_is_empty () =
-    not (Int_set.exists rule_is_empty succ)
-  in
-  if rule_is_empty k && no_pred_is_empty () && no_succ_is_empty () then
-    `Empty
-  else (
+  (
     if Int_set.cardinal succ <= 1 then
       `Forward
     else
@@ -185,64 +176,50 @@ let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
   )
 
 let compute_possible_exit_facts spec g k : (int option * Tg_ast.term) Seq.t =
-  let empty_rule_exit_facts =
-    Graph.succ_seq k g
-    |> Seq.filter (fun x -> exit_bias spec g x = `Empty)
-    |> Seq.map (fun empty_rule ->
-        (Some empty_rule, exit_fact_to_empty_rule spec g k ~empty_rule))
-  in
   match exit_bias spec g k with
-  | `Empty -> Seq.empty
   | `Forward -> (
       Graph.succ_seq k g
-      |> Seq.filter (fun x -> exit_bias spec g x <> `Empty)
       |> Seq.map (fun succ ->
           (Some succ, Forward_biased.exit_fact spec g k ~succ)
         )
-      |> Seq.append empty_rule_exit_facts
     )
-  | `Backward ->
-    Seq.cons (None, Backward_biased.exit_fact spec g k)
-      empty_rule_exit_facts
+  | `Backward -> (
+      Seq.return (None, Backward_biased.exit_fact spec g k)
+    )
 
 let compute_possible_entry_facts spec g k : (int option * Tg_ast.term) Seq.t =
-  match exit_bias spec g k with
-  | `Empty -> Seq.empty
-  | _ -> (
-      let
-        forward_biased_exit_preds,
-        backward_biased_exit_preds,
-        empty_rule_exit_preds
-        =
-        Int_set.fold (fun x (f, b, e) ->
-            match exit_bias spec g x with
-            | `Forward -> (Int_set.add x f, b, e)
-            | `Backward -> (f, Int_set.add x b, e)
-            | `Empty -> (f, b, Int_set.add x e)
-          )
-          (Graph.pred k g)
-          (Int_set.empty, Int_set.empty, Int_set.empty)
-      in
-      [
-        (if Int_set.is_empty forward_biased_exit_preds then Seq.empty
-         else (
-           Seq.return (None, Forward_biased.entry_fact spec g k)
-         )
-        );
-        (Int_set.to_seq backward_biased_exit_preds
-         |> Seq.map (fun pred ->
-             (Some pred, Backward_biased.entry_fact spec g k ~pred)
-           )
-        );
-        (Int_set.to_seq empty_rule_exit_preds
-         |> Seq.map (fun empty_rule ->
-             (Some empty_rule, entry_fact_from_empty_rule spec g k ~empty_rule)
-           )
-        );
-      ]
-      |> List.to_seq
-      |> Seq.flat_map Fun.id
-    )
+  let
+    forward_biased_exit_preds,
+    backward_biased_exit_preds,
+    empty_rule_exit_preds
+    =
+    Int_set.fold (fun x (f, b, e) ->
+        match exit_bias spec g x with
+        | `Forward -> (Int_set.add x f, b, e)
+        | `Backward -> (f, Int_set.add x b, e)
+      )
+      (Graph.pred k g)
+      (Int_set.empty, Int_set.empty, Int_set.empty)
+  in
+  [
+    (if Int_set.is_empty forward_biased_exit_preds then Seq.empty
+     else (
+       Seq.return (None, Forward_biased.entry_fact spec g k)
+     )
+    );
+    (Int_set.to_seq backward_biased_exit_preds
+     |> Seq.map (fun pred ->
+         (Some pred, Backward_biased.entry_fact spec g k ~pred)
+       )
+    );
+    (Int_set.to_seq empty_rule_exit_preds
+     |> Seq.map (fun empty_rule ->
+         (Some empty_rule, entry_fact_from_empty_rule spec g k ~empty_rule)
+       )
+    );
+  ]
+  |> List.to_seq
+  |> Seq.flat_map Fun.id
 
 type link_target = [
   | `None
