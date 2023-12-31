@@ -118,7 +118,12 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
     match proc with
     | P_null -> (
         let id = Graph.get_id () in
-        Ok (Graph.add_vertex_with_id id empty_rule g)
+        let g =
+          g
+          |> link_backward ~last_ids id
+          |> Graph.add_vertex_with_id id empty_rule
+        in
+        Ok g
       )
     | P_let _
     | P_let_macro _
