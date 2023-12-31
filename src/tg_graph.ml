@@ -116,7 +116,10 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
     : (t, Error_msg.t) result =
     let open Tg_ast in
     match proc with
-    | P_null -> Ok g
+    | P_null -> (
+        let id = Graph.get_id () in
+        Ok (Graph.add_vertex_with_id id empty_rule g)
+      )
     | P_let _
     | P_let_macro _
     | P_scoped _
@@ -135,49 +138,47 @@ let of_proc (proc : Tg_ast.proc) : (t * string Int_map.t * restrictions_required
       in
       aux labelled_loops loop_stack [id] g next
     | P_branch (loc, procs, next) -> (
-        let* gs =
-          aux_list labelled_loops loop_stack last_ids Graph.empty [] procs
-        in
-        let g' = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
-        if Graph.is_empty g' then (
-          aux labelled_loops loop_stack last_ids g next
-        ) else (
-          let last_ids = Graph.leaves g' |> List.of_seq in
-          let g = Graph.union g' g in
-          let default () =
-            aux labelled_loops loop_stack last_ids g next
-          in
-          match last_ids with
-          | [] -> (
-              match next with
-              | P_null ->
-                aux labelled_loops loop_stack last_ids g next
-              | _ ->
-                Error (
-                  Error_msg.make
-                    loc
-                    "The process after choice here is not reachable"
-                )
-            )
-          | [_] -> default ()
-          | _ -> (
-              match next with
-              | P_branch _ | P_if_then_else _ -> (
+        match procs with
+        | [] -> aux labelled_loops loop_stack last_ids g next
+        | _ -> (
+            let id = Graph.get_id () in
+            let g =
+              g
+              |> link_backward ~last_ids id
+              |> Graph.add_vertex_with_id id empty_rule
+            in
+            let* gs =
+              aux_list labelled_loops loop_stack [id] Graph.empty [] procs
+            in
+            let g' = List.fold_left (fun acc x -> Graph.union acc x) Graph.empty gs in
+            let last_ids = Graph.leaves g' |> List.of_seq in
+            let g = Graph.union g' g in
+            match last_ids with
+            | [] -> (
+                match next with
+                | P_null -> Ok g
+                | _ ->
+                  Error (
+                    Error_msg.make
+                      loc
+                      "The process after choice here is not reachable"
+                  )
+              )
+            | _ -> (
+                let last_ids, g =
                   if !Params.merge_branches then (
                     let id = Graph.get_id () in
-                    let g =
-                      g
-                      |> link_backward ~last_ids id
-                      |> Graph.add_vertex_with_id id empty_rule
-                    in
-                    aux labelled_loops loop_stack [id] g next
+                    ([id],
+                     g
+                     |> link_backward ~last_ids id
+                     |> Graph.add_vertex_with_id id empty_rule)
                   ) else (
-                    default ()
+                    (last_ids, g)
                   )
-                )
-              | _ -> default ()
-            )
-        )
+                in
+                aux labelled_loops loop_stack last_ids g next
+              )
+          )
       )
     | P_loop { label; mode; proc; next } -> (
         let enter_loop (loop_skeleton : loop_skeleton) (proc : Tg_ast.proc) =
