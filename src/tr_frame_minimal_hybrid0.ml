@@ -121,7 +121,6 @@ module Backward_biased = struct
 end
 
 let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
-  let rule_is_empty x = rule_is_empty spec g x in
   let pred = Graph.pred k g in
   let succ = Graph.succ k g in
   (
@@ -195,12 +194,48 @@ let pp_rule_id
     k
     pp_link_target succ
 
-type rule_ir = {
-  entry_fact : State_fact_IR.t;
-  exit_fact : State_fact_IR.t;
-}
+module Rule_IR = struct
+  type t = {
+    k : int;
+    rule_name : string;
+    entry_fact : State_fact_IR.t option;
+    l : Tg_ast.term list;
+    a : Tg_ast.term list;
+    r : Tg_ast.term list;
+    exit_fact : State_fact_IR.t option;
+  }
 
-let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
+  let to_decl (t : t) : Tg_ast.decl =
+    let l = match t.entry_fact with
+      | None -> t.l
+      | Some entry_fact ->
+        State_fact_IR.to_term entry_fact :: t.l
+    in
+    let a = t.a in
+    let r = match t.exit_fact with
+      | None -> t.r
+      | Some exit_fact ->
+        State_fact_IR.to_term exit_fact :: t.r
+    in
+    let open Tg_ast in
+    D_rule {
+      binding =
+        Binding.make
+          (Loc.untagged t.rule_name)
+          {
+            l;
+            vars_in_l = [];
+            bindings_before_a = [];
+            a;
+            bindings_before_r = [];
+            r;
+          }
+    }
+end
+
+type rule_irs = Rule_IR.t Int_map.t
+
+let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.roots g
@@ -214,7 +249,6 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq
       in
       compute_possible_exit_facts spec g k
       |> Seq.map (fun (dst, exit_fact) ->
-          let r = State_fact_IR.to_term exit_fact :: r in
           let rule_name =
             Fmt.str "%a___%a%s" pp_name_of_proc binding
               (pp_rule_id
@@ -229,23 +263,21 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq
                | Some s -> "___" ^ s
               )
           in
-          D_rule {
-            binding =
-              Binding.make
-                (Loc.untagged rule_name)
-                {
-                  l;
-                  vars_in_l = [];
-                  bindings_before_a = [];
-                  a;
-                  bindings_before_r = [];
-                  r;
-                }
-          }
+          (k,
+           Rule_IR.{ k;
+                     rule_name;
+                     entry_fact = None;
+                     l;
+                     a;
+                     r;
+                     exit_fact = Some exit_fact;
+                   }
+          )
         )
     )
+  |> Int_map.of_seq
 
-let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
+let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.vertex_seq g
@@ -259,10 +291,8 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
       in
       compute_possible_exit_facts spec g k
       |> Seq.flat_map (fun (dst, exit_fact) ->
-          let r = State_fact_IR.to_term exit_fact :: r in
           compute_possible_entry_facts spec g k
           |> Seq.map (fun (src, entry_fact) ->
-              let l = State_fact_IR.to_term entry_fact :: l in
               let rule_name =
                 Fmt.str "%a___%a%s" pp_name_of_proc binding
                   (pp_rule_id
@@ -279,24 +309,23 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.
                    | Some s -> "___" ^ s
                   )
               in
-              D_rule {
-                binding =
-                  Binding.make
-                    (Loc.untagged rule_name)
-                    {
-                      l;
-                      vars_in_l = [];
-                      bindings_before_a = [];
-                      a;
-                      bindings_before_r = [];
-                      r;
-                    }
-              }
+              (k,
+               Rule_IR.{
+                 k;
+                 rule_name;
+                 entry_fact = Some entry_fact;
+                 l;
+                 a;
+                 r;
+                 exit_fact = Some exit_fact;
+               }
+              )
             )
         )
     )
+  |> Int_map.of_seq
 
-let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
+let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.leaves g
@@ -310,7 +339,6 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
       in
       compute_possible_entry_facts spec g k
       |> Seq.map (fun (src, entry_fact) ->
-          let l = State_fact_IR.to_term entry_fact :: l in
           let rule_name =
             Fmt.str "%a___%a%s" pp_name_of_proc binding
               (pp_rule_id
@@ -325,18 +353,29 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t
                | Some s -> "___" ^ s
               )
           in
-          D_rule {
-            binding =
-              Binding.make
-                (Loc.untagged rule_name)
-                {
-                  l;
-                  vars_in_l = [];
-                  bindings_before_a = [];
-                  a;
-                  bindings_before_r = [];
-                  r;
-                }
-          }
+          (k,
+           Rule_IR.{
+             k;
+             rule_name;
+             entry_fact = Some entry_fact;
+             l;
+             a;
+             r;
+             exit_fact = None;
+           }
+          )
         )
     )
+  |> Int_map.of_seq
+
+let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
+  let rule_irs =
+    List.fold_left (Int_map.union (fun _ _ -> failwith "Unexpected case"))
+      Int_map.empty
+      [ start_tr binding spec;
+        rule_tr binding spec;
+        end_tr binding spec;
+      ]
+  in
+  Int_map.to_seq rule_irs
+  |> Seq.map (fun (_k, rule_ir) -> Rule_IR.to_decl rule_ir)
