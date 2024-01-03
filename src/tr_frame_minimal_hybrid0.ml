@@ -233,9 +233,35 @@ module Rule_IR = struct
     }
 end
 
-type rule_irs = Rule_IR.t Int_map.t
+module Rule_IR_store = struct
+  type t = Rule_IR.t list Int_map.t
 
-let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
+  let of_seq (s : (int * Rule_IR.t) Seq.t) : t =
+    Seq.fold_left (fun m (k, x) ->
+        let l =
+          Option.value ~default:[]
+            (Int_map.find_opt k m)
+        in
+        Int_map.add k (x :: l) m
+      )
+      Int_map.empty
+      s
+
+  let to_seq (t : t) : (int * Rule_IR.t) Seq.t =
+    Int_map.to_seq t
+    |> Seq.flat_map (fun (k, l) ->
+        List.to_seq l
+        |> Seq.map (fun ir -> (k, ir))
+      )
+
+  let union (m1 : t) (m2 : t) : t =
+    Int_map.union (fun _k l1 l2 ->
+        Some (l1 @ l2)
+      )
+      m1 m2
+end
+
+let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.roots g
@@ -275,9 +301,9 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
           )
         )
     )
-  |> Int_map.of_seq
+  |> Rule_IR_store.of_seq
 
-let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
+let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.vertex_seq g
@@ -323,9 +349,9 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
             )
         )
     )
-  |> Int_map.of_seq
+  |> Rule_IR_store.of_seq
 
-let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
+let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
   let open Tg_ast in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   Graph.leaves g
@@ -366,16 +392,16 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : rule_irs =
           )
         )
     )
-  |> Int_map.of_seq
+  |> Rule_IR_store.of_seq
 
 let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let rule_irs =
-    List.fold_left (Int_map.union (fun _ _ -> failwith "Unexpected case"))
+    List.fold_left Rule_IR_store.union
       Int_map.empty
       [ start_tr binding spec;
         rule_tr binding spec;
         end_tr binding spec;
       ]
   in
-  Int_map.to_seq rule_irs
+  Rule_IR_store.to_seq rule_irs
   |> Seq.map (fun (_k, rule_ir) -> Rule_IR.to_decl rule_ir)
