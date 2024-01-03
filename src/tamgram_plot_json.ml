@@ -1483,6 +1483,13 @@ let find_tg_file_recursive ~dir (theory_name : string) =
   in
   aux "" dir
 
+let export_graph_as_dot ~image_file ~dot_file graph =
+  CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
+      let formatter = Format.formatter_of_out_channel oc in
+      Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
+    );
+  exit (call_dot [ "-Tpng"; "-o"; image_file; dot_file ])
+
 let run () =
   let open Result_syntax in
   let argv =
@@ -1500,6 +1507,9 @@ let run () =
   let json_file =
     List.hd (List.filter (fun s -> Filename.extension s = ".json") argv)
   in
+  let dot_file =
+    json_file ^ ".dot"
+  in
   (* Sys.command (Fmt.str "cp %s %s" json_file "tamgram-test0.json") |> ignore; *)
   let json =
     CCIO.with_in json_file (fun ic ->
@@ -1512,21 +1522,25 @@ let run () =
               |> Graph.add_kv "ranksep" "0.3"
               |> Graph.add_node_setting "fontsize" "8"
   in
-  let tg_file = Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name) in
-  let spec =
-    let* root = Modul_load.from_file tg_file in
-    Tg.run_pipeline (Spec.make root)
-  in
-  match spec with
-  | Error _ -> invalid_arg "Failed to parse Tamgram file"
-  | Ok spec -> (
-      let graph = Rewrite.graph spec graph in
+  match List.rev (CCString.split ~by:"___" graph.theory_name) with
+  | "tg" :: _ -> (
+      let tg_file =
+        Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name)
+      in
+      let spec =
+        let* root = Modul_load.from_file tg_file in
+        Tg.run_pipeline (Spec.make root)
+      in
       let dot_file = json_file ^ ".dot" in
-      CCIO.with_out ~flags:[Open_creat; Open_trunc; Open_binary] dot_file (fun oc ->
-          let formatter = Format.formatter_of_out_channel oc in
-          Fmt.pf formatter "%a@." Dot_printers.pp_graph graph
-        );
-      exit (call_dot [ "-Tpng"; "-o"; image_file; dot_file ])
+      match spec with
+      | Error _ -> invalid_arg "Failed to parse Tamgram file"
+      | Ok spec -> (
+          let graph = Rewrite.graph spec graph in
+          export_graph_as_dot ~image_file ~dot_file graph
+        )
+    )
+  | _ -> (
+      export_graph_as_dot ~image_file ~dot_file graph
     )
 
 let () = run ()
