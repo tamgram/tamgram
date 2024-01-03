@@ -203,7 +203,11 @@ let pp_spec formatter ((theory_name, spec) : string * Spec.t) : unit =
       );
       aux ds
   in
-  Fmt.pf formatter "@[<v>theory %s@," theory_name;
+  let theory_name =
+    CCString.split ~by:"___" theory_name
+    |> String.concat "__"
+  in
+  Fmt.pf formatter "@[<v>theory %s___tg@," theory_name;
   Fmt.pf formatter "begin@,@,";
   (
     match spec.builtins with
