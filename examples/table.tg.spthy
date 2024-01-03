@@ -1,4 +1,4 @@
-theory table
+theory table___tg
 begin
 
 restriction Equality_Checks_Succeed:

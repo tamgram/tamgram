@@ -1,4 +1,4 @@
-theory encryption_layer
+theory encryption_layer___tg
 begin
 
 builtins: symmetric-encryption, multiset
@@ -17,42 +17,78 @@ functions: S_26/1
 
 functions: MIC_27/2
 
-rule EncryptionRule_121:
-    [ Queued_61(senderThreadID_110, messageID_115, message_116, frameTag_117)
+rule EncryptionRule_121___NoneTo0To1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule EncryptionRule_121___ManyTo1To2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Queued_61(senderThreadID_110, messageID_115, message_116, frameTag_117)
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
     ]
   --[ EncryptedWithPTK_75(ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
     , SendMessage_60(senderID_111, messageID_115)
     ]->
-    [ Out(snenc_24(message_116, PTK_118, frameTag_117))
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , Out(snenc_24(message_116, PTK_118, frameTag_117))
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(((n_114) + ('1'))), senderID_111, messageID_115>)
     ]
 
-rule PlainRule_126:
-  [Queued_61(senderThreadID_122, messageID_123, message_124, u_tgany0_125)]--[SendMessage_60(
-senderThreadID_122, messageID_123)]->[Out(message_124)]
+rule EncryptionRule_121___ManyTo2ToNone:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
 
-rule SendPTKEncryptedPayloadRuleAuth_140:
-    [ SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
+rule PlainRule_126___NoneTo3To4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
+
+rule PlainRule_126___ManyTo4To5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , Queued_61(senderThreadID_122, messageID_123, message_124, u_tgany0_125)
+    ]
+  --[ SendMessage_60(senderThreadID_122, messageID_123)
+    ]->
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Out(message_124)
+    ]
+
+rule PlainRule_126___ManyTo5ToNone:
+  [StF(~pid, 'tgk5', 'empty_tuple')]--[]->[]
+
+rule SendPTKEncryptedPayloadRuleAuth_140___NoneTo6To7:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk7', 'empty_tuple')]
+
+rule SendPTKEncryptedPayloadRuleAuth_140___ManyTo7To8:
+    [ StF(~pid, 'tgk7', 'empty_tuple')
+    , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
   --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]->
-    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    [ StF(~pid, 'tgk8', 'empty_tuple')
+    , Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]
 
-rule SendPTKEncryptedPayloadRuleSupp_141:
-    [ SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
+rule SendPTKEncryptedPayloadRuleAuth_140___ManyTo8ToNone:
+  [StF(~pid, 'tgk8', 'empty_tuple')]--[]->[]
+
+rule SendPTKEncryptedPayloadRuleSupp_141___NoneTo9To10:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk10', 'empty_tuple')]
+
+rule SendPTKEncryptedPayloadRuleSupp_141___ManyTo10To11:
+    [ StF(~pid, 'tgk10', 'empty_tuple')
+    , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
   --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]->
-    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    [ StF(~pid, 'tgk11', 'empty_tuple')
+    , Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]
+
+rule SendPTKEncryptedPayloadRuleSupp_141___ManyTo11ToNone:
+  [StF(~pid, 'tgk11', 'empty_tuple')]--[]->[]
 
 end
 

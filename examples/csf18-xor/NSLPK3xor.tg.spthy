@@ -1,37 +1,58 @@
-theory NSLPK3xor
+theory NSLPK3xor___tg
 begin
 
 builtins: asymmetric-encryption, xor
 
-rule Register_pk_26:
-    [ Fr(~ltkA_25)
+rule Register_pk_26___NoneTo0To1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule Register_pk_26___ManyTo1To2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~ltkA_25)
     ]
   --[ Register_24($A)
     ]->
-    [ !Ltk_22($A, ~ltkA_25)
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , !Ltk_22($A, ~ltkA_25)
     , !Pk_23($A, pk(~ltkA_25))
     , Out(pk(~ltkA_25))
     ]
 
-rule Reveal_ltk_30:
-  [!Ltk_22(A_29, ltkA_28)]--[RevLtk_27(A_29)]->[Out(ltkA_28)]
+rule Register_pk_26___ManyTo2ToNone:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
 
-rule I_45___NoneTo2To3:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk3', 'empty_tuple')]
+rule Reveal_ltk_30___NoneTo3To4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
-rule I_45___ManyTo3To4___I_1:
-    [ StF(~pid, 'tgk3', 'empty_tuple')
+rule Reveal_ltk_30___ManyTo4To5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , !Ltk_22(A_29, ltkA_28)
+    ]
+  --[ RevLtk_27(A_29)
+    ]->
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Out(ltkA_28)
+    ]
+
+rule Reveal_ltk_30___ManyTo5ToNone:
+  [StF(~pid, 'tgk5', 'empty_tuple')]--[]->[]
+
+rule I_45___NoneTo6To7:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk7', 'empty_tuple')]
+
+rule I_45___ManyTo7To8___I_1:
+    [ StF(~pid, 'tgk7', 'empty_tuple')
     , Fr(~ni_37)
     , !Pk_23($R, pkR_36)
     ]
   --[ OUT_I_1_34(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]->
-    [ StF(~pid, 'tgk4', <$I, $R, ~ni_37>)
+    [ StF(~pid, 'tgk8', <$I, $R, ~ni_37>)
     , Out(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]
 
-rule I_45___ManyTo4ToNone___I_2:
-    [ StF(~pid, 'tgk4', <tgc_I_0, tgc_R_0, tgc_ni_0>)
+rule I_45___ManyTo8To9___I_2:
+    [ StF(~pid, 'tgk8', <tgc_I_0, tgc_R_0, tgc_ni_0>)
     , !Ltk_22(tgc_I_0, ltkI_41)
     , In(aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)))
     , !Pk_23(tgc_R_0, pkR_40)
@@ -40,16 +61,20 @@ rule I_45___ManyTo4ToNone___I_2:
     , Commit_31(tgc_I_0, tgc_R_0, <'init', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
     , Running_32(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
     ]->
-    [ Out(aenc(<'3', ((x_39) XOR (tgc_R_0))>, pkR_40))
+    [ StF(~pid, 'tgk9', 'empty_tuple')
+    , Out(aenc(<'3', ((x_39) XOR (tgc_R_0))>, pkR_40))
     , Secret_33(tgc_I_0, tgc_R_0, ((x_39) XOR (tgc_R_0)))
     , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
 
-rule R_56___NoneTo5To6:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk6', 'empty_tuple')]
+rule I_45___ManyTo9ToNone:
+  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
 
-rule R_56___ManyTo6To7___R_1:
-    [ StF(~pid, 'tgk6', 'empty_tuple')
+rule R_56___NoneTo10To11:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk11', 'empty_tuple')]
+
+rule R_56___ManyTo11To12___R_1:
+    [ StF(~pid, 'tgk11', 'empty_tuple')
     , !Ltk_22($R, ltkR_51)
     , In(aenc(<'1', ni_50, I_52>, pk(ltkR_51)))
     , !Pk_23(I_52, pkI_48)
@@ -59,23 +84,39 @@ rule R_56___ManyTo6To7___R_1:
     , OUT_R_1_47(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
     , Running_32(I_52, $R, <'init', ni_50, ~nr_49>)
     ]->
-    [ StF(~pid, 'tgk7', <I_52, $R, ni_50, ~nr_49>)
+    [ StF(~pid, 'tgk12', <I_52, $R, ni_50, ~nr_49>)
     , Out(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
     ]
 
-rule R_56___ManyTo7ToNone___R_2:
-    [ StF(~pid, 'tgk7', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0>)
+rule R_56___ManyTo12To13___R_2:
+    [ StF(~pid, 'tgk12', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0>)
     , !Ltk_22(tgc_R_0, ltkR_55)
     , In(aenc(<'3', tgc_nr_0>, pk(ltkR_55)))
     ]
   --[ Commit_31(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0>)
     ]->
-    [ Secret_33(tgc_R_0, tgc_I_0, tgc_nr_0)
+    [ StF(~pid, 'tgk13', 'empty_tuple')
+    , Secret_33(tgc_R_0, tgc_I_0, tgc_nr_0)
     , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 
-rule Secrecy_claim_61:
-  [Secret_33(A_60, B_59, m_58)]--[Secret_57(A_60, B_59, m_58)]->[]
+rule R_56___ManyTo13ToNone:
+  [StF(~pid, 'tgk13', 'empty_tuple')]--[]->[]
+
+rule Secrecy_claim_61___NoneTo14To15:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk15', 'empty_tuple')]
+
+rule Secrecy_claim_61___ManyTo15To16:
+    [ StF(~pid, 'tgk15', 'empty_tuple')
+    , Secret_33(A_60, B_59, m_58)
+    ]
+  --[ Secret_57(A_60, B_59, m_58)
+    ]->
+    [ StF(~pid, 'tgk16', 'empty_tuple')
+    ]
+
+rule Secrecy_claim_61___ManyTo16ToNone:
+  [StF(~pid, 'tgk16', 'empty_tuple')]--[]->[]
 
 lemma types [sources]:
   all-traces

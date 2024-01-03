@@ -1,4 +1,4 @@
-theory param_markers
+theory param_markers___tg
 begin
 
 functions: f_18/1
@@ -13,7 +13,10 @@ rule A_23___1To3To6:
   [StB(~pid, 'tgk1', <f_18(u_tgany0_22)>)]--[]->[StF(~pid, 'tgk6', <f_18(u_tgany0_22)>)]
 
 rule A_23___1To4To5:
-  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[St(~pid, 'tgk5', <tgc_a_0>)]
+  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[StF(~pid, 'tgk5', <tgc_a_0>)]
+
+rule A_23___ManyTo5To8:
+  [StF(~pid, 'tgk5', <tgc_a_0>)]--[]->[StF(~pid, 'tgk8', <tgc_a_0>)]
 
 rule A_23___ManyTo6To7:
     [ StF(~pid, 'tgk6', <tgc_a_0>)
@@ -25,10 +28,19 @@ rule A_23___ManyTo6To7:
     ]
 
 rule A_23___ManyTo7To5:
-  [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[St(~pid, 'tgk5', <f_18(tgc_a_0)>)]
+  [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[StF(~pid, 'tgk5', <f_18(tgc_a_0)>)]
 
-rule A_23___5To8ToNone:
-  [St(~pid, 'tgk5', <tgc_a_0>)]--[]->[Out(<'done', tgc_a_0>)]
+rule A_23___ManyTo8To9:
+    [ StF(~pid, 'tgk8', <tgc_a_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk9', 'empty_tuple')
+    , Out(<'done', tgc_a_0>)
+    ]
+
+rule A_23___ManyTo9ToNone:
+  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
 
 restriction tg_cell_pat_match_restriction2:
   "All #i_24 cell_25 u_tgany0_22 .

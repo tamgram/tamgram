@@ -1,4 +1,4 @@
-theory CH07
+theory CH07___tg
 begin
 
 builtins: xor, hashing
@@ -9,31 +9,39 @@ functions: lh_29/1
 
 functions: rh_30/1
 
-rule Setup_33:
-    [ Fr(~k_31)
+rule Setup_33___NoneTo0To1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule Setup_33___ManyTo1To2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_31)
     , Fr(~id_32)
     ]
   --[ 
     ]->
-    [ !Reader_20(~k_31, ~id_32)
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , !Reader_20(~k_31, ~id_32)
     , !Tag_21(~k_31, ~id_32)
     ]
 
-rule reader_40___NoneTo1To2:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
+rule Setup_33___ManyTo2ToNone:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
 
-rule reader_40___ManyTo2To3___reader1:
-    [ StF(~pid, 'tgk2', 'empty_tuple')
+rule reader_40___NoneTo3To4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
+
+rule reader_40___ManyTo4To5___reader1:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
     , Fr(~r1_34)
     ]
   --[ Challenge_22(~r1_34, 'Reader')
     ]->
-    [ StF(~pid, 'tgk3', <~r1_34>)
+    [ StF(~pid, 'tgk5', <~r1_34>)
     , Out(~r1_34)
     ]
 
-rule reader_40___ManyTo3ToNone___reader2:
-    [ StF(~pid, 'tgk3', <~u_tgany0_39>)
+rule reader_40___ManyTo5To6___reader2:
+    [ StF(~pid, 'tgk5', <~u_tgany0_39>)
     , !Reader_20(~k_36, ~id_37)
     , In(<r2_35, lh_29(((rot_28(~id_37, hash_38)) XOR (hash_38)))>)
     ]
@@ -43,14 +51,18 @@ rule reader_40___ManyTo3ToNone___reader2:
     , Running_26(<'T', 'R', <((((~k_36) XOR (~u_tgany0_39))) XOR (r2_35))>>)
     , Commit_27(<'R', 'T', <((((~k_36) XOR (~u_tgany0_39))) XOR (r2_35))>>)
     ]->
-    [ Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
+    [ StF(~pid, 'tgk6', 'empty_tuple')
+    , Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
     ]
 
-rule tag_49___NoneTo4To5:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
+rule reader_40___ManyTo6ToNone:
+  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
 
-rule tag_49___ManyTo5To6___tag1:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
+rule tag_49___NoneTo7To8:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
+
+rule tag_49___ManyTo8To9___tag1:
+    [ StF(~pid, 'tgk8', 'empty_tuple')
     , In(r1_42)
     , Fr(~r2_41)
     , !Tag_21(~k_43, ~id_44)
@@ -59,20 +71,23 @@ rule tag_49___ManyTo5To6___tag1:
     , Challenge_22(~r2_41, 'Tag')
     , Running_26(<'R', 'T', <((((~k_43) XOR (r1_42))) XOR (~r2_41))>>)
     ]->
-    [ StF(~pid, 'tgk6', <h(((((r1_42) XOR (~r2_41))) XOR (~k_43))), ~k_43, r1_42, ~r2_41>)
+    [ StF(~pid, 'tgk9', <h(((((r1_42) XOR (~r2_41))) XOR (~k_43))), ~k_43, r1_42, ~r2_41>)
     , Out(<~r2_41, lh_29(((rot_28(~id_44, h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))) XOR (h(((((r1_42) XOR (~r2_41))) XOR (~k_43))))))>)
     ]
 
-rule tag_49___ManyTo6ToNone___tag2:
-    [ StF(~pid, 'tgk6', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46>)
+rule tag_49___ManyTo9To10___tag2:
+    [ StF(~pid, 'tgk9', <tgc_hash_0, ~u_tgany1_47, tgc_r1_0, ~u_tgany2_46>)
     , In(rh_30(((rot_28(~u_id_48, tgc_hash_0)) XOR (tgc_hash_0))))
     , !Tag_21(~u_tgany1_47, ~u_id_48)
     ]
   --[ Alive_23(~u_tgany1_47, 'Reader')
     , Commit_27(<'T', 'R', <((((~u_tgany1_47) XOR (tgc_r1_0))) XOR (~u_tgany2_46))>>)
     ]->
-    [ 
+    [ StF(~pid, 'tgk10', 'empty_tuple')
     ]
+
+rule tag_49___ManyTo10ToNone:
+  [StF(~pid, 'tgk10', 'empty_tuple')]--[]->[]
 
 restriction equality:
   "All x_50 y_51 #i_52 .

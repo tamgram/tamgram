@@ -1,66 +1,81 @@
-theory LAK06
+theory LAK06___tg
 begin
 
 builtins: xor, hashing
 
-rule setup_28:
-    [ Fr(~k_27)
+rule setup_28___NoneTo0To1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule setup_28___ManyTo1To2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~k_27)
     ]
   --[ OnlyOnce_20('setup')
     , Create_25(~k_27)
     ]->
-    [ !Reader_21(~k_27)
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , !Reader_21(~k_27)
     , !Tag_22(~k_27)
     ]
 
-rule reader_34___NoneTo1To2:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk2', 'empty_tuple')]
+rule setup_28___ManyTo2ToNone:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
 
-rule reader_34___ManyTo2To3___initiatereader:
-    [ StF(~pid, 'tgk2', 'empty_tuple')
+rule reader_34___NoneTo3To4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
+
+rule reader_34___ManyTo4To5___initiatereader:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
     , !Reader_21(~k_30)
     , Fr(~r0_29)
     ]
   --[ OnlyOnce_20('initiareader')
     ]->
-    [ StF(~pid, 'tgk3', <~k_30, ~r0_29>)
+    [ StF(~pid, 'tgk5', <~k_30, ~r0_29>)
     , Out(~r0_29)
     ]
 
-rule reader_34___ManyTo3ToNone___acceptreader:
-    [ StF(~pid, 'tgk3', <~u_tgany0_33, ~u_tgany1_32>)
+rule reader_34___ManyTo5To6___acceptreader:
+    [ StF(~pid, 'tgk5', <~u_tgany0_33, ~u_tgany1_32>)
     , In(<r1_31, h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))>)
     ]
   --[ Commit_23(<'R', 'T', <~u_tgany0_33, ~u_tgany1_32, r1_31>>)
     , Running_26(<'T', 'R', <~u_tgany0_33, ~u_tgany1_32, r1_31>>)
     ]->
-    [ Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
+    [ StF(~pid, 'tgk6', 'empty_tuple')
+    , Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
     ]
 
-rule tag_40___NoneTo4To5:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk5', 'empty_tuple')]
+rule reader_34___ManyTo6ToNone:
+  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
 
-rule tag_40___ManyTo5To6___tag1:
-    [ StF(~pid, 'tgk5', 'empty_tuple')
+rule tag_40___NoneTo7To8:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
+
+rule tag_40___ManyTo8To9___tag1:
+    [ StF(~pid, 'tgk8', 'empty_tuple')
     , !Tag_22(~k_37)
     , Fr(~r1_35)
     , In(r0_36)
     ]
   --[ Running_26(<'R', 'T', <~k_37, r0_36, ~r1_35>>)
     ]->
-    [ StF(~pid, 'tgk6', <~k_37, r0_36, ~r1_35>)
+    [ StF(~pid, 'tgk9', <~k_37, r0_36, ~r1_35>)
     , Out(<~r1_35, h(((((r0_36) XOR (~r1_35))) XOR (~k_37)))>)
     ]
 
-rule tag_40___ManyTo6ToNone___accepttag:
-    [ StF(~pid, 'tgk6', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>)
+rule tag_40___ManyTo9To10___accepttag:
+    [ StF(~pid, 'tgk9', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>)
     , In(h(((((h(((((tgc_r0_0) XOR (~u_tgany3_38))) XOR (~u_tgany2_39)))) XOR (~u_tgany2_39))) XOR (tgc_r0_0))))
     ]
   --[ Commit_23(<'T', 'R', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>>)
     , FinTag_24()
     ]->
-    [ 
+    [ StF(~pid, 'tgk10', 'empty_tuple')
     ]
+
+rule tag_40___ManyTo10ToNone:
+  [StF(~pid, 'tgk10', 'empty_tuple')]--[]->[]
 
 lemma executable []:
   exists-trace

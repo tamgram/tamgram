@@ -1,4 +1,4 @@
-theory fun_symbols
+theory fun_symbols___tg
 begin
 
 builtins: symmetric-encryption, multiset
