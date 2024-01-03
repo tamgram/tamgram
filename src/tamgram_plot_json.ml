@@ -1522,10 +1522,10 @@ let run () =
               |> Graph.add_kv "ranksep" "0.3"
               |> Graph.add_node_setting "fontsize" "8"
   in
-  match List.rev (CCString.split ~by:"___" graph.theory_name) with
-  | "tg" :: _ -> (
+  match CCString.split ~by:"___" graph.theory_name with
+  | [ theory_name; "tg" ] -> (
       let tg_file =
-        Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) graph.theory_name)
+        Option.get (find_tg_file_recursive ~dir:(Sys.getcwd ()) theory_name)
       in
       let spec =
         let* root = Modul_load.from_file tg_file in
