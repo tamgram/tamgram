@@ -70,8 +70,9 @@ let total_order_of_moduls (g : string list String_map.t) ~root : string list =
   let ranking : int String_map.t ref = ref String_map.empty in
   let rec aux cur_rank root : unit =
     let rank =
-      String_map.find_opt root !ranking
-      |> Option.value ~default:cur_rank
+      match String_map.find_opt root !ranking with
+      | None -> cur_rank
+      | Some x -> max x cur_rank
     in
     ranking := String_map.add root rank !ranking;
     let reqs = String_map.find root g in
@@ -110,7 +111,7 @@ let from_file (file : string) : (Tg_ast.modul, Error_msg.t) result =
       | [] -> failwith "Unexpected case"
       | x :: xs -> (
           assert (x = root_modul_name);
-          xs
+          List.rev xs
         )
     in
     let* content = Misc_utils.read_file ~path:file in
