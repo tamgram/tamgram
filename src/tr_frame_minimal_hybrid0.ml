@@ -21,6 +21,10 @@ module State_fact_IR = struct
     frame : Tg_ast.term list;
   }
 
+  let equal (t1 : t) (t2 : t) : bool =
+    t1.bias = t2.bias
+    && t1.k = t2.k
+
   let to_term (t : t) : Tg_ast.term =
     T_app {
       path = (match t.bias with
@@ -205,6 +209,34 @@ module Rule_IR = struct
     exit_fact : State_fact_IR.t option;
   }
 
+  let compare (t1 : t) (t2 : t) : int =
+    let n0 = Int.compare t1.k t2.k in
+    let n1 =
+      match t1.entry_fact, t2.entry_fact with
+      | None, None -> 0
+      | Some t1_fact, Some t2_fact -> (
+          Int.compare t1_fact.k t2_fact.k
+        )
+      | None, Some _ -> -1
+      | Some _, None -> 1
+    in
+    let n2 =
+      match t1.exit_fact, t2.exit_fact with
+      | None, None -> 0
+      | Some t1_fact, Some t2_fact -> (
+          Int.compare t1_fact.k t2_fact.k
+        )
+      | None, Some _ -> -1
+      | Some _, None -> 1
+    in
+    match n0, n1, n2 with
+    | 0, 0, x -> x
+    | 0, x, _ -> x
+    | x, _, _ -> x
+
+  let equal (t1 : t) (t2 : t) : bool =
+    compare t1 t2 = 0
+
   let to_decl (t : t) : Tg_ast.decl =
     let l = match t.entry_fact with
       | None -> t.l
@@ -236,22 +268,36 @@ end
 module Rule_IR_store = struct
   type t = Rule_IR.t list Int_map.t
 
-  let of_seq (s : (int * Rule_IR.t) Seq.t) : t =
-    Seq.fold_left (fun m (k, x) ->
-        let l =
-          Option.value ~default:[]
-            (Int_map.find_opt k m)
-        in
-        Int_map.add k (x :: l) m
+  let remove (rule_ir : Rule_IR.t) (t : t) : t =
+    match Int_map.find_opt rule_ir.k t with
+    | None -> t
+    | Some l -> (
+        Int_map.add
+          rule_ir.k
+          (List.filter (fun x -> not (Rule_IR.equal x rule_ir)) l)
+          t
+      )
+
+  let add (rule_ir : Rule_IR.t) (t : t) : t =
+    let l =
+      Option.value ~default:[]
+        (Int_map.find_opt rule_ir.k t)
+    in
+    Int_map.add rule_ir.k
+      (List.sort_uniq Rule_IR.compare (rule_ir :: l))
+      t
+
+  let of_seq (s : Rule_IR.t Seq.t) : t =
+    Seq.fold_left (fun m x ->
+        add x m
       )
       Int_map.empty
       s
 
-  let to_seq (t : t) : (int * Rule_IR.t) Seq.t =
+  let to_seq (t : t) : Rule_IR.t Seq.t =
     Int_map.to_seq t
-    |> Seq.flat_map (fun (k, l) ->
+    |> Seq.flat_map (fun (_k, l) ->
         List.to_seq l
-        |> Seq.map (fun ir -> (k, ir))
       )
 
   let union (m1 : t) (m2 : t) : t =
@@ -259,6 +305,37 @@ module Rule_IR_store = struct
         Some (l1 @ l2)
       )
       m1 m2
+
+  let optimize_empty_rule_StF_StF (spec : Spec.t) (g : Tg_graph.t) (t : t) : t =
+    let t = ref t in
+    to_seq !t
+    |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
+        if rule_is_empty spec g rule_ir.k then (
+          match rule_ir.entry_fact, rule_ir.exit_fact with
+          | Some entry_fact, Some exit_fact -> (
+              match entry_fact.bias, exit_fact.bias with
+              | `Forward, `Forward -> (
+                  t := remove rule_ir !t;
+                  match Int_map.find_opt entry_fact.k !t with
+                  | None -> ()
+                  | Some pred_rule_irs -> (
+                      List.iter (fun (pred_rule_ir : Rule_IR.t) ->
+                          pred_rule_ir.exit_fact
+                          |> Option.iter (fun pred_exit_fact ->
+                              if State_fact_IR.equal pred_exit_fact entry_fact then (
+                                t := add { pred_rule_ir with exit_fact = rule_ir.exit_fact } !t;
+                              )
+                            )
+                        )
+                        pred_rule_irs
+                    )
+                )
+              | _, _ -> ()
+            )
+          | _, _ -> ()
+        )
+      );
+    !t
 end
 
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
@@ -289,16 +366,14 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t
                | Some s -> "___" ^ s
               )
           in
-          (k,
-           Rule_IR.{ k;
-                     rule_name;
-                     entry_fact = None;
-                     l;
-                     a;
-                     r;
-                     exit_fact = Some exit_fact;
-                   }
-          )
+          Rule_IR.{ k;
+                    rule_name;
+                    entry_fact = None;
+                    l;
+                    a;
+                    r;
+                    exit_fact = Some exit_fact;
+                  }
         )
     )
   |> Rule_IR_store.of_seq
@@ -335,17 +410,15 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t 
                    | Some s -> "___" ^ s
                   )
               in
-              (k,
-               Rule_IR.{
-                 k;
-                 rule_name;
-                 entry_fact = Some entry_fact;
-                 l;
-                 a;
-                 r;
-                 exit_fact = Some exit_fact;
-               }
-              )
+              Rule_IR.{
+                k;
+                rule_name;
+                entry_fact = Some entry_fact;
+                l;
+                a;
+                r;
+                exit_fact = Some exit_fact;
+              }
             )
         )
     )
@@ -379,17 +452,15 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
                | Some s -> "___" ^ s
               )
           in
-          (k,
-           Rule_IR.{
-             k;
-             rule_name;
-             entry_fact = Some entry_fact;
-             l;
-             a;
-             r;
-             exit_fact = None;
-           }
-          )
+          Rule_IR.{
+            k;
+            rule_name;
+            entry_fact = Some entry_fact;
+            l;
+            a;
+            r;
+            exit_fact = None;
+          }
         )
     )
   |> Rule_IR_store.of_seq
@@ -403,5 +474,8 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
         end_tr binding spec;
       ]
   in
-  Rule_IR_store.to_seq rule_irs
-  |> Seq.map (fun (_k, rule_ir) -> Rule_IR.to_decl rule_ir)
+  let g = Name_map.find (Binding.name binding) spec.proc_graphs in
+  rule_irs
+  |> Rule_IR_store.optimize_empty_rule_StF_StF spec g
+  |> Rule_IR_store.to_seq
+  |> Seq.map Rule_IR.to_decl
