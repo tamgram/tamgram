@@ -359,7 +359,6 @@ module Rule_IR_store = struct
                    match entry_fact.bias, exit_fact.bias with
                    | `Forward, `Forward -> (
                        usable_rule_found := true;
-                       Printf.printf "test0 k: %d\n" rule_ir.k;
                        t := remove rule_ir !t;
                        Graph.pred rule_ir.k g
                        |> Int_set.to_seq
@@ -369,7 +368,6 @@ module Rule_IR_store = struct
                            | Some pred_rule_irs -> (
                                let pred_rule_irs =
                                  List.map (fun (pred_rule_ir : Rule_IR.t) ->
-                                     Printf.printf "test1 pred k: %d\n" pred_rule_ir.k;
                                      match pred_rule_ir.exit_fact with
                                      | None -> pred_rule_ir
                                      | Some pred_exit_fact -> (
