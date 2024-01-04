@@ -14,6 +14,16 @@ let rule_is_empty (spec : Spec.t) (g : Tg_graph.t) (k : int) =
   cell_pat_matches = []
   && ru.l = [] && ru.a = [] && ru.r = []
 
+let has_empty_succ (spec : Spec.t) (g : Tg_graph.t) (k : int) =
+  let s =
+    Graph.succ k g
+    |> Int_set.to_seq
+    |> Seq.filter (fun succ -> rule_is_empty spec g succ)
+  in
+  match s () with
+  | Seq.Nil -> false
+  | _ -> true
+
 module State_fact_IR = struct
   type t = {
     bias : exit_bias;
@@ -125,14 +135,11 @@ module Backward_biased = struct
 end
 
 let exit_bias (spec : Spec.t) (g : Tg_graph.t) (k : int) : exit_bias =
-  let pred = Graph.pred k g in
   let succ = Graph.succ k g in
-  (
-    if Int_set.cardinal succ <= 1 then
-      `Forward
-    else
-      `Backward
-  )
+  if Int_set.cardinal succ <= 1 then
+    `Forward
+  else
+    `Backward
 
 let compute_possible_exit_facts spec g k : (int option * State_fact_IR.t) Seq.t =
   match exit_bias spec g k with
@@ -201,7 +208,9 @@ let pp_rule_id
 module Rule_IR = struct
   type t = {
     k : int;
-    rule_name : string;
+    pred : link_target;
+    succ : link_target;
+    rule_name_base : string;
     entry_fact : State_fact_IR.t option;
     l : Tg_ast.term list;
     a : Tg_ast.term list;
@@ -237,7 +246,7 @@ module Rule_IR = struct
   let equal (t1 : t) (t2 : t) : bool =
     compare t1 t2 = 0
 
-  let to_decl (t : t) : Tg_ast.decl =
+  let to_decl (spec : Spec.t) (t : t) : Tg_ast.decl =
     let l = match t.entry_fact with
       | None -> t.l
       | Some entry_fact ->
@@ -249,11 +258,23 @@ module Rule_IR = struct
       | Some exit_fact ->
         State_fact_IR.to_term exit_fact :: t.r
     in
+    let rule_name =
+      Fmt.str "%s___%a%s" t.rule_name_base
+        (pp_rule_id
+           ~pred:t.pred
+           ~k:t.k
+           ~succ:t.succ)
+        ()
+        (match Int_map.find_opt t.k spec.rule_tags with
+         | None -> ""
+         | Some s -> "___" ^ s
+        )
+    in
     let open Tg_ast in
     D_rule {
       binding =
         Binding.make
-          (Loc.untagged t.rule_name)
+          (Loc.untagged rule_name)
           {
             l;
             vars_in_l = [];
@@ -307,34 +328,80 @@ module Rule_IR_store = struct
       m1 m2
 
   let optimize_empty_rule_StF_StF (spec : Spec.t) (g : Tg_graph.t) (t : t) : t =
-    let t = ref t in
-    to_seq !t
-    |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
-        if rule_is_empty spec g rule_ir.k then (
-          match rule_ir.entry_fact, rule_ir.exit_fact with
-          | Some entry_fact, Some exit_fact -> (
-              match entry_fact.bias, exit_fact.bias with
-              | `Forward, `Forward -> (
-                  t := remove rule_ir !t;
-                  match Int_map.find_opt entry_fact.k !t with
-                  | None -> ()
-                  | Some pred_rule_irs -> (
-                      List.iter (fun (pred_rule_ir : Rule_IR.t) ->
-                          pred_rule_ir.exit_fact
-                          |> Option.iter (fun pred_exit_fact ->
-                              if State_fact_IR.equal pred_exit_fact entry_fact then (
-                                t := add { pred_rule_ir with exit_fact = rule_ir.exit_fact } !t;
-                              )
-                            )
-                        )
-                        pred_rule_irs
-                    )
-                )
-              | _, _ -> ()
-            )
-          | _, _ -> ()
+    let exception Break in
+    let maximal_candidates =
+      to_seq t
+      |> Seq.fold_left (fun s (rule_ir : Rule_IR.t) ->
+          if rule_is_empty spec g rule_ir.k then
+            Int_set.add rule_ir.k s
+          else
+            s
         )
-      );
+        Int_set.empty
+    in
+    let t = ref t in
+    let rec aux () =
+      let usable_rule_found = ref false in
+      (try
+         maximal_candidates
+         |> Int_set.to_seq
+         |> Seq.flat_map (fun k ->
+             let l =
+               Option.value ~default:[]
+                 (Int_map.find_opt k !t)
+             in
+             List.to_seq l
+           )
+         |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
+             if rule_is_empty spec g rule_ir.k && not (has_empty_succ spec g rule_ir.k) then (
+               match rule_ir.entry_fact, rule_ir.exit_fact with
+               | Some entry_fact, Some exit_fact -> (
+                   match entry_fact.bias, exit_fact.bias with
+                   | `Forward, `Forward -> (
+                       usable_rule_found := true;
+                       Printf.printf "test0 k: %d\n" rule_ir.k;
+                       t := remove rule_ir !t;
+                       Graph.pred rule_ir.k g
+                       |> Int_set.to_seq
+                       |> Seq.iter (fun pred_k ->
+                           match Int_map.find_opt pred_k !t with
+                           | None -> ()
+                           | Some pred_rule_irs -> (
+                               let pred_rule_irs =
+                                 List.map (fun (pred_rule_ir : Rule_IR.t) ->
+                                     Printf.printf "test1 pred k: %d\n" pred_rule_ir.k;
+                                     match pred_rule_ir.exit_fact with
+                                     | None -> pred_rule_ir
+                                     | Some pred_exit_fact -> (
+                                         if State_fact_IR.equal pred_exit_fact entry_fact then (
+                                           { pred_rule_ir with
+                                             succ = `Index exit_fact.k;
+                                             exit_fact = Some exit_fact;
+                                           }
+                                         ) else (
+                                           pred_rule_ir
+                                         )
+                                       )
+                                   )
+                                   pred_rule_irs
+                               in
+                               t := Int_map.add pred_k pred_rule_irs !t;
+                             )
+                         );
+                       raise Break
+                     )
+                   | _, _ -> ()
+                 )
+               | _, _ -> ()
+             )
+           )
+       with
+       | Break -> ());
+      if !usable_rule_found then (
+        aux ()
+      )
+    in
+    aux ();
     !t
 end
 
@@ -352,22 +419,15 @@ let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t
       in
       compute_possible_exit_facts spec g k
       |> Seq.map (fun (dst, exit_fact) ->
-          let rule_name =
-            Fmt.str "%a___%a%s" pp_name_of_proc binding
-              (pp_rule_id
-                 ~pred:`None
-                 ~k
-                 ~succ:(match dst with
-                     | None -> `Many
-                     | Some x -> `Index x))
-              ()
-              (match Int_map.find_opt k spec.rule_tags with
-               | None -> ""
-               | Some s -> "___" ^ s
-              )
+          let rule_name_base =
+            Fmt.str "%a" pp_name_of_proc binding
           in
           Rule_IR.{ k;
-                    rule_name;
+                    pred = `None;
+                    succ = (match dst with
+                        | None -> `Many
+                        | Some x -> `Index x);
+                    rule_name_base;
                     entry_fact = None;
                     l;
                     a;
@@ -394,25 +454,18 @@ let rule_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t 
       |> Seq.flat_map (fun (dst, exit_fact) ->
           compute_possible_entry_facts spec g k
           |> Seq.map (fun (src, entry_fact) ->
-              let rule_name =
-                Fmt.str "%a___%a%s" pp_name_of_proc binding
-                  (pp_rule_id
-                     ~pred:(match src with
-                         | None -> `Many
-                         | Some x -> `Index x)
-                     ~k
-                     ~succ:(match dst with
-                         | None -> `Many
-                         | Some x -> `Index x))
-                  ()
-                  (match Int_map.find_opt k spec.rule_tags with
-                   | None -> ""
-                   | Some s -> "___" ^ s
-                  )
+              let rule_name_base =
+                Fmt.str "%a" pp_name_of_proc binding
               in
               Rule_IR.{
                 k;
-                rule_name;
+                pred = (match src with
+                    | None -> `Many
+                    | Some x -> `Index x);
+                succ = (match dst with
+                    | None -> `Many
+                    | Some x -> `Index x);
+                rule_name_base;
                 entry_fact = Some entry_fact;
                 l;
                 a;
@@ -438,23 +491,16 @@ let end_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
       in
       compute_possible_entry_facts spec g k
       |> Seq.map (fun (src, entry_fact) ->
-          let rule_name =
-            Fmt.str "%a___%a%s" pp_name_of_proc binding
-              (pp_rule_id
-                 ~pred:(match src with
-                     | None -> `Many
-                     | Some x -> `Index x)
-                 ~k
-                 ~succ:`None)
-              ()
-              (match Int_map.find_opt k spec.rule_tags with
-               | None -> ""
-               | Some s -> "___" ^ s
-              )
+          let rule_name_base =
+            Fmt.str "%a" pp_name_of_proc binding
           in
           Rule_IR.{
             k;
-            rule_name;
+            pred = (match src with
+                | None -> `Many
+                | Some x -> `Index x);
+            succ = `None;
+            rule_name_base;
             entry_fact = Some entry_fact;
             l;
             a;
@@ -478,4 +524,4 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   rule_irs
   |> Rule_IR_store.optimize_empty_rule_StF_StF spec g
   |> Rule_IR_store.to_seq
-  |> Seq.map Rule_IR.to_decl
+  |> Seq.map (Rule_IR.to_decl spec)
