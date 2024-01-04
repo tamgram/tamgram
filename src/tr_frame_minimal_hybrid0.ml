@@ -327,19 +327,25 @@ module Rule_IR_store = struct
       )
       m1 m2
 
-  let optimize_empty_rule_StF_StF (spec : Spec.t) (g : Tg_graph.t) (t : t) : t =
+  let maximal_candidates_for_empty_rule_optmizations (spec : Spec.t) (g : Tg_graph.t) (t : t) =
+    to_seq t
+    |> Seq.fold_left (fun s (rule_ir : Rule_IR.t) ->
+        if rule_is_empty spec g rule_ir.k then
+          Int_set.add rule_ir.k s
+        else
+          s
+      )
+      Int_set.empty
+
+  let optimize_empty_rule ~entry_bias ~exit_bias
+      (spec : Spec.t) (g : Tg_graph.t) (t : t)
+    : t =
     let exception Break in
     let maximal_candidates =
-      to_seq t
-      |> Seq.fold_left (fun s (rule_ir : Rule_IR.t) ->
-          if rule_is_empty spec g rule_ir.k then
-            Int_set.add rule_ir.k s
-          else
-            s
-        )
-        Int_set.empty
+      maximal_candidates_for_empty_rule_optmizations spec g t
     in
     let t = ref t in
+    let g = ref g in
     let rec aux () =
       let usable_rule_found = ref false in
       (try
@@ -353,42 +359,45 @@ module Rule_IR_store = struct
              List.to_seq l
            )
          |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
-             if rule_is_empty spec g rule_ir.k && not (has_empty_succ spec g rule_ir.k) then (
+             if Option.is_some (Graph.find_opt rule_ir.k !g)
+             && rule_is_empty spec !g rule_ir.k
+             && not (has_empty_succ spec !g rule_ir.k) then (
                match rule_ir.entry_fact, rule_ir.exit_fact with
                | Some entry_fact, Some exit_fact -> (
-                   match entry_fact.bias, exit_fact.bias with
-                   | `Forward, `Forward -> (
-                       usable_rule_found := true;
-                       t := remove rule_ir !t;
-                       Graph.pred rule_ir.k g
-                       |> Int_set.to_seq
-                       |> Seq.iter (fun pred_k ->
-                           match Int_map.find_opt pred_k !t with
-                           | None -> ()
-                           | Some pred_rule_irs -> (
-                               let pred_rule_irs =
-                                 List.map (fun (pred_rule_ir : Rule_IR.t) ->
-                                     match pred_rule_ir.exit_fact with
-                                     | None -> pred_rule_ir
-                                     | Some pred_exit_fact -> (
-                                         if State_fact_IR.equal pred_exit_fact entry_fact then (
-                                           { pred_rule_ir with
-                                             succ = `Index exit_fact.k;
-                                             exit_fact = Some exit_fact;
-                                           }
-                                         ) else (
-                                           pred_rule_ir
-                                         )
+                   if entry_fact.bias = entry_bias && exit_fact.bias = exit_bias then (
+                     usable_rule_found := true;
+                     Graph.pred rule_ir.k !g
+                     |> Int_set.to_seq
+                     |> Seq.iter (fun pred_k ->
+                         match Int_map.find_opt pred_k !t with
+                         | None -> ()
+                         | Some pred_rule_irs -> (
+                             let pred_rule_irs =
+                               List.map (fun (pred_rule_ir : Rule_IR.t) ->
+                                   match pred_rule_ir.exit_fact with
+                                   | None -> pred_rule_ir
+                                   | Some pred_exit_fact -> (
+                                       if State_fact_IR.equal pred_exit_fact entry_fact then (
+                                         { pred_rule_ir with
+                                           succ = (match exit_bias with
+                                               | `Forward -> `Index exit_fact.k
+                                               | `Backward -> `Many);
+                                           exit_fact = Some exit_fact;
+                                         }
+                                       ) else (
+                                         pred_rule_ir
                                        )
-                                   )
-                                   pred_rule_irs
-                               in
-                               t := Int_map.add pred_k pred_rule_irs !t;
-                             )
-                         );
-                       raise Break
-                     )
-                   | _, _ -> ()
+                                     )
+                                 )
+                                 pred_rule_irs
+                             in
+                             t := Int_map.add pred_k pred_rule_irs !t;
+                           )
+                       );
+                     t := remove rule_ir !t;
+                     g := Graph.remove_vertex rule_ir.k !g;
+                     raise Break
+                   )
                  )
                | _, _ -> ()
              )
@@ -401,6 +410,12 @@ module Rule_IR_store = struct
     in
     aux ();
     !t
+
+  let optimize_empty_rule_StF_StF spec g t =
+    optimize_empty_rule ~entry_bias:`Forward ~exit_bias:`Forward spec g t
+
+  let optimize_empty_rule_StF_StB spec g t =
+    optimize_empty_rule ~entry_bias:`Forward ~exit_bias:`Backward spec g t
 end
 
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
@@ -521,5 +536,6 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   rule_irs
   |> Rule_IR_store.optimize_empty_rule_StF_StF spec g
+  |> Rule_IR_store.optimize_empty_rule_StF_StB spec g
   |> Rule_IR_store.to_seq
   |> Seq.map (Rule_IR.to_decl spec)

@@ -42,6 +42,10 @@ val add_vertex : 'a -> 'a t -> 'a t * int
 
 val add_edge : (int * int) -> 'a t -> 'a t
 
+val remove_vertex : int -> 'a t -> 'a t
+
+val remove_edge : (int * int) -> 'a t -> 'a t
+
 val paths_from_id : max_loop_count:int -> int -> 'a t -> int list Seq.t
 
 val paths_from_roots : max_loop_count:int -> 'a t -> int list Seq.t

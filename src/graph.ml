@@ -123,6 +123,43 @@ let add_edge ((x, y) : int * int) (t : 'a t) =
       ) t.pred;
   }
 
+let remove_edge ((x, y) : int * int) (t : 'a t) =
+  {
+    t with
+    succ = Int_map.update x (fun s ->
+        let s = Option.value ~default:Int_set.empty s in
+        Some Int_set.(remove y s)
+      ) t.succ;
+    pred = Int_map.update y (fun s ->
+        let s = Option.value ~default:Int_set.empty s in
+        Some Int_set.(remove x s)
+      ) t.pred;
+  }
+
+let remove_vertex (id : int) (t : 'a t) : 'a t =
+  let id_pred_set =
+    Option.value ~default:Int_set.empty
+      (Int_map.find_opt id t.pred)
+  in
+  let id_succ_set =
+    Option.value ~default:Int_set.empty
+      (Int_map.find_opt id t.succ)
+  in
+  {
+    t with
+    vertices = Int_map.remove id t.vertices;
+  }
+  |> (fun t ->
+      Int_set.to_seq id_pred_set
+      |> Seq.fold_left (fun t pred ->
+          remove_edge (pred, id) t
+        ) t)
+  |> (fun t ->
+      Int_set.to_seq id_succ_set
+      |> Seq.fold_left (fun t succ ->
+          remove_edge (id, succ) t
+        ) t)
+
 let paths_from_id ~max_loop_count (id : int) (t : 'a t) : int list Seq.t =
   let appear_at_most_count =
     max_loop_count + 1
