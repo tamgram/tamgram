@@ -12,11 +12,8 @@ rule A_23___ManyTo1ToMany:
 rule A_23___1To3To6:
   [StB(~pid, 'tgk1', <f_18(u_tgany0_22)>)]--[]->[StF(~pid, 'tgk6', <f_18(u_tgany0_22)>)]
 
-rule A_23___1To4To5:
-  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[StF(~pid, 'tgk5', <tgc_a_0>)]
-
-rule A_23___ManyTo5To8:
-  [StF(~pid, 'tgk5', <tgc_a_0>)]--[]->[StF(~pid, 'tgk8', <tgc_a_0>)]
+rule A_23___1To4To8:
+  [StB(~pid, 'tgk1', <tgc_a_0>)]--[TgCellPatMatch_2(tgc_a_0)]->[StF(~pid, 'tgk8', <tgc_a_0>)]
 
 rule A_23___ManyTo6To7:
     [ StF(~pid, 'tgk6', <tgc_a_0>)
@@ -27,8 +24,8 @@ rule A_23___ManyTo6To7:
     , Out(<'while', tgc_a_0>)
     ]
 
-rule A_23___ManyTo7To5:
-  [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[StF(~pid, 'tgk5', <f_18(tgc_a_0)>)]
+rule A_23___ManyTo7To8:
+  [StF(~pid, 'tgk7', <tgc_a_0>)]--[]->[StF(~pid, 'tgk8', <f_18(tgc_a_0)>)]
 
 rule A_23___ManyTo8To9:
     [ StF(~pid, 'tgk8', <tgc_a_0>)
