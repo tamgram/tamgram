@@ -382,7 +382,8 @@ module Rule_IR_store = struct
                                            succ = (match exit_bias with
                                                | `Forward -> `Index exit_fact.k
                                                | `Backward -> `Many);
-                                           exit_fact = Some exit_fact;
+                                           exit_fact = Some { exit_fact with
+                                                              frame = pred_exit_fact.frame };
                                          }
                                        ) else (
                                          pred_rule_ir
