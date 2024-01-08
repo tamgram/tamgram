@@ -1,0 +1,151 @@
+/*
+1.  A   ->  S   :   A,B
+2.  S   ->  A   :   {KPb, B}KSs
+3.  A   ->  B   :   {Na, A}KPb
+4.  B   ->  S   :   B,A
+5.  S   ->  B   :   {KPa, A}KSs
+6.  B   ->  A   :   {Na, Nb}KPa
+7.  A   ->  B   :   {Nb}KPb
+*/
+
+builtins := symmetric-encryption, asymmetric-encryption
+
+pred !Setup(
+  named KSa,
+  named KPa,
+  named KSb,
+  named KPb,
+  named KSs
+)
+apred A_end/4
+apred B_end/4
+apred Test0/0
+apred Test1/0
+apred Test2/0
+
+lemma sanity_check0 =
+  exists-trace
+  Ex Na Nb #i.
+    A_end("A", "B", Na, Nb) @i
+
+lemma sanity_check1 =
+  exists-trace
+  Ex Na Nb #i.
+    B_end("A", "B", Na, Nb) @i
+
+lemma sanity_check_Test0 =
+  exists-trace
+  Ex #i .
+    Test0() @i
+
+lemma sanity_check_Test1 =
+  exists-trace
+  Ex #i .
+    Test1() @i
+
+lemma sanity_check_Test2 =
+  exists-trace
+  Ex #i .
+    Test2() @i
+
+lemma B_agrees_with_A =
+  All Na Nb #i.
+    B_end("A", "B", Na, Nb) @ i ==> (
+      Ex #j . A_end("A", "B", Na, Nb) @ j & j < i
+    )
+
+apred Only_once/0
+
+restriction only_once =
+  All #i #j.
+    Only_once() @i & Only_once() @j ==> #i = #j
+
+process setup =
+  [ Fr(~KSa)
+  , Fr(~KSb)
+  , Fr(~KSs) ]
+--[ Only_once() ]->
+  let KPa = pk(KSa) in
+  let KPb = pk(KSb) in
+  [ !Setup(
+      KSa is .,
+      KPa is .,
+      KSb is .,
+      KPb is .,
+      KSs is .)
+  , Out(KPa)
+  , Out(KPb)
+  ]
+
+process A =
+  [ !Setup(KSa is ., KPa is ., KSb is _, KPb is _, KSs is .) ]
+  ->
+  [ 'KSs := .
+  , 'KSa := .
+  , 'KPa := . ];
+
+  /* 1. */
+  []->[ Out(<"A", "B">) ];
+
+  /* 2. */
+  [ In(senc(<KPb, "B">, 'KSs)) ]->[ 'KPb := . ];
+
+  /* 3. */
+  [ Fr(~Na) ]
+  ->
+  [ 'Na := .
+  , Out(aenc(<Na, "A">, 'KPb)) ];
+
+  /* 6. */
+  [ In(m) ]->[ 'm := adec(m, 'KSa) ];
+  [ 'm cas <'Na, Nb> ]->[ 'Nb := . ];
+
+  /* 7. */
+  []--[ A_end("A", "B", 'Na, 'Nb) ]->[ Out(aenc('Nb, 'KPb)) ]
+
+process B =
+  [ !Setup(KSa is _, KPa is _, KSb is ., KPb is ., KSs is .) ]
+  ->
+  [ 'KSs := .
+  , 'KSb := .
+  , 'KPb := . ];
+
+  /* 3. */
+  [ In(m) ]--[ Test0() ]->[ 'm := adec(m, 'KSb) ];
+  [ 'm cas <Na, "A"> ]--[ Test1() ]->[ 'Na := . ];
+
+  /* 4. */
+  []->[ Out(<"B", "A">) ];
+
+  /* 5. */
+  [ In(senc(<KPa, "A">, 'KSs)) ]--[ Test2() ]->[ 'KPa := . ];
+
+  /* 6. */
+  [ Fr(~Nb) ]
+  ->
+  [ 'Nb := .
+  , Out(aenc(<'Na, Nb>, 'KPa)) ];
+
+  /* 7. */
+  [ In(aenc('Nb, 'KPb)) ]
+--[ B_end("A", "B", 'Na, 'Nb) ]->
+  [  ]
+
+process S =
+  [ !Setup(KSa is _, KPa is ., KSb is _, KPb is ., KSs is .) ]
+  ->
+  [ 'KSs := .
+  , 'KPa := .
+  , 'KPb := . ];
+
+  /* 1. */
+  [ In(<"A", "B">) ]->[];
+
+  /* 2. */
+  []->[ Out(senc(<'KPb, "B">, 'KSs)) ];
+
+  /* 4. */
+  [ In(<"B", "A">) ]->[];
+
+  /* 5. */
+  []->[ Out(senc(<'KPa, "A">, 'KSs)) ]
