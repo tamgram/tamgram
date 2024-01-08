@@ -1154,6 +1154,19 @@ module JSON_parsers = struct
 end
 
 module Rewrite = struct
+  let tuple_flattening_aware_ctx_and_cell_contents_combine
+      (ctx : string list) (cell_contents : Tg_ast.term list) =
+    let open Tg_ast in
+    let rec aux acc ctx cell_contents =
+      match ctx, cell_contents with
+      | [], [] -> List.rev acc
+      | [x], [y] -> aux ((x, y) :: acc) [] []
+      | [x], l -> aux ((x, T_tuple (None, l)) :: acc) [] []
+      | x :: xs, y :: ys -> aux ((x, y) :: acc) xs ys
+      | _, _ -> failwith "Unexpected case"
+    in
+    aux [] ctx cell_contents
+
   let write_cell_operations
       (spec : Spec.t)
       (row : row)
@@ -1192,7 +1205,7 @@ module Rewrite = struct
           )
         in
         let assigns =
-          List.combine
+          tuple_flattening_aware_ctx_and_cell_contents_combine
             (ctx
              |> String_tagged_set.to_seq
              |> Seq.map Loc.content
