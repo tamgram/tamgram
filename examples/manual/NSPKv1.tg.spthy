@@ -5,239 +5,237 @@ builtins: symmetric-encryption, asymmetric-encryption
 
 lemma sanity_check0 []:
   exists-trace
-  "Ex Na_35 Nb_36 #i_37 .
-     A_end_30('A', 'B', Na_35, Nb_36) @ #i_37"
+  "Ex A_44 B_45 Na_46 Nb_47 #i_48 .
+     A_end_39(A_44, B_45, Na_46, Nb_47) @ #i_48"
 
 lemma sanity_check1 []:
   exists-trace
-  "Ex Na_39 Nb_40 #i_41 .
-     B_end_31('A', 'B', Na_39, Nb_40) @ #i_41"
+  "Ex Na_50 Nb_51 #i_52 .
+     B_end_40('A', 'B', Na_50, Nb_51) @ #i_52"
 
 lemma sanity_check_Test0 []:
   exists-trace
-  "Ex #i_43 .
-     Test0_32() @ #i_43"
+  "Ex #i_54 .
+     Test0_41() @ #i_54"
 
 lemma sanity_check_Test1 []:
   exists-trace
-  "Ex #i_45 .
-     Test1_33() @ #i_45"
+  "Ex #i_56 .
+     Test1_42() @ #i_56"
 
 lemma sanity_check_Test2 []:
   exists-trace
-  "Ex #i_47 .
-     Test2_34() @ #i_47"
+  "Ex #i_58 .
+     Test2_43() @ #i_58"
 
 lemma B_agrees_with_A []:
   all-traces
-  "All Na_49 Nb_50 #i_51 .
-     ((B_end_31('A', 'B', Na_49, Nb_50) @ #i_51) ==> (Ex #j_52 .
-                                                        ((A_end_30('A', 'B', Na_49, Nb_50) @ #j_52) & (#j_52 < #i_51))))"
+  "All Na_60 Nb_61 #i_62 .
+     ((B_end_40('A', 'B', Na_60, Nb_61) @ #i_62) ==> (Ex #j_63 .
+                                                        ((A_end_39('A', 'B', Na_60, Nb_61) @ #j_63) & (#j_63 < #i_62))))"
 
 restriction only_once:
-  "All #i_55 #j_56 .
-     ((((Only_once_54() @ #i_55) & (Only_once_54() @ #j_56))) ==> (#i_55 = #j_56))"
+  "All #i_66 #j_67 .
+     ((((Only_once_65() @ #i_66) & (Only_once_65() @ #j_67))) ==> (#i_66 = #j_67))"
 
-rule setup_63___NoneTo0To1:
+rule setup_76___NoneTo0To1:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
 
-rule setup_63___ManyTo1To2:
+rule setup_76___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
-    , Fr(~KSa_60)
-    , Fr(~KSb_59)
-    , Fr(~KSs_58)
+    , Fr(~KSa_72)
+    , Fr(~KSb_71)
+    , Fr(~KSs_69)
+    , Fr(~KSi_70)
     ]
-  --[ Only_once_54()
+  --[ Only_once_65()
     ]->
     [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Setup_23(~KSa_60, pk(~KSa_60), ~KSb_59, pk(~KSb_59), ~KSs_58)
-    , Out(pk(~KSa_60))
-    , Out(pk(~KSb_59))
+    , !Setup_A_23(~KSa_72, pk(~KSa_72), ~KSs_69)
+    , !Setup_B_28(~KSb_71, pk(~KSb_71), ~KSs_69)
+    , !Setup_S_33(pk(~KSa_72), pk(~KSb_71), ~KSs_69)
+    , !Key_pair_38('A', pk(~KSa_72))
+    , !Key_pair_38('B', pk(~KSb_71))
+    , !Key_pair_38('I', pk(~KSi_70))
+    , Out(pk(~KSa_72))
+    , Out(pk(~KSb_71))
+    , Out(~KSi_70)
+    , Out(pk(~KSi_70))
     ]
 
-rule setup_63___ManyTo2ToNone:
+rule setup_76___ManyTo2ToNone:
   [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
 
-rule A_73___NoneTo3To4:
+rule A_85___NoneTo3To4:
   [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
-rule A_73___ManyTo4To5:
+rule A_85___ManyTo4To5:
     [ StF(~pid, 'tgk4', 'empty_tuple')
-    , !Setup_23(KSa_67, KPa_68, u_tgany0_65, u_tgany1_64, KSs_66)
+    , !Setup_A_23(KSa_78, KPa_79, KSs_77)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk5', <KSa_67, KSs_66>)
+    [ StF(~pid, 'tgk5', <KSa_78, KSs_77>)
     ]
 
-rule A_73___ManyTo5To6:
+rule A_85___ManyTo5To6:
     [ StF(~pid, 'tgk5', <tgc_KSa_0, tgc_KSs_0>)
+    , In(dst_80)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk6', <tgc_KSa_0, tgc_KSs_0>)
-    , Out(<'A', 'B'>)
+    [ StF(~pid, 'tgk6', <tgc_KSa_0, tgc_KSs_0, dst_80>)
     ]
 
-rule A_73___ManyTo6To7:
-    [ StF(~pid, 'tgk6', <tgc_KSa_0, tgc_KSs_0>)
-    , In(senc(<KPb_69, 'B'>, tgc_KSs_0))
+rule A_85___ManyTo6To7:
+    [ StF(~pid, 'tgk6', <tgc_KSa_0, tgc_KSs_0, tgc_dst_0>)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk7', <KPb_69, tgc_KSa_0>)
+    [ StF(~pid, 'tgk7', <tgc_KSa_0, tgc_KSs_0, tgc_dst_0>)
+    , Out(<'A', tgc_dst_0>)
     ]
 
-rule A_73___ManyTo7To8:
-    [ StF(~pid, 'tgk7', <tgc_KPb_0, tgc_KSa_0>)
-    , Fr(~Na_70)
+rule A_85___ManyTo7To8:
+    [ StF(~pid, 'tgk7', <tgc_KSa_0, tgc_KSs_0, tgc_dst_0>)
+    , In(senc(<KPdst_81, tgc_dst_0>, tgc_KSs_0))
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk8', <tgc_KPb_0, tgc_KSa_0, ~Na_70>)
-    , Out(aenc(<~Na_70, 'A'>, tgc_KPb_0))
+    [ StF(~pid, 'tgk8', <KPdst_81, tgc_KSa_0, tgc_dst_0>)
     ]
 
-rule A_73___ManyTo8To9:
-    [ StF(~pid, 'tgk8', <tgc_KPb_0, tgc_KSa_0, tgc_Na_0>)
-    , In(m_71)
+rule A_85___ManyTo8To9:
+    [ StF(~pid, 'tgk8', <tgc_KPdst_0, tgc_KSa_0, tgc_dst_0>)
+    , Fr(~Na_82)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk9', <tgc_KPb_0, tgc_Na_0, adec(m_71, tgc_KSa_0)>)
+    [ StF(~pid, 'tgk9', <tgc_KPdst_0, tgc_KSa_0, ~Na_82, tgc_dst_0>)
+    , Out(aenc(<~Na_82, tgc_dst_0>, tgc_KPdst_0))
     ]
 
-rule A_73___ManyTo9To10:
-  [StF(~pid, 'tgk9', <tgc_KPb_0, tgc_Na_0, <tgc_Na_0, Nb_72>>)]--[]->[StF(
-~pid, 'tgk10', <tgc_KPb_0, tgc_Na_0, Nb_72>)]
-
-rule A_73___ManyTo10To11:
-    [ StF(~pid, 'tgk10', <tgc_KPb_0, tgc_Na_0, tgc_Nb_0>)
-    ]
-  --[ A_end_30('A', 'B', tgc_Na_0, tgc_Nb_0)
-    ]->
-    [ StF(~pid, 'tgk11', 'empty_tuple')
-    , Out(aenc(tgc_Nb_0, tgc_KPb_0))
-    ]
-
-rule A_73___ManyTo11ToNone:
-  [StF(~pid, 'tgk11', 'empty_tuple')]--[]->[]
-
-rule B_83___NoneTo12To13:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk13', 'empty_tuple')]
-
-rule B_83___ManyTo13To14:
-    [ StF(~pid, 'tgk13', 'empty_tuple')
-    , !Setup_23(u_tgany2_75, u_tgany3_74, KSb_77, KPb_78, KSs_76)
+rule A_85___ManyTo9To10:
+    [ StF(~pid, 'tgk9', <tgc_KPdst_0, tgc_KSa_0, tgc_Na_0, tgc_dst_0>)
+    , In(m_83)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk14', <KPb_78, KSb_77, KSs_76>)
+    [ StF(~pid, 'tgk10', <tgc_KPdst_0, tgc_Na_0, tgc_dst_0, adec(m_83, tgc_KSa_0)>)
     ]
 
-rule B_83___ManyTo14To15:
-    [ StF(~pid, 'tgk14', <tgc_KPb_0, tgc_KSb_0, tgc_KSs_0>)
-    , In(m_79)
+rule A_85___ManyTo10To11:
+  [StF(~pid, 'tgk10', <tgc_KPdst_0, tgc_Na_0, tgc_dst_0, <tgc_Na_0, Ndst_84>>)]--[]->[StF(
+~pid, 'tgk11', <tgc_KPdst_0, tgc_Na_0, Ndst_84, tgc_dst_0>)]
+
+rule A_85___ManyTo11To12:
+    [ StF(~pid, 'tgk11', <tgc_KPdst_0, tgc_Na_0, tgc_Ndst_0, tgc_dst_0>)
     ]
-  --[ Test0_32()
+  --[ A_end_39('A', tgc_dst_0, tgc_Na_0, tgc_Ndst_0)
     ]->
-    [ StF(~pid, 'tgk15', <tgc_KPb_0, tgc_KSs_0, adec(m_79, tgc_KSb_0)>)
+    [ StF(~pid, 'tgk12', 'empty_tuple')
+    , Out(aenc(tgc_Ndst_0, tgc_KPdst_0))
     ]
 
-rule B_83___ManyTo15To16:
-  [StF(~pid, 'tgk15', <tgc_KPb_0, tgc_KSs_0, <Na_80, 'A'>>)]--[Test1_33(
-)]->[StF(~pid, 'tgk16', <tgc_KPb_0, tgc_KSs_0, Na_80>)]
+rule A_85___ManyTo12ToNone:
+  [StF(~pid, 'tgk12', 'empty_tuple')]--[]->[]
 
-rule B_83___ManyTo16To17:
-    [ StF(~pid, 'tgk16', <tgc_KPb_0, tgc_KSs_0, tgc_Na_0>)
+rule B_94___NoneTo13To14:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk14', 'empty_tuple')]
+
+rule B_94___ManyTo14To15:
+    [ StF(~pid, 'tgk14', 'empty_tuple')
+    , !Setup_B_28(KSb_87, KPb_88, KSs_86)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk17', <tgc_KPb_0, tgc_KSs_0, tgc_Na_0>)
-    , Out(<'B', 'A'>)
+    [ StF(~pid, 'tgk15', <KPb_88, KSb_87, KSs_86>)
     ]
 
-rule B_83___ManyTo17To18:
-    [ StF(~pid, 'tgk17', <tgc_KPb_0, tgc_KSs_0, tgc_Na_0>)
-    , In(senc(<KPa_81, 'A'>, tgc_KSs_0))
-    ]
-  --[ Test2_34()
-    ]->
-    [ StF(~pid, 'tgk18', <KPa_81, tgc_KPb_0, tgc_Na_0>)
-    ]
-
-rule B_83___ManyTo18To19:
-    [ StF(~pid, 'tgk18', <tgc_KPa_0, tgc_KPb_0, tgc_Na_0>)
-    , Fr(~Nb_82)
+rule B_94___ManyTo15To16:
+    [ StF(~pid, 'tgk15', <tgc_KPb_0, tgc_KSb_0, tgc_KSs_0>)
+    , In(dst_89)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk19', <tgc_KPb_0, tgc_Na_0, ~Nb_82>)
-    , Out(aenc(<tgc_Na_0, ~Nb_82>, tgc_KPa_0))
+    [ StF(~pid, 'tgk16', <tgc_KPb_0, tgc_KSb_0, tgc_KSs_0, dst_89>)
     ]
 
-rule B_83___ManyTo19To20:
-    [ StF(~pid, 'tgk19', <tgc_KPb_0, tgc_Na_0, tgc_Nb_0>)
+rule B_94___ManyTo16To17:
+    [ StF(~pid, 'tgk16', <tgc_KPb_0, tgc_KSb_0, tgc_KSs_0, tgc_dst_0>)
+    , In(m_90)
+    ]
+  --[ Test0_41()
+    ]->
+    [ StF(~pid, 'tgk17', <tgc_KPb_0, tgc_KSs_0, tgc_dst_0, adec(m_90, tgc_KSb_0)>)
+    ]
+
+rule B_94___ManyTo17To18:
+  [StF(~pid, 'tgk17', <tgc_KPb_0, tgc_KSs_0, tgc_dst_0, <Ndst_91, tgc_dst_0>>)]--[Test1_42(
+)]->[StF(~pid, 'tgk18', <tgc_KPb_0, tgc_KSs_0, Ndst_91, tgc_dst_0>)]
+
+rule B_94___ManyTo18To19:
+    [ StF(~pid, 'tgk18', <tgc_KPb_0, tgc_KSs_0, tgc_Ndst_0, tgc_dst_0>)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk19', <tgc_KPb_0, tgc_KSs_0, tgc_Ndst_0, tgc_dst_0>)
+    , Out(<'B', tgc_dst_0>)
+    ]
+
+rule B_94___ManyTo19To20:
+    [ StF(~pid, 'tgk19', <tgc_KPb_0, tgc_KSs_0, tgc_Ndst_0, tgc_dst_0>)
+    , In(senc(<KPdst_92, tgc_dst_0>, tgc_KSs_0))
+    ]
+  --[ Test2_43()
+    ]->
+    [ StF(~pid, 'tgk20', <tgc_KPb_0, KPdst_92, tgc_Ndst_0, tgc_dst_0>)
+    ]
+
+rule B_94___ManyTo20To21:
+    [ StF(~pid, 'tgk20', <tgc_KPb_0, tgc_KPdst_0, tgc_Ndst_0, tgc_dst_0>)
+    , Fr(~Nb_93)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk21', <tgc_KPb_0, ~Nb_93, tgc_Ndst_0, tgc_dst_0>)
+    , Out(aenc(<tgc_Ndst_0, ~Nb_93>, tgc_KPdst_0))
+    ]
+
+rule B_94___ManyTo21To22:
+    [ StF(~pid, 'tgk21', <tgc_KPb_0, tgc_Nb_0, tgc_Ndst_0, tgc_dst_0>)
     , In(aenc(tgc_Nb_0, tgc_KPb_0))
     ]
-  --[ B_end_31('A', 'B', tgc_Na_0, tgc_Nb_0)
+  --[ B_end_40(tgc_dst_0, 'B', tgc_Ndst_0, tgc_Nb_0)
     ]->
-    [ StF(~pid, 'tgk20', 'empty_tuple')
-    ]
-
-rule B_83___ManyTo20ToNone:
-  [StF(~pid, 'tgk20', 'empty_tuple')]--[]->[]
-
-rule S_89___NoneTo21To22:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk22', 'empty_tuple')]
-
-rule S_89___ManyTo22To23:
     [ StF(~pid, 'tgk22', 'empty_tuple')
-    , !Setup_23(u_tgany4_85, KPa_88, u_tgany5_84, KPb_87, KSs_86)
+    ]
+
+rule B_94___ManyTo22ToNone:
+  [StF(~pid, 'tgk22', 'empty_tuple')]--[]->[]
+
+rule S_101___NoneTo23To24:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk24', 'empty_tuple')]
+
+rule S_101___ManyTo24To27:
+    [ StF(~pid, 'tgk24', 'empty_tuple')
+    , !Setup_S_33(KPa_97, KPb_96, KSs_95)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk23', <KPa_88, KPb_87, KSs_86>)
+    [ StF(~pid, 'tgk27', <KSs_95>)
     ]
 
-rule S_89___ManyTo23To24:
-    [ StF(~pid, 'tgk23', <tgc_KPa_0, tgc_KPb_0, tgc_KSs_0>)
-    , In(<'A', 'B'>)
+rule S_101___ManyTo27To27:
+    [ StF(~pid, 'tgk27', <tgc_KSs_0>)
+    , In(<src_98, dst_100>)
+    , !Key_pair_38(dst_100, pk)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk24', <tgc_KPa_0, tgc_KPb_0, tgc_KSs_0>)
+    [ StF(~pid, 'tgk27', <tgc_KSs_0>)
+    , Out(senc(<pk, dst_100>, tgc_KSs_0))
     ]
-
-rule S_89___ManyTo24To25:
-    [ StF(~pid, 'tgk24', <tgc_KPa_0, tgc_KPb_0, tgc_KSs_0>)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk25', <tgc_KPa_0, tgc_KSs_0>)
-    , Out(senc(<tgc_KPb_0, 'B'>, tgc_KSs_0))
-    ]
-
-rule S_89___ManyTo25To26:
-    [ StF(~pid, 'tgk25', <tgc_KPa_0, tgc_KSs_0>)
-    , In(<'B', 'A'>)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk26', <tgc_KPa_0, tgc_KSs_0>)
-    ]
-
-rule S_89___ManyTo26To27:
-    [ StF(~pid, 'tgk26', <tgc_KPa_0, tgc_KSs_0>)
-    ]
-  --[ 
-    ]->
-    [ StF(~pid, 'tgk27', 'empty_tuple')
-    , Out(senc(<tgc_KPa_0, 'A'>, tgc_KSs_0))
-    ]
-
-rule S_89___ManyTo27ToNone:
-  [StF(~pid, 'tgk27', 'empty_tuple')]--[]->[]
 
 end
 

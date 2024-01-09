@@ -10,13 +10,12 @@
 
 builtins := symmetric-encryption, asymmetric-encryption
 
-pred !Setup(
-  named KSa,
-  named KPa,
-  named KSb,
-  named KPb,
-  named KSs
-)
+pred !Setup_A(named KSa, named KPa, named KSs)
+pred !Setup_B(named KSb, named KPb, named KSs)
+pred !Setup_S(named KPa, named KPb, named KSs)
+
+pred !Key_pair/2
+
 apred A_end/4
 apred B_end/4
 apred Test0/0
@@ -25,8 +24,8 @@ apred Test2/0
 
 lemma sanity_check0 =
   exists-trace
-  Ex Na Nb #i.
-    A_end("A", "B", Na, Nb) @i
+  Ex A B Na Nb #i.
+    A_end(A, B, Na, Nb) @i
 
 lemma sanity_check1 =
   exists-trace
@@ -63,89 +62,93 @@ restriction only_once =
 process setup =
   [ Fr(~KSa)
   , Fr(~KSb)
-  , Fr(~KSs) ]
+  , Fr(~KSs)
+  , Fr(~KSi) ]
 --[ Only_once() ]->
   let KPa = pk(KSa) in
   let KPb = pk(KSb) in
-  [ !Setup(
-      KSa is .,
-      KPa is .,
-      KSb is .,
-      KPb is .,
-      KSs is .)
+  let KPi = pk(KSi) in
+  [ !Setup_A(KSa is ., KPa is ., KSs is .)
+  , !Setup_B(KSb is ., KPb is ., KSs is .)
+  , !Setup_S(KPa is ., KPb is ., KSs is .)
+  , !Key_pair("A", KPa)
+  , !Key_pair("B", KPb)
+  , !Key_pair("I", KPi)
   , Out(KPa)
   , Out(KPb)
+  , Out(KSi)
+  , Out(KPi)
   ]
 
 process A =
-  [ !Setup(KSa is ., KPa is ., KSb is _, KPb is _, KSs is .) ]
+  [ !Setup_A(KSa is ., KPa is ., KSs is .) ]
   ->
   [ 'KSs := .
   , 'KSa := .
   , 'KPa := . ];
 
+  /* Let Intruder decide communication target */
+  [ In(dst) ]->[ 'dst := . ];
+
   /* 1. */
-  []->[ Out(<"A", "B">) ];
+  []->[ Out(<"A", 'dst>) ];
 
   /* 2. */
-  [ In(senc(<KPb, "B">, 'KSs)) ]->[ 'KPb := . ];
+  [ In(senc(<KPdst, 'dst>, 'KSs)) ]->[ 'KPdst := . ];
 
   /* 3. */
   [ Fr(~Na) ]
   ->
   [ 'Na := .
-  , Out(aenc(<Na, "A">, 'KPb)) ];
+  , Out(aenc(<Na, 'dst>, 'KPdst)) ];
 
   /* 6. */
   [ In(m) ]->[ 'm := adec(m, 'KSa) ];
-  [ 'm cas <'Na, Nb> ]->[ 'Nb := . ];
+  [ 'm cas <'Na, Ndst> ]->[ 'Ndst := . ];
 
   /* 7. */
-  []--[ A_end("A", "B", 'Na, 'Nb) ]->[ Out(aenc('Nb, 'KPb)) ]
+  []--[ A_end("A", 'dst, 'Na, 'Ndst) ]->[ Out(aenc('Ndst, 'KPdst)) ]
 
 process B =
-  [ !Setup(KSa is _, KPa is _, KSb is ., KPb is ., KSs is .) ]
+  [ !Setup_B(KSb is ., KPb is ., KSs is .) ]
   ->
   [ 'KSs := .
   , 'KSb := .
   , 'KPb := . ];
 
+  /* Let Intruder decide communication target */
+  [ In(dst) ]->[ 'dst := . ];
+
   /* 3. */
   [ In(m) ]--[ Test0() ]->[ 'm := adec(m, 'KSb) ];
-  [ 'm cas <Na, "A"> ]--[ Test1() ]->[ 'Na := . ];
+  [ 'm cas <Ndst, 'dst> ]--[ Test1() ]->[ 'Ndst := . ];
 
   /* 4. */
-  []->[ Out(<"B", "A">) ];
+  []->[ Out(<"B", 'dst>) ];
 
   /* 5. */
-  [ In(senc(<KPa, "A">, 'KSs)) ]--[ Test2() ]->[ 'KPa := . ];
+  [ In(senc(<KPdst, 'dst>, 'KSs)) ]--[ Test2() ]->[ 'KPdst := . ];
 
   /* 6. */
   [ Fr(~Nb) ]
   ->
   [ 'Nb := .
-  , Out(aenc(<'Na, Nb>, 'KPa)) ];
+  , Out(aenc(<'Ndst, Nb>, 'KPdst)) ];
 
   /* 7. */
   [ In(aenc('Nb, 'KPb)) ]
---[ B_end("A", "B", 'Na, 'Nb) ]->
+--[ B_end('dst, "B", 'Ndst, 'Nb) ]->
   [  ]
 
 process S =
-  [ !Setup(KSa is _, KPa is ., KSb is _, KPb is ., KSs is .) ]
+  [ !Setup_S(KPa is ., KPb is ., KSs is .) ]
   ->
   [ 'KSs := .
   , 'KPa := .
   , 'KPb := . ];
 
-  /* 1. */
-  [ In(<"A", "B">) ]->[];
-
-  /* 2. */
-  []->[ Out(senc(<'KPb, "B">, 'KSs)) ];
-
-  /* 4. */
-  [ In(<"B", "A">) ]->[];
-
-  /* 5. */
-  []->[ Out(senc(<'KPa, "A">, 'KSs)) ]
+  loop {
+    [ In(<src, dst>), !Key_pair(dst, pk) ]
+    ->
+    [ Out(senc(<pk, dst>, 'KSs)) ]
+  }
