@@ -649,7 +649,7 @@ module Dot_printers = struct
   let pp_proc_ctx ~top ~bottom (proc_step_info : proc_step_info) formatter () =
     Fmt.pf formatter {|<table border="0" cellborder="1" cellspacing="0" cellpadding="0">|};
     (match top with
-     | None -> Fmt.pf formatter {|<tr><td>Start</td></tr>|}
+     | None -> ()
      | Some x ->
        Fmt.pf formatter {|<tr>%a</tr>|} (pp_row_element `L) x
     );
