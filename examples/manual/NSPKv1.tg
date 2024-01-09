@@ -81,7 +81,7 @@ process setup =
   ]
 
 process A =
-  [ !Setup_A(KSa is ., KPa is ., KSs is .) ]
+  [ !Setup_A(KSa is ~., KPa is ., KSs is ~.) ]
   ->
   [ 'KSs := .
   , 'KSa := .
@@ -110,17 +110,17 @@ process A =
   []--[ A_end("A", 'dst, 'Na, 'Ndst) ]->[ Out(aenc('Ndst, 'KPdst)) ]
 
 process B =
-  [ !Setup_B(KSb is ., KPb is ., KSs is .) ]
+  [ !Setup_B(KSb is ~., KPb is ., KSs is ~.) ]
   ->
   [ 'KSs := .
   , 'KSb := .
   , 'KPb := . ];
 
   /* Let Intruder decide communication target */
-  [ In(dst) ]->[ 'dst := . ];
+  [ 'KSb cas ~_, In(dst) ]->[ 'dst := . ];
 
   /* 3. */
-  [ In(m) ]--[ Test0() ]->[ 'm := adec(m, 'KSb) ];
+  [ 'KSb cas ~_, In(m) ]--[ Test0() ]->[ 'm := adec(m, 'KSb) ];
   [ 'm cas <Ndst, 'dst> ]--[ Test1() ]->[ 'Ndst := . ];
 
   /* 4. */
@@ -141,7 +141,7 @@ process B =
   [  ]
 
 process S =
-  [ !Setup_S(KPa is ., KPb is ., KSs is .) ]
+  [ !Setup_S(KPa is ., KPb is ., KSs is ~.) ]
   ->
   [ 'KSs := .
   , 'KPa := .

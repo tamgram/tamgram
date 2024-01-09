@@ -1,0 +1,112 @@
+/*
+Initial Example for the Tamgram Manual
+======================================
+
+This file is translated from Tamarin's manual code
+
+Attributions to original file is as follows:
+Authors: 	Simon Meier, Benedikt Schmidt
+Updated by: 	Jannik Dreier, Ralf Sasse
+Date: 	        June 2016
+
+*/
+
+builtins := hashing, asymmetric-encryption
+
+pred !Ltk/2
+pred !Pk/2
+
+// Registering a public key
+process Register_pk =
+    [ Fr(~ltk) ]
+  -->
+    [ !Ltk($A, ltk), !Pk($A, pk(~ltk)) ]
+
+process Get_pk =
+    [ !Pk(A, pubkey) ]
+  -->
+    [ Out(pubkey) ]
+
+apred LtkReveal/1
+
+process Reveal_ltk =
+    [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+    [ Out(ltk) ]
+
+apred SessKeyC/2
+
+// Start a new process executing the client role, choosing the server
+// non-deterministically.
+process Client =
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)   // lookup public-key of server
+    ]
+  -->
+    [ 'S := $S  // Store server and key for next step of process
+    , 'k := ~k
+    , Out( aenc(~k, pkS) )  // Send the encrypted session key to the server
+    ];
+    [ In( h('k) )       // Receive hashed session key from network
+    ]
+  --[ SessKeyC( 'S, 'k ) ]-> // State that the session key k
+    []                       // was setup with server S
+
+apred AnswerRequest/2
+
+// A server process answering in one-step to a session-key setup request from
+// some client.
+process Serv =
+    [ !Ltk($S, ~ltkS)                             // lookup the private-key
+    , In( request )                               // receive a request
+    ]
+  --[ AnswerRequest($S, adec(request, ~ltkS)) ]-> // Explanation below
+    [ Out( h(adec(request, ~ltkS)) ) ]            // Return the hash of the
+                                                  // decrypted request.
+
+
+lemma Client_session_key_secrecy =
+  /* It cannot be that a  */
+    not(
+      Ex S k #i #j.
+        /* client has set up a session key 'k' with a server'S' */
+        SessKeyC(S, k) @ #i
+        /* and the adversary knows 'k' */
+      & K(k) @ #j
+        /* without having performed a long-term key reveal on 'S'. */
+      & not(Ex #r. LtkReveal(S) @ r)
+    )
+
+lemma Client_auth =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a)
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+
+lemma Client_auth_injective =
+  /* For all session keys 'k' setup by clients with a server 'S' */
+    ( All S k #i.  SessKeyC(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. AnswerRequest(S, k) @ a
+           /* and there is no other client that had the same request */
+           & (All #j. SessKeyC(S, k) @ #j ==> #i = #j)
+       )
+         /* or the adversary performed a long-term key reveal on 'S'
+            before the key was setup. */
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+
+lemma Client_session_key_honest_setup =
+  exists-trace
+  Ex S k #i.
+        SessKeyC(S, k) @ #i
+      & not(Ex #r. LtkReveal(S) @ r)
+

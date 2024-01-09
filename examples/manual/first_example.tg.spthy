@@ -1,0 +1,130 @@
+theory first_example___tg
+begin
+
+builtins: hashing, asymmetric-encryption
+
+rule Register_pk_25___NoneTo0To1:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
+
+rule Register_pk_25___ManyTo1To2:
+    [ StF(~pid, 'tgk1', 'empty_tuple')
+    , Fr(~ltk_24)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk2', 'empty_tuple')
+    , !Ltk_22($A, ~ltk_24)
+    , !Pk_23($A, pk(~ltk_24))
+    ]
+
+rule Register_pk_25___ManyTo2ToNone:
+  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
+
+rule Get_pk_28___NoneTo3To4:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
+
+rule Get_pk_28___ManyTo4To5:
+    [ StF(~pid, 'tgk4', 'empty_tuple')
+    , !Pk_23(A_27, pubkey_26)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk5', 'empty_tuple')
+    , Out(pubkey_26)
+    ]
+
+rule Get_pk_28___ManyTo5ToNone:
+  [StF(~pid, 'tgk5', 'empty_tuple')]--[]->[]
+
+rule Reveal_ltk_32___NoneTo6To7:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk7', 'empty_tuple')]
+
+rule Reveal_ltk_32___ManyTo7To8:
+    [ StF(~pid, 'tgk7', 'empty_tuple')
+    , !Ltk_22(A_31, ltk_30)
+    ]
+  --[ LtkReveal_29(A_31)
+    ]->
+    [ StF(~pid, 'tgk8', 'empty_tuple')
+    , Out(ltk_30)
+    ]
+
+rule Reveal_ltk_32___ManyTo8ToNone:
+  [StF(~pid, 'tgk8', 'empty_tuple')]--[]->[]
+
+rule Client_36___NoneTo9To10:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk10', 'empty_tuple')]
+
+rule Client_36___ManyTo10To11:
+    [ StF(~pid, 'tgk10', 'empty_tuple')
+    , Fr(~k_35)
+    , !Pk_23($S, pkS_34)
+    ]
+  --[ 
+    ]->
+    [ StF(~pid, 'tgk11', <$S, ~k_35>)
+    , Out(aenc(~k_35, pkS_34))
+    ]
+
+rule Client_36___ManyTo11To12:
+    [ StF(~pid, 'tgk11', <tgc_S_0, tgc_k_0>)
+    , In(h(tgc_k_0))
+    ]
+  --[ SessKeyC_33(tgc_S_0, tgc_k_0)
+    ]->
+    [ StF(~pid, 'tgk12', 'empty_tuple')
+    ]
+
+rule Client_36___ManyTo12ToNone:
+  [StF(~pid, 'tgk12', 'empty_tuple')]--[]->[]
+
+rule Serv_40___NoneTo13To14:
+  [Fr(~pid)]--[]->[StF(~pid, 'tgk14', 'empty_tuple')]
+
+rule Serv_40___ManyTo14To15:
+    [ StF(~pid, 'tgk14', 'empty_tuple')
+    , !Ltk_22($S, ~ltkS_39)
+    , In(request_38)
+    ]
+  --[ AnswerRequest_37($S, adec(request_38, ~ltkS_39))
+    ]->
+    [ StF(~pid, 'tgk15', 'empty_tuple')
+    , Out(h(adec(request_38, ~ltkS_39)))
+    ]
+
+rule Serv_40___ManyTo15ToNone:
+  [StF(~pid, 'tgk15', 'empty_tuple')]--[]->[]
+
+lemma Client_session_key_secrecy []:
+  all-traces
+  "not Ex S_41 k_42 #i_43 #j_44 .
+         ((((SessKeyC_33(S_41, k_42) @ #i_43) & (K(k_42) @ #j_44))) & (not 
+         Ex #r_45 .
+           LtkReveal_29(S_41) @ #r_45))"
+
+lemma Client_auth []:
+  all-traces
+  "All S_47 k_48 #i_49 .
+     ((SessKeyC_33(S_47, k_48) @ #i_49) ==> (((Ex #a_50 .
+                                                 AnswerRequest_37(S_47, k_48) @ #a_50) | (
+     Ex #r_51 .
+       ((LtkReveal_29(S_47) @ #r_51) & (#r_51 < #i_49))))))"
+
+lemma Client_auth_injective []:
+  all-traces
+  "All S_53 k_54 #i_55 .
+     ((SessKeyC_33(S_53, k_54) @ #i_55) ==> (((Ex #a_56 .
+                                                 ((AnswerRequest_37(S_53, k_54) @ #a_56) & (
+                                                 All #j_57 .
+                                                   ((SessKeyC_33(S_53, k_54) @ #j_57) ==> (#i_55 = #j_57))))) | (
+     Ex #r_58 .
+       ((LtkReveal_29(S_53) @ #r_58) & (#r_58 < #i_55))))))"
+
+lemma Client_session_key_honest_setup []:
+  exists-trace
+  "Ex S_60 k_61 #i_62 .
+     ((SessKeyC_33(S_60, k_61) @ #i_62) & (not Ex #r_63 .
+                                                 LtkReveal_29(S_60) @ #r_63))"
+
+end
+
