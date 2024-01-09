@@ -461,6 +461,8 @@ macro_arg:
     { (`Named (key, arg) : macro_arg) }
   | key = NAME; IS; dot = DOT
     { (`Named (key, T_var ([Loc.update_tag (Some dot) key], `Local 0, None)) : macro_arg) }
+  | key = NAME; IS; TILDE; dot = DOT
+    { (`Named (key, T_var ([Loc.update_tag (Some dot) key], `Local 0, Some `Fresh)) : macro_arg) }
   | key = NAME; IS; SINGLE_QUOTE; dot = DOT
     { (`Named (key, T_symbol (Loc.update_tag (Some dot) key, `Cell)) : macro_arg) }
   | arg = term
