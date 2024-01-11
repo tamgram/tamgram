@@ -368,6 +368,7 @@ module Rule_IR_store = struct
                 let a = List.map rewrite_term succ_ir.a in
                 let r = List.map rewrite_term succ_ir.r in
                 { succ_ir with
+                  pred = `None;
                   entry_fact = None;
                   exit_fact;
                   l;
