@@ -337,20 +337,6 @@ module Rule_IR_store = struct
       )
       Int_set.empty
 
-  let remove_empty_rule_leaves
-      (spec : Spec.t) ((g, t) : Tg_graph.t * t)
-    : Tg_graph.t * t =
-    Graph.leaves g
-    |> Seq.fold_left (fun ((g, t) : Tg_graph.t * t) k ->
-        if rule_is_empty spec g k then (
-          (Graph.remove_vertex k g,
-           Int_map.remove k t)
-        ) else (
-          (g, t)
-        )
-      )
-      (g, t)
-
   let compress_start_rules
       (spec : Spec.t) ((g, t) : Tg_graph.t * t)
     : Tg_graph.t * t =
@@ -396,6 +382,20 @@ module Rule_IR_store = struct
           (Graph.remove_vertex k g,
            Int_map.remove k t
            |> Int_map.add succ succ_irs)
+        ) else (
+          (g, t)
+        )
+      )
+      (g, t)
+
+  let remove_end_rules
+      (spec : Spec.t) ((g, t) : Tg_graph.t * t)
+    : Tg_graph.t * t =
+    Graph.leaves g
+    |> Seq.fold_left (fun ((g, t) : Tg_graph.t * t) k ->
+        if rule_is_empty spec g k then (
+          (Graph.remove_vertex k g,
+           Int_map.remove k t)
         ) else (
           (g, t)
         )
@@ -602,7 +602,7 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   (g, rule_irs)
   |> Rule_IR_store.compress_start_rules spec
-  |> Rule_IR_store.remove_empty_rule_leaves spec
+  |> Rule_IR_store.remove_end_rules spec
   |> Rule_IR_store.compress_middle_empty_rules_StF_StF spec
   |> Rule_IR_store.compress_middle_empty_rules_StF_StB spec
   |> (fun (_g, t) -> Rule_IR_store.to_seq t)
