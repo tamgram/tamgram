@@ -38,7 +38,7 @@ restriction only_once:
   "All #i_66 #j_67 .
      ((((Only_once_65() @ #i_66) & (Only_once_65() @ #j_67))) ==> (#i_66 = #j_67))"
 
-rule setup_76___NoneTo1To2:
+rule setup_76___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~KSa_72)
     , Fr(~KSb_71)
@@ -47,8 +47,7 @@ rule setup_76___NoneTo1To2:
     ]
   --[ Only_once_65()
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Setup_A_23(~KSa_72, pk(~KSa_72), ~KSs_69)
+    [ !Setup_A_23(~KSa_72, pk(~KSa_72), ~KSs_69)
     , !Setup_B_28(~KSb_71, pk(~KSb_71), ~KSs_69)
     , !Setup_S_33(pk(~KSa_72), pk(~KSb_71), ~KSs_69)
     , !Key_pair_38('A', pk(~KSa_72))

@@ -3,15 +3,14 @@ begin
 
 builtins: xor, hashing
 
-rule setup_28___NoneTo1To2:
+rule setup_28___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~k_27)
     ]
   --[ OnlyOnce_20('setup')
     , Create_25(~k_27)
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Reader_21(~k_27)
+    [ !Reader_21(~k_27)
     , !Tag_22(~k_27)
     ]
 

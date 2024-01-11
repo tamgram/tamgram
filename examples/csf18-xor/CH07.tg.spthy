@@ -9,15 +9,14 @@ functions: lh_29/1
 
 functions: rh_30/1
 
-rule Setup_33___NoneTo1To2:
+rule Setup_33___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~k_31)
     , Fr(~id_32)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Reader_20(~k_31, ~id_32)
+    [ !Reader_20(~k_31, ~id_32)
     , !Tag_21(~k_31, ~id_32)
     ]
 

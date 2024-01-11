@@ -3,14 +3,13 @@ begin
 
 builtins: xor, hashing
 
-rule Setup_30___NoneTo1To2:
+rule Setup_30___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~k_29)
     ]
   --[ OnlyOnce_20()
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !InitLTK_21(~k_29)
+    [ !InitLTK_21(~k_29)
     , !RespLTK_22(~k_29)
     ]
 
@@ -35,7 +34,7 @@ rule initiator_36___ManyTo5ToNone___initiator2:
     [ 
     ]
 
-rule responder_40___NoneTo8To9:
+rule responder_40___NoneTo8ToNone:
     [ Fr(~pid)
     , In(na_38)
     , Fr(~nb_37)
@@ -45,8 +44,7 @@ rule responder_40___NoneTo8To9:
     , Neq_24(na_38, zero)
     , NeqForExec_26(na_38, zero)
     ]->
-    [ StF(~pid, 'tgk9', 'empty_tuple')
-    , Out(<h(((((na_38) XOR (~k_39))) XOR (~nb_37))), ~nb_37>)
+    [ Out(<h(((((na_38) XOR (~k_39))) XOR (~nb_37))), ~nb_37>)
     ]
 
 restriction equality:

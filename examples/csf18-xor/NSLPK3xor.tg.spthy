@@ -3,26 +3,24 @@ begin
 
 builtins: asymmetric-encryption, xor
 
-rule Register_pk_26___NoneTo1To2:
+rule Register_pk_26___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~ltkA_25)
     ]
   --[ Register_24($A)
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Ltk_22($A, ~ltkA_25)
+    [ !Ltk_22($A, ~ltkA_25)
     , !Pk_23($A, pk(~ltkA_25))
     , Out(pk(~ltkA_25))
     ]
 
-rule Reveal_ltk_30___NoneTo4To5:
+rule Reveal_ltk_30___NoneTo4ToNone:
     [ Fr(~pid)
     , !Ltk_22(A_29, ltkA_28)
     ]
   --[ RevLtk_27(A_29)
     ]->
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Out(ltkA_28)
+    [ Out(ltkA_28)
     ]
 
 rule I_45___NoneTo7To8___I_1:
@@ -77,13 +75,13 @@ rule R_56___ManyTo12ToNone___R_2:
     , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 
-rule Secrecy_claim_61___NoneTo15To16:
+rule Secrecy_claim_61___NoneTo15ToNone:
     [ Fr(~pid)
     , Secret_33(A_60, B_59, m_58)
     ]
   --[ Secret_57(A_60, B_59, m_58)
     ]->
-    [ StF(~pid, 'tgk16', 'empty_tuple')
+    [ 
     ]
 
 lemma types [sources]:

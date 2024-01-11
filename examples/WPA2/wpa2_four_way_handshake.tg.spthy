@@ -17,7 +17,7 @@ functions: S_26/1
 
 functions: MIC_27/2
 
-rule EncryptionRule_121___NoneTo1To2:
+rule EncryptionRule_121___NoneTo1ToNone:
     [ Fr(~pid)
     , Queued_61(senderThreadID_110, messageID_115, message_116, frameTag_117)
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
@@ -25,22 +25,20 @@ rule EncryptionRule_121___NoneTo1To2:
   --[ EncryptedWithPTK_75(ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
     , SendMessage_60(senderID_111, messageID_115)
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , Out(snenc_24(message_116, PTK_118, frameTag_117))
+    [ Out(snenc_24(message_116, PTK_118, frameTag_117))
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(((n_114) + ('1'))), senderID_111, messageID_115>)
     ]
 
-rule PlainRule_126___NoneTo4To5:
+rule PlainRule_126___NoneTo4ToNone:
     [ Fr(~pid)
     , Queued_61(senderThreadID_122, messageID_123, message_124, u_tgany0_125)
     ]
   --[ SendMessage_60(senderThreadID_122, messageID_123)
     ]->
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Out(message_124)
+    [ Out(message_124)
     ]
 
-rule SendPTKEncryptedPayloadRuleAuth_140___NoneTo7To8:
+rule SendPTKEncryptedPayloadRuleAuth_140___NoneTo7ToNone:
     [ Fr(~pid)
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
@@ -48,12 +46,11 @@ rule SendPTKEncryptedPayloadRuleAuth_140___NoneTo7To8:
     , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]->
-    [ StF(~pid, 'tgk8', 'empty_tuple')
-    , Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]
 
-rule SendPTKEncryptedPayloadRuleSupp_141___NoneTo10To11:
+rule SendPTKEncryptedPayloadRuleSupp_141___NoneTo10ToNone:
     [ Fr(~pid)
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
@@ -61,8 +58,7 @@ rule SendPTKEncryptedPayloadRuleSupp_141___NoneTo10To11:
     , EncryptedWithPTK_withRole_82('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     , SendPTKEncryptedPayload_90(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]->
-    [ StF(~pid, 'tgk11', 'empty_tuple')
-    , Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
+    [ Out(snenc_24(<'data', $message>, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>))
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]
 
@@ -140,18 +136,17 @@ restriction UniqueMemoryMustBeUnique:
        ((((#i_412 < #k_415) & (#k_415 < #j_413))) & (AllocateUnique_44(
        pointer2_414, owner_411) @ #k_415))))))"
 
-rule Supp_Create_471___NoneTo13To14:
+rule Supp_Create_471___NoneTo13ToNone:
     [ Fr(~pid)
     , Fr(~suppID_470)
     ]
   --[ SupplicantCreated_417(~suppID_470)
     ]->
-    [ StF(~pid, 'tgk14', 'empty_tuple')
-    , !Supplicant_418(~suppID_470)
+    [ !Supplicant_418(~suppID_470)
     , Out(~suppID_470)
     ]
 
-rule Auth_Create_480___NoneTo16To17:
+rule Auth_Create_480___NoneTo16ToNone:
     [ Fr(~pid)
     , Fr(~authID_474)
     , Fr(~pointerGTKState_473)
@@ -162,14 +157,13 @@ rule Auth_Create_480___NoneTo16To17:
     , AuthenticatorSetsShareGTK_421(~authID_474, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>)
     , AllocateUnique_44(~pointerGTKState_473, ~authID_474)
     ]->
-    [ StF(~pid, 'tgk17', 'empty_tuple')
-    , !Authenticator_422(~authID_474)
+    [ !Authenticator_422(~authID_474)
     , !AuthGTKState_423(~authID_474, 'SETKEYSDONE', <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>, ~pointerGTKState_473)
     , AuthInstalledGTK_430(~authID_474, <GTK_22(~x_472), <N_23('1'), ~authID_474>, '4'>)
     , Out(~authID_474)
     ]
 
-rule Auth_Associate_With_Supp_494___NoneTo19To20:
+rule Auth_Associate_With_Supp_494___NoneTo19ToNone:
     [ Fr(~pid)
     , Fr(~PMK_490)
     , Fr(~authThreadID_487)
@@ -185,8 +179,7 @@ rule Auth_Associate_With_Supp_494___NoneTo19To20:
   --[ Init_431(~PMK_490)
     , Associate_432(~authID_489, ~authThreadID_487, ~suppID_483, ~suppThreadID_481, ~PMK_490)
     ]->
-    [ StF(~pid, 'tgk20', 'empty_tuple')
-    , AuthState_439(~authThreadID_487, 'INIT_R1_SA', <~authID_489, ~PMK_490, ~suppThreadID_481, KDF_21(<'NULL', 'NULL', 'NULL'>), 'NULL_ANonce', 'NULL_SNonce', S_26('0')>)
+    [ AuthState_439(~authThreadID_487, 'INIT_R1_SA', <~authID_489, ~PMK_490, ~suppThreadID_481, KDF_21(<'NULL', 'NULL', 'NULL'>), 'NULL_ANonce', 'NULL_SNonce', S_26('0')>)
     , SuppState_440(~suppThreadID_481, 'INIT_R1_SA', <~suppID_483, ~PMK_490, ~authThreadID_487, KDF_21(<'NULL', 'NULL', 'NULL'>), <GTK_22('NULL'), <N_23('NULL'), 'NULL'>, 'NULL'>, 'NULL_ANonce', 'NULL_SNonce', S_26('NULL')>)
     , !PairwiseMasterKey_221(~PMK_490, ~authID_489, ~authThreadID_487, ~suppID_483, ~suppThreadID_481)
     , !AuthReceiverPTK_441(~authReceiverPtkID_488, ~authThreadID_487, ~authID_489, KDF_21(<'NULL', 'NULL', 'NULL'>), ~pointerAuthPTK_485)
@@ -203,7 +196,7 @@ restriction MessagesAreSentInEnqueueOrder:
      senderThreadID_495, messageID1_496) @ #i2_500))) & (SendMessage_60(
      senderThreadID_495, messageID2_497) @ #j2_501))) & (#i1_498 < #j1_499))) ==> (#i2_500 < #j2_501))"
 
-rule receiveGTKEncryptedPayload_513___NoneTo22To23:
+rule receiveGTKEncryptedPayload_513___NoneTo22ToNone:
     [ Fr(~pid)
     , In(snenc_24(<'data', $message>, GTK_22(x_503), <N_23(m_507), senderID_504>))
     , ReceiverGTK_455(receiverThreadID_505, ~keyID_508, PMK_509, GTK_22(x_503), <N_23(n_506), senderID_504>, $index)
@@ -212,11 +205,10 @@ rule receiveGTKEncryptedPayload_513___NoneTo22To23:
     , SeesNonceForGTK_53(~keyID_508, receiverThreadID_505, GTK_22(x_503), <N_23(m_507), senderID_504>)
     , Neq_28($index, 'NULL')
     ]->
-    [ StF(~pid, 'tgk23', 'empty_tuple')
-    , ReceiverGTK_455(receiverThreadID_505, ~keyID_508, PMK_509, GTK_22(x_503), <N_23(m_507), senderID_504>, $index)
+    [ ReceiverGTK_455(receiverThreadID_505, ~keyID_508, PMK_509, GTK_22(x_503), <N_23(m_507), senderID_504>, $index)
     ]
 
-rule sendGTKEncryptedPayload_1_527___NoneTo25To26:
+rule sendGTKEncryptedPayload_1_527___NoneTo25ToNone:
     [ Fr(~pid)
     , AuthInstalledGTK_430(~authID_520, <GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>)
     , !AuthGTKState_423(~authID_520, stateIdentifier_515, <GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, shareGTKData_516, oldPointerGTKState_517)
@@ -228,13 +220,12 @@ rule sendGTKEncryptedPayload_1_527___NoneTo25To26:
     , AllocateUnique_44(~newPointerGTKState_518, ~authID_520)
     , Free_45(oldPointerGTKState_517)
     ]->
-    [ StF(~pid, 'tgk26', 'empty_tuple')
-    , Out(snenc_24(<'data', $message>, GTK_22(~x_514), <N_23(((n_519) + ('1'))), ~authID_520>))
+    [ Out(snenc_24(<'data', $message>, GTK_22(~x_514), <N_23(((n_519) + ('1'))), ~authID_520>))
     , AuthInstalledGTK_430(~authID_520, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>)
     , !AuthGTKState_423(~authID_520, stateIdentifier_515, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, <<GTK_22(~x_514), <N_23(n_519), ~authID_520>, $index>, <N_23(n_519), ~authID_520>, $index>, ~newPointerGTKState_518)
     ]
 
-rule sendGTKEncryptedPayload_2_542___NoneTo28To29:
+rule sendGTKEncryptedPayload_2_542___NoneTo28ToNone:
     [ Fr(~pid)
     , AuthInstalledGTK_430(~authID_535, GTK_22(~x_528))
     , !AuthGTKState_423(~authID_535, stateIdentifier_529, <~authID_535, GTK_22(~x_528), <N_23(n_534), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>, ~oldPointerGTKState_532)
@@ -248,32 +239,29 @@ rule sendGTKEncryptedPayload_2_542___NoneTo28To29:
     , Free_45(~oldPointerGTKState_532)
     , Neq_28(GTK_22(~x_528), shareGTK_531)
     ]->
-    [ StF(~pid, 'tgk29', 'empty_tuple')
-    , Out(snenc_24(<'data', $message>, GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>))
+    [ Out(snenc_24(<'data', $message>, GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>))
     , AuthInstalledGTK_430(~authID_535, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>)
     , !AuthGTKState_423(~authID_535, stateIdentifier_529, <GTK_22(~x_528), <N_23(((n_534) + ('1'))), ~authID_535>, $index>, <shareGTK_531, shareGTKNonce_530, $shareIndex>, ~newPointerGTKState_533)
     ]
 
-rule KeyRevealFromNonceReuse_547___NoneTo31To32:
+rule KeyRevealFromNonceReuse_547___NoneTo31ToNone:
     [ Fr(~pid)
     , In(<snenc_24(m1_545, key_546, nonce_543), snenc_24(m2_544, key_546, nonce_543)>)[+]
     ]
   --[ Neq_28(m1_545, m2_544)
     , NonceReuse_467(key_546, nonce_543)
     ]->
-    [ StF(~pid, 'tgk32', 'empty_tuple')
-    , Out(key_546)
+    [ Out(key_546)
     ]
 
-rule KeyRevealPMK_553___NoneTo34To35:
+rule KeyRevealPMK_553___NoneTo34ToNone:
     [ Fr(~pid)
     , !PairwiseMasterKey_221(PMK_552, authID_551, authThreadID_550, suppID_549, suppThreadID_548)
     ]
   --[ RevealPMK_468(PMK_552)
     , RevealPMKFor_469(PMK_552, authID_551, authThreadID_550, suppID_549, suppThreadID_548)
     ]->
-    [ StF(~pid, 'tgk35', 'empty_tuple')
-    , Out(PMK_552)
+    [ Out(PMK_552)
     ]
 
 rule Auth_603___NoneTo37ToMany___Adapt_from_AuthState_to_cells:

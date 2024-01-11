@@ -3,35 +3,32 @@ begin
 
 builtins: hashing, asymmetric-encryption
 
-rule Register_pk_25___NoneTo1To2:
+rule Register_pk_25___NoneTo1ToNone:
     [ Fr(~pid)
     , Fr(~ltk_24)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk2', 'empty_tuple')
-    , !Ltk_22($A, ~ltk_24)
+    [ !Ltk_22($A, ~ltk_24)
     , !Pk_23($A, pk(~ltk_24))
     ]
 
-rule Get_pk_28___NoneTo4To5:
+rule Get_pk_28___NoneTo4ToNone:
     [ Fr(~pid)
     , !Pk_23(A_27, pubkey_26)
     ]
   --[ 
     ]->
-    [ StF(~pid, 'tgk5', 'empty_tuple')
-    , Out(pubkey_26)
+    [ Out(pubkey_26)
     ]
 
-rule Reveal_ltk_32___NoneTo7To8:
+rule Reveal_ltk_32___NoneTo7ToNone:
     [ Fr(~pid)
     , !Ltk_22(A_31, ltk_30)
     ]
   --[ LtkReveal_29(A_31)
     ]->
-    [ StF(~pid, 'tgk8', 'empty_tuple')
-    , Out(ltk_30)
+    [ Out(ltk_30)
     ]
 
 rule Client_36___NoneTo10To11:
@@ -54,15 +51,14 @@ rule Client_36___ManyTo11ToNone:
     [ 
     ]
 
-rule Serv_40___NoneTo14To15:
+rule Serv_40___NoneTo14ToNone:
     [ Fr(~pid)
     , !Ltk_22($S, ~ltkS_39)
     , In(request_38)
     ]
   --[ AnswerRequest_37($S, adec(request_38, ~ltkS_39))
     ]->
-    [ StF(~pid, 'tgk15', 'empty_tuple')
-    , Out(h(adec(request_38, ~ltkS_39)))
+    [ Out(h(adec(request_38, ~ltkS_39)))
     ]
 
 lemma Client_session_key_secrecy []:
