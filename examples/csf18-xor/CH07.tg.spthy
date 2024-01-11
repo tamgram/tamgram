@@ -9,9 +9,6 @@ functions: lh_29/1
 
 functions: rh_30/1
 
-rule Setup_33___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule Setup_33___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Fr(~k_31)
@@ -23,12 +20,6 @@ rule Setup_33___ManyTo1To2:
     , !Reader_20(~k_31, ~id_32)
     , !Tag_21(~k_31, ~id_32)
     ]
-
-rule Setup_33___ManyTo2ToNone:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
-
-rule reader_40___NoneTo3To4:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
 rule reader_40___ManyTo4To5___reader1:
     [ StF(~pid, 'tgk4', 'empty_tuple')
@@ -55,12 +46,6 @@ rule reader_40___ManyTo5To6___reader2:
     , Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
     ]
 
-rule reader_40___ManyTo6ToNone:
-  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
-
-rule tag_49___NoneTo7To8:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
-
 rule tag_49___ManyTo8To9___tag1:
     [ StF(~pid, 'tgk8', 'empty_tuple')
     , In(r1_42)
@@ -85,9 +70,6 @@ rule tag_49___ManyTo9To10___tag2:
     ]->
     [ StF(~pid, 'tgk10', 'empty_tuple')
     ]
-
-rule tag_49___ManyTo10ToNone:
-  [StF(~pid, 'tgk10', 'empty_tuple')]--[]->[]
 
 restriction equality:
   "All x_50 y_51 #i_52 .

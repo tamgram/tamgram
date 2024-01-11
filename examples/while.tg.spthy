@@ -3,9 +3,6 @@ begin
 
 functions: f_18/1
 
-rule A_20___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule A_20___ManyTo1ToMany:
   [StF(~pid, 'tgk1', 'empty_tuple')]--[]->[StB(~pid, 'tgk1', <f_18('2')>)]
 
@@ -35,9 +32,6 @@ rule A_20___ManyTo8To9:
     [ StF(~pid, 'tgk9', 'empty_tuple')
     , Out(<'done', tgc_a_0>)
     ]
-
-rule A_20___ManyTo9ToNone:
-  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
 
 restriction tg_cell_pat_match_restriction2:
   "All #i_21 cell_22 u_tgany0_19 .

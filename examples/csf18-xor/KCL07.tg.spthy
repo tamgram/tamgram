@@ -3,9 +3,6 @@ begin
 
 builtins: xor, hashing
 
-rule Setup_25___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule Setup_25___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Fr(~k_23)
@@ -17,12 +14,6 @@ rule Setup_25___ManyTo1To2:
     , !Reader_21(~k_23, ~id_24)
     , !Tag_22(~k_23, ~id_24)
     ]
-
-rule Setup_25___ManyTo2ToNone:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
-
-rule reader_34___NoneTo3To4:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
 rule reader_34___ManyTo4To5___reader1:
     [ StF(~pid, 'tgk4', 'empty_tuple')
@@ -45,12 +36,6 @@ rule reader_34___ManyTo5To6___reader2:
     [ StF(~pid, 'tgk6', 'empty_tuple')
     ]
 
-rule reader_34___ManyTo6ToNone:
-  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
-
-rule tag_40___NoneTo7To8:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
-
 rule tag_40___ManyTo8To9___tag1:
     [ StF(~pid, 'tgk8', 'empty_tuple')
     , In(r1_37)
@@ -62,9 +47,6 @@ rule tag_40___ManyTo8To9___tag1:
     [ StF(~pid, 'tgk9', 'empty_tuple')
     , Out(<((~id_39) XOR (~r2_36)), ((h(<r1_37, ~k_38>)) XOR (~r2_36))>)
     ]
-
-rule tag_40___ManyTo9ToNone:
-  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
 
 restriction equality:
   "All x_41 y_42 #i_43 .

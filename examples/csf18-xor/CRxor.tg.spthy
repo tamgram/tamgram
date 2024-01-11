@@ -3,9 +3,6 @@ begin
 
 builtins: xor, hashing
 
-rule Setup_30___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule Setup_30___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Fr(~k_29)
@@ -16,12 +13,6 @@ rule Setup_30___ManyTo1To2:
     , !InitLTK_21(~k_29)
     , !RespLTK_22(~k_29)
     ]
-
-rule Setup_30___ManyTo2ToNone:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
-
-rule initiator_36___NoneTo3To4:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
 rule initiator_36___ManyTo4To5___initiator:
     [ StF(~pid, 'tgk4', 'empty_tuple')
@@ -44,12 +35,6 @@ rule initiator_36___ManyTo5To6___initiator2:
     [ StF(~pid, 'tgk6', 'empty_tuple')
     ]
 
-rule initiator_36___ManyTo6ToNone:
-  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
-
-rule responder_40___NoneTo7To8:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
-
 rule responder_40___ManyTo8To9:
     [ StF(~pid, 'tgk8', 'empty_tuple')
     , In(na_38)
@@ -63,9 +48,6 @@ rule responder_40___ManyTo8To9:
     [ StF(~pid, 'tgk9', 'empty_tuple')
     , Out(<h(((((na_38) XOR (~k_39))) XOR (~nb_37))), ~nb_37>)
     ]
-
-rule responder_40___ManyTo9ToNone:
-  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
 
 restriction equality:
   "All x_41 y_42 #i_43 .

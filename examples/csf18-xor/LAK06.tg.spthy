@@ -3,9 +3,6 @@ begin
 
 builtins: xor, hashing
 
-rule setup_28___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule setup_28___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Fr(~k_27)
@@ -17,12 +14,6 @@ rule setup_28___ManyTo1To2:
     , !Reader_21(~k_27)
     , !Tag_22(~k_27)
     ]
-
-rule setup_28___ManyTo2ToNone:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
-
-rule reader_34___NoneTo3To4:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
 
 rule reader_34___ManyTo4To5___initiatereader:
     [ StF(~pid, 'tgk4', 'empty_tuple')
@@ -46,12 +37,6 @@ rule reader_34___ManyTo5To6___acceptreader:
     , Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
     ]
 
-rule reader_34___ManyTo6ToNone:
-  [StF(~pid, 'tgk6', 'empty_tuple')]--[]->[]
-
-rule tag_40___NoneTo7To8:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk8', 'empty_tuple')]
-
 rule tag_40___ManyTo8To9___tag1:
     [ StF(~pid, 'tgk8', 'empty_tuple')
     , !Tag_22(~k_37)
@@ -73,9 +58,6 @@ rule tag_40___ManyTo9To10___accepttag:
     ]->
     [ StF(~pid, 'tgk10', 'empty_tuple')
     ]
-
-rule tag_40___ManyTo10ToNone:
-  [StF(~pid, 'tgk10', 'empty_tuple')]--[]->[]
 
 lemma executable []:
   exists-trace

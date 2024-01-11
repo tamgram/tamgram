@@ -3,9 +3,6 @@ begin
 
 builtins: asymmetric-encryption, xor
 
-rule Register_pk_26___NoneTo0To1:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk1', 'empty_tuple')]
-
 rule Register_pk_26___ManyTo1To2:
     [ StF(~pid, 'tgk1', 'empty_tuple')
     , Fr(~ltkA_25)
@@ -18,12 +15,6 @@ rule Register_pk_26___ManyTo1To2:
     , Out(pk(~ltkA_25))
     ]
 
-rule Register_pk_26___ManyTo2ToNone:
-  [StF(~pid, 'tgk2', 'empty_tuple')]--[]->[]
-
-rule Reveal_ltk_30___NoneTo3To4:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk4', 'empty_tuple')]
-
 rule Reveal_ltk_30___ManyTo4To5:
     [ StF(~pid, 'tgk4', 'empty_tuple')
     , !Ltk_22(A_29, ltkA_28)
@@ -33,12 +24,6 @@ rule Reveal_ltk_30___ManyTo4To5:
     [ StF(~pid, 'tgk5', 'empty_tuple')
     , Out(ltkA_28)
     ]
-
-rule Reveal_ltk_30___ManyTo5ToNone:
-  [StF(~pid, 'tgk5', 'empty_tuple')]--[]->[]
-
-rule I_45___NoneTo6To7:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk7', 'empty_tuple')]
 
 rule I_45___ManyTo7To8___I_1:
     [ StF(~pid, 'tgk7', 'empty_tuple')
@@ -67,12 +52,6 @@ rule I_45___ManyTo8To9___I_2:
     , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
 
-rule I_45___ManyTo9ToNone:
-  [StF(~pid, 'tgk9', 'empty_tuple')]--[]->[]
-
-rule R_56___NoneTo10To11:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk11', 'empty_tuple')]
-
 rule R_56___ManyTo11To12___R_1:
     [ StF(~pid, 'tgk11', 'empty_tuple')
     , !Ltk_22($R, ltkR_51)
@@ -100,12 +79,6 @@ rule R_56___ManyTo12To13___R_2:
     , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 
-rule R_56___ManyTo13ToNone:
-  [StF(~pid, 'tgk13', 'empty_tuple')]--[]->[]
-
-rule Secrecy_claim_61___NoneTo14To15:
-  [Fr(~pid)]--[]->[StF(~pid, 'tgk15', 'empty_tuple')]
-
 rule Secrecy_claim_61___ManyTo15To16:
     [ StF(~pid, 'tgk15', 'empty_tuple')
     , Secret_33(A_60, B_59, m_58)
@@ -114,9 +87,6 @@ rule Secrecy_claim_61___ManyTo15To16:
     ]->
     [ StF(~pid, 'tgk16', 'empty_tuple')
     ]
-
-rule Secrecy_claim_61___ManyTo16ToNone:
-  [StF(~pid, 'tgk16', 'empty_tuple')]--[]->[]
 
 lemma types [sources]:
   all-traces
