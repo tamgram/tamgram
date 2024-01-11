@@ -302,10 +302,10 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           let { arg_and_typs; body } : proc_macro = Binding.get binding in
-          let* () =
-            check_names ~allow_wildcard:false
+          (* let* () =
+             check_names ~allow_wildcard:false
               (List.map Binding.name_str arg_and_typs)
-          in
+             in *)
           check_proc body
         | D_let { binding; _ } ->
           check_name ~allow_wildcard:false (Binding.name_str binding)
@@ -338,21 +338,21 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           let { arg_and_typs; ret_typ = _; body } = Binding.get binding in
-          let* () =
-            check_names ~allow_wildcard:false
+          (* let* () =
+             check_names ~allow_wildcard:false
               (List.map Binding.name_str arg_and_typs)
-          in
+             in *)
           check_term ~allow_wildcard:false body
-        | D_lemma { binding; _ } ->
-          let* () =
-            check_name ~allow_wildcard:false (Binding.name_str binding)
-          in
-          check_term ~allow_wildcard:false (Binding.get binding).formula
-        | D_restriction { binding; _ } ->
-          let* () =
-            check_name ~allow_wildcard:false (Binding.name_str binding)
-          in
-          check_term ~allow_wildcard:false (Binding.get binding)
+        | D_lemma { binding; _ } -> Ok ()
+        (* let* () =
+           check_name ~allow_wildcard:false (Binding.name_str binding)
+           in
+           check_term ~allow_wildcard:false (Binding.get binding).formula *)
+        | D_restriction { binding; _ } -> Ok ()
+        (* let* () =
+           check_name ~allow_wildcard:false (Binding.name_str binding)
+           in
+           check_term ~allow_wildcard:false (Binding.get binding) *)
         | D_equation { binding; _ } ->
           let* () =
             check_name ~allow_wildcard:false (Binding.name_str binding)
