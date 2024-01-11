@@ -3,8 +3,8 @@ begin
 
 builtins: xor, hashing
 
-rule setup_28___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule setup_28___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~k_27)
     ]
   --[ OnlyOnce_20('setup')
@@ -15,8 +15,8 @@ rule setup_28___ManyTo1To2:
     , !Tag_22(~k_27)
     ]
 
-rule reader_34___ManyTo4To5___initiatereader:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule reader_34___NoneTo4To5___initiatereader:
+    [ Fr(~pid)
     , !Reader_21(~k_30)
     , Fr(~r0_29)
     ]
@@ -37,8 +37,8 @@ rule reader_34___ManyTo5To6___acceptreader:
     , Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
     ]
 
-rule tag_40___ManyTo8To9___tag1:
-    [ StF(~pid, 'tgk8', 'empty_tuple')
+rule tag_40___NoneTo8To9___tag1:
+    [ Fr(~pid)
     , !Tag_22(~k_37)
     , Fr(~r1_35)
     , In(r0_36)

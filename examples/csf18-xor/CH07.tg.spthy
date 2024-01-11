@@ -9,8 +9,8 @@ functions: lh_29/1
 
 functions: rh_30/1
 
-rule Setup_33___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule Setup_33___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~k_31)
     , Fr(~id_32)
     ]
@@ -21,8 +21,8 @@ rule Setup_33___ManyTo1To2:
     , !Tag_21(~k_31, ~id_32)
     ]
 
-rule reader_40___ManyTo4To5___reader1:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule reader_40___NoneTo4To5___reader1:
+    [ Fr(~pid)
     , Fr(~r1_34)
     ]
   --[ Challenge_22(~r1_34, 'Reader')
@@ -46,8 +46,8 @@ rule reader_40___ManyTo5To6___reader2:
     , Out(rh_30(((rot_28(~id_37, hash_38)) XOR (hash_38))))
     ]
 
-rule tag_49___ManyTo8To9___tag1:
-    [ StF(~pid, 'tgk8', 'empty_tuple')
+rule tag_49___NoneTo8To9___tag1:
+    [ Fr(~pid)
     , In(r1_42)
     , Fr(~r2_41)
     , !Tag_21(~k_43, ~id_44)

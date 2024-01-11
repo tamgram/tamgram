@@ -3,8 +3,8 @@ begin
 
 functions: f_18/1
 
-rule A_23___ManyTo1ToMany:
-  [StF(~pid, 'tgk1', 'empty_tuple')]--[]->[StB(~pid, 'tgk1', <<f_18('1'), f_18('2')>>)]
+rule A_23___NoneTo1ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk1', <<f_18('1'), f_18('2')>>)]
 
 rule A_23___1To3To6:
   [StB(~pid, 'tgk1', <f_18(u_tgany0_22)>)]--[]->[StF(~pid, 'tgk6', <f_18(u_tgany0_22)>)]

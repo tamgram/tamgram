@@ -3,8 +3,8 @@ begin
 
 builtins: multiset, symmetric-encryption
 
-rule S_27___ManyTo1ToMany:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule S_27___NoneTo1ToMany:
+    [ Fr(~pid)
     , Init_21(role_22, ka_24, kb_23)
     ]
   --[ 

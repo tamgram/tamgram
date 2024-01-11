@@ -11,8 +11,8 @@ functions: MAC_arpc_30/2
 
 functions: p8_31/1
 
-rule Terminal_Bank_Network_42___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule Terminal_Bank_Network_42___NoneTo1To2:
+    [ Fr(~pid)
     , Send_32(S_40, R_41, channelID_39, msg_38)
     ]
   --[ 
@@ -21,8 +21,8 @@ rule Terminal_Bank_Network_42___ManyTo1To2:
     , Recv_33(S_40, R_41, channelID_39, msg_38)
     ]
 
-rule Generate_Amount_Low_43___ManyTo4To5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule Generate_Amount_Low_43___NoneTo4To5:
+    [ Fr(~pid)
     ]
   --[ Once_34(<$amount, 'Amount'>)
     ]->
@@ -30,8 +30,8 @@ rule Generate_Amount_Low_43___ManyTo4To5:
     , !Value_35($amount, 'Low')
     ]
 
-rule Generate_Amount_High_44___ManyTo7To8:
-    [ StF(~pid, 'tgk7', 'empty_tuple')
+rule Generate_Amount_High_44___NoneTo7To8:
+    [ Fr(~pid)
     ]
   --[ Once_34(<$amount, 'Amount'>)
     ]->
@@ -39,8 +39,8 @@ rule Generate_Amount_High_44___ManyTo7To8:
     , !Value_35($amount, 'High')
     ]
 
-rule Generate_ATC_46___ManyTo10To11:
-    [ StF(~pid, 'tgk10', 'empty_tuple')
+rule Generate_ATC_46___NoneTo10To11:
+    [ Fr(~pid)
     , Fr(~ATC_45)
     ]
   --[ 
@@ -50,8 +50,8 @@ rule Generate_ATC_46___ManyTo10To11:
     , Out(~ATC_45)
     ]
 
-rule Generate_SDAD_Format_Visa_47___ManyTo13To14:
-    [ StF(~pid, 'tgk13', 'empty_tuple')
+rule Generate_SDAD_Format_Visa_47___NoneTo13To14:
+    [ Fr(~pid)
     ]
   --[ 
     ]->
@@ -60,8 +60,8 @@ rule Generate_SDAD_Format_Visa_47___ManyTo13To14:
     , !SDADFormat_37('95', 'ARQC')
     ]
 
-rule Create_CA_55___ManyTo16To17:
-    [ StF(~pid, 'tgk16', 'empty_tuple')
+rule Create_CA_55___NoneTo16To17:
+    [ Fr(~pid)
     , Fr(~privkCA_51)
     ]
   --[ Once_34($CA)
@@ -73,8 +73,8 @@ rule Create_CA_55___ManyTo16To17:
     , Out(pk(~privkCA_51))
     ]
 
-rule Create_Bank_64___ManyTo19To20:
-    [ StF(~pid, 'tgk19', 'empty_tuple')
+rule Create_Bank_64___NoneTo19To20:
+    [ Fr(~pid)
     , Fr(~privkBank_60)
     , !LtkCA_49($CA, ~privkCA_59)
     ]
@@ -88,8 +88,8 @@ rule Create_Bank_64___ManyTo19To20:
     , Out(pk(~privkBank_60))
     ]
 
-rule Compromise_CA_69___ManyTo22To23:
-    [ StF(~pid, 'tgk22', 'empty_tuple')
+rule Compromise_CA_69___NoneTo22To23:
+    [ Fr(~pid)
     , !LtkCA_49($CA, ~privkCA_68)
     ]
   --[ Compromise_65($CA)
@@ -98,8 +98,8 @@ rule Compromise_CA_69___ManyTo22To23:
     , Out(~privkCA_68)
     ]
 
-rule Compromise_Bank_71___ManyTo25To26:
-    [ StF(~pid, 'tgk25', 'empty_tuple')
+rule Compromise_Bank_71___NoneTo25To26:
+    [ Fr(~pid)
     , !LtkBank_56($Bank, ~privkBank_70)
     ]
   --[ Compromise_65($Bank)
@@ -108,8 +108,8 @@ rule Compromise_Bank_71___ManyTo25To26:
     , Out(<$Bank, ~privkBank_70>)
     ]
 
-rule Compromise_Card_75___ManyTo28To29:
-    [ StF(~pid, 'tgk28', 'empty_tuple')
+rule Compromise_Card_75___NoneTo28To29:
+    [ Fr(~pid)
     , !LtkCard_72(~PAN_74, ~privkCard_73)
     ]
   --[ Compromise_65(~PAN_74)
@@ -118,8 +118,8 @@ rule Compromise_Card_75___ManyTo28To29:
     , Out(<~PAN_74, ~privkCard_73>)
     ]
 
-rule Compromise_Bank_Card_ShK_78___ManyTo31To32:
-    [ StF(~pid, 'tgk31', 'empty_tuple')
+rule Compromise_Bank_Card_ShK_78___NoneTo31To32:
+    [ Fr(~pid)
     , !IssuingBank_66(~PAN_76, $Bank)
     , !Shk_67(~PAN_76, ~MK_77)
     ]
@@ -130,8 +130,8 @@ rule Compromise_Bank_Card_ShK_78___ManyTo31To32:
     , Out(~MK_77)
     ]
 
-rule Set_PIN_89___ManyTo34To35:
-    [ StF(~pid, 'tgk34', 'empty_tuple')
+rule Set_PIN_89___NoneTo34To35:
+    [ Fr(~pid)
     , Fr(~PIN_86)
     , Set_PIN_83(~PAN_87, CVM_88, $CA, $Bank)
     ]
@@ -146,6 +146,9 @@ rule Set_PIN_89___ManyTo34To35:
     , !Entered_PIN_84(~PAN_87, ~PIN_86)
     , !Entered_PIN_84(~PAN_87, 'WrongPIN')
     ]
+
+rule Set_Records_114___NoneTo37ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk37', 'empty_tuple')]
 
 rule Set_Records_114___37To38To43___Set_Records_SDA:
     [ StB(~pid, 'tgk37', 'empty_tuple')
@@ -178,8 +181,8 @@ rule Set_Records_114___37To40To43___Set_Records_NotSDA:
     , !Records_95(~PAN_108, <~PAN_108, ~expDate_105, $CA, certBank_106, <<'04', ~PAN_108, pk(~privkCard_103), $Bank, CVM_109, AIP_110>, sign(<'04', ~PAN_108, pk(~privkCard_103), $Bank, CVM_109, AIP_110>, ~privkBank_104)>, CVM_109>)
     ]
 
-rule Create_Card_124___ManyTo45To46:
-    [ StF(~pid, 'tgk45', 'empty_tuple')
+rule Create_Card_124___NoneTo45To46:
+    [ Fr(~pid)
     , Fr(~PAN_119)
     , Fr(~expDate_116)
     , Fr(~MK_120)
@@ -204,8 +207,8 @@ rule Create_Card_124___ManyTo45To46:
     , Set_PIN_83(~PAN_119, CVM_121, $CA, $Bank)
     ]
 
-rule Card_170___ManyTo48ToMany___Card_Responds_To_GPO:
-    [ StF(~pid, 'tgk48', 'empty_tuple')
+rule Card_170___NoneTo48ToMany___Card_Responds_To_GPO:
+    [ Fr(~pid)
     , In(<'GET_PROCESSING_OPTIONS', PDOL_125>)
     , !AIP_94(~PAN_126, AIP_128)
     , !AID_90(~PAN_126, 'Mastercard')
@@ -284,8 +287,8 @@ rule Card_170___56To59To62___Card_Responds_To_GenerateAC_CDA:
     , Out(<CID_161, tgc_ATC_0, MAC_29(f_28(~MK_159, tgc_ATC_0), <<<amount_155, country_154, currency_153, date_152, type_149, UN_158>, <'TVR', CVM_160, 'HHMMSS'>>, <'CDA', u_furtherData_157>, tgc_ATC_0, <'IAD', CID_161>>), <~nc_151, sign(<'05', ~nc_151, CID_161, MAC_29(f_28(~MK_159, tgc_ATC_0), <<<amount_155, country_154, currency_153, date_152, type_149, UN_158>, <'TVR', CVM_160, 'HHMMSS'>>, <'CDA', u_furtherData_157>, tgc_ATC_0, <'IAD', CID_161>>), h(<<<amount_155, country_154, currency_153, date_152, type_149, UN_158>, <'TVR', CVM_160, 'HHMMSS'>>, CID_161, tgc_ATC_0, MAC_29(f_28(~MK_159, tgc_ATC_0), <<<amount_155, country_154, currency_153, date_152, type_149, UN_158>, <'TVR', CVM_160, 'HHMMSS'>>, <'CDA', u_furtherData_157>, tgc_ATC_0, <'IAD', CID_161>>), <'IAD', CID_161>>), UN_158>, ~privkCard_150)>, <'IAD', CID_161>>)
     ]
 
-rule Create_Card_Visa_182___ManyTo64To65:
-    [ StF(~pid, 'tgk64', 'empty_tuple')
+rule Create_Card_Visa_182___NoneTo64To65:
+    [ Fr(~pid)
     , Fr(~PAN_177)
     , Fr(~expDate_175)
     , Fr(~privkCard_173)
@@ -312,6 +315,9 @@ rule Create_Card_Visa_182___ManyTo64To65:
     , !Records_Visa_172(~PAN_177, ~expDate_175, $CA, certBank_176, <<'04', ~PAN_177, pk(~privkCard_173), $Bank>, sign(<'04', ~PAN_177, pk(~privkCard_173), $Bank>, ~privkBank_174)>)
     , Set_PIN_83(~PAN_177, 'OnlinePIN', $CA, $Bank)
     ]
+
+rule Card_Visa_244___NoneTo67ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk67', 'empty_tuple')]
 
 rule Card_Visa_244___67To68ToMany___Card_Responds_To_GPO_EMV_Visa:
     [ StB(~pid, 'tgk67', 'empty_tuple')
@@ -375,8 +381,8 @@ rule Card_Visa_244___73To76To79___Card_Responds_To_ReadRecord_DDA_Visa:
     , Out(<~u_tgany6_237, ~expDate_230, $CA, certBank_235, certCard_234, ~nc_228, tgc_CTQ_0, sign(<format_229, ~nc_228, tgc_CID_0, tgc_AC_0, <TTQ_240, amount_236, country_233, currency_232, date_231, type_226, UN_239>, tgc_ATC_0, tgc_CTQ_0, UN_239, tgc_IAD_0, <'DDA', u_furtherData_238>>, ~privkCard_227)>)
     ]
 
-rule Terminal_361___ManyTo81To82___Terminal_Sends_GPO:
-    [ StF(~pid, 'tgk81', 'empty_tuple')
+rule Terminal_361___NoneTo81To82___Terminal_Sends_GPO:
+    [ Fr(~pid)
     , Fr(~UN_251)
     , !Value_35($amount, value_250)
     ]
@@ -529,6 +535,9 @@ rule Terminal_361___ManyTo106To109___Terminal_Receives_AC_CDA:
     , Send_32($Terminal, $Bank, <~channelID_349, 'Mastercard', '1'>, <<~u_tgany9_350, tgc_AIP_0, tgc_CVM_0, <<$amount, country_348, currency_347, date_346, type_344, ~UN_352>, u_tgany10_351>, ATC_356, AC_357, IAD_354>, tgc_encPIN_0>)
     ]
 
+rule Terminal_Visa_461___NoneTo111ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk111', 'empty_tuple')]
+
 rule Terminal_Visa_461___111To112To117___Terminal_Sends_GPO_Low_Visa:
     [ StB(~pid, 'tgk111', 'empty_tuple')
     , Fr(~UN_362)
@@ -652,6 +661,9 @@ rule Terminal_Visa_461___133To136To139___Terminal_Commits_ARQC_Visa:
     [ StF(~pid, 'tgk139', 'empty_tuple')
     ]
 
+rule Bank_505___NoneTo141ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk141', 'empty_tuple')]
+
 rule Bank_505___141To142To153___Bank_Receives_AC_Failed:
     [ StB(~pid, 'tgk141', 'empty_tuple')
     , Recv_33($Terminal, $Bank, <channelID_465, 'Mastercard', '1'>, <<~PAN_467, AIP_472, CVM_470, X_466, ATC_471, AC_473, IAD_469>, encPIN_464>)
@@ -693,6 +705,9 @@ rule Bank_505___145To148To153___Bank_Processes_CVM_OnlinePIN:
     ]->
     [ StF(~pid, 'tgk153', 'empty_tuple')
     ]
+
+rule Bank_Visa_567___NoneTo155ToMany:
+  [Fr(~pid)]--[]->[StB(~pid, 'tgk155', 'empty_tuple')]
 
 rule Bank_Visa_567___155To156To168___Bank_Receives_AC_Failed_Visa:
     [ StB(~pid, 'tgk155', 'empty_tuple')

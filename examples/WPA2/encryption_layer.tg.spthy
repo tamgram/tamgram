@@ -17,8 +17,8 @@ functions: S_26/1
 
 functions: MIC_27/2
 
-rule EncryptionRule_121___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule EncryptionRule_121___NoneTo1To2:
+    [ Fr(~pid)
     , Queued_61(senderThreadID_110, messageID_115, message_116, frameTag_117)
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(n_114), senderID_111, frameTag_117>)
     ]
@@ -30,8 +30,8 @@ rule EncryptionRule_121___ManyTo1To2:
     , SenderPTK_67(role_112, ptkID_113, senderThreadID_110, senderID_111, PTK_118, <N_23(((n_114) + ('1'))), senderID_111, messageID_115>)
     ]
 
-rule PlainRule_126___ManyTo4To5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule PlainRule_126___NoneTo4To5:
+    [ Fr(~pid)
     , Queued_61(senderThreadID_122, messageID_123, message_124, u_tgany0_125)
     ]
   --[ SendMessage_60(senderThreadID_122, messageID_123)
@@ -40,8 +40,8 @@ rule PlainRule_126___ManyTo4To5:
     , Out(message_124)
     ]
 
-rule SendPTKEncryptedPayloadRuleAuth_140___ManyTo7To8:
-    [ StF(~pid, 'tgk7', 'empty_tuple')
+rule SendPTKEncryptedPayloadRuleAuth_140___NoneTo7To8:
+    [ Fr(~pid)
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
   --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
@@ -53,8 +53,8 @@ rule SendPTKEncryptedPayloadRuleAuth_140___ManyTo7To8:
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)
     ]
 
-rule SendPTKEncryptedPayloadRuleSupp_141___ManyTo10To11:
-    [ StF(~pid, 'tgk10', 'empty_tuple')
+rule SendPTKEncryptedPayloadRuleSupp_141___NoneTo10To11:
+    [ Fr(~pid)
     , SenderPTK_67('Auth', ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(n_131), senderID_129, kDataFrame_132>)
     ]
   --[ EncryptedWithPTK_75(ptkID_130, senderThreadID_128, senderID_129, KDF_21(<PMK_134, ANonce_135, SNonce_133>), <N_23(((n_131) + ('1'))), senderID_129, kDataFrame_132>)

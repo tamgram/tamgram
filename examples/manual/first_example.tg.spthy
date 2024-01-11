@@ -3,8 +3,8 @@ begin
 
 builtins: hashing, asymmetric-encryption
 
-rule Register_pk_25___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule Register_pk_25___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~ltk_24)
     ]
   --[ 
@@ -14,8 +14,8 @@ rule Register_pk_25___ManyTo1To2:
     , !Pk_23($A, pk(~ltk_24))
     ]
 
-rule Get_pk_28___ManyTo4To5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule Get_pk_28___NoneTo4To5:
+    [ Fr(~pid)
     , !Pk_23(A_27, pubkey_26)
     ]
   --[ 
@@ -24,8 +24,8 @@ rule Get_pk_28___ManyTo4To5:
     , Out(pubkey_26)
     ]
 
-rule Reveal_ltk_32___ManyTo7To8:
-    [ StF(~pid, 'tgk7', 'empty_tuple')
+rule Reveal_ltk_32___NoneTo7To8:
+    [ Fr(~pid)
     , !Ltk_22(A_31, ltk_30)
     ]
   --[ LtkReveal_29(A_31)
@@ -34,8 +34,8 @@ rule Reveal_ltk_32___ManyTo7To8:
     , Out(ltk_30)
     ]
 
-rule Client_36___ManyTo10To11:
-    [ StF(~pid, 'tgk10', 'empty_tuple')
+rule Client_36___NoneTo10To11:
+    [ Fr(~pid)
     , Fr(~k_35)
     , !Pk_23($S, pkS_34)
     ]
@@ -54,8 +54,8 @@ rule Client_36___ManyTo11To12:
     [ StF(~pid, 'tgk12', 'empty_tuple')
     ]
 
-rule Serv_40___ManyTo14To15:
-    [ StF(~pid, 'tgk14', 'empty_tuple')
+rule Serv_40___NoneTo14To15:
+    [ Fr(~pid)
     , !Ltk_22($S, ~ltkS_39)
     , In(request_38)
     ]

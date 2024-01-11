@@ -38,8 +38,8 @@ restriction only_once:
   "All #i_66 #j_67 .
      ((((Only_once_65() @ #i_66) & (Only_once_65() @ #j_67))) ==> (#i_66 = #j_67))"
 
-rule setup_76___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule setup_76___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~KSa_72)
     , Fr(~KSb_71)
     , Fr(~KSs_69)
@@ -60,8 +60,8 @@ rule setup_76___ManyTo1To2:
     , Out(pk(~KSi_70))
     ]
 
-rule A_85___ManyTo4To5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule A_85___NoneTo4To5:
+    [ Fr(~pid)
     , !Setup_A_23(~KSa_78, KPa_79, ~KSs_77)
     ]
   --[ 
@@ -128,8 +128,8 @@ rule A_85___ManyTo11To12:
     , Out(aenc(tgc_Ndst_0, tgc_KPdst_0))
     ]
 
-rule B_96___ManyTo14To15:
-    [ StF(~pid, 'tgk14', 'empty_tuple')
+rule B_96___NoneTo14To15:
+    [ Fr(~pid)
     , !Setup_B_28(~KSb_87, KPb_88, ~KSs_86)
     ]
   --[ 
@@ -196,8 +196,8 @@ rule B_96___ManyTo21To22:
     [ StF(~pid, 'tgk22', 'empty_tuple')
     ]
 
-rule S_103___ManyTo24To27:
-    [ StF(~pid, 'tgk24', 'empty_tuple')
+rule S_103___NoneTo24To27:
+    [ Fr(~pid)
     , !Setup_S_33(KPa_99, KPb_98, ~KSs_97)
     ]
   --[ 

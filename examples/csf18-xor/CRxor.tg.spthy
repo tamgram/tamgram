@@ -3,8 +3,8 @@ begin
 
 builtins: xor, hashing
 
-rule Setup_30___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule Setup_30___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~k_29)
     ]
   --[ OnlyOnce_20()
@@ -14,8 +14,8 @@ rule Setup_30___ManyTo1To2:
     , !RespLTK_22(~k_29)
     ]
 
-rule initiator_36___ManyTo4To5___initiator:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule initiator_36___NoneTo4To5___initiator:
+    [ Fr(~pid)
     , Fr(~na_31)
     ]
   --[ Challenge_27(~na_31)
@@ -35,8 +35,8 @@ rule initiator_36___ManyTo5To6___initiator2:
     [ StF(~pid, 'tgk6', 'empty_tuple')
     ]
 
-rule responder_40___ManyTo8To9:
-    [ StF(~pid, 'tgk8', 'empty_tuple')
+rule responder_40___NoneTo8To9:
+    [ Fr(~pid)
     , In(na_38)
     , Fr(~nb_37)
     , !RespLTK_22(~k_39)

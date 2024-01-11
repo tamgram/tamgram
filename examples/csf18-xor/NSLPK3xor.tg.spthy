@@ -3,8 +3,8 @@ begin
 
 builtins: asymmetric-encryption, xor
 
-rule Register_pk_26___ManyTo1To2:
-    [ StF(~pid, 'tgk1', 'empty_tuple')
+rule Register_pk_26___NoneTo1To2:
+    [ Fr(~pid)
     , Fr(~ltkA_25)
     ]
   --[ Register_24($A)
@@ -15,8 +15,8 @@ rule Register_pk_26___ManyTo1To2:
     , Out(pk(~ltkA_25))
     ]
 
-rule Reveal_ltk_30___ManyTo4To5:
-    [ StF(~pid, 'tgk4', 'empty_tuple')
+rule Reveal_ltk_30___NoneTo4To5:
+    [ Fr(~pid)
     , !Ltk_22(A_29, ltkA_28)
     ]
   --[ RevLtk_27(A_29)
@@ -25,8 +25,8 @@ rule Reveal_ltk_30___ManyTo4To5:
     , Out(ltkA_28)
     ]
 
-rule I_45___ManyTo7To8___I_1:
-    [ StF(~pid, 'tgk7', 'empty_tuple')
+rule I_45___NoneTo7To8___I_1:
+    [ Fr(~pid)
     , Fr(~ni_37)
     , !Pk_23($R, pkR_36)
     ]
@@ -52,8 +52,8 @@ rule I_45___ManyTo8To9___I_2:
     , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
 
-rule R_56___ManyTo11To12___R_1:
-    [ StF(~pid, 'tgk11', 'empty_tuple')
+rule R_56___NoneTo11To12___R_1:
+    [ Fr(~pid)
     , !Ltk_22($R, ltkR_51)
     , In(aenc(<'1', ni_50, I_52>, pk(ltkR_51)))
     , !Pk_23(I_52, pkI_48)
@@ -79,8 +79,8 @@ rule R_56___ManyTo12To13___R_2:
     , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 
-rule Secrecy_claim_61___ManyTo15To16:
-    [ StF(~pid, 'tgk15', 'empty_tuple')
+rule Secrecy_claim_61___NoneTo15To16:
+    [ Fr(~pid)
     , Secret_33(A_60, B_59, m_58)
     ]
   --[ Secret_57(A_60, B_59, m_58)
