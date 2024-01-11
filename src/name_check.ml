@@ -67,6 +67,30 @@ let check_is_capitalized ~is_capitalized (name : string Loc.tagged) : (unit, Err
               ))
         )
 
+let check_macro_arg_and_typs:
+  'a. ('a * Typ.term) Binding.t list -> (unit, Error_msg.t) result =
+  (fun l ->
+     let open Tg_ast in
+     let rec aux (l : ('a * Typ.term) Binding.t list) =
+       match l with
+       | [] -> Ok ()
+       | x :: xs -> (
+           let (_markers, typ) = Binding.get x in
+           let name_str = Binding.name_str x in
+           match typ with
+           | `Cell -> (
+               if Loc.content name_str = Params.pid_cell_name then
+                 Ok ()
+               else
+                 check_name ~allow_wildcard:false name_str
+             )
+           | _ ->
+             check_name ~allow_wildcard:false name_str
+         )
+     in
+     aux l
+  )
+
 let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) result
   =
   let open Tg_ast in
@@ -161,10 +185,7 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
     | T_let_macro { binding; next; _ } ->
       let* () = check_name ~allow_wildcard:false (Binding.name_str binding) in
       let { arg_and_typs; ret_typ = _; body } = Binding.get binding in
-      let* () =
-        check_names ~allow_wildcard:false
-          (List.map Binding.name_str arg_and_typs)
-      in
+      let* () = check_macro_arg_and_typs arg_and_typs in
       let* () = aux ~allow_wildcard:false body in
       aux ~allow_wildcard next
     | T_action { fact; temporal } ->
@@ -212,10 +233,7 @@ let check_rule_bindings (bindings : Tg_ast.rule_binding list) :
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           let { arg_and_typs; ret_typ = _; body } = Binding.get binding in
-          let* () =
-            check_names ~allow_wildcard:false
-              (List.map Binding.name_str arg_and_typs)
-          in
+          let* () = check_macro_arg_and_typs arg_and_typs in
           let* () = check_term ~allow_wildcard:false body in
           aux xs)
   in
@@ -249,10 +267,7 @@ let check_proc (proc : Tg_ast.proc) : (unit, Error_msg.t) result =
     | P_let_macro { binding; next; _ } ->
       let* () = check_name ~allow_wildcard:false (Binding.name_str binding) in
       let { arg_and_typs; ret_typ = _; body } = Binding.get binding in
-      let* () =
-        check_names ~allow_wildcard:false
-          (List.map Binding.name_str arg_and_typs)
-      in
+      let* () = check_macro_arg_and_typs arg_and_typs in
       let* () = check_term ~allow_wildcard:false body in
       aux next
     | P_app { named_args; args; next; _ } ->
@@ -302,10 +317,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           let { arg_and_typs; body } : proc_macro = Binding.get binding in
-          (* let* () =
-             check_names ~allow_wildcard:false
-              (List.map Binding.name_str arg_and_typs)
-             in *)
+          let* () = check_macro_arg_and_typs arg_and_typs in
           check_proc body
         | D_let { binding; _ } ->
           check_name ~allow_wildcard:false (Binding.name_str binding)
@@ -338,10 +350,7 @@ let map_spec (spec : Spec.t) : (Spec.t, Error_msg.t) result =
             check_name ~allow_wildcard:false (Binding.name_str binding)
           in
           let { arg_and_typs; ret_typ = _; body } = Binding.get binding in
-          (* let* () =
-             check_names ~allow_wildcard:false
-              (List.map Binding.name_str arg_and_typs)
-             in *)
+          let* () = check_macro_arg_and_typs arg_and_typs in
           check_term ~allow_wildcard:false body
         | D_lemma { binding; _ } -> Ok ()
         (* let* () =
