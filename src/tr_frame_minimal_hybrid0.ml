@@ -414,7 +414,7 @@ module Rule_IR_store = struct
       )
       (g, t)
 
-  let has_empty_non_end_succ (spec : Spec.t) (g : Tg_graph.t) (t : t) (k : int) =
+  let has_empty_non_end_succ (spec : Spec.t) (g : Tg_graph.t) (k : int) =
     let leaves = Int_set.of_seq (Graph.leaves g) in
     let s =
       Graph.succ k g
@@ -454,7 +454,7 @@ module Rule_IR_store = struct
          |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
              if Option.is_some (Graph.find_opt rule_ir.k !g)
              && rule_is_empty spec !g rule_ir.k
-             && not (has_empty_non_end_succ spec !g !t rule_ir.k) then (
+             && not (has_empty_non_end_succ spec !g rule_ir.k) then (
                match rule_ir.entry_fact, rule_ir.exit_fact with
                | Some entry_fact, Some exit_fact -> (
                    if entry_fact.bias = entry_bias && exit_fact.bias = exit_bias then (
@@ -477,6 +477,14 @@ module Rule_IR_store = struct
                                                | `Backward -> `Many);
                                            exit_fact = Some { exit_fact with
                                                               frame = pred_exit_fact.frame };
+                                           (* Some (match exit_bias with
+                                              | `Forward -> { exit_fact with
+                                                             frame = pred_exit_fact.frame }
+                                              | `Backward -> { exit_fact with
+                                                              k = pred_k;
+                                                              frame = pred_exit_fact.frame
+                                                            }
+                                              ) *)
                                          }
                                        ) else (
                                          pred_rule_ir
