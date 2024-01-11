@@ -72,7 +72,12 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
   let open Tg_ast in
   let rec aux ~allow_wildcard term =
     match term with
-    | T_symbol (x, `Cell) -> check_name ~allow_wildcard:false x
+    | T_symbol (x, `Cell) -> (
+        if Loc.content x = Params.pid_cell_name then
+          Ok ()
+        else
+          check_name ~allow_wildcard:false x
+      )
     | T_symbol _ -> Ok ()
     | T_value x -> (
         match Loc.content x with
@@ -98,7 +103,11 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
     | T_name_as (x, name) ->
       let* () = check_name ~allow_wildcard:false name in
       aux ~allow_wildcard x
-    | T_var _ -> Ok ()
+    | T_var (path, name, typ) -> (
+        match path with
+        | [ x ] -> check_name ~allow_wildcard x
+        | _ -> Ok ()
+      )
     | T_tuple (_, l) -> check_terms ~allow_wildcard l
     | T_app { path; named_args; args; _ } -> (
         match path with
@@ -122,9 +131,19 @@ let rec check_term ~allow_wildcard (term : Tg_ast.term) : (unit, Error_msg.t) re
     | T_binary_op (_, x, y) ->
       let* () = aux ~allow_wildcard x in
       aux ~allow_wildcard y
-    | T_cell_pat_match (x, y) ->
-      let* () = check_name ~allow_wildcard x in
-      aux ~allow_wildcard:true y
+    | T_cell_pat_match (x, y) -> (
+        if Loc.content x = Params.pid_cell_name then
+          Error
+            (Error_msg.make
+               (Loc.tag x)
+               (Fmt.str "Cannot pattern match against reserved cell '%s"
+                  Params.pid_cell_name)
+            )
+        else (
+          let* () = check_name ~allow_wildcard x in
+          aux ~allow_wildcard:true y
+        )
+      )
     | T_cell_assign (x, y) ->
       let* () = check_name ~allow_wildcard:false x in
       if Loc.content x = Params.pid_cell_name then

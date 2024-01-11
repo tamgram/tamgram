@@ -92,6 +92,7 @@ let reserved_names =
     cell_eq_apred_name;
     cell_neq_restriction_name;
     cell_neq_apred_name;
+    pid_cell_name;
   ]
 
 let reserved_prefixes =
