@@ -392,6 +392,26 @@ module Rule_IR_store = struct
     Graph.leaves g
     |> Seq.fold_left (fun ((g, t) : Tg_graph.t * t) k ->
         if rule_is_empty spec g k then (
+          let t =
+            Graph.pred_seq k g
+            |> Seq.fold_left (fun t pred ->
+                let pred_irs =
+                  Int_map.find pred t
+                  |> List.map (fun (ir : Rule_IR.t) ->
+                      match ir.entry_fact, ir.exit_fact with
+                      | Some entry_fact, Some exit_fact when exit_fact.k = k -> (
+                          { ir with
+                            exit_fact = None;
+                            succ = `None;
+                          }
+                        )
+                      | _, _ -> ir
+                    )
+                in
+                Int_map.add pred pred_irs t
+              )
+              t
+          in
           (Graph.remove_vertex k g,
            Int_map.remove k t)
         ) else (
