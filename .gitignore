@@ -18,3 +18,4 @@ benchmark_*/
 bench-logs/
 __pycache__/
 /statically-linked/
+*test.log
