@@ -142,32 +142,28 @@ pred !AIP/2
 pred !Records/2
 apred SecretPrivkCard/1
 
-process Set_Records =
-  choice {
-    { "Set_Records_SDA":
-        [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),
-          !AIP(~PAN, <"SDA", _furtherData>) ]
-      -->
-        [ !Records(PAN, <PAN, expDate, $CA, certBank, SSAD, CVM>) ]
-    };
-    { "Set_Records_NotSDA":
-        [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),
-          Fr(~privkCard),
-          !AIP(~PAN, AIP),
-          !IssuingBank(~PAN, $Bank),
-          !LtkBank($Bank, ~privkBank) ]
-      --
-        let pubkCard = pk(~privkCard) in
-        let cont = <"04", PAN, pubkCard, $Bank, CVM, AIP> in
-        let certCard = <cont, sign(cont,~privkBank)> in
-        [ NEq(fst(AIP), "SDA"),
-          SecretPrivkCard(~privkCard),
-          Honest($CA), Honest($Bank), Honest(PAN) ]->
-        [ Out(pubkCard),
-          !LtkCard(PAN, ~privkCard),
-          !Records(PAN, <PAN, expDate, $CA, certBank, certCard, CVM>) ]
-    };
-  }
+process Set_Records_SDA =
+    [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),
+      !AIP(~PAN, <"SDA", _furtherData>) ]
+  -->
+    [ !Records(PAN, <PAN, expDate, $CA, certBank, SSAD, CVM>) ]
+
+process Set_Records_NotSDA =
+    [ Set_Records(~PAN, ~expDate, $CA, certBank, SSAD, CVM),
+      Fr(~privkCard),
+      !AIP(~PAN, AIP),
+      !IssuingBank(~PAN, $Bank),
+      !LtkBank($Bank, ~privkBank) ]
+  --
+    let pubkCard = pk(~privkCard) in
+    let cont = <"04", PAN, pubkCard, $Bank, CVM, AIP> in
+    let certCard = <cont, sign(cont,~privkBank)> in
+    [ NEq(fst(AIP), "SDA"),
+      SecretPrivkCard(~privkCard),
+      Honest($CA), Honest($Bank), Honest(PAN) ]->
+    [ Out(pubkCard),
+      !LtkCard(PAN, ~privkCard),
+      !Records(PAN, <PAN, expDate, $CA, certBank, certCard, CVM>) ]
 
 //Card setup
 //Actor of this rule is: $Bank
