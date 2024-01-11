@@ -399,11 +399,15 @@ module Rule_IR_store = struct
                   Int_map.find pred t
                   |> List.map (fun (ir : Rule_IR.t) ->
                       match ir.entry_fact, ir.exit_fact with
-                      | Some entry_fact, Some exit_fact when exit_fact.k = k -> (
-                          { ir with
-                            exit_fact = None;
-                            succ = `None;
-                          }
+                      | Some entry_fact, Some exit_fact -> (
+                          if exit_fact.bias = `Forward && exit_fact.k = k then (
+                            { ir with
+                              exit_fact = None;
+                              succ = `None;
+                            }
+                          ) else (
+                            ir
+                          )
                         )
                       | _, _ -> ir
                     )
@@ -476,6 +480,11 @@ module Rule_IR_store = struct
                                  pred_rule_irs
                              in
                              t := Int_map.add pred_k pred_rule_irs !t;
+                             g := Graph.succ_seq rule_ir.k !g
+                                  |> Seq.fold_left (fun g succ ->
+                                      Graph.add_edge (pred_k, succ) g
+                                    )
+                                    !g;
                            )
                        );
                      t := remove rule_ir !t;
@@ -619,9 +628,9 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   (g, rule_irs)
-  |> Rule_IR_store.compress_start_rules spec
-  |> Rule_IR_store.remove_end_rules spec
   |> Rule_IR_store.compress_middle_empty_rules_StF_StF spec
   |> Rule_IR_store.compress_middle_empty_rules_StF_StB spec
+  |> Rule_IR_store.remove_end_rules spec
+  |> Rule_IR_store.compress_start_rules spec
   |> (fun (_g, t) -> Rule_IR_store.to_seq t)
   |> Seq.map (Rule_IR.to_decl spec)
