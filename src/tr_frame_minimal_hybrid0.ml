@@ -361,17 +361,14 @@ module Rule_IR_store = struct
           let succ_irs =
             Int_map.find succ t
             |> List.map (fun (succ_ir : Rule_IR.t) ->
-                let entry_fact =
-                  Option.map rewrite_state_fact_ir succ_ir.entry_fact
-                in
                 let exit_fact =
                   Option.map rewrite_state_fact_ir succ_ir.exit_fact
                 in
-                let l = List.map rewrite_term succ_ir.l in
+                let l = start_ru.l @ List.map rewrite_term succ_ir.l in
                 let a = List.map rewrite_term succ_ir.a in
                 let r = List.map rewrite_term succ_ir.r in
                 { succ_ir with
-                  entry_fact;
+                  entry_fact = None;
                   exit_fact;
                   l;
                   a;
