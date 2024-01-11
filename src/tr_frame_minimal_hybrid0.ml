@@ -351,7 +351,58 @@ module Rule_IR_store = struct
       )
       (g, t)
 
-  let optimize_empty_rules ~entry_bias ~exit_bias
+  let compress_start_rules
+      (spec : Spec.t) ((g, t) : Tg_graph.t * t)
+    : Tg_graph.t * t =
+    let rewrite_term (x : Tg_ast.term) =
+      Term.replace_free_vars_via_name_strs_in_term
+        [ (placeholder_var_name_of_cell Params.pid_cell_name,
+           T_var (Path.of_string Params.pid_cell_name, `Global 0, Some `Fresh)) ]
+        x
+    in
+    let rewrite_state_fact_ir ({ bias; k; frame } : State_fact_IR.t) : State_fact_IR.t =
+      { bias;
+        k;
+        frame = List.map rewrite_term frame;
+      }
+    in
+    Graph.roots g
+    |> Seq.fold_left (fun ((g, t) : Tg_graph.t * t) k ->
+        let start_ru = Graph.find k g in
+        let succs = Graph.succ k g in
+        if Int_set.cardinal succs = 1 then (
+          let succ = Int_set.min_elt succs in
+          let succ_irs =
+            Int_map.find succ t
+            |> List.map (fun (succ_ir : Rule_IR.t) ->
+                let entry_fact =
+                  Option.map rewrite_state_fact_ir succ_ir.entry_fact
+                in
+                let exit_fact =
+                  Option.map rewrite_state_fact_ir succ_ir.exit_fact
+                in
+                let l = List.map rewrite_term succ_ir.l in
+                let a = List.map rewrite_term succ_ir.a in
+                let r = List.map rewrite_term succ_ir.r in
+                { succ_ir with
+                  entry_fact;
+                  exit_fact;
+                  l;
+                  a;
+                  r;
+                }
+              )
+          in
+          (Graph.remove_vertex k g,
+           Int_map.remove k t
+           |> Int_map.add succ succ_irs)
+        ) else (
+          (g, t)
+        )
+      )
+      (g, t)
+
+  let compress_middle_empty_rules ~entry_bias ~exit_bias
       (spec : Spec.t) ((g, t) : Tg_graph.t * t)
     : Tg_graph.t * t =
     let exception Break in
@@ -426,11 +477,11 @@ module Rule_IR_store = struct
     aux ();
     (!g, !t)
 
-  let optimize_empty_rules_StF_StF spec (g, t) =
-    optimize_empty_rules ~entry_bias:`Forward ~exit_bias:`Forward spec (g, t)
+  let compress_middle_empty_rules_StF_StF spec (g, t) =
+    compress_middle_empty_rules ~entry_bias:`Forward ~exit_bias:`Forward spec (g, t)
 
-  let optimize_empty_rules_StF_StB spec (g, t) =
-    optimize_empty_rules ~entry_bias:`Forward ~exit_bias:`Backward spec (g, t)
+  let compress_middle_empty_rules_StF_StB spec (g, t) =
+    compress_middle_empty_rules ~entry_bias:`Forward ~exit_bias:`Backward spec (g, t)
 end
 
 let start_tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Rule_IR_store.t =
@@ -550,8 +601,9 @@ let tr (binding : Tg_ast.proc Binding.t) (spec : Spec.t) : Tg_ast.decl Seq.t =
   in
   let g = Name_map.find (Binding.name binding) spec.proc_graphs in
   (g, rule_irs)
+  |> Rule_IR_store.compress_start_rules spec
   |> Rule_IR_store.remove_empty_rule_leaves spec
-  |> Rule_IR_store.optimize_empty_rules_StF_StF spec
-  |> Rule_IR_store.optimize_empty_rules_StF_StB spec
+  |> Rule_IR_store.compress_middle_empty_rules_StF_StF spec
+  |> Rule_IR_store.compress_middle_empty_rules_StF_StB spec
   |> (fun (_g, t) -> Rule_IR_store.to_seq t)
   |> Seq.map (Rule_IR.to_decl spec)

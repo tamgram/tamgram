@@ -5,9 +5,12 @@ let pp_name_of_proc formatter (binding : 'a Binding.t) =
      | `Global x -> x
      | _ -> failwith "Unexpected case")
 
+let placeholder_var_name_of_cell (c : string) : string =
+  Printf.sprintf "%s%s" Params.cell_name_prefix c
+
 let placeholder_var_of_cell (c : string) : Tg_ast.term =
   T_var
-    (Path.of_string (Printf.sprintf "%s%s" Params.cell_name_prefix c),
+    (Path.of_string (placeholder_var_name_of_cell c),
      `Global 0,
      None)
 
