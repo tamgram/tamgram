@@ -25,7 +25,7 @@ rule reader_34___NoneTo4To5___reader1:
     , Out(~r1_29)
     ]
 
-rule reader_34___ManyTo5To6___reader2:
+rule reader_34___ManyTo5ToNone___reader2:
     [ StF(~pid, 'tgk5', <~u_tgany0_33>)
     , !Reader_21(~k_31, ~id_32)
     , In(xoredhash_30)
@@ -33,7 +33,7 @@ rule reader_34___ManyTo5To6___reader2:
   --[ Alive_27(~k_31, 'Tag')
     , Eq_28(xoredhash_30, ((~id_32) XOR (h(<~u_tgany0_33, ~k_31>))))
     ]->
-    [ StF(~pid, 'tgk6', 'empty_tuple')
+    [ 
     ]
 
 rule tag_40___NoneTo8To9___tag1:

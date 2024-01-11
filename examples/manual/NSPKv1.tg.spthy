@@ -119,14 +119,9 @@ rule A_85___ManyTo10To11:
   [StF(~pid, 'tgk10', <tgc_KPdst_0, tgc_Na_0, tgc_dst_0, <tgc_Na_0, Ndst_84>>)]--[]->[StF(
 ~pid, 'tgk11', <tgc_KPdst_0, tgc_Na_0, Ndst_84, tgc_dst_0>)]
 
-rule A_85___ManyTo11To12:
-    [ StF(~pid, 'tgk11', <tgc_KPdst_0, tgc_Na_0, tgc_Ndst_0, tgc_dst_0>)
-    ]
-  --[ A_end_39('A', tgc_dst_0, tgc_Na_0, tgc_Ndst_0)
-    ]->
-    [ StF(~pid, 'tgk12', 'empty_tuple')
-    , Out(aenc(tgc_Ndst_0, tgc_KPdst_0))
-    ]
+rule A_85___ManyTo11ToNone:
+  [StF(~pid, 'tgk11', <tgc_KPdst_0, tgc_Na_0, tgc_Ndst_0, tgc_dst_0>)]--[A_end_39(
+'A', tgc_dst_0, tgc_Na_0, tgc_Ndst_0)]->[Out(aenc(tgc_Ndst_0, tgc_KPdst_0))]
 
 rule B_96___NoneTo14To15:
     [ Fr(~pid)
@@ -187,13 +182,13 @@ rule B_96___ManyTo20To21:
     , Out(aenc(<tgc_Ndst_0, ~Nb_95>, tgc_KPdst_0))
     ]
 
-rule B_96___ManyTo21To22:
+rule B_96___ManyTo21ToNone:
     [ StF(~pid, 'tgk21', <tgc_KPb_0, tgc_Nb_0, tgc_Ndst_0, tgc_dst_0>)
     , In(aenc(tgc_Nb_0, tgc_KPb_0))
     ]
   --[ B_end_40(tgc_dst_0, 'B', tgc_Ndst_0, tgc_Nb_0)
     ]->
-    [ StF(~pid, 'tgk22', 'empty_tuple')
+    [ 
     ]
 
 rule S_103___NoneTo24To27:

@@ -26,15 +26,14 @@ rule reader_34___NoneTo4To5___initiatereader:
     , Out(~r0_29)
     ]
 
-rule reader_34___ManyTo5To6___acceptreader:
+rule reader_34___ManyTo5ToNone___acceptreader:
     [ StF(~pid, 'tgk5', <~u_tgany0_33, ~u_tgany1_32>)
     , In(<r1_31, h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))>)
     ]
   --[ Commit_23(<'R', 'T', <~u_tgany0_33, ~u_tgany1_32, r1_31>>)
     , Running_26(<'T', 'R', <~u_tgany0_33, ~u_tgany1_32, r1_31>>)
     ]->
-    [ StF(~pid, 'tgk6', 'empty_tuple')
-    , Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
+    [ Out(h(((((h(((((~u_tgany1_32) XOR (r1_31))) XOR (~u_tgany0_33)))) XOR (~u_tgany0_33))) XOR (~u_tgany1_32))))
     ]
 
 rule tag_40___NoneTo8To9___tag1:
@@ -49,14 +48,14 @@ rule tag_40___NoneTo8To9___tag1:
     , Out(<~r1_35, h(((((r0_36) XOR (~r1_35))) XOR (~k_37)))>)
     ]
 
-rule tag_40___ManyTo9To10___accepttag:
+rule tag_40___ManyTo9ToNone___accepttag:
     [ StF(~pid, 'tgk9', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>)
     , In(h(((((h(((((tgc_r0_0) XOR (~u_tgany3_38))) XOR (~u_tgany2_39)))) XOR (~u_tgany2_39))) XOR (tgc_r0_0))))
     ]
   --[ Commit_23(<'T', 'R', <~u_tgany2_39, tgc_r0_0, ~u_tgany3_38>>)
     , FinTag_24()
     ]->
-    [ StF(~pid, 'tgk10', 'empty_tuple')
+    [ 
     ]
 
 lemma executable []:

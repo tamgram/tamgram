@@ -36,11 +36,14 @@ rule S_27___13To9To12:
   [StB(~pid, 'tgk13', <tgc_i_0, tgc_kb_0>)]--[TgCellNeq(tgc_i_0, '5')]->[StF(
 ~pid, 'tgk12', <tgc_i_0, tgc_kb_0>)]
 
-rule S_27___8To10To16:
-  [StB(~pid, 'tgk8', <'5', tgc_kb_0>)]--[]->[StF(~pid, 'tgk16', 'empty_tuple')]
+rule S_27___8To10To11:
+  [StB(~pid, 'tgk8', <'5', tgc_kb_0>)]--[]->[StF(~pid, 'tgk11', 'empty_tuple')]
 
-rule S_27___13To10To16:
-  [StB(~pid, 'tgk13', <'5', tgc_kb_0>)]--[]->[StF(~pid, 'tgk16', 'empty_tuple')]
+rule S_27___13To10To11:
+  [StB(~pid, 'tgk13', <'5', tgc_kb_0>)]--[]->[StF(~pid, 'tgk11', 'empty_tuple')]
+
+rule S_27___ManyTo11To14:
+  [StF(~pid, 'tgk11', 'empty_tuple')]--[]->[StF(~pid, 'tgk14', 'empty_tuple')]
 
 rule S_27___ManyTo12ToMany:
     [ StF(~pid, 'tgk12', <tgc_i_0, tgc_kb_0>)
@@ -51,6 +54,12 @@ rule S_27___ManyTo12ToMany:
     [ StB(~pid, 'tgk13', <((tgc_i_0) + ('1')), tgc_kb_0>)
     , Out(senc(m_26, tgc_kb_0))
     ]
+
+rule S_27___ManyTo14To15:
+  [StF(~pid, 'tgk14', 'empty_tuple')]--[]->[StF(~pid, 'tgk15', 'empty_tuple')]
+
+rule S_27___ManyTo15ToNone:
+  [StF(~pid, 'tgk15', 'empty_tuple')]--[]->[]
 
 restriction tg_cell_neq_restriction:
   "not Ex x_29 #i_28 .

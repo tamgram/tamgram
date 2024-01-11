@@ -36,7 +36,7 @@ rule I_45___NoneTo7To8___I_1:
     , Out(aenc(<'1', ~ni_37, $I>, pkR_36))
     ]
 
-rule I_45___ManyTo8To9___I_2:
+rule I_45___ManyTo8ToNone___I_2:
     [ StF(~pid, 'tgk8', <tgc_I_0, tgc_R_0, tgc_ni_0>)
     , !Ltk_22(tgc_I_0, ltkI_41)
     , In(aenc(<'2', tgc_ni_0, x_39>, pk(ltkI_41)))
@@ -46,8 +46,7 @@ rule I_45___ManyTo8To9___I_2:
     , Commit_31(tgc_I_0, tgc_R_0, <'init', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
     , Running_32(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, ((x_39) XOR (tgc_R_0))>)
     ]->
-    [ StF(~pid, 'tgk9', 'empty_tuple')
-    , Out(aenc(<'3', ((x_39) XOR (tgc_R_0))>, pkR_40))
+    [ Out(aenc(<'3', ((x_39) XOR (tgc_R_0))>, pkR_40))
     , Secret_33(tgc_I_0, tgc_R_0, ((x_39) XOR (tgc_R_0)))
     , Secret_33(tgc_I_0, tgc_R_0, tgc_ni_0)
     ]
@@ -67,15 +66,14 @@ rule R_56___NoneTo11To12___R_1:
     , Out(aenc(<'2', ni_50, ((~nr_49) XOR ($R))>, pkI_48))
     ]
 
-rule R_56___ManyTo12To13___R_2:
+rule R_56___ManyTo12ToNone___R_2:
     [ StF(~pid, 'tgk12', <tgc_I_0, tgc_R_0, tgc_ni_0, tgc_nr_0>)
     , !Ltk_22(tgc_R_0, ltkR_55)
     , In(aenc(<'3', tgc_nr_0>, pk(ltkR_55)))
     ]
   --[ Commit_31(tgc_R_0, tgc_I_0, <'resp', tgc_ni_0, tgc_nr_0>)
     ]->
-    [ StF(~pid, 'tgk13', 'empty_tuple')
-    , Secret_33(tgc_R_0, tgc_I_0, tgc_nr_0)
+    [ Secret_33(tgc_R_0, tgc_I_0, tgc_nr_0)
     , Secret_33(tgc_R_0, tgc_I_0, tgc_ni_0)
     ]
 

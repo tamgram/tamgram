@@ -24,7 +24,7 @@ rule initiator_36___NoneTo4To5___initiator:
     , Out(~na_31)
     ]
 
-rule initiator_36___ManyTo5To6___initiator2:
+rule initiator_36___ManyTo5ToNone___initiator2:
     [ StF(~pid, 'tgk5', <~u_tgany0_35>)
     , !InitLTK_21(~k_34)
     , In(<m_33, nb_32>)
@@ -32,7 +32,7 @@ rule initiator_36___ManyTo5To6___initiator2:
   --[ Alive_25(~u_tgany0_35, ~k_34)
     , Eq_23(h(((((~u_tgany0_35) XOR (~k_34))) XOR (nb_32))), m_33)
     ]->
-    [ StF(~pid, 'tgk6', 'empty_tuple')
+    [ 
     ]
 
 rule responder_40___NoneTo8To9:
