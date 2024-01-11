@@ -14,16 +14,6 @@ let rule_is_empty (spec : Spec.t) (g : Tg_graph.t) (k : int) =
   cell_pat_matches = []
   && ru.l = [] && ru.a = [] && ru.r = []
 
-let has_empty_succ (spec : Spec.t) (g : Tg_graph.t) (k : int) =
-  let s =
-    Graph.succ k g
-    |> Int_set.to_seq
-    |> Seq.filter (fun succ -> rule_is_empty spec g succ)
-  in
-  match s () with
-  | Seq.Nil -> false
-  | _ -> true
-
 module State_fact_IR = struct
   type t = {
     bias : exit_bias;
@@ -424,6 +414,22 @@ module Rule_IR_store = struct
       )
       (g, t)
 
+  let has_empty_non_end_succ (spec : Spec.t) (g : Tg_graph.t) (t : t) (k : int) =
+    let leaves = Int_set.of_seq (Graph.leaves g) in
+    let s =
+      Graph.succ k g
+      |> Int_set.to_seq
+      |> Seq.filter (fun succ ->
+          rule_is_empty spec g succ
+          &&
+          not (Int_set.mem succ leaves)
+        )
+    in
+    match s () with
+    | Seq.Nil -> false
+    | _ -> true
+
+
   let compress_middle_empty_rules ~entry_bias ~exit_bias
       (spec : Spec.t) ((g, t) : Tg_graph.t * t)
     : Tg_graph.t * t =
@@ -448,7 +454,7 @@ module Rule_IR_store = struct
          |> Seq.iter (fun (rule_ir : Rule_IR.t) ->
              if Option.is_some (Graph.find_opt rule_ir.k !g)
              && rule_is_empty spec !g rule_ir.k
-             && not (has_empty_succ spec !g rule_ir.k) then (
+             && not (has_empty_non_end_succ spec !g !t rule_ir.k) then (
                match rule_ir.entry_fact, rule_ir.exit_fact with
                | Some entry_fact, Some exit_fact -> (
                    if entry_fact.bias = entry_bias && exit_fact.bias = exit_bias then (
