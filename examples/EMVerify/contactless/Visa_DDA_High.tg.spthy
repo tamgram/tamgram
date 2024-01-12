@@ -285,11 +285,8 @@ rule Create_Card_Visa_183___NoneTo62ToNone:
     , Set_PIN_83(~PAN_178, 'OnlinePIN', $CA, $Bank)
     ]
 
-rule Card_Visa_245___NoneTo64ToMany:
-  [Fr(~pid)]--[]->[StB(~pid, 'tgk65', 'empty_tuple')]
-
-rule Card_Visa_245___65To66ToMany___Card_Responds_To_GPO_EMV_Visa:
-    [ StB(~pid, 'tgk65', 'empty_tuple')
+rule Card_Visa_245___NoneTo66ToMany___Card_Responds_To_GPO_EMV_Visa:
+    [ Fr(~pid)
     , In(<'GET_PROCESSING_OPTIONS', <<acType_190, CVM_194>, amount_189, country_188, currency_187, date_186, type_184, UN_191>>)
     , !Shk_67(~PAN_192, ~MK_193)
     , !AID_90(~PAN_192, 'Visa')
@@ -307,8 +304,8 @@ rule Card_Visa_245___65To66ToMany___Card_Responds_To_GPO_EMV_Visa:
     , Out(<<'EMV', $furtherData>, 'AFL', <~PAN_192, ~expDate_185>, <'IAD', 'ARQC'>, MAC_29(f_28(~MK_193, ATC_195), <<<acType_190, CVM_194>, amount_189, country_188, currency_187, date_186, type_184, UN_191>, <'EMV', $furtherData>, ATC_195, <'IAD', 'ARQC'>>), 'ARQC', ATC_195, CVM_194>)
     ]
 
-rule Card_Visa_245___65To68ToMany___Card_Responds_To_GPO_DDA_Visa:
-    [ StB(~pid, 'tgk65', 'empty_tuple')
+rule Card_Visa_245___NoneTo68ToMany___Card_Responds_To_GPO_DDA_Visa:
+    [ Fr(~pid)
     , In(<'GET_PROCESSING_OPTIONS', <<CID_214, CVM_213>, amount_209, country_208, currency_207, date_206, type_204, UN_210>>)
     , !Shk_67(~PAN_211, ~MK_212)
     , !AID_90(~PAN_211, 'Visa')
@@ -500,11 +497,8 @@ rule Terminal_362___ManyTo104ToNone___Terminal_Receives_AC_CDA:
     [ Send_32($Terminal, $Bank, <~channelID_350, 'Mastercard', '1'>, <<~u_tgany9_351, tgc_AIP_0, tgc_CVM_0, <<$amount, country_349, currency_348, date_347, type_345, ~UN_353>, u_tgany10_352>, ATC_357, AC_358, IAD_355>, tgc_encPIN_0>)
     ]
 
-rule Terminal_Visa_462___NoneTo108ToMany:
-  [Fr(~pid)]--[]->[StB(~pid, 'tgk109', 'empty_tuple')]
-
-rule Terminal_Visa_462___109To110To115___Terminal_Sends_GPO_Low_Visa:
-    [ StB(~pid, 'tgk109', 'empty_tuple')
+rule Terminal_Visa_462___NoneTo110To115___Terminal_Sends_GPO_Low_Visa:
+    [ Fr(~pid)
     , Fr(~UN_363)
     , !Value_35($amount, 'Low')
     ]
@@ -515,8 +509,8 @@ rule Terminal_Visa_462___109To110To115___Terminal_Sends_GPO_Low_Visa:
     , Out(<'GET_PROCESSING_OPTIONS', <<'TC', 'NoPIN'>, $amount, 'Switzerland', 'CHF', 'YYMMDD', 'Purchase', ~UN_363>>)
     ]
 
-rule Terminal_Visa_462___109To112To115___Terminal_Sends_GPO_High_Visa:
-    [ StB(~pid, 'tgk109', 'empty_tuple')
+rule Terminal_Visa_462___NoneTo112To115___Terminal_Sends_GPO_High_Visa:
+    [ Fr(~pid)
     , Fr(~UN_370)
     , !Value_35($amount, 'High')
     ]
@@ -626,11 +620,8 @@ rule Terminal_Visa_462___131To134ToNone___Terminal_Commits_ARQC_Visa:
     [ 
     ]
 
-rule Bank_506___NoneTo138ToMany:
-  [Fr(~pid)]--[]->[StB(~pid, 'tgk139', 'empty_tuple')]
-
-rule Bank_506___139To140ToNone___Bank_Receives_AC_Failed:
-    [ StB(~pid, 'tgk139', 'empty_tuple')
+rule Bank_506___NoneTo140ToNone___Bank_Receives_AC_Failed:
+    [ Fr(~pid)
     , Recv_33($Terminal, $Bank, <channelID_466, 'Mastercard', '1'>, <<~PAN_468, AIP_473, CVM_471, X_467, ATC_472, AC_474, IAD_470>, encPIN_465>)
     , !Shk_67(~PAN_468, ~MK_469)
     ]
@@ -640,8 +631,8 @@ rule Bank_506___139To140ToNone___Bank_Receives_AC_Failed:
     [ 
     ]
 
-rule Bank_506___139To142ToMany___Bank_Receives_AC:
-    [ StB(~pid, 'tgk139', 'empty_tuple')
+rule Bank_506___NoneTo142ToMany___Bank_Receives_AC:
+    [ Fr(~pid)
     , Recv_33($Terminal, $Bank, <channelID_478, 'Mastercard', '1'>, <<~PAN_480, AIP_485, CVM_483, X_479, ATC_484, MAC_29(f_28(~MK_481, ATC_484), <X_479, AIP_485, ATC_484, IAD_482>), IAD_482>, encPIN_477>)
     , !Shk_67(~PAN_480, ~MK_481)
     , !IssuingBank_66(~PAN_480, $Bank)
@@ -671,11 +662,8 @@ rule Bank_506___143To146ToNone___Bank_Processes_CVM_OnlinePIN:
     [ 
     ]
 
-rule Bank_Visa_568___NoneTo152ToMany:
-  [Fr(~pid)]--[]->[StB(~pid, 'tgk153', 'empty_tuple')]
-
-rule Bank_Visa_568___153To154ToNone___Bank_Receives_AC_Failed_Visa:
-    [ StB(~pid, 'tgk153', 'empty_tuple')
+rule Bank_Visa_568___NoneTo154ToNone___Bank_Receives_AC_Failed_Visa:
+    [ Fr(~pid)
     , Recv_33($Terminal, $Bank, <channelID_509, 'Visa', '1'>, <<~PAN_511, AIP_516, CVM_514, PDOL_510, ATC_515, AC_517, IAD_513>, encPIN_508>)
     , !Shk_67(~PAN_511, ~MK_512)
     ]
@@ -685,8 +673,8 @@ rule Bank_Visa_568___153To154ToNone___Bank_Receives_AC_Failed_Visa:
     [ 
     ]
 
-rule Bank_Visa_568___153To156ToMany___Bank_Receives_AC_Visa:
-    [ StB(~pid, 'tgk153', 'empty_tuple')
+rule Bank_Visa_568___NoneTo156ToMany___Bank_Receives_AC_Visa:
+    [ Fr(~pid)
     , Recv_33($Terminal, $Bank, <channelID_521, 'Visa', '1'>, <<~PAN_523, AIP_528, CVM_526, PDOL_522, ATC_527, MAC_29(f_28(~MK_524, ATC_527), <PDOL_522, AIP_528, ATC_527, IAD_525>), IAD_525>, encPIN_520>)
     , !Shk_67(~PAN_523, ~MK_524)
     , !IssuingBank_66(~PAN_523, $Bank)
