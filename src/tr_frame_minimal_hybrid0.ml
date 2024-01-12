@@ -345,34 +345,34 @@ module Rule_IR_store = struct
     Graph.roots g
     |> Seq.fold_left (fun ((g, t) : Tg_graph.t * t) k ->
         let start_ru = Graph.find k g in
-        let succs = Graph.succ k g in
-        if Int_set.cardinal succs = 1 then (
-          let succ = Int_set.min_elt succs in
-          let succ_irs =
-            Int_map.find succ t
-            |> List.map (fun (succ_ir : Rule_IR.t) ->
-                let exit_fact =
-                  Option.map rewrite_state_fact_ir succ_ir.exit_fact
-                in
-                let l = start_ru.l @ List.map rewrite_term succ_ir.l in
-                let a = List.map rewrite_term succ_ir.a in
-                let r = List.map rewrite_term succ_ir.r in
-                { succ_ir with
-                  pred = `None;
-                  entry_fact = None;
-                  exit_fact;
-                  l;
-                  a;
-                  r;
-                }
-              )
-          in
-          (Graph.remove_vertex k g,
-           Int_map.remove k t
-           |> Int_map.add succ succ_irs)
-        ) else (
-          (g, t)
-        )
+        let t =
+          Graph.succ_seq k g
+          |> Seq.fold_left (fun (t : t) succ ->
+              let succ_irs =
+                Int_map.find succ t
+                |> List.map (fun (succ_ir : Rule_IR.t) ->
+                    let exit_fact =
+                      Option.map rewrite_state_fact_ir succ_ir.exit_fact
+                    in
+                    let l = start_ru.l @ List.map rewrite_term succ_ir.l in
+                    let a = List.map rewrite_term succ_ir.a in
+                    let r = List.map rewrite_term succ_ir.r in
+                    { succ_ir with
+                      pred = `None;
+                      entry_fact = None;
+                      exit_fact;
+                      l;
+                      a;
+                      r;
+                    }
+                  )
+              in
+              Int_map.add succ succ_irs t
+            )
+            t
+        in
+        (Graph.remove_vertex k g,
+         Int_map.remove k t)
       )
       (g, t)
 
